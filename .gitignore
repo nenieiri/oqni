@@ -1,0 +1,6 @@
+**.DS_Store
+*.sw[po]
+*.a
+*.o
+a.out
+.vscode/
