@@ -3,6 +3,7 @@
 #include <netinet/in.h>
 #include <iostream>
 #include <unistd.h>
+#include <strings.h>
 #include <map>
 #include <vector>
 
