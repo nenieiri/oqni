@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/">
         <file>Imgs/oqni.ico</file>
+        <file>Imgs/background.png</file>
     </qresource>
 </RCC>
