@@ -1,8 +1,4 @@
 #include "mainwindow.h"
-#include "../ui_mainwindow.h"
-
-#include <QApplication>
-#include <QScreen>
     
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -24,13 +20,22 @@ MainWindow::MainWindow(QWidget *parent)
     
     /* ---------------------------------------------------- */
     
+    /* ------------- background, icon, and title ---------- */
+    
     this->setWindowTitle("OQNI: COM port reader");
     
     this->setWindowIcon(QIcon(":/Imgs/oqni.ico"));
     this->setWindowFilePath(":/Imgs/oqni.ico");
     
     QString background = ":/Imgs/background.png";
-    this->setStyleSheet("background-color: #CCD6DD; background-image: url(" + background + "); background-repeat: no-repeat; background-position: center;");
+    this->setStyleSheet("background-image: url(" + background + ");");
+    
+    /* ---------------------------------------------------- */
+    
+    this->_buttonCheck = new QPushButton("Check connected ports", this);
+    this->_buttonCheck->setGeometry(30, 30, 200, 30);
+    //connect();
+    
 }
 
 MainWindow::~MainWindow()

@@ -1,7 +1,11 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include <QApplication>
 #include <QMainWindow>
+#include <QScreen>
+#include <QPushButton>
+#include "../ui_mainwindow.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -16,6 +20,8 @@ class MainWindow : public QMainWindow
         ~MainWindow();
         
     private:
-        Ui::MainWindow *ui;
+        Ui::MainWindow  *ui;
+        QPushButton     *_buttonCheck;
 };
+
 #endif // MAINWINDOW_H
