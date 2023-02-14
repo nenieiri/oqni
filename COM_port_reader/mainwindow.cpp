@@ -9,6 +9,7 @@ MainWindow::MainWindow(QWidget *parent)
     this->setWindowTitle("OQNI: COM port reader");
     
     this->setWindowIcon(QIcon(":/Imgs/oqni.ico"));
+    this->setWindowFilePath(":/Imgs/oqni.ico");
 }
 
 MainWindow::~MainWindow()
