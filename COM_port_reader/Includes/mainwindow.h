@@ -8,6 +8,7 @@
 #include <QLabel>
 #include <QMovie>
 #include <QTimer>
+#include <QGroupBox>
 #include "../ui_mainwindow.h"
 
 QT_BEGIN_NAMESPACE
@@ -27,6 +28,7 @@ class MainWindow : public QMainWindow
         QPushButton     *_buttonCheck;
         QLabel          *_gifLabel;
         QMovie          *_gifMovie;
+        QGroupBox       *_groupBox;
 };
 
 #endif // MAINWINDOW_H

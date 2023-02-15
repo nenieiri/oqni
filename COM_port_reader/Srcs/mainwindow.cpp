@@ -39,7 +39,7 @@ MainWindow::MainWindow(QWidget *parent)
     this->_buttonCheck->setCursor(Qt::PointingHandCursor);
     this->_buttonCheck->setStyleSheet("QPushButton {border-radius: 6px; \
                                       color: black; \
-                                      border: 1px solid #0078D4; \
+                                      border: 1px solid gray; \
                                       background: #6FD5CA;} \
                                       QPushButton:hover {border-radius: 6px; \
                                       color: black; \
@@ -68,7 +68,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(this->_buttonCheck, &QPushButton::clicked, this->_buttonCheck, [=]() {
         this->_buttonCheck->setStyleSheet("QPushButton {border-radius: 6px; \
                                           color: black; \
-                                          border: 1px solid #0078D4; \
+                                          border: 1px solid gray; \
                                           background: #6FD5CA;} \
                                           QPushButton:hover {border-radius: 6px; \
                                           color: black; \
@@ -81,7 +81,7 @@ MainWindow::MainWindow(QWidget *parent)
     /* ---------------- Button functional ----------------- */
     
     this->_gifLabel = new QLabel(this);
-    this->_gifLabel->setGeometry(20, 40, 180, 180);
+    this->_gifLabel->setGeometry(21, 90, 170, 170);
     this->_gifLabel->stackUnder(this->_buttonCheck);
     this->_gifLabel->hide();
     
@@ -89,7 +89,16 @@ MainWindow::MainWindow(QWidget *parent)
     this->_gifMovie->setScaledSize(this->_gifLabel->size());
     
     this->_gifLabel->setMovie(this->_gifMovie);
-    
+    this->_gifLabel->setStyleSheet("background: #e6e6e6;");
+
+    /* ---------------------------------------------------- */
+
+    /* ---------------- adding GroupBox ------------------- */
+
+    this->_groupBox = new QGroupBox("Connected COM ports", this);
+    this->_groupBox->setGeometry(20, 70, 180, 300);
+    this->_groupBox->stackUnder(this->_gifLabel);
+    this->_groupBox->setStyleSheet("border: 1px solid gray; background: #e6e6e6;");
     
 }
 
