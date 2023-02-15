@@ -51,12 +51,19 @@ MainWindow::MainWindow(QWidget *parent)
                                           color: blue; \
                                           border: 1px solid #0078D4; \
                                           background: white;");
+        this->_gifLabel->show();
+        this->_gifMovie->start();
+        QTimer::singleShot(3000, this->_gifLabel, &QLabel::hide);
     });
     connect(this->_buttonCheck, &QPushButton::released, this->_buttonCheck, [=]() {
-        this->_buttonCheck->setStyleSheet("border-radius: 6px; \
+        this->_buttonCheck->setStyleSheet("QPushButton {border-radius: 6px; \
                                           color: black; \
                                           border: 1px solid #0078D4; \
-                                          background: #6FD5CA;");
+                                          background: #6FD5CA;} \
+                                          QPushButton:hover {border-radius: 6px; \
+                                          color: black; \
+                                          border: 1px solid #0078D4; \
+                                          background: #B9E8E2;}");
     });
     connect(this->_buttonCheck, &QPushButton::clicked, this->_buttonCheck, [=]() {
         this->_buttonCheck->setStyleSheet("QPushButton {border-radius: 6px; \
@@ -68,10 +75,29 @@ MainWindow::MainWindow(QWidget *parent)
                                           border: 1px solid #0078D4; \
                                           background: #B9E8E2;}");
     });
+    
+    /* ---------------------------------------------------- */
+    
+    /* ---------------- Button functional ----------------- */
+    
+    this->_gifLabel = new QLabel(this);
+    this->_gifLabel->setGeometry(20, 40, 180, 180);
+    this->_gifLabel->stackUnder(this->_buttonCheck);
+    this->_gifLabel->hide();
+    
+    this->_gifMovie = new QMovie(":/Imgs/loading.gif");
+    this->_gifMovie->setScaledSize(this->_gifLabel->size());
+    
+    this->_gifLabel->setMovie(this->_gifMovie);
+    
+    
 }
 
 MainWindow::~MainWindow()
 {
+    delete _buttonCheck;
+    delete _gifLabel;
+    delete _gifMovie;
     delete ui;
 }
 
