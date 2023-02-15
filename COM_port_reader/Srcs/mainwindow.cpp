@@ -32,10 +32,42 @@ MainWindow::MainWindow(QWidget *parent)
     
     /* ---------------------------------------------------- */
     
-    this->_buttonCheck = new QPushButton("Check connected ports", this);
-    this->_buttonCheck->setGeometry(30, 30, 200, 30);
-    //connect();
+    /* ------------------- Button design ------------------ */
     
+    this->_buttonCheck = new QPushButton("Check connected ports", this);
+    this->_buttonCheck->setGeometry(20, 30, 180, 30);
+    this->_buttonCheck->setCursor(Qt::PointingHandCursor);
+    this->_buttonCheck->setStyleSheet("QPushButton {border-radius: 6px; \
+                                      color: black; \
+                                      border: 1px solid #0078D4; \
+                                      background: #6FD5CA;} \
+                                      QPushButton:hover {border-radius: 6px; \
+                                      color: black; \
+                                      border: 1px solid #0078D4; \
+                                      background: #B9E8E2;}");
+
+    connect(this->_buttonCheck, &QPushButton::pressed, this->_buttonCheck, [=]() {
+        this->_buttonCheck->setStyleSheet("border-radius: 6px; \
+                                          color: blue; \
+                                          border: 1px solid #0078D4; \
+                                          background: white;");
+    });
+    connect(this->_buttonCheck, &QPushButton::released, this->_buttonCheck, [=]() {
+        this->_buttonCheck->setStyleSheet("border-radius: 6px; \
+                                          color: black; \
+                                          border: 1px solid #0078D4; \
+                                          background: #6FD5CA;");
+    });
+    connect(this->_buttonCheck, &QPushButton::clicked, this->_buttonCheck, [=]() {
+        this->_buttonCheck->setStyleSheet("QPushButton {border-radius: 6px; \
+                                          color: black; \
+                                          border: 1px solid #0078D4; \
+                                          background: #6FD5CA;} \
+                                          QPushButton:hover {border-radius: 6px; \
+                                          color: black; \
+                                          border: 1px solid #0078D4; \
+                                          background: #B9E8E2;}");
+    });
 }
 
 MainWindow::~MainWindow()
