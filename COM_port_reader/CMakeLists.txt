@@ -18,8 +18,10 @@ set(PROJECT_SOURCES
         Srcs/main.cpp
         Srcs/mainwindow.cpp
         Includes/mainwindow.h
+        Includes/comport.hpp
+        Srcs/comport.cpp
         mainwindow.ui
-		ResourceFiles.qrc
+        ResourceFiles.qrc
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

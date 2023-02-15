@@ -9,7 +9,9 @@
 #include <QMovie>
 #include <QTimer>
 #include <QGroupBox>
+#include <QVector>
 #include "../ui_mainwindow.h"
+#include "comport.hpp"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -24,11 +26,12 @@ class MainWindow : public QMainWindow
         ~MainWindow();
         
     private:
-        Ui::MainWindow  *ui;
-        QPushButton     *_buttonCheck;
-        QLabel          *_gifLabel;
-        QMovie          *_gifMovie;
-        QGroupBox       *_groupBox;
+        Ui::MainWindow      *ui;
+        QPushButton         *_buttonCheck;
+        QLabel              *_gifLabel;
+        QMovie              *_gifMovie;
+        QGroupBox           *_groupBox;
+        QVector<ComPort *>   _comPorts;
 };
 
 #endif // MAINWINDOW_H
