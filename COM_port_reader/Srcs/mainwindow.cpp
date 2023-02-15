@@ -6,6 +6,8 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
     
+    this->_portCount = 0;
+    
     /* ------ put window to the center of the screen ------ */
     
     QScreen *screen = QApplication::primaryScreen();
@@ -54,6 +56,8 @@ MainWindow::MainWindow(QWidget *parent)
         this->_gifLabel->show();
         this->_gifMovie->start();
         QTimer::singleShot(3000, this->_gifLabel, &QLabel::hide);
+        this->_portCount = 1;
+        QTimer::singleShot(3000, this, &MainWindow::createCheckBox);
     });
     connect(this->_buttonCheck, &QPushButton::released, this->_buttonCheck, [=]() {
         this->_buttonCheck->setStyleSheet("QPushButton {border-radius: 6px; \
@@ -99,7 +103,7 @@ MainWindow::MainWindow(QWidget *parent)
     this->_groupBox->setGeometry(20, 70, 180, 300);
     this->_groupBox->stackUnder(this->_gifLabel);
     this->_groupBox->setStyleSheet("border: 1px solid gray; background: #e6e6e6;");
-    
+
 }
 
 MainWindow::~MainWindow()
@@ -110,3 +114,16 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+void    MainWindow::createCheckBox()
+{
+    for (int i = 0; i < this->_portCount; ++i)
+        this->_comPorts.push_back(ComPort("ftffygyt", this->_groupBox));
+    
+    for (QVector<ComPort>::iterator it = _comPorts.begin(); it < _comPorts.end(); ++it)
+    {
+        it->getCheckBox()->setGeometry(10, 30, 155, 20);
+        it->getCheckBox()->raise();
+        it->getCheckBox()->show();
+        it->getCheckBox()->setStyleSheet("border: 0px solid gray;");
+    }
+}

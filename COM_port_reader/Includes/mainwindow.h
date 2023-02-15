@@ -1,17 +1,19 @@
 #ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+# define MAINWINDOW_H
 
-#include <QApplication>
-#include <QMainWindow>
-#include <QScreen>
-#include <QPushButton>
-#include <QLabel>
-#include <QMovie>
-#include <QTimer>
-#include <QGroupBox>
-#include <QVector>
-#include "../ui_mainwindow.h"
-#include "comport.hpp"
+# include <QApplication>
+# include <QMainWindow>
+# include <QScreen>
+# include <QPushButton>
+# include <QLabel>
+# include <QMovie>
+# include <QTimer>
+# include <QGroupBox>
+# include <QCheckBox>
+# include <QVector>
+# include <QDebug>
+# include "../ui_mainwindow.h"
+# include "comport.hpp"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -25,13 +27,17 @@ class MainWindow : public QMainWindow
         MainWindow(QWidget *parent = nullptr);
         ~MainWindow();
         
+    public:
+        void                createCheckBox();
+        
     private:
         Ui::MainWindow      *ui;
         QPushButton         *_buttonCheck;
         QLabel              *_gifLabel;
         QMovie              *_gifMovie;
         QGroupBox           *_groupBox;
-        QVector<ComPort *>   _comPorts;
+        QVector<ComPort>    _comPorts;
+        int                 _portCount;
 };
 
 #endif // MAINWINDOW_H

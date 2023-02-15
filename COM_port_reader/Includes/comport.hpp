@@ -2,19 +2,13 @@
 # define COMPORT_HPP
 
 # include <QString>
+# include <QCheckBox>
+# include <QGroupBox>
 
 class ComPort
 {
     public:
-        ComPort(QString &name) : \
-        _portName(name), \
-        _baudRate(9600), \
-        _dataBits(8), \
-        _parity("None"), \
-        _stopBits(1), \
-        _flowControl("None")
-        {}
-
+        ComPort(const QString &name, QGroupBox *groupBox);
         ~ComPort(void);
 
     public:
@@ -31,6 +25,7 @@ class ComPort
         const QString   getParity(void) const {return _parity;}
         float           getStopBits(void) const {return _stopBits;}
         const QString   getFlowControl(void) const {return _flowControl;}
+        QCheckBox       *getCheckBox(void) const {return _checkBox;}
 
     private:
         QString         _portName;
@@ -39,6 +34,7 @@ class ComPort
         QString         _parity;
         float           _stopBits;
         QString         _flowControl;
+        QCheckBox       *_checkBox;
 };
 
 #endif
