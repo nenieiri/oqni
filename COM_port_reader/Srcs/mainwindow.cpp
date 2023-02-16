@@ -1,5 +1,5 @@
 #include "mainwindow.h"
-    
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -8,7 +8,8 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     
     this->putWindowOnScreen(500, 440);
-    this->createButtonCheck();
+    this->_buttonCheck = this->createButton("Check connected ports", 20, 30, 180, 30, std::bind(&MainWindow::updateCheckbox, this));
+    this->addAnimation(this->_buttonCheck, 21, 90, 170, 170);
     this->createGroupBox();
 
 
@@ -47,6 +48,112 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+void    MainWindow::putWindowOnScreen(int windowWidth, int windowHeight)
+{
+    /* ------ put window to the center of the screen ------ */
+    QScreen *screen = QApplication::primaryScreen();
+    QSize screenSize = screen->size();
+    int screenWidth = screenSize.width();
+    int screenHeight = screenSize.height();
+    this->setGeometry((screenWidth - windowWidth) / 2, \
+                      (screenHeight - windowHeight) / 2, \
+                      windowWidth, windowHeight);
+
+    /* ------------- background, icon, and title ---------- */
+    this->setWindowTitle("OQNI: COM port reader");
+    this->setWindowIcon(QIcon(":/Imgs/oqni.ico"));
+    this->setWindowFilePath(":/Imgs/oqni.ico");
+    QString background = ":/Imgs/background.png";
+    this->setStyleSheet("background-image: url(" + background + ");");
+}
+
+QPushButton    *MainWindow::createButton(const QString &name, int x, int y, int width, int height, std::function<void(void)> onPressAction)
+{
+    QPushButton *button;
+   
+    /* ------------------- Button design ------------------ */
+    button = new QPushButton(name, this);
+    button->setGeometry(x, y, width, height);
+    button->setCursor(Qt::PointingHandCursor);
+    button->setStyleSheet("QPushButton {border-radius: 6px; \
+                              color: black; \
+                              border: 1px solid gray; \
+                              background: #6FD5CA;} \
+                              QPushButton:hover {border-radius: 6px; \
+                              color: black; \
+                              border: 1px solid #0078D4; \
+                              background: #B9E8E2;}");
+    connect(button, &QPushButton::released, button,
+        [=](void)
+        {
+            button->setStyleSheet("QPushButton {border-radius: 6px; \
+                                      color: black; \
+                                      border: 1px solid #0078D4; \
+                                      background: #6FD5CA;} \
+                                      QPushButton:hover {border-radius: 6px; \
+                                      color: black; \
+                                      border: 1px solid #0078D4; \
+                                      background: #B9E8E2;}");
+        });
+    connect(button, &QPushButton::clicked, button,
+        [=](void)
+        {
+            button->setStyleSheet("QPushButton {border-radius: 6px; \
+                                      color: black; \
+                                      border: 1px solid gray; \
+                                      background: #6FD5CA;} \
+                                      QPushButton:hover {border-radius: 6px; \
+                                      color: black; \
+                                      border: 1px solid #0078D4; \
+                                      background: #B9E8E2;}");
+        });
+    connect(button, &QPushButton::pressed, button,
+        [=](void)
+        {
+            button->setStyleSheet("border-radius: 6px; \
+                                      color: blue; \
+                                      border: 1px solid #0078D4; \
+                                      background: white;");
+            onPressAction();
+        });
+
+    return (button);
+}
+    
+void    MainWindow::updateCheckbox(void)
+{
+    this->_gifLabel->show();
+    this->_gifMovie->start();
+    this->_liftVertical->hide();
+    for (QVector<ComPort *>::iterator it = _comPorts.begin(); it < _comPorts.end(); ++it)
+        (*it)->getCheckBox()->hide();
+    QTimer::singleShot(3000, this->_gifLabel, &QLabel::hide);
+    this->_portCount = 30;
+    QTimer::singleShot(3000, this, &MainWindow::createCheckBox);
+}
+    
+void    MainWindow::addAnimation(QPushButton *button, int x, int y, int width, int height)
+{
+    /* ---------------- Button functional ----------------- */
+    this->_gifLabel = new QLabel(this);
+    this->_gifLabel->setGeometry(x, y, width, height);
+    this->_gifLabel->stackUnder(button);
+    this->_gifLabel->hide();
+    this->_gifMovie = new QMovie(":/Imgs/loading.gif");
+    this->_gifMovie->setScaledSize(this->_gifLabel->size());
+    this->_gifLabel->setMovie(this->_gifMovie);
+    this->_gifLabel->setStyleSheet("background: #e6e6e6;");
+}
+
+void    MainWindow::createGroupBox()
+{
+    /* ---------------- adding GroupBox ------------------- */
+    this->_groupBox = new QGroupBox("Connected COM ports", this);
+    this->_groupBox->setGeometry(20, 70, 180, 300);
+    this->_groupBox->stackUnder(this->_gifLabel);
+    this->_groupBox->setStyleSheet("border: 1px solid gray; background: #e6e6e6;");
+}
+
 void    MainWindow::createCheckBox()
 {
     for (QVector<ComPort *>::iterator it = _comPorts.begin(); it < _comPorts.end(); ++it)
@@ -68,98 +175,4 @@ void    MainWindow::createCheckBox()
         (*it)->getCheckBox()->show();
         (*it)->getCheckBox()->setStyleSheet("border: 0px solid gray;");
     }
-}
-
-void    MainWindow::putWindowOnScreen(int windowWidth, int windowHeight)
-{
-    /* ------ put window to the center of the screen ------ */
-    QScreen *screen = QApplication::primaryScreen();
-    QSize screenSize = screen->size();
-    int screenWidth = screenSize.width();
-    int screenHeight = screenSize.height();
-    this->setGeometry((screenWidth - windowWidth) / 2, \
-                      (screenHeight - windowHeight) / 2, \
-                      windowWidth, windowHeight);
-
-    /* ------------- background, icon, and title ---------- */
-    this->setWindowTitle("OQNI: COM port reader");
-    this->setWindowIcon(QIcon(":/Imgs/oqni.ico"));
-    this->setWindowFilePath(":/Imgs/oqni.ico");
-    QString background = ":/Imgs/background.png";
-    this->setStyleSheet("background-image: url(" + background + ");");
-}
-
-void    MainWindow::createButtonCheck()
-{
-    /* ------------------- Button design ------------------ */
-    this->_buttonCheck = new QPushButton("Check connected ports", this);
-    this->_buttonCheck->setGeometry(20, 30, 180, 30);
-    this->_buttonCheck->setCursor(Qt::PointingHandCursor);
-    this->_buttonCheck->setStyleSheet("QPushButton {border-radius: 6px; \
-                                      color: black; \
-                                      border: 1px solid gray; \
-                                      background: #6FD5CA;} \
-                                      QPushButton:hover {border-radius: 6px; \
-                                      color: black; \
-                                      border: 1px solid #0078D4; \
-                                      background: #B9E8E2;}");
-    connect(this->_buttonCheck, &QPushButton::pressed, this->_buttonCheck,
-        [=](void)
-        {
-            this->_buttonCheck->setStyleSheet("border-radius: 6px; \
-                                              color: blue; \
-                                              border: 1px solid #0078D4; \
-                                              background: white;");
-            this->_gifLabel->show();
-            this->_gifMovie->start();
-            this->_liftVertical->hide();
-            for (QVector<ComPort *>::iterator it = _comPorts.begin(); it < _comPorts.end(); ++it)
-                (*it)->getCheckBox()->hide();
-            QTimer::singleShot(3000, this->_gifLabel, &QLabel::hide);
-            this->_portCount = 30;
-            QTimer::singleShot(3000, this, &MainWindow::createCheckBox);
-        });
-    connect(this->_buttonCheck, &QPushButton::released, this->_buttonCheck,
-        [=](void)
-        {
-            this->_buttonCheck->setStyleSheet("QPushButton {border-radius: 6px; \
-                                              color: black; \
-                                              border: 1px solid #0078D4; \
-                                              background: #6FD5CA;} \
-                                              QPushButton:hover {border-radius: 6px; \
-                                              color: black; \
-                                              border: 1px solid #0078D4; \
-                                              background: #B9E8E2;}");
-        });
-    connect(this->_buttonCheck, &QPushButton::clicked, this->_buttonCheck,
-        [=](void)
-        {
-            this->_buttonCheck->setStyleSheet("QPushButton {border-radius: 6px; \
-                                              color: black; \
-                                              border: 1px solid gray; \
-                                              background: #6FD5CA;} \
-                                              QPushButton:hover {border-radius: 6px; \
-                                              color: black; \
-                                              border: 1px solid #0078D4; \
-                                              background: #B9E8E2;}");
-        });
-
-    /* ---------------- Button functional ----------------- */
-    this->_gifLabel = new QLabel(this);
-    this->_gifLabel->setGeometry(21, 90, 170, 170);
-    this->_gifLabel->stackUnder(this->_buttonCheck);
-    this->_gifLabel->hide();
-    this->_gifMovie = new QMovie(":/Imgs/loading.gif");
-    this->_gifMovie->setScaledSize(this->_gifLabel->size());
-    this->_gifLabel->setMovie(this->_gifMovie);
-    this->_gifLabel->setStyleSheet("background: #e6e6e6;");
-}
-
-void    MainWindow::createGroupBox()
-{
-    /* ---------------- adding GroupBox ------------------- */
-    this->_groupBox = new QGroupBox("Connected COM ports", this);
-    this->_groupBox->setGeometry(20, 70, 180, 300);
-    this->_groupBox->stackUnder(this->_gifLabel);
-    this->_groupBox->setStyleSheet("border: 1px solid gray; background: #e6e6e6;");
 }

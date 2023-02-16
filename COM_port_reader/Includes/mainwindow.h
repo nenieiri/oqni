@@ -14,6 +14,9 @@
 # include <QDebug>
 # include <QScrollBar>
 # include <QSerialPortInfo>
+
+# include <functional>
+
 # include "../ui_mainwindow.h"
 # include "comport.hpp"
 
@@ -34,7 +37,9 @@ class MainWindow : public QMainWindow
 
     private:
         void                putWindowOnScreen(int windowWidth, int windowHeight);
-        void                createButtonCheck();
+        QPushButton         *createButton(const QString &name, int x, int y, int width, int height, std::function<void(void)> action);
+        void                addAnimation(QPushButton *button, int x, int y, int width, int height);
+        void                updateCheckbox(void);
         void                createGroupBox();
 
     private:
