@@ -4,11 +4,12 @@
 # include <QString>
 # include <QCheckBox>
 # include <QGroupBox>
+# include <QDebug>
 
 class ComPort
 {
     public:
-        ComPort(const QString &name, QGroupBox *groupBox);
+        ComPort(const QString &name, QGroupBox *groupbox);
         ~ComPort(void);
 
     public:
