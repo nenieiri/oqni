@@ -31,7 +31,10 @@ class MainWindow : public QMainWindow
         
     public:
         void                createCheckBox();
-        
+
+    private:
+        void                putWindowOnScreen();
+
     private:
         Ui::MainWindow      *ui;
         QPushButton         *_buttonCheck;

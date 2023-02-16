@@ -3,37 +3,12 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
+    , _portCount(0)
 {
     ui->setupUi(this);
     
-    this->_portCount = 0;
-    
-    /* ------ put window to the center of the screen ------ */
-    
-    QScreen *screen = QApplication::primaryScreen();
-    QSize screenSize = screen->size();
-    int screenWidth = screenSize.width();
-    int screenHeight = screenSize.height();
-    int windownWidth = 500;
-    int windownHeight = 440;
-    this->setGeometry((screenWidth - windownWidth) / 2, \
-                      (screenHeight - windownHeight) / 2, \
-                      windownWidth, windownHeight);
-    
-    /* ---------------------------------------------------- */
-    
-    /* ------------- background, icon, and title ---------- */
-    
-    this->setWindowTitle("OQNI: COM port reader");
-    
-    this->setWindowIcon(QIcon(":/Imgs/oqni.ico"));
-    this->setWindowFilePath(":/Imgs/oqni.ico");
-    
-    QString background = ":/Imgs/background.png";
-    this->setStyleSheet("background-image: url(" + background + ");");
-    
-    /* ---------------------------------------------------- */
-    
+    this->putWindowOnScreen();
+
     /* ------------------- Button design ------------------ */
     
     this->_buttonCheck = new QPushButton("Check connected ports", this);
@@ -165,4 +140,25 @@ void    MainWindow::createCheckBox()
         (*it)->getCheckBox()->show();
         (*it)->getCheckBox()->setStyleSheet("border: 0px solid gray;");
     }
+}
+
+void    MainWindow::putWindowOnScreen()
+{
+    /* ------ put window to the center of the screen ------ */
+    QScreen *screen = QApplication::primaryScreen();
+    QSize screenSize = screen->size();
+    int screenWidth = screenSize.width();
+    int screenHeight = screenSize.height();
+    int windownWidth = 500;
+    int windownHeight = 440;
+    this->setGeometry((screenWidth - windownWidth) / 2, \
+                      (screenHeight - windownHeight) / 2, \
+                      windownWidth, windownHeight);
+
+    /* ------------- background, icon, and title ---------- */
+    this->setWindowTitle("OQNI: COM port reader");
+    this->setWindowIcon(QIcon(":/Imgs/oqni.ico"));
+    this->setWindowFilePath(":/Imgs/oqni.ico");
+    QString background = ":/Imgs/background.png";
+    this->setStyleSheet("background-image: url(" + background + ");");
 }
