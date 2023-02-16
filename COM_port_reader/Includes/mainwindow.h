@@ -13,6 +13,7 @@
 # include <QVector>
 # include <QDebug>
 # include <QScrollBar>
+# include <QSerialPortInfo>
 # include "../ui_mainwindow.h"
 # include "comport.hpp"
 
