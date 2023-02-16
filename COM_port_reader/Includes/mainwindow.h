@@ -12,7 +12,7 @@
 # include <QCheckBox>
 # include <QVector>
 # include <QDebug>
-# include <QtWidgets>
+# include <QScrollBar>
 # include "../ui_mainwindow.h"
 # include "comport.hpp"
 
