@@ -9,17 +9,8 @@ MainWindow::MainWindow(QWidget *parent)
     
     this->putWindowOnScreen(500, 440);
     this->createButtonCheck();
+    this->createGroupBox();
 
-
-
-    /* ---------------- adding GroupBox ------------------- */
-
-    this->_groupBox = new QGroupBox("Connected COM ports", this);
-    this->_groupBox->setGeometry(20, 70, 180, 300);
-    this->_groupBox->stackUnder(this->_gifLabel);
-    this->_groupBox->setStyleSheet("border: 1px solid gray; background: #e6e6e6;");
-    
-    /* ---------------------------------------------------- */
 
     /* ----------- adding Vertical ScrollBar -------------- */
     
@@ -162,4 +153,13 @@ void    MainWindow::createButtonCheck()
     this->_gifMovie->setScaledSize(this->_gifLabel->size());
     this->_gifLabel->setMovie(this->_gifMovie);
     this->_gifLabel->setStyleSheet("background: #e6e6e6;");
+}
+
+void    MainWindow::createGroupBox()
+{
+    /* ---------------- adding GroupBox ------------------- */
+    this->_groupBox = new QGroupBox("Connected COM ports", this);
+    this->_groupBox->setGeometry(20, 70, 180, 300);
+    this->_groupBox->stackUnder(this->_gifLabel);
+    this->_groupBox->setStyleSheet("border: 1px solid gray; background: #e6e6e6;");
 }

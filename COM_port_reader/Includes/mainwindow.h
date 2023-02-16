@@ -35,6 +35,7 @@ class MainWindow : public QMainWindow
     private:
         void                putWindowOnScreen(int windowWidth, int windowHeight);
         void                createButtonCheck();
+        void                createGroupBox();
 
     private:
         Ui::MainWindow      *ui;
