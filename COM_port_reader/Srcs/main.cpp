@@ -8,7 +8,7 @@ int main(int argc, char *argv[])
     
     QList<QSerialPortInfo> portList = QSerialPortInfo::availablePorts();
     for (const QSerialPortInfo& port : portList) {        
-        qDebug() << port.portName();
+   //     qDebug() << port.portName();
     }
         
     return a.exec();
