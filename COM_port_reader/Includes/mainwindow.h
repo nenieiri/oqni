@@ -40,7 +40,6 @@ class MainWindow : public QMainWindow
         QVector<ComPort *>  _comPorts;
         int                 _portCount;
         QScrollBar          *_liftVertical;
-        int                 _liftRatio;
 };
 
 #endif // MAINWINDOW_H

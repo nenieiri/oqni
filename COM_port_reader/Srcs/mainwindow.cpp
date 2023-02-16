@@ -111,18 +111,22 @@ MainWindow::MainWindow(QWidget *parent)
 
     /* ----------- adding Vertical ScrollBar -------------- */
     
-    this->_liftRatio = 0;
     this->_liftVertical = new QScrollBar(Qt::Vertical, this);
     this->_liftVertical->setGeometry(179, 71, 20, 298);
     this->_liftVertical->hide();
     
     connect(this->_liftVertical, &QScrollBar::valueChanged, this->_groupBox, [=]() {
-        this->_liftRatio = 30 * this->_liftVertical->value();
+        int liftRatio;
+
         for (QVector<ComPort *>::iterator it = _comPorts.begin(); it < _comPorts.end(); ++it)
         {
-            (*it)->getCheckBox()->setGeometry(10, 30 + 30 * (it - _comPorts.begin()) - _liftRatio, 155, 20);
+            liftRatio = 30 * (1 + (it - _comPorts.begin()) - this->_liftVertical->value());
+            (*it)->getCheckBox()->setGeometry(10, liftRatio, 155, 20);
             (*it)->getCheckBox()->raise();
-            (*it)->getCheckBox()->show();
+            if (liftRatio >= 30)
+                (*it)->getCheckBox()->show();
+            else
+                (*it)->getCheckBox()->hide();
             (*it)->getCheckBox()->setStyleSheet("border: 0px solid gray;");
         }
     });
@@ -147,7 +151,7 @@ void    MainWindow::createCheckBox()
     this->_comPorts.clear();
         
     for (int i = 0; i < this->_portCount; ++i)
-        this->_comPorts.push_back(new ComPort("COM" + QString::number(i), this->_groupBox));
+        this->_comPorts.push_back(new ComPort("COM" + QString::number(i + 1), this->_groupBox));
     if (this->_portCount > 9)
     {
         this->_liftVertical->show();
@@ -156,7 +160,7 @@ void    MainWindow::createCheckBox()
     }
     for (QVector<ComPort *>::iterator it = _comPorts.begin(); it < _comPorts.end(); ++it)
     {
-        (*it)->getCheckBox()->setGeometry(10, 30 + 30 * (it - _comPorts.begin()) - _liftRatio, 155, 20);
+        (*it)->getCheckBox()->setGeometry(10, 30 + 30 * (it - _comPorts.begin()), 155, 20);
         (*it)->getCheckBox()->raise();
         (*it)->getCheckBox()->show();
         (*it)->getCheckBox()->setStyleSheet("border: 0px solid gray;");
