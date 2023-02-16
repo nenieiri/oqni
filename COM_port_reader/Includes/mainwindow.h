@@ -33,7 +33,8 @@ class MainWindow : public QMainWindow
         void                createCheckBox();
 
     private:
-        void                putWindowOnScreen();
+        void                putWindowOnScreen(int windowWidth, int windowHeight);
+        void                createButtonCheck();
 
     private:
         Ui::MainWindow      *ui;
