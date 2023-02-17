@@ -19,7 +19,6 @@ MainWindow::MainWindow(QWidget *parent)
     this->createLiftVertical(319, 71, 20, 513);
     
     this->_buttonCheck = this->createButton("Start", 560, 555, 100, 30, nullptr); /// write next button
-
 }
 
 MainWindow::~MainWindow()

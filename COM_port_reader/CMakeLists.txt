@@ -16,11 +16,15 @@ find_package(Qt6 COMPONENTS SerialPort REQUIRED)
 include_directories(Includes/)
 
 set(PROJECT_SOURCES
-        Srcs/main.cpp
-        Srcs/mainwindow.cpp
         Includes/mainwindow.h
         Includes/comport.hpp
+		Includes/settingswindow.hpp
+		
         Srcs/comport.cpp
+		Srcs/main.cpp
+        Srcs/mainwindow.cpp
+		Srcs/settingswindow.cpp
+		
         mainwindow.ui
         ResourceFiles.qrc
 )

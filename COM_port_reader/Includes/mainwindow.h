@@ -19,6 +19,7 @@
 
 # include "../ui_mainwindow.h"
 # include "comport.hpp"
+# include "settingswindow.hpp"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }

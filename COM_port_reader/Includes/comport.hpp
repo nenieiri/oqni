@@ -3,6 +3,7 @@
 
 # include <QString>
 # include <QCheckBox>
+# include <QRadioButton>
 # include <QGroupBox>
 # include <QDebug>
 
@@ -26,7 +27,8 @@ class ComPort
         const QString   getParity(void) const {return _parity;}
         float           getStopBits(void) const {return _stopBits;}
         const QString   getFlowControl(void) const {return _flowControl;}
-        QCheckBox       *getCheckBox(void) const {return _checkBox;}
+        //QCheckBox       *getCheckBox(void) const {return _checkBox;}
+        QRadioButton       *getCheckBox(void) const {return _checkBox;}  //delete
 
     private:
         QString         _portName;
@@ -35,7 +37,8 @@ class ComPort
         QString         _parity;
         float           _stopBits;
         QString         _flowControl;
-        QCheckBox       *_checkBox;
+        //QCheckBox       *_checkBox;
+        QRadioButton    *_checkBox; //delete
 };
 
 #endif
