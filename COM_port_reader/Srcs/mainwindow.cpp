@@ -186,29 +186,58 @@ void    MainWindow::buttonNextAction()
     target->_propertyWindow = new QDialog(this);
     target->_propertyWindow->setModal(true);
 
-    target->_propertyWindow->setMinimumSize(450, 300);
-    target->_propertyWindow->setMaximumSize(450, 300);
+    target->_propertyWindow->setMinimumSize(360, 300);
+    target->_propertyWindow->setMaximumSize(360, 300);
     target->_propertyWindow->setWindowTitle("Properties");
     target->_propertyWindow->setWindowIcon(QIcon(":/Imgs/oqni.ico"));
     target->_propertyWindow->setWindowFilePath(":/Imgs/oqni.ico");
     target->_propertyWindow->setStyleSheet("background: #e6e6e6;");
     
-    QLabel *portName = new QLabel("Port name:        " + target->getPortName(), target->_propertyWindow);
+    QLabel *portName = new QLabel("Port name:         " + target->getPortName(), target->_propertyWindow);
     portName->setGeometry(10, 10, 430, 30);
     QLabel *baudRate = new QLabel("Baud Rate:" , target->_propertyWindow);
-    baudRate->setGeometry(10, 50, 140, 30);
+    baudRate->setGeometry(10, 50, 130, 30);
     QLabel *dataBits = new QLabel("Data Bits:", target->_propertyWindow);
-    dataBits->setGeometry(10, 90, 140, 30);
+    dataBits->setGeometry(10, 90, 130, 30);
     QLabel *parity = new QLabel("Parity:", target->_propertyWindow);
-    parity->setGeometry(10, 130, 140, 30);
+    parity->setGeometry(10, 130, 130, 30);
     QLabel *stopBits = new QLabel("Stop Bits:", target->_propertyWindow);
-    stopBits->setGeometry(10, 170, 140, 30);
+    stopBits->setGeometry(10, 170, 130, 30);
     QLabel *flowControl = new QLabel("Flow Control:", target->_propertyWindow);
-    flowControl->setGeometry(10, 210, 140, 30);
+    flowControl->setGeometry(10, 210, 130, 30);
     
-   	target->_cancel = this->createButton("Cancel", 20, 250, 100, 30, nullptr, target->_propertyWindow);
     
-	connect(target->_cancel, &QPushButton::clicked, target->_propertyWindow,
+    QStringList items;
+    QComboBox *baudComboBox = new QComboBox(target->_propertyWindow);
+    items = {"110", "300", "1200", "2400", "4800", "9600", "19200", "38400", "57600", "115200", "230400", "460800", "921600"};
+    baudComboBox->addItems(items);
+    baudComboBox->setGeometry(150, 50, 200, 30);
+    
+    QComboBox *dataComboBox = new QComboBox(target->_propertyWindow);
+    items = {"5", "6", "7", "8"};
+    dataComboBox->addItems(items);
+    dataComboBox->setGeometry(150, 90, 200, 30);
+    
+    QComboBox *parityComboBox = new QComboBox(target->_propertyWindow);
+    items = {"Even", "Odd", "None", "Mark", "Space"};
+    parityComboBox->addItems(items);
+    parityComboBox->setGeometry(150, 130, 200, 30);
+    
+    QComboBox *stopComboBox = new QComboBox(target->_propertyWindow);
+    items = {"1", "1.5", "2"};
+    stopComboBox->addItems(items);
+    stopComboBox->setGeometry(150, 170, 200, 30);
+    
+    QComboBox *flowComboBox = new QComboBox(target->_propertyWindow);
+    items = {"Xon / Xoff", "Hardware", "None"};
+    flowComboBox->addItems(items);
+    flowComboBox->setGeometry(150, 210, 200, 30);
+    
+   	target->_cancel = this->createButton("Cancel", 10, 255, 100, 30, nullptr, target->_propertyWindow);
+   	target->_setDefault = this->createButton("Default", 130, 255, 100, 30, nullptr, target->_propertyWindow);
+   	target->_start = this->createButton("Start", 250, 255, 100, 30, nullptr, target->_propertyWindow);
+    
+    connect(target->_cancel, &QPushButton::clicked, target->_propertyWindow,
 		[=](void)
 		{
 			target->_propertyWindow->close();
@@ -218,9 +247,34 @@ void    MainWindow::buttonNextAction()
             delete parity;
             delete stopBits;
             delete flowControl;
+            delete baudComboBox;
+            delete dataComboBox;
+            delete parityComboBox;
+            delete stopComboBox;
+            delete flowComboBox;
 			delete target->_propertyWindow;
             this->_buttonNext->setStyleSheet(MY_DEFINED_DEFAULT_BUTTON);
-    	});
+		});
+    
+	connect(target->_setDefault, &QPushButton::clicked, target->_propertyWindow,
+		[=](void)
+		{
+        		baudComboBox->setCurrentIndex(5);
+        		dataComboBox->setCurrentIndex(3);
+        		parityComboBox->setCurrentIndex(2);
+        		stopComboBox->setCurrentIndex(0);
+        		flowComboBox->setCurrentIndex(1);
+		});
+    
+	connect(target->_start, &QPushButton::clicked, target->_propertyWindow,
+		[=](void)
+		{
+        		target->setBaudRate(baudComboBox->currentText().toUInt());
+//        		target->setDataBits(dataComboBox->currentText().toUShort());
+//        		target->setParity(parityComboBox->currentText());
+//        		target->setStopBits(stopComboBox->currentText().toFloat());
+//        		target->setFlowControl(flowComboBox->currentText());
+		});
 
     target->_propertyWindow->exec();
 }

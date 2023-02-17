@@ -5,6 +5,7 @@
 # include <QMainWindow>
 # include <QScreen>
 # include <QPushButton>
+# include <QComboBox>
 # include <QLabel>
 # include <QMovie>
 # include <QTimer>

@@ -18,7 +18,7 @@ class ComPort
     public:
         void            setPortName(QString &name) {_portName = name;}
         void            setBaudRate(unsigned int rate) {_baudRate = rate;}
-        void            setDataBits(unsigned short bits) {_dataBits = bits;}
+        void            setDataBits(unsigned char bits) {_dataBits = bits;}
         void            setParity(QString &parity) {_parity = parity;}
         void            setStopBits(float bits) {_stopBits = bits;}
         void            setFlowControl(QString &flowcontrol) {_flowControl = flowcontrol;}
@@ -35,7 +35,7 @@ class ComPort
     private:
         QString         _portName;
         unsigned int    _baudRate;
-        unsigned short  _dataBits;
+        unsigned char   _dataBits;
         QString         _parity;
         float           _stopBits;
         QString         _flowControl;
@@ -45,6 +45,7 @@ class ComPort
     public: //temp
         QDialog         *_propertyWindow;
         QPushButton		*_cancel;
+        QPushButton		*_setDefault;
         QPushButton		*_start;
 };
 
