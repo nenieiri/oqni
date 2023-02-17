@@ -21,7 +21,12 @@
 
 # include "../ui_mainwindow.h"
 # include "comport.hpp"
-# include "settingswindow.hpp"
+
+# define MY_DEFINED_DEFAULT_BUTTON  "QPushButton {border-radius: 6px; color: black; border: 1px solid gray;    background: #6FD5CA;} \
+                               QPushButton:hover {border-radius: 6px; color: black; border: 1px solid #0078D4; background: #B9E8E2;}"
+# define MY_DEFINED_RELEASED_BUTTON "QPushButton {border-radius: 6px; color: black; border: 1px solid #0078D4; background: #6FD5CA;} \
+                               QPushButton:hover {border-radius: 6px; color: black; border: 1px solid #0078D4; background: #B9E8E2;}"
+# define MY_DEFINED_PRESSED_BUTTON               "border-radius: 6px; color: blue;  border: 1px solid #0078D4; background: white;"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -54,7 +59,6 @@ class MainWindow : public QMainWindow
         QVector<ComPort *>  _comPorts;
         int                 _portCount;
         QScrollBar          *_liftVertical;
-        QDialog             *_propertyWindow;
 };
 
 #endif

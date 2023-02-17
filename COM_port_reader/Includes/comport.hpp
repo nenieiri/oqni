@@ -6,6 +6,8 @@
 # include <QRadioButton>
 # include <QGroupBox>
 # include <QDebug>
+# include <QDialog>
+# include <QPushButton>
 
 class ComPort
 {
@@ -39,6 +41,11 @@ class ComPort
         QString         _flowControl;
         //QCheckBox       *_checkBox;
         QRadioButton    *_checkBox; //delete
+        
+    public: //temp
+        QDialog         *_propertyWindow;
+        QPushButton		*_cancel;
+        QPushButton		*_start;
 };
 
 #endif

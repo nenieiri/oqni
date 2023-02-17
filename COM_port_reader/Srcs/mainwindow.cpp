@@ -60,45 +60,21 @@ QPushButton    *MainWindow::createButton(const QString &name, int x, int y, int 
     button = new QPushButton(name, box);
     button->setGeometry(x, y, width, height);
     button->setCursor(Qt::PointingHandCursor);
-    button->setStyleSheet("QPushButton {border-radius: 6px; \
-                              color: black; \
-                              border: 1px solid gray; \
-                              background: #6FD5CA;} \
-                              QPushButton:hover {border-radius: 6px; \
-                              color: black; \
-                              border: 1px solid #0078D4; \
-                              background: #B9E8E2;}");
+    button->setStyleSheet(MY_DEFINED_DEFAULT_BUTTON);
     connect(button, &QPushButton::released, button,
         [=](void)
         {
-            button->setStyleSheet("QPushButton {border-radius: 6px; \
-                                      color: black; \
-                                      border: 1px solid #0078D4; \
-                                      background: #6FD5CA;} \
-                                      QPushButton:hover {border-radius: 6px; \
-                                      color: black; \
-                                      border: 1px solid #0078D4; \
-                                      background: #B9E8E2;}");
+            button->setStyleSheet(MY_DEFINED_RELEASED_BUTTON);
         });
     connect(button, &QPushButton::clicked, button,
         [=](void)
         {
-            button->setStyleSheet("QPushButton {border-radius: 6px; \
-                                      color: black; \
-                                      border: 1px solid gray; \
-                                      background: #6FD5CA;} \
-                                      QPushButton:hover {border-radius: 6px; \
-                                      color: black; \
-                                      border: 1px solid #0078D4; \
-                                      background: #B9E8E2;}");
+            button->setStyleSheet(MY_DEFINED_DEFAULT_BUTTON);
         });
     connect(button, &QPushButton::pressed, button,
         [=](void)
         {
-            button->setStyleSheet("border-radius: 6px; \
-                                      color: blue; \
-                                      border: 1px solid #0078D4; \
-                                      background: white;");
+            button->setStyleSheet(MY_DEFINED_PRESSED_BUTTON);
             if (onPressAction != nullptr)
                 onPressAction();
         });
@@ -192,17 +168,37 @@ void    MainWindow::buttonCheckAction(void)
 
 void    MainWindow::buttonNextAction()
 {
-    this->_propertyWindow = new QDialog(this);
-
-    this->_propertyWindow->setMinimumSize(300, 500);
-    this->_propertyWindow->setMaximumSize(300, 500);
-
-    this->_propertyWindow->setWindowTitle("Properties");
-    this->_propertyWindow->setWindowIcon(QIcon(":/Imgs/oqni.ico"));
-    this->_propertyWindow->setWindowFilePath(":/Imgs/oqni.ico");
-    this->_propertyWindow->setStyleSheet("background: #e6e6e6;");
+    ComPort	*target;
     
-   	QPushButton cancel = this->createButton("Cancel", 100, 100, 100, 30, nullptr, this->_propertyWindow);
+    for (QVector<ComPort *>::iterator it = _comPorts.begin(); it != _comPorts.end(); ++it)
+    {
+         
+        if ((*it)->getCheckBox()->isChecked() == true )
+        {
+            target = *it;
+            break ;
+        }
+    }
+    target->_propertyWindow = new QDialog(this);
+    target->_propertyWindow->setModal(true);
 
-    this->_propertyWindow->show();
+    target->_propertyWindow->setMinimumSize(300, 500);
+    target->_propertyWindow->setMaximumSize(300, 500);
+
+    target->_propertyWindow->setWindowTitle("Properties");
+    target->_propertyWindow->setWindowIcon(QIcon(":/Imgs/oqni.ico"));
+    target->_propertyWindow->setWindowFilePath(":/Imgs/oqni.ico");
+    target->_propertyWindow->setStyleSheet("background: #e6e6e6;");
+    
+   	target->_cancel = this->createButton("Cancel", 20, 450, 100, 30, nullptr, target->_propertyWindow);
+    
+	connect(target->_cancel, &QPushButton::clicked, target->_propertyWindow,
+		[=](void)
+		{
+			target->_propertyWindow->close();
+			delete target->_propertyWindow;
+            this->_buttonNext->setStyleSheet(MY_DEFINED_DEFAULT_BUTTON);
+    	});
+
+    target->_propertyWindow->exec();
 }
