@@ -137,8 +137,8 @@ void    MainWindow::buttonCheckAction(void)
     this->_liftVertical->hide();
     for (QVector<ComPort *>::iterator it = _comPorts.begin(); it < _comPorts.end(); ++it)
         (*it)->getCheckBox()->hide();
-    QTimer::singleShot(2000, this->_gifLabel, &QLabel::hide);
-    QTimer::singleShot(2000, this,
+    QTimer::singleShot(0000, this->_gifLabel, &QLabel::hide);
+    QTimer::singleShot(0000, this,
         [=](void)
         {
             for (QVector<ComPort *>::iterator it = _comPorts.begin(); it < _comPorts.end(); ++it)
@@ -170,6 +170,7 @@ void    MainWindow::buttonNextAction()
 {
     ComPort	*target;
     
+    target = nullptr;
     for (QVector<ComPort *>::iterator it = _comPorts.begin(); it != _comPorts.end(); ++it)
     {
          
@@ -179,23 +180,44 @@ void    MainWindow::buttonNextAction()
             break ;
         }
     }
+    if (target == nullptr)
+        return ;
+    
     target->_propertyWindow = new QDialog(this);
     target->_propertyWindow->setModal(true);
 
-    target->_propertyWindow->setMinimumSize(300, 500);
-    target->_propertyWindow->setMaximumSize(300, 500);
-
+    target->_propertyWindow->setMinimumSize(450, 300);
+    target->_propertyWindow->setMaximumSize(450, 300);
     target->_propertyWindow->setWindowTitle("Properties");
     target->_propertyWindow->setWindowIcon(QIcon(":/Imgs/oqni.ico"));
     target->_propertyWindow->setWindowFilePath(":/Imgs/oqni.ico");
     target->_propertyWindow->setStyleSheet("background: #e6e6e6;");
     
-   	target->_cancel = this->createButton("Cancel", 20, 450, 100, 30, nullptr, target->_propertyWindow);
+    QLabel *portName = new QLabel("Port name:        " + target->getPortName(), target->_propertyWindow);
+    portName->setGeometry(10, 10, 430, 30);
+    QLabel *baudRate = new QLabel("Baud Rate:" , target->_propertyWindow);
+    baudRate->setGeometry(10, 50, 140, 30);
+    QLabel *dataBits = new QLabel("Data Bits:", target->_propertyWindow);
+    dataBits->setGeometry(10, 90, 140, 30);
+    QLabel *parity = new QLabel("Parity:", target->_propertyWindow);
+    parity->setGeometry(10, 130, 140, 30);
+    QLabel *stopBits = new QLabel("Stop Bits:", target->_propertyWindow);
+    stopBits->setGeometry(10, 170, 140, 30);
+    QLabel *flowControl = new QLabel("Flow Control:", target->_propertyWindow);
+    flowControl->setGeometry(10, 210, 140, 30);
+    
+   	target->_cancel = this->createButton("Cancel", 20, 250, 100, 30, nullptr, target->_propertyWindow);
     
 	connect(target->_cancel, &QPushButton::clicked, target->_propertyWindow,
 		[=](void)
 		{
 			target->_propertyWindow->close();
+            delete portName;
+            delete baudRate;
+            delete dataBits;
+            delete parity;
+            delete stopBits;
+            delete flowControl;
 			delete target->_propertyWindow;
             this->_buttonNext->setStyleSheet(MY_DEFINED_DEFAULT_BUTTON);
     	});
