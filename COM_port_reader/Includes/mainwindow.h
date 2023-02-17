@@ -31,16 +31,14 @@ class MainWindow : public QMainWindow
     public:
         MainWindow(QWidget *parent = nullptr);
         ~MainWindow();
-        
-    public:
-        void                createCheckBox();
 
     private:
         void                putWindowOnScreen(int windowWidth, int windowHeight);
         QPushButton         *createButton(const QString &name, int x, int y, int width, int height, std::function<void(void)> action);
         void                addLoadingAnimation(QPushButton *button, int x, int y, int width, int height);
-        void                updateCheckbox(void);
-        void                createGroupBox();
+        void                createGroupBox(int x, int y, int width, int height);
+        void                createLiftVertical(int x, int y, int width, int height);
+        void                buttonCheckAction(void);
 
     private:
         Ui::MainWindow      *ui;

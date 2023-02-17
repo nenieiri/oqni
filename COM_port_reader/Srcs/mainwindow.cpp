@@ -13,33 +13,13 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     
     this->putWindowOnScreen(700, 616);
-    this->_buttonCheck = this->createButton("Check connected ports", 20, 30, 320, 30, std::bind(&MainWindow::updateCheckbox, this));
+    this->_buttonCheck = this->createButton("Check connected ports", 20, 30, 320, 30, std::bind(&MainWindow::buttonCheckAction, this));
     this->addLoadingAnimation(this->_buttonCheck, 21, 150, 310, 310);
-    this->createGroupBox();
+    this->createGroupBox(20, 70, 320, 515);
+    this->createLiftVertical(319, 71, 20, 513);
     
-    this->_buttonCheck = this->createButton("Start", 560, 555, 100, 30, nullptr);
+    this->_buttonCheck = this->createButton("Start", 560, 555, 100, 30, nullptr); /// write next button
 
-    /* ----------- adding Vertical ScrollBar -------------- */
-    
-    this->_liftVertical = new QScrollBar(Qt::Vertical, this);
-    this->_liftVertical->setGeometry(319, 71, 20, 513);
-    this->_liftVertical->hide();
-    
-    connect(this->_liftVertical, &QScrollBar::valueChanged, this->_groupBox, [=]() {
-        int liftRatio;
-
-        for (QVector<ComPort *>::iterator it = _comPorts.begin(); it < _comPorts.end(); ++it)
-        {
-            liftRatio = 40 * (1 + (it - _comPorts.begin()) - this->_liftVertical->value());
-            (*it)->getCheckBox()->setGeometry(10, liftRatio, 285, 20);
-            (*it)->getCheckBox()->raise();
-            if (liftRatio >= 40)
-                (*it)->getCheckBox()->show();
-            else
-                (*it)->getCheckBox()->hide();
-            (*it)->getCheckBox()->setStyleSheet("border: 0px solid gray;");
-        }
-    });
 }
 
 MainWindow::~MainWindow()
@@ -127,18 +107,6 @@ QPushButton    *MainWindow::createButton(const QString &name, int x, int y, int 
     return (button);
 }
     
-void    MainWindow::updateCheckbox(void)
-{
-    this->_gifLabel->show();
-    this->_gifMovie->start();
-    this->_liftVertical->hide();
-    for (QVector<ComPort *>::iterator it = _comPorts.begin(); it < _comPorts.end(); ++it)
-        (*it)->getCheckBox()->hide();
-    QTimer::singleShot(6000, this->_gifLabel, &QLabel::hide);
-//    this->_portCount = 13;
-    QTimer::singleShot(6000, this, &MainWindow::createCheckBox);
-}
-    
 void    MainWindow::addLoadingAnimation(QPushButton *button, int x, int y, int width, int height)
 {
     /* ---------------- Button functional ----------------- */
@@ -152,40 +120,73 @@ void    MainWindow::addLoadingAnimation(QPushButton *button, int x, int y, int w
     this->_gifLabel->setStyleSheet("background: #e6e6e6;");
 }
 
-void    MainWindow::createGroupBox()
+void    MainWindow::createGroupBox(int x, int y, int width, int height)
 {
     /* ---------------- adding GroupBox ------------------- */
     this->_groupBox = new QGroupBox("Connected COM ports:", this);
-    this->_groupBox->setGeometry(20, 70, 320, 515);
+    this->_groupBox->setGeometry(x, y, width, height);
     this->_groupBox->stackUnder(this->_gifLabel);
     this->_groupBox->setStyleSheet("border: 1px solid gray; background: #e6e6e6;");
 }
 
-void    MainWindow::createCheckBox()
+void    MainWindow::createLiftVertical(int x, int y, int width, int height)
 {
-    for (QVector<ComPort *>::iterator it = _comPorts.begin(); it < _comPorts.end(); ++it)
-        delete (*it);
-    this->_comPorts.clear();
+    /* ----------- adding Vertical ScrollBar -------------- */
+    this->_liftVertical = new QScrollBar(Qt::Vertical, this);
+    this->_liftVertical->setGeometry(x, y, width, height);
+    this->_liftVertical->hide();
+    connect(this->_liftVertical, &QScrollBar::valueChanged, this->_groupBox,
+        [=](void)
+        {
+            int liftRatio;
         
-    QList<QSerialPortInfo> portList = QSerialPortInfo::availablePorts();
-    for (const QSerialPortInfo& port : portList)
-        this->_comPorts.push_back(new ComPort(port.portName(), this->_groupBox));
-    this->_portCount = this->_comPorts.size();
-
-//    for (int i = 0; i < this->_portCount; ++i)
-//        this->_comPorts.push_back(new ComPort("COM" + QString::number(i), this->_groupBox));
-    if (this->_portCount > 12)
-    {
-        this->_liftVertical->show();
-        this->_liftVertical->setMinimum(0);
-        this->_liftVertical->setMaximum(this->_portCount - 12);
-    }
-    for (QVector<ComPort *>::iterator it = _comPorts.begin(); it < _comPorts.end(); ++it)
-    {
-        (*it)->getCheckBox()->setGeometry(10, 40 * (1 + (it - _comPorts.begin())), 285, 20);
-        (*it)->getCheckBox()->raise();
-        (*it)->getCheckBox()->show();
-        (*it)->getCheckBox()->setStyleSheet("border: 0px solid gray;");
-    }
+            for (QVector<ComPort *>::iterator it = _comPorts.begin(); it < _comPorts.end(); ++it)
+            {
+                liftRatio = 40 * (1 + (it - _comPorts.begin()) - this->_liftVertical->value());
+                (*it)->getCheckBox()->setGeometry(10, liftRatio, 285, 20);
+                (*it)->getCheckBox()->raise();
+                if (liftRatio >= 40)
+                    (*it)->getCheckBox()->show();
+                else
+                    (*it)->getCheckBox()->hide();
+                (*it)->getCheckBox()->setStyleSheet("border: 0px solid gray;");
+            }
+        });
 }
 
+void    MainWindow::buttonCheckAction(void)
+{
+    /* ----------- show animation and update checkboxes' list -------------- */
+    this->_gifLabel->show();
+    this->_gifMovie->start();
+    this->_liftVertical->hide();
+    for (QVector<ComPort *>::iterator it = _comPorts.begin(); it < _comPorts.end(); ++it)
+        (*it)->getCheckBox()->hide();
+    QTimer::singleShot(2000, this->_gifLabel, &QLabel::hide);
+    QTimer::singleShot(2000, this,
+        [=](void)
+        {
+            for (QVector<ComPort *>::iterator it = _comPorts.begin(); it < _comPorts.end(); ++it)
+                delete (*it);
+            this->_comPorts.clear();
+                
+            QList<QSerialPortInfo> portList = QSerialPortInfo::availablePorts();
+            for (const QSerialPortInfo& port : portList)
+                this->_comPorts.push_back(new ComPort(port.portName(), this->_groupBox));
+            this->_portCount = this->_comPorts.size();
+            if (this->_portCount > 12)
+            {
+                this->_liftVertical->setValue(0);
+                this->_liftVertical->show();
+                this->_liftVertical->setMinimum(0);
+                this->_liftVertical->setMaximum(this->_portCount - 12);
+            }
+            for (QVector<ComPort *>::iterator it = _comPorts.begin(); it < _comPorts.end(); ++it)
+            {
+                (*it)->getCheckBox()->setGeometry(10, 40 * (1 + (it - _comPorts.begin())), 285, 20);
+                (*it)->getCheckBox()->raise();
+                (*it)->getCheckBox()->show();
+                (*it)->getCheckBox()->setStyleSheet("border: 0px solid gray;");
+            }
+        });
+}
