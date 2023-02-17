@@ -14,7 +14,7 @@ MainWindow::MainWindow(QWidget *parent)
     
     this->putWindowOnScreen(700, 616);
     this->_buttonCheck = this->createButton("Check connected ports", 20, 30, 320, 30, std::bind(&MainWindow::updateCheckbox, this));
-    this->addLoadingAnimation(this->_buttonCheck, 21, 115, 310, 310);
+    this->addLoadingAnimation(this->_buttonCheck, 21, 150, 310, 310);
     this->createGroupBox();
     
     this->_buttonCheck = this->createButton("Start", 560, 555, 100, 30, nullptr);
@@ -134,9 +134,9 @@ void    MainWindow::updateCheckbox(void)
     this->_liftVertical->hide();
     for (QVector<ComPort *>::iterator it = _comPorts.begin(); it < _comPorts.end(); ++it)
         (*it)->getCheckBox()->hide();
-    QTimer::singleShot(3000, this->_gifLabel, &QLabel::hide);
-    this->_portCount = 13;
-    QTimer::singleShot(3000, this, &MainWindow::createCheckBox);
+    QTimer::singleShot(6000, this->_gifLabel, &QLabel::hide);
+//    this->_portCount = 13;
+    QTimer::singleShot(6000, this, &MainWindow::createCheckBox);
 }
     
 void    MainWindow::addLoadingAnimation(QPushButton *button, int x, int y, int width, int height)
@@ -167,8 +167,13 @@ void    MainWindow::createCheckBox()
         delete (*it);
     this->_comPorts.clear();
         
-    for (int i = 0; i < this->_portCount; ++i)
-        this->_comPorts.push_back(new ComPort("COM" + QString::number(i), this->_groupBox));
+    QList<QSerialPortInfo> portList = QSerialPortInfo::availablePorts();
+    for (const QSerialPortInfo& port : portList)
+        this->_comPorts.push_back(new ComPort(port.portName(), this->_groupBox));
+    this->_portCount = this->_comPorts.size();
+
+//    for (int i = 0; i < this->_portCount; ++i)
+//        this->_comPorts.push_back(new ComPort("COM" + QString::number(i), this->_groupBox));
     if (this->_portCount > 12)
     {
         this->_liftVertical->show();
