@@ -13,12 +13,11 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     
     this->putWindowOnScreen(700, 616);
-    this->_buttonCheck = this->createButton("Check connected ports", 20, 30, 320, 30, std::bind(&MainWindow::buttonCheckAction, this));
+    this->_buttonCheck = this->createButton("Check connected ports", 20, 30, 320, 30, std::bind(&MainWindow::buttonCheckAction, this), this);
     this->addLoadingAnimation(this->_buttonCheck, 21, 150, 310, 310);
     this->createGroupBox(20, 70, 320, 515);
     this->createLiftVertical(319, 71, 20, 513);
-    
-    this->_buttonCheck = this->createButton("Start", 560, 555, 100, 30, nullptr); /// write next button
+    this->_buttonNext = this->createButton("Next", 560, 555, 100, 30, std::bind(&MainWindow::buttonNextAction, this), this);
 }
 
 MainWindow::~MainWindow()
@@ -53,12 +52,12 @@ void    MainWindow::putWindowOnScreen(int windowWidth, int windowHeight)
     this->setStyleSheet("background-image: url(:/Imgs/background.png); font-size: 20px");
 }
 
-QPushButton    *MainWindow::createButton(const QString &name, int x, int y, int width, int height, std::function<void(void)> onPressAction)
+QPushButton    *MainWindow::createButton(const QString &name, int x, int y, int width, int height, std::function<void(void)> onPressAction, QWidget *box)
 {
     QPushButton *button;
    
     /* ------------------- Button design ------------------ */
-    button = new QPushButton(name, this);
+    button = new QPushButton(name, box);
     button->setGeometry(x, y, width, height);
     button->setCursor(Qt::PointingHandCursor);
     button->setStyleSheet("QPushButton {border-radius: 6px; \
@@ -100,7 +99,8 @@ QPushButton    *MainWindow::createButton(const QString &name, int x, int y, int 
                                       color: blue; \
                                       border: 1px solid #0078D4; \
                                       background: white;");
-            onPressAction();
+            if (onPressAction != nullptr)
+                onPressAction();
         });
 
     return (button);
@@ -188,4 +188,21 @@ void    MainWindow::buttonCheckAction(void)
                 (*it)->getCheckBox()->setStyleSheet("border: 0px solid gray;");
             }
         });
+}
+
+void    MainWindow::buttonNextAction()
+{
+    this->_propertyWindow = new QDialog(this);
+
+    this->_propertyWindow->setMinimumSize(300, 500);
+    this->_propertyWindow->setMaximumSize(300, 500);
+
+    this->_propertyWindow->setWindowTitle("Properties");
+    this->_propertyWindow->setWindowIcon(QIcon(":/Imgs/oqni.ico"));
+    this->_propertyWindow->setWindowFilePath(":/Imgs/oqni.ico");
+    this->_propertyWindow->setStyleSheet("background: #e6e6e6;");
+    
+   	QPushButton cancel = this->createButton("Cancel", 100, 100, 100, 30, nullptr, this->_propertyWindow);
+
+    this->_propertyWindow->show();
 }

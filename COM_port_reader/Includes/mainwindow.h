@@ -13,7 +13,9 @@
 # include <QVector>
 # include <QDebug>
 # include <QScrollBar>
+# include <QDialog>
 # include <QSerialPortInfo>
+# include <QWidget>
 
 # include <functional>
 
@@ -35,22 +37,24 @@ class MainWindow : public QMainWindow
 
     private:
         void                putWindowOnScreen(int windowWidth, int windowHeight);
-        QPushButton         *createButton(const QString &name, int x, int y, int width, int height, std::function<void(void)> action);
+        QPushButton         *createButton(const QString &name, int x, int y, int width, int height, std::function<void(void)> action, QWidget *box);
         void                addLoadingAnimation(QPushButton *button, int x, int y, int width, int height);
         void                createGroupBox(int x, int y, int width, int height);
         void                createLiftVertical(int x, int y, int width, int height);
         void                buttonCheckAction(void);
+        void                buttonNextAction(void);
 
     private:
         Ui::MainWindow      *ui;
         QPushButton         *_buttonCheck;
-        QPushButton         *_buttonStart;
+        QPushButton         *_buttonNext;
         QLabel              *_gifLabel;
         QMovie              *_gifMovie;
         QGroupBox           *_groupBox;
         QVector<ComPort *>  _comPorts;
         int                 _portCount;
         QScrollBar          *_liftVertical;
+        QDialog             *_propertyWindow;
 };
 
 #endif
