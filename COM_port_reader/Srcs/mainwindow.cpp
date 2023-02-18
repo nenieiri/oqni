@@ -346,19 +346,19 @@ void	parser(std::string &msg)
 
         if (foundX != std::string::npos)
         {
-            spaceX = msg.find(" ", foundX + 7);
+            spaceX = msg.find("\t", foundX + 7);
             MyFile << std::stoi(msg.substr(foundX + 7, spaceX - foundX - 7)) << ",";
         }
 
         if (foundY != std::string::npos)
         {
-            spaceY = msg.find(" ", foundX + 7);
+            spaceY = msg.find("\t", foundX + 7);
             MyFile << std::stoi(msg.substr(foundY + 7, spaceY - foundY - 7)) << ",";
         }
 
         if (foundZ != std::string::npos)
         {
-            spaceZ = msg.find(" ", foundZ + 7);
+            spaceZ = msg.find("\t", foundZ + 7);
             MyFile << std::stoi(msg.substr(foundZ + 7, spaceZ - foundZ - 7)) << "\n";
         }
 
@@ -383,7 +383,7 @@ int	SerialBegin(std::string name, unsigned int BaudRate)
     CloseHandle(connectedPort);
 
     connectedPort = CreateFileA(
-        "\\\\.\\COM5",
+        name.c_str(),
         GENERIC_READ | GENERIC_WRITE,
         0,
         NULL,
@@ -415,22 +415,14 @@ int	SerialBegin(std::string name, unsigned int BaudRate)
     return (0);
 }
 
-void	ConnectRequest(std::string name, unsigned int BaudRate)
-{
-    SerialBegin(name, BaudRate);
-}
-
 void	SerialRead(std::string name, unsigned int BaudRate)
 {
     char					Buffer[1024];
     std::string				str_fstream;
 
-    qDebug() << QString::fromStdString(name);
-
     if (!SetCommMask(connectedPort, EV_RXCHAR))
-    {
-        ConnectRequest(name.c_str(), BaudRate);
-    }
+        SerialBegin(name, BaudRate);
+
     DWORD	BytesIterated;
     while (ReadFile(connectedPort, Buffer, 255, &BytesIterated, NULL))
     {
@@ -441,7 +433,7 @@ void	SerialRead(std::string name, unsigned int BaudRate)
 
 int ft_main(std::string name, unsigned int BaudRate)
 {
-    ConnectRequest(name, BaudRate);
+    SerialBegin(name, BaudRate);
     SerialRead(name, BaudRate);
     return 0;
 }
