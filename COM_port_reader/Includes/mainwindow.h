@@ -65,6 +65,12 @@ class MainWindow : public QMainWindow
         QVector<ComPort *>  _comPorts;
         int                 _portCount;
         QScrollBar          *_liftVertical;
+        
+        QStringList         _baudRateItems;
+        QStringList         _dataBitsItems;
+        QStringList         _parityItems;
+        QStringList         _stopBitsItems;
+        QStringList         _flowControlItems;
 };
 
 #endif

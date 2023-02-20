@@ -8,39 +8,43 @@
 # include <QDebug>
 # include <QDialog>
 # include <QPushButton>
+# include <QSerialPort>
+# include <QStringList>
 
-class ComPort
+class	ComPort
 {
     public:
         ComPort(const QString &name, QGroupBox *groupbox);
         ~ComPort(void);
 
     public:
-        void            setPortName(QString &name) {_portName = name;}
-        void            setBaudRate(unsigned int rate) {_baudRate = rate;}
-        void            setDataBits(unsigned char bits) {_dataBits = bits;}
-        void            setParity(QString &parity) {_parity = parity;}
-        void            setStopBits(float bits) {_stopBits = bits;}
-        void            setFlowControl(QString &flowcontrol) {_flowControl = flowcontrol;}
+        void    	setPortName(QString &name);
+        void    	setBaudRate(const QString &rate, QStringList &items);
+        void    	setDataBits(const QString &bits, QStringList &items);
+        void    	setParity(const QString &parity, QStringList &items);
+        void    	setStopBits(const QString &bits, QStringList &items);
+        void    	setFlowControl(const QString &flowcontrol, QStringList &items);
 
-        const QString   getPortName(void) const {return _portName;}
-        unsigned int    getBaudRate(void) const {return _baudRate;}
-        unsigned short  getDataBits(void) const {return _dataBits;}
-        const QString   getParity(void) const {return _parity;}
-        float           getStopBits(void) const {return _stopBits;}
-        const QString   getFlowControl(void) const {return _flowControl;}
+        const QString			getPortName(void) const {return _portName;}
+        QSerialPort::BaudRate	getBaudRate(void) const {return _baudRate;}
+        QSerialPort::DataBits	getDataBits(void) const {return _dataBits;}
+        QSerialPort::Parity		getParity(void) const {return _parity;}
+        QSerialPort::StopBits	getStopBits(void) const {return _stopBits;}
+        QSerialPort::FlowControl	getFlowControl(void) const {return _flowControl;}
+        
         //QCheckBox       *getCheckBox(void) const {return _checkBox;}
-        QRadioButton       *getCheckBox(void) const {return _checkBox;}  //delete
+        QRadioButton	*getCheckBox(void) const {return _checkBox;}  //delete
 
     private:
-        QString         _portName;
-        unsigned int    _baudRate;
-        unsigned char   _dataBits;
-        QString         _parity;
-        float           _stopBits;
-        QString         _flowControl;
-        //QCheckBox       *_checkBox;
-        QRadioButton    *_checkBox; //delete
+        QString					_portName;
+        QSerialPort::BaudRate	_baudRate;
+        QSerialPort::DataBits	_dataBits;
+        QSerialPort::Parity		_parity;
+        QSerialPort::StopBits	_stopBits;
+        QSerialPort::FlowControl	_flowControl;
+        
+        //QCheckBox       			*_checkBox;
+        QRadioButton    			*_checkBox; //delete
         
     public: //temp
         QDialog         *_propertyWindow;

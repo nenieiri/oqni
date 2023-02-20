@@ -15,6 +15,13 @@ MainWindow::MainWindow(QWidget *parent)
     this->createGroupBox(20, 70, 320, 515);
     this->createLiftVertical(319, 71, 20, 513);
     this->_buttonNext = this->createButton("Next", 560, 555, 100, 30, std::bind(&MainWindow::buttonNextAction, this), this);
+    
+    _baudRateItems = {"110", "300", "1200", "2400", "4800", "9600", "19200", 
+                      "38400", "57600", "115200", "230400", "460800", "921600"};
+    _dataBitsItems = {"5", "6", "7", "8"};
+    _parityItems = {"None", "Even", "Odd", "Space", "Mark"};
+    _stopBitsItems = {"1", "1.5", "2"};
+    _flowControlItems = {"None", "Hardware", "Xon / Xoff"};
 }
 
 MainWindow::~MainWindow()
@@ -204,30 +211,24 @@ void    MainWindow::buttonNextAction()
     flowControl->setGeometry(10, 210, 130, 30);
     
     
-    QStringList items;
     QComboBox *baudComboBox = new QComboBox(target->_propertyWindow);
-    items = {"110", "300", "1200", "2400", "4800", "9600", "19200", "38400", "57600", "115200", "230400", "460800", "921600"};
-    baudComboBox->addItems(items);
+    baudComboBox->addItems(this->_baudRateItems);
     baudComboBox->setGeometry(150, 50, 200, 30);
     
     QComboBox *dataComboBox = new QComboBox(target->_propertyWindow);
-    items = {"5", "6", "7", "8"};
-    dataComboBox->addItems(items);
+    dataComboBox->addItems(this->_dataBitsItems);
     dataComboBox->setGeometry(150, 90, 200, 30);
     
     QComboBox *parityComboBox = new QComboBox(target->_propertyWindow);
-    items = {"Even", "Odd", "None", "Mark", "Space"};
-    parityComboBox->addItems(items);
+    parityComboBox->addItems(this->_parityItems);
     parityComboBox->setGeometry(150, 130, 200, 30);
     
     QComboBox *stopComboBox = new QComboBox(target->_propertyWindow);
-    items = {"1", "1.5", "2"};
-    stopComboBox->addItems(items);
+    stopComboBox->addItems(this->_stopBitsItems);
     stopComboBox->setGeometry(150, 170, 200, 30);
     
     QComboBox *flowComboBox = new QComboBox(target->_propertyWindow);
-    items = {"Xon / Xoff", "Hardware", "None"};
-    flowComboBox->addItems(items);
+    flowComboBox->addItems(this->_flowControlItems);
     flowComboBox->setGeometry(150, 210, 200, 30);
     
    	target->_cancel = this->createButton("Cancel", 10, 255, 100, 30, nullptr, target->_propertyWindow);
@@ -256,11 +257,11 @@ void    MainWindow::buttonNextAction()
 	connect(target->_setDefault, &QPushButton::clicked, target->_propertyWindow,
 		[=](void)
 		{
-        		baudComboBox->setCurrentIndex(5);
+        		baudComboBox->setCurrentIndex(9);
         		dataComboBox->setCurrentIndex(3);
-        		parityComboBox->setCurrentIndex(2);
+        		parityComboBox->setCurrentIndex(0);
         		stopComboBox->setCurrentIndex(0);
-        		flowComboBox->setCurrentIndex(1);
+        		flowComboBox->setCurrentIndex(0);
 		});
     
 	connect(target->_start, &QPushButton::clicked, target->_propertyWindow,
@@ -278,11 +279,11 @@ void    MainWindow::buttonNextAction()
             selectedDirectory += ("/" + createFileName(target->getPortName()));
             std::string fileName = selectedDirectory.toStdString();
             
-            target->setBaudRate(baudComboBox->currentText().toUInt());
-//			target->setDataBits(dataComboBox->currentText().toUShort());
-//        	target->setParity(parityComboBox->currentText());
-//        	target->setStopBits(stopComboBox->currentText().toFloat());
-//        	target->setFlowControl(flowComboBox->currentText());
+        		target->setBaudRate(baudComboBox->currentText(), this->_baudRateItems);
+				target->setDataBits(dataComboBox->currentText(), this->_dataBitsItems);
+	        	target->setParity(parityComboBox->currentText(), this->_parityItems);
+	        	target->setStopBits(stopComboBox->currentText(), this->_stopBitsItems);
+	        	target->setFlowControl(flowComboBox->currentText(), this->_flowControlItems);
             
 //          reader_win(target->getPortName().toStdString(), target->getBaudRate(), fileName);
 		});
