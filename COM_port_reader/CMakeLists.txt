@@ -20,9 +20,9 @@ set(PROJECT_SOURCES
         Includes/comport.hpp
 		
         Srcs/comport.cpp
-		Srcs/main.cpp
+        Srcs/main.cpp
         Srcs/mainwindow.cpp
-	#	Srcs/reader_win.cpp
+        Srcs/reader_win.cpp
 		
         mainwindow.ui
         ResourceFiles.qrc

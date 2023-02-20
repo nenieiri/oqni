@@ -1,22 +1,19 @@
-#include <Windows.h>
 #include <iostream>
 #include <fstream>
-#include <stdlib.h>
 #include <string>
+
+#include <QSerialPort>
+#include <QSerialPortInfo>
+#include <QString>
 #include <QDebug>
 
-HANDLE	connectedPort;
-
-static int	max(int x, int y, int z)
+void    parser(std::string &line, const std::string &pathFileName)
 {
-    return ((x > y and x > z) ? x : ((y > x and y > z) ? y : z));
-}
-
-void    parser(std::string &msg, const std::string &pathFileName)
-{
-    size_t	foundX, foundY, foundZ;
-    size_t	spaceX, spaceY, spaceZ;
-    int		file_is_empty = 0;
+    size_t      found;
+    std::string tokenX = "XVALUE=";
+    std::string tokenY = "ZVALUE=";
+    std::string tokenZ = "YVALUE=";
+    int         file_is_empty = 0;
 
     std::ofstream createFile(pathFileName, std::ios::app);
     createFile.close();
@@ -32,92 +29,76 @@ void    parser(std::string &msg, const std::string &pathFileName)
     if (file_is_empty)
         MyFile << "X,Y,Z\n";
 
-    foundX = msg.find("XVALUE=");
-    foundY = msg.find("YVALUE=");
-    foundZ = msg.find("ZVALUE=");
-    while (foundX != std::string::npos or foundY != std::string::npos or foundZ != std::string::npos)
-    {
-        spaceX = msg.find("\t", foundX + 7);
-        spaceY = msg.find("\t", foundX + 7);
-        spaceZ = msg.find("\t", foundZ + 7);        
-        
-        if (foundX != std::string::npos)
-            MyFile << std::stoi(msg.substr(foundX + 7, spaceX - foundX - 7)) << ",";
-        if (foundY != std::string::npos)
-            MyFile << std::stoi(msg.substr(foundY + 7, spaceY - foundY - 7)) << ",";
-        if (foundZ != std::string::npos)
-            MyFile << std::stoi(msg.substr(foundZ + 7, spaceZ - foundZ - 7)) << "\n";
+    found = line.find(tokenX);
+    if (found != std::string::npos)
+        MyFile << std::stoi(line.substr(found + tokenX.length())) << ",";
+    else
+        MyFile << ",";
 
-        if (max(spaceX, spaceY, spaceZ) < 0)
-            break ;
-        msg = msg.substr(max(spaceX, spaceY, spaceZ));
-        foundX = msg.find("XVALUE=");
-        foundY = msg.find("YVALUE=");
-        foundZ = msg.find("ZVALUE=");
-    }
+    found = line.find(tokenY);
+    if (found != std::string::npos)
+        MyFile << std::stoi(line.substr(found + tokenY.length())) << ",";
+    else
+        MyFile << ",";
+
+    found = line.find(tokenZ);
+    if (found != std::string::npos)
+        MyFile << std::stoi(line.substr(found + tokenZ.length())) << "\n";
+    else
+        MyFile << "\n";
+
     MyFile.close();
 }
 
-int	SerialBegin(const std::string &name, unsigned int BaudRate)
+void reader_win(const QString &portName, QSerialPort::BaudRate BR, QSerialPort::DataBits DB,
+                QSerialPort::Parity P, QSerialPort::StopBits SB, QSerialPort::FlowControl FC,
+                const std::string &pathFileName)
 {
-    DCB				SerialParams;
-    COMMTIMEOUTS	SerialTimeouts;
+    QSerialPort serial;
+    QByteArray  data;
+    std::string line;
 
-    CloseHandle(connectedPort);
-
-    connectedPort = CreateFileA(
-        name.c_str(),
-        GENERIC_READ | GENERIC_WRITE,
-        0,
-        NULL,
-        OPEN_EXISTING,
-        FILE_ATTRIBUTE_NORMAL,
-        NULL);
-
-    if (connectedPort == INVALID_HANDLE_VALUE)
-        return -4; //No Port
-
-    SerialParams.DCBlength = sizeof(SerialParams);
-    if (!GetCommState(connectedPort, &SerialParams))
-        return -3; //GetState error
-
-    SerialParams.BaudRate = BaudRate;
-    SerialParams.ByteSize = 8;
-    SerialParams.StopBits = ONESTOPBIT;
-    SerialParams.Parity = NOPARITY;
-
-    SerialTimeouts.ReadIntervalTimeout = 1;
-    SerialTimeouts.ReadTotalTimeoutConstant = 1;
-    SerialTimeouts.ReadTotalTimeoutMultiplier = 1;
-    SerialTimeouts.WriteTotalTimeoutConstant = 1;
-    SerialTimeouts.WriteTotalTimeoutMultiplier = 1;
-
-    if (!SetCommTimeouts(connectedPort, &SerialTimeouts))
-        return (-1);
-
-    return (0);
-}
-
-void	SerialRead(const std::string &name, unsigned int BaudRate, const std::string &pathFileName)
-{
-    char        Buffer[1024];
-    std::string str_fstream;
-
-    if (!SetCommMask(connectedPort, EV_RXCHAR))
-        SerialBegin(name, BaudRate);
-
-    DWORD	BytesIterated;
-    while (ReadFile(connectedPort, Buffer, 255, &BytesIterated, NULL))
+    foreach (const QSerialPortInfo &info, QSerialPortInfo::availablePorts())
     {
-        str_fstream += Buffer;
-        parser(str_fstream, pathFileName);
+        if (info.portName() == portName)
+        {
+            serial.setPort(info);
+            break;
+        }
     }
-}
 
-int reader_win(const std::string &name, unsigned int BaudRate, const std::string &pathFileName)
-{
-    SerialBegin(name, BaudRate);
-    SerialRead(name, BaudRate, pathFileName);
-    
-    return 0;
+    serial.setBaudRate(BR);
+    serial.setDataBits(DB);
+    serial.setParity(P);
+    serial.setStopBits(SB);
+    serial.setFlowControl(FC);
+
+//    serial.setBaudRate(QSerialPort::Baud9600);
+//    serial.setDataBits(QSerialPort::Data8);
+//    serial.setParity(QSerialPort::NoParity);
+//    serial.setStopBits(QSerialPort::OneStop);
+//    serial.setFlowControl(QSerialPort::NoFlowControl);
+
+    if (!serial.open(QIODevice::ReadOnly))
+    {
+        qDebug() << "Failed to open serial port";
+        return ;
+    }
+
+    while (true)
+    {
+        if (serial.waitForReadyRead(1000))
+        {
+            data = serial.read(1); // Read one byte from the serial port
+            if (!data.isEmpty() && data.at(0) == '\n') // Get the character from the QByteArray
+            {
+                line += data.at(0);
+//                qDebug() << QString::fromStdString(line);
+                parser(line, pathFileName);
+                line = "";
+            }
+            else if (!data.isEmpty() && data.at(0) != '\n')
+                    line += data.at(0);
+        }
+    }
 }

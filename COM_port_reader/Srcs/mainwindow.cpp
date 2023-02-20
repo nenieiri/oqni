@@ -1,6 +1,8 @@
 #include "mainwindow.h"
 
-int reader_win(const std::string &name, unsigned int BaudRate, const std::string &pathFileName);
+void reader_win(const QString &portName, QSerialPort::BaudRate BR, QSerialPort::DataBits DB,
+                QSerialPort::Parity P, QSerialPort::StopBits SB, QSerialPort::FlowControl FC,
+                const std::string &pathFileName);
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -285,7 +287,9 @@ void    MainWindow::buttonNextAction()
 	        	target->setStopBits(stopComboBox->currentText(), this->_stopBitsItems);
 	        	target->setFlowControl(flowComboBox->currentText(), this->_flowControlItems);
             
-//          reader_win(target->getPortName().toStdString(), target->getBaudRate(), fileName);
+                reader_win(target->getPortName(), target->getBaudRate(), target->getDataBits(),
+                           target->getParity(), target->getStopBits(), target->getFlowControl(),
+                           fileName);
 		});
 
     target->_propertyWindow->exec();

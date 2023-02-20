@@ -25,11 +25,11 @@ class	ComPort
         void    	setStopBits(const QString &bits, QStringList &items);
         void    	setFlowControl(const QString &flowcontrol, QStringList &items);
 
-        const QString			getPortName(void) const {return _portName;}
-        QSerialPort::BaudRate	getBaudRate(void) const {return _baudRate;}
-        QSerialPort::DataBits	getDataBits(void) const {return _dataBits;}
-        QSerialPort::Parity		getParity(void) const {return _parity;}
-        QSerialPort::StopBits	getStopBits(void) const {return _stopBits;}
+        const QString               getPortName(void) const {return _portName;}
+        QSerialPort::BaudRate       getBaudRate(void) const {return _baudRate;}
+        QSerialPort::DataBits       getDataBits(void) const {return _dataBits;}
+        QSerialPort::Parity         getParity(void) const {return _parity;}
+        QSerialPort::StopBits       getStopBits(void) const {return _stopBits;}
         QSerialPort::FlowControl	getFlowControl(void) const {return _flowControl;}
         
         //QCheckBox       *getCheckBox(void) const {return _checkBox;}
