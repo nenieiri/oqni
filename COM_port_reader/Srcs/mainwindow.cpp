@@ -1,6 +1,6 @@
 #include "mainwindow.h"
 
-int ft_main(std::string name, unsigned int BaudRate);
+int reader_win(const std::string &name, unsigned int BaudRate, const std::string &pathFileName);
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -267,7 +267,7 @@ void    MainWindow::buttonNextAction()
 		[=](void)
 		{
         		target->setBaudRate(baudComboBox->currentText().toUInt());
-                ft_main(target->getPortName().toStdString(), target->getBaudRate());
+                reader_win(target->getPortName().toStdString(), target->getBaudRate(), "sdf");
 //        		target->setDataBits(dataComboBox->currentText().toUShort());
 //        		target->setParity(parityComboBox->currentText());
 //        		target->setStopBits(stopComboBox->currentText().toFloat());
@@ -275,165 +275,4 @@ void    MainWindow::buttonNextAction()
 		});
 
     target->_propertyWindow->exec();
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#include <Windows.h>
-#include <string>
-#include <iostream>
-#include <fstream>
-#include <stdlib.h>
-#include <string>
-
-HANDLE	connectedPort;
-
-static int	max(int x, int y, int z)
-{
-    if (x > y and x > z)
-        return (x);
-    if (y > x and y > z)
-        return (y);
-    return (z);
-}
-
-void	parser(std::string &msg)
-{
-    size_t	foundX;
-    size_t	foundY;
-    size_t	foundZ;
-    size_t	spaceX = -1;
-    size_t	spaceY = -1;
-    size_t	spaceZ = -1;
-    int		file_is_empty = 0;
-
-    std::ofstream createFile("XYZ_VALUES.csv", std::ios::app);
-    createFile.close();
-
-    std::ifstream infile("XYZ_VALUES.csv", std::ios::binary | std::ios::ate);
-    if (infile.tellg() == 0)
-        file_is_empty = 1;
-    infile.close();
-
-    std::ofstream MyFile("XYZ_VALUES.csv", std::ios::app);
-    if (!MyFile.is_open())
-        return ;
-    if (file_is_empty)
-        MyFile << "X,Y,Z\n";
-
-    foundX = msg.find("XVALUE=");
-    foundY = msg.find("YVALUE=");
-    foundZ = msg.find("ZVALUE=");
-    while (foundX != std::string::npos or foundY != std::string::npos or foundZ != std::string::npos)
-    {
-
-        if (foundX != std::string::npos)
-        {
-            spaceX = msg.find("\t", foundX + 7);
-            MyFile << std::stoi(msg.substr(foundX + 7, spaceX - foundX - 7)) << ",";
-        }
-
-        if (foundY != std::string::npos)
-        {
-            spaceY = msg.find("\t", foundX + 7);
-            MyFile << std::stoi(msg.substr(foundY + 7, spaceY - foundY - 7)) << ",";
-        }
-
-        if (foundZ != std::string::npos)
-        {
-            spaceZ = msg.find("\t", foundZ + 7);
-            MyFile << std::stoi(msg.substr(foundZ + 7, spaceZ - foundZ - 7)) << "\n";
-        }
-
-        if (max(spaceX, spaceY, spaceZ) < 0)
-            break ;
-
-        msg = msg.substr(max(spaceX, spaceY, spaceZ));
-
-        foundX = msg.find("XVALUE=");
-        foundY = msg.find("YVALUE=");
-        foundZ = msg.find("ZVALUE=");
-    }
-
-    MyFile.close();
-}
-
-int	SerialBegin(std::string name, unsigned int BaudRate)
-{
-    DCB				SerialParams;
-    COMMTIMEOUTS	SerialTimeouts;
-
-    CloseHandle(connectedPort);
-
-    connectedPort = CreateFileA(
-        name.c_str(),
-        GENERIC_READ | GENERIC_WRITE,
-        0,
-        NULL,
-        OPEN_EXISTING,
-        FILE_ATTRIBUTE_NORMAL,
-        NULL);
-
-    if (connectedPort == INVALID_HANDLE_VALUE)
-        return -4; //No Port
-
-    SerialParams.DCBlength = sizeof(SerialParams);
-    if (!GetCommState(connectedPort, &SerialParams))
-        return -3; //GetState error
-
-    SerialParams.BaudRate = BaudRate;
-    SerialParams.ByteSize = 8;
-    SerialParams.StopBits = ONESTOPBIT;
-    SerialParams.Parity = NOPARITY;
-
-    SerialTimeouts.ReadIntervalTimeout = 1;
-    SerialTimeouts.ReadTotalTimeoutConstant = 1;
-    SerialTimeouts.ReadTotalTimeoutMultiplier = 1;
-    SerialTimeouts.WriteTotalTimeoutConstant = 1;
-    SerialTimeouts.WriteTotalTimeoutMultiplier = 1;
-
-    if (!SetCommTimeouts(connectedPort, &SerialTimeouts))
-        return (-1);
-
-    return (0);
-}
-
-void	SerialRead(std::string name, unsigned int BaudRate)
-{
-    char					Buffer[1024];
-    std::string				str_fstream;
-
-    if (!SetCommMask(connectedPort, EV_RXCHAR))
-        SerialBegin(name, BaudRate);
-
-    DWORD	BytesIterated;
-    while (ReadFile(connectedPort, Buffer, 255, &BytesIterated, NULL))
-    {
-        str_fstream += Buffer;
-        parser(str_fstream);
-    }
-}
-
-int ft_main(std::string name, unsigned int BaudRate)
-{
-    SerialBegin(name, BaudRate);
-    SerialRead(name, BaudRate);
-    return 0;
 }
