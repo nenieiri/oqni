@@ -266,14 +266,25 @@ void    MainWindow::buttonNextAction()
 	connect(target->_start, &QPushButton::clicked, target->_propertyWindow,
 		[=](void)
 		{
-            std::string fileName = createFileName(target->getPortName()).toStdString();
-//            qDebug() << QString::fromStdString(fileName);
+            QFileDialog dialog;
+            dialog.setOption(QFileDialog::ShowDirsOnly);
+            
+            QString selectedDirectory = dialog.getExistingDirectory(
+                this,
+                "Select directory to save file",
+                QDir::homePath()
+            );
+            
+            selectedDirectory += ("/" + createFileName(target->getPortName()));
+            std::string fileName = selectedDirectory.toStdString();
+            
             target->setBaudRate(baudComboBox->currentText().toUInt());
-            reader_win(target->getPortName().toStdString(), target->getBaudRate(), fileName);
-//        	target->setDataBits(dataComboBox->currentText().toUShort());
+//			target->setDataBits(dataComboBox->currentText().toUShort());
 //        	target->setParity(parityComboBox->currentText());
 //        	target->setStopBits(stopComboBox->currentText().toFloat());
 //        	target->setFlowControl(flowComboBox->currentText());
+            
+//          reader_win(target->getPortName().toStdString(), target->getBaudRate(), fileName);
 		});
 
     target->_propertyWindow->exec();

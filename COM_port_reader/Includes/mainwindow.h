@@ -18,6 +18,8 @@
 # include <QSerialPortInfo>
 # include <QWidget>
 # include <QDateTime>
+# include <QFileDialog>
+# include <QDir>
 
 # include <functional>
 

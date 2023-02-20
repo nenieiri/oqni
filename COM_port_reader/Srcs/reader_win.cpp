@@ -116,7 +116,6 @@ void	SerialRead(const std::string &name, unsigned int BaudRate, const std::strin
 
 int reader_win(const std::string &name, unsigned int BaudRate, const std::string &pathFileName)
 {
-//    qDebug() << QString::fromStdString(pathFileName);
     SerialBegin(name, BaudRate);
     SerialRead(name, BaudRate, pathFileName);
     
