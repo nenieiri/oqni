@@ -17,6 +17,7 @@
 # include <QDialog>
 # include <QSerialPortInfo>
 # include <QWidget>
+# include <QDateTime>
 
 # include <functional>
 
@@ -42,13 +43,15 @@ class MainWindow : public QMainWindow
         ~MainWindow();
 
     private:
-        void                putWindowOnScreen(int windowWidth, int windowHeight);
-        QPushButton         *createButton(const QString &name, int x, int y, int width, int height, std::function<void(void)> action, QWidget *box);
-        void                addLoadingAnimation(QPushButton *button, int x, int y, int width, int height);
-        void                createGroupBox(int x, int y, int width, int height);
-        void                createLiftVertical(int x, int y, int width, int height);
-        void                buttonCheckAction(void);
-        void                buttonNextAction(void);
+        void            putWindowOnScreen(int windowWidth, int windowHeight);
+        QPushButton     *createButton(const QString &name, int x, int y, int width, int height, std::function<void(void)> action, QWidget *box);
+        void            addLoadingAnimation(QPushButton *button, int x, int y, int width, int height);
+        void            createGroupBox(int x, int y, int width, int height);
+        void            createLiftVertical(int x, int y, int width, int height);
+        void            buttonCheckAction(void);
+        void            buttonNextAction(void);
+        const QString   createFileName(const QString &portName);
+
 
     private:
         Ui::MainWindow      *ui;

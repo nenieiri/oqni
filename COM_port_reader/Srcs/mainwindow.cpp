@@ -266,13 +266,24 @@ void    MainWindow::buttonNextAction()
 	connect(target->_start, &QPushButton::clicked, target->_propertyWindow,
 		[=](void)
 		{
-        		target->setBaudRate(baudComboBox->currentText().toUInt());
-                reader_win(target->getPortName().toStdString(), target->getBaudRate(), "sdf");
-//        		target->setDataBits(dataComboBox->currentText().toUShort());
-//        		target->setParity(parityComboBox->currentText());
-//        		target->setStopBits(stopComboBox->currentText().toFloat());
-//        		target->setFlowControl(flowComboBox->currentText());
+            std::string fileName = createFileName(target->getPortName()).toStdString();
+//            qDebug() << QString::fromStdString(fileName);
+            target->setBaudRate(baudComboBox->currentText().toUInt());
+            reader_win(target->getPortName().toStdString(), target->getBaudRate(), fileName);
+//        	target->setDataBits(dataComboBox->currentText().toUShort());
+//        	target->setParity(parityComboBox->currentText());
+//        	target->setStopBits(stopComboBox->currentText().toFloat());
+//        	target->setFlowControl(flowComboBox->currentText());
 		});
 
     target->_propertyWindow->exec();
+}
+
+const QString   MainWindow::createFileName(const QString &portName)
+{
+    QDateTime         currentDateTime = QDateTime::currentDateTime();
+    const QString     formattedDateTime = currentDateTime.toString("yyyy-MM-dd_hh-mm-ss");
+    const QString     fileName = portName + "_" + formattedDateTime + ".csv";
+
+    return fileName;
 }

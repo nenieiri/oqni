@@ -3,6 +3,7 @@
 #include <fstream>
 #include <stdlib.h>
 #include <string>
+#include <QDebug>
 
 HANDLE	connectedPort;
 
@@ -14,7 +15,7 @@ static int	max(int x, int y, int z)
 void    parser(std::string &msg, const std::string &pathFileName)
 {
     size_t	foundX, foundY, foundZ;
-    size_t	spaceX = spaceY = spaceZ = -1;
+    size_t	spaceX, spaceY, spaceZ;
     int		file_is_empty = 0;
 
     std::ofstream createFile(pathFileName, std::ios::app);
@@ -34,18 +35,17 @@ void    parser(std::string &msg, const std::string &pathFileName)
     foundX = msg.find("XVALUE=");
     foundY = msg.find("YVALUE=");
     foundZ = msg.find("ZVALUE=");
-    while (foundX != QString::npos or foundY != QString::npos or foundZ != QString::npos)
+    while (foundX != std::string::npos or foundY != std::string::npos or foundZ != std::string::npos)
     {
         spaceX = msg.find("\t", foundX + 7);
         spaceY = msg.find("\t", foundX + 7);
-        spaceZ = msg.find("\t", foundZ + 7);
+        spaceZ = msg.find("\t", foundZ + 7);        
         
-        
-        if (foundX != QString::npos)            
+        if (foundX != std::string::npos)
             MyFile << std::stoi(msg.substr(foundX + 7, spaceX - foundX - 7)) << ",";
-        if (foundY != QString::npos)
+        if (foundY != std::string::npos)
             MyFile << std::stoi(msg.substr(foundY + 7, spaceY - foundY - 7)) << ",";
-        if (foundZ != QString::npos)
+        if (foundZ != std::string::npos)
             MyFile << std::stoi(msg.substr(foundZ + 7, spaceZ - foundZ - 7)) << "\n";
 
         if (max(spaceX, spaceY, spaceZ) < 0)
@@ -58,7 +58,7 @@ void    parser(std::string &msg, const std::string &pathFileName)
     MyFile.close();
 }
 
-int	SerialBegin(std::string &name, unsigned int BaudRate)
+int	SerialBegin(const std::string &name, unsigned int BaudRate)
 {
     DCB				SerialParams;
     COMMTIMEOUTS	SerialTimeouts;
@@ -98,7 +98,7 @@ int	SerialBegin(std::string &name, unsigned int BaudRate)
     return (0);
 }
 
-void	SerialRead(std::string &name, unsigned int BaudRate, const std::string &pathFileName)
+void	SerialRead(const std::string &name, unsigned int BaudRate, const std::string &pathFileName)
 {
     char        Buffer[1024];
     std::string str_fstream;
@@ -116,6 +116,7 @@ void	SerialRead(std::string &name, unsigned int BaudRate, const std::string &pat
 
 int reader_win(const std::string &name, unsigned int BaudRate, const std::string &pathFileName)
 {
+//    qDebug() << QString::fromStdString(pathFileName);
     SerialBegin(name, BaudRate);
     SerialRead(name, BaudRate, pathFileName);
     
