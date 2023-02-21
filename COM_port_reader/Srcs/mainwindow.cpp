@@ -1,4 +1,5 @@
 #include "mainwindow.h"
+#include <QMetaEnum>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -14,8 +15,7 @@ MainWindow::MainWindow(QWidget *parent)
     this->createLiftVertical(319, 71, 20, 513);
     this->_buttonNext = this->createButton("Next", 560, 555, 100, 30, std::bind(&MainWindow::buttonNextAction, this), this);
     
-    _baudRateItems = {"110", "300", "1200", "2400", "4800", "9600", "19200", 
-                      "38400", "57600", "115200", "230400", "460800", "921600"};
+    _baudRateItems = {"1200", "2400", "4800", "9600", "19200", "38400", "57600", "115200"};
     _dataBitsItems = {"5", "6", "7", "8"};
     _parityItems = {"None", "Even", "Odd", "Space", "Mark"};
     _stopBitsItems = {"1", "1.5", "2"};
@@ -229,11 +229,17 @@ void    MainWindow::buttonNextAction()
     flowComboBox->addItems(this->_flowControlItems);
     flowComboBox->setGeometry(150, 210, 200, 30);
     
-    comPort->_cancel = this->createButton("Cancel", 10, 255, 100, 30, nullptr, comPort->_propertyWindow);
-    comPort->_setDefault = this->createButton("Default", 130, 255, 100, 30, nullptr, comPort->_propertyWindow);
-    comPort->_start = this->createButton("Start", 250, 255, 100, 30, nullptr, comPort->_propertyWindow);
+    comPort->_cancelProperties = this->createButton("Cancel", 10, 255, 100, 30, nullptr, comPort->_propertyWindow);
+    comPort->_setDefaultProperties = this->createButton("Default", 130, 255, 100, 30, nullptr, comPort->_propertyWindow);
+    comPort->_saveProperies = this->createButton("Save", 250, 255, 100, 30, nullptr, comPort->_propertyWindow);
+
+    baudComboBox->setCurrentIndex(comPort->getBaudRateIndex());
+    dataComboBox->setCurrentIndex(comPort->getDataBitsIndex());
+    parityComboBox->setCurrentIndex(comPort->getParityIndex());
+    stopComboBox->setCurrentIndex(comPort->getStopBitsIndex());
+    flowComboBox->setCurrentIndex(comPort->getFlowControlIndex());
     
-    connect(comPort->_cancel, &QPushButton::clicked, comPort->_propertyWindow,
+    connect(comPort->_cancelProperties, &QPushButton::clicked, comPort->_propertyWindow,
 		[=](void)
 		{
             comPort->_propertyWindow->close();
@@ -252,39 +258,58 @@ void    MainWindow::buttonNextAction()
             this->_buttonNext->setStyleSheet(MY_DEFINED_DEFAULT_BUTTON);
 		});
     
-    connect(comPort->_setDefault, &QPushButton::clicked, comPort->_propertyWindow,
+    connect(comPort->_setDefaultProperties, &QPushButton::clicked, comPort->_propertyWindow,
 		[=](void)
 		{
-        		baudComboBox->setCurrentIndex(9);
+                baudComboBox->setCurrentIndex(7);
         		dataComboBox->setCurrentIndex(3);
         		parityComboBox->setCurrentIndex(0);
         		stopComboBox->setCurrentIndex(0);
         		flowComboBox->setCurrentIndex(0);
 		});
-    
-    connect(comPort->_start, &QPushButton::clicked, comPort->_propertyWindow,
-		[=](void)
-		{
-            QFileDialog dialog;
-            dialog.setOption(QFileDialog::ShowDirsOnly);
-            
-            QString selectedDirectory = dialog.getExistingDirectory(
-                this,
-                "Select directory to save file",
-                QDir::homePath()
-            );
-            
-            QString fileName = selectedDirectory + "/" + createFileName(comPort->getPortName());
-            
+
+    connect(comPort->_saveProperies, &QPushButton::clicked, comPort->_propertyWindow,
+        [=](void)
+        {
             comPort->setBaudRate(baudComboBox->currentText(), this->_baudRateItems);
             comPort->setDataBits(dataComboBox->currentText(), this->_dataBitsItems);
             comPort->setParity(parityComboBox->currentText(), this->_parityItems);
             comPort->setStopBits(stopComboBox->currentText(), this->_stopBitsItems);
             comPort->setFlowControl(flowComboBox->currentText(), this->_flowControlItems);
 
-			ThreadRuner *threadReader = new ThreadRuner(comPort, fileName.toStdString());
-			threadReader->start();
-		});
+            comPort->_propertyWindow->close();
+            delete portName;
+            delete baudRate;
+            delete dataBits;
+            delete parity;
+            delete stopBits;
+            delete flowControl;
+            delete baudComboBox;
+            delete dataComboBox;
+            delete parityComboBox;
+            delete stopComboBox;
+            delete flowComboBox;
+            delete comPort->_propertyWindow;
+            this->_buttonNext->setStyleSheet(MY_DEFINED_DEFAULT_BUTTON);
+        });
+    
+//    connect(comPort->_saveProperies, &QPushButton::clicked, comPort->_propertyWindow,
+//		[=](void)
+//		{
+//            QFileDialog dialog;
+//            dialog.setOption(QFileDialog::ShowDirsOnly);
+            
+//            QString selectedDirectory = dialog.getExistingDirectory(
+//                this,
+//                "Select directory to save file",
+//                QDir::homePath()
+//            );
+            
+//            QString fileName = selectedDirectory + "/" + createFileName(comPort->getPortName());
+
+//			ThreadRuner *threadReader = new ThreadRuner(comPort, fileName.toStdString());
+//			threadReader->start();
+//		});
 
     comPort->_propertyWindow->exec();
 }

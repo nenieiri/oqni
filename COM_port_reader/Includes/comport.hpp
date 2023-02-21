@@ -32,6 +32,12 @@ class	ComPort
         QSerialPort::Parity         getParity(void) const {return _parity;}
         QSerialPort::StopBits       getStopBits(void) const {return _stopBits;}
         QSerialPort::FlowControl	getFlowControl(void) const {return _flowControl;}
+
+        unsigned int                getBaudRateIndex(void) const {return _baudRateIndex;}
+        unsigned int                getDataBitsIndex(void) const {return _dataBitsIndex;}
+        unsigned int                getParityIndex(void) const {return _parityIndex;}
+        unsigned int                getStopBitsIndex(void) const {return _stopBitsIndex;}
+        unsigned int                getFlowControlIndex(void) const {return _flowControlIndex;}
         
         //QCheckBox       *getCheckBox(void) const {return _checkBox;}
         QRadioButton	*getCheckBox(void) const {return _checkBox;}  //delete
@@ -45,15 +51,21 @@ class	ComPort
         QSerialPort::StopBits       _stopBits;
         QSerialPort::FlowControl    _flowControl;
 
+        unsigned int                _baudRateIndex;
+        unsigned int                _dataBitsIndex;
+        unsigned int                _parityIndex;
+        unsigned int                _stopBitsIndex;
+        unsigned int                _flowControlIndex;
+
         
         //QCheckBox       			*_checkBox;
         QRadioButton    			*_checkBox; //delete
         
     public: //temp
         QDialog         *_propertyWindow;
-        QPushButton		*_cancel;
-        QPushButton		*_setDefault;
-        QPushButton		*_start;
+        QPushButton		*_cancelProperties;
+        QPushButton		*_setDefaultProperties;
+        QPushButton		*_saveProperies;
 };
 
 #endif

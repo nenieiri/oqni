@@ -3,11 +3,16 @@
 ComPort::ComPort(const QSerialPortInfo &port, QGroupBox *groupbox) : \
                 _port(port), \
                 _portName(port.portName()), \
-                _baudRate(QSerialPort::Baud115200), \
-                _dataBits(QSerialPort::Data8), \
+                _baudRate(QSerialPort::Baud1200), \
+                _dataBits(QSerialPort::Data5), \
                 _parity(QSerialPort::NoParity), \
                 _stopBits(QSerialPort::OneStop), \
-                _flowControl(QSerialPort::NoFlowControl)
+                _flowControl(QSerialPort::NoFlowControl), \
+                _baudRateIndex(-1), \
+                _dataBitsIndex(-1), \
+                _parityIndex(-1), \
+                _stopBitsIndex(-1), \
+                _flowControlIndex(-1) \
 {
     //this->_checkBox = new QCheckBox(this->_portName, groupbox);
     this->_checkBox = new QRadioButton(this->_portName, groupbox); //delete
@@ -20,36 +25,38 @@ ComPort::~ComPort()
 
 void	ComPort::setBaudRate(const QString &rate, QStringList &items)
 {
-    (void)&items;
+    _baudRateIndex = items.indexOf(rate);
     _baudRate = (QSerialPort::BaudRate)rate.toUInt();
 }
 
 void	ComPort::setDataBits(const QString &bits, QStringList &items)
 {
-    (void)&items;
+    _dataBitsIndex = items.indexOf(bits);
     _dataBits = (QSerialPort::DataBits)bits.toUInt();
 }
 
 void	ComPort::setParity(const QString &parity, QStringList &items)
 {
-    unsigned int index = items.indexOf(parity);
-    if (index)
-        index++;
-    _parity = (QSerialPort::Parity)index;
+    _parityIndex = items.indexOf(parity);
+    if (_parityIndex)
+        _parityIndex++;
+    _parity = (QSerialPort::Parity)_parityIndex;
+    _parityIndex = items.indexOf(parity);
 }
 
 void	ComPort::setStopBits(const QString &bits, QStringList &items)
 {
-    unsigned int index = items.indexOf(bits) + 1;
-    if (index == 2)
-        index++;
-    else if (index == 3)
-        index--;
-    _stopBits = static_cast<QSerialPort::StopBits>(index);
+    _stopBitsIndex = items.indexOf(bits) + 1;
+    if (_stopBitsIndex == 2)
+        _stopBitsIndex++;
+    else if (_stopBitsIndex == 3)
+        _stopBitsIndex--;
+    _stopBits = static_cast<QSerialPort::StopBits>(_stopBitsIndex);
+    _stopBitsIndex = items.indexOf(bits);
 }
 
 void	ComPort::setFlowControl(const QString &flowcontrol, QStringList &items)
 {
-    unsigned int index = items.indexOf(flowcontrol);
-    _flowControl = (QSerialPort::FlowControl)index;
+    _flowControlIndex = items.indexOf(flowcontrol);
+    _flowControl = (QSerialPort::FlowControl)_flowControlIndex;
 }
