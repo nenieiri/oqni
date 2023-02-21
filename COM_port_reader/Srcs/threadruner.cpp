@@ -77,7 +77,7 @@ void ThreadRuner::reader(const ComPort *comPort, const std::string &pathFileName
         return ;
     }
 
-    while (true)
+    while (!isInterruptionRequested())
     {
         if (port.waitForReadyRead(1000))
         {
@@ -92,4 +92,5 @@ void ThreadRuner::reader(const ComPort *comPort, const std::string &pathFileName
                     line += data.at(0);
         }
     }
+    port.close();
 }
