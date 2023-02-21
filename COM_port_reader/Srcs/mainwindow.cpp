@@ -274,8 +274,7 @@ void    MainWindow::buttonNextAction()
                 QDir::homePath()
             );
             
-            selectedDirectory += ("/" + createFileName(comPort->getPortName()));
-            std::string fileName = selectedDirectory.toStdString();
+            QString fileName = selectedDirectory + "/" + createFileName(comPort->getPortName());
             
             comPort->setBaudRate(baudComboBox->currentText(), this->_baudRateItems);
             comPort->setDataBits(dataComboBox->currentText(), this->_dataBitsItems);
@@ -283,7 +282,8 @@ void    MainWindow::buttonNextAction()
             comPort->setStopBits(stopComboBox->currentText(), this->_stopBitsItems);
             comPort->setFlowControl(flowComboBox->currentText(), this->_flowControlItems);
 
-            reader_win(comPort, fileName);
+			ThreadRuner *threadReader = new ThreadRuner(comPort, fileName.toStdString());
+			threadReader->start();
 		});
 
     comPort->_propertyWindow->exec();

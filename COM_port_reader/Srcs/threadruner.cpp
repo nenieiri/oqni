@@ -1,6 +1,21 @@
-#include "all.hpp"
+#include "../Includes/threadruner.hpp"
 
-static void    parser(std::string &line, const std::string &pathFileName)
+ThreadRuner::ThreadRuner(ComPort *comPort, const std::string &fileName)
+			: _comPort(comPort)
+            , _fileName(fileName)
+{
+}
+
+ThreadRuner::~ThreadRuner()
+{
+}
+
+void		ThreadRuner::run()
+{
+	reader(_comPort, _fileName);
+}
+
+void		ThreadRuner::parserUno(std::string &line, const std::string &pathFileName)
 {
     size_t      found;
     std::string tokenX = "XVALUE=";
@@ -43,30 +58,18 @@ static void    parser(std::string &line, const std::string &pathFileName)
     MyFile.close();
 }
 
-void reader_win(const ComPort *comPort, const std::string &pathFileName)
+void ThreadRuner::reader(const ComPort *comPort, const std::string &pathFileName)
 {
     QSerialPort port;
     QByteArray  data;
     std::string line;
 
     port.setPort(comPort->getPort());
-//    port.setBaudRate(comPort->getBaudRate());
-//    port.setDataBits(comPort->getDataBits());
-//    port.setParity(comPort->getParity());
-//    port.setStopBits(comPort->getStopBits());
-//    port.setFlowControl(comPort->getFlowControl());
-
-    port.setBaudRate(QSerialPort::Baud9600);
-    port.setDataBits(QSerialPort::Data8);
-    port.setParity(QSerialPort::NoParity);
-    port.setStopBits(QSerialPort::OneStop);
-    port.setFlowControl(QSerialPort::NoFlowControl);
-
-    qDebug() << (comPort->getBaudRate() == QSerialPort::Baud9600);
-    qDebug() << (comPort->getDataBits() == QSerialPort::Data8);
-    qDebug() << (comPort->getParity() == QSerialPort::SpaceParity);
-    qDebug() << (comPort->getStopBits() == QSerialPort::OneAndHalfStop);
-    qDebug() << (comPort->getFlowControl() == QSerialPort::SoftwareControl);
+    port.setBaudRate(comPort->getBaudRate());
+    port.setDataBits(comPort->getDataBits());
+    port.setParity(comPort->getParity());
+    port.setStopBits(comPort->getStopBits());
+    port.setFlowControl(comPort->getFlowControl());
 
     if (!port.open(QIODevice::ReadOnly))
     {
@@ -78,12 +81,11 @@ void reader_win(const ComPort *comPort, const std::string &pathFileName)
     {
         if (port.waitForReadyRead(1000))
         {
-            data = port.read(1); // Read one byte from the serial port
-            if (!data.isEmpty() && data.at(0) == '\n') // Get the character from the QByteArray
+            data = port.read(1);
+            if (!data.isEmpty() && data.at(0) == '\n')
             {
                 line += data.at(0);
-//                qDebug() << QString::fromStdString(line);
-                parser(line, pathFileName);
+                parserUno(line, pathFileName);
                 line = "";
             }
             else if (!data.isEmpty() && data.at(0) != '\n')

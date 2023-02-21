@@ -31,7 +31,6 @@
 # include <string>
 
 # include "comport.hpp"
-
-void reader_win(const ComPort *comPort, const std::string &pathFileName);
+# include "threadruner.hpp"
 
 #endif

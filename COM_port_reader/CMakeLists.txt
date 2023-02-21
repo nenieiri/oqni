@@ -19,11 +19,12 @@ set(PROJECT_SOURCES
         Includes/mainwindow.h
         Includes/comport.hpp
         Includes/all.hpp
+		Includes/threadruner.hpp
 		
         Srcs/comport.cpp
         Srcs/main.cpp
         Srcs/mainwindow.cpp
-        Srcs/reader_win.cpp
+		Srcs/threadruner.cpp
 		
         mainwindow.ui
         ResourceFiles.qrc
