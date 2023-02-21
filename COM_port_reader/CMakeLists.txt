@@ -18,6 +18,7 @@ include_directories(Includes/)
 set(PROJECT_SOURCES
         Includes/mainwindow.h
         Includes/comport.hpp
+        Includes/all.hpp
 		
         Srcs/comport.cpp
         Srcs/main.cpp

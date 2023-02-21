@@ -1,9 +1,5 @@
 #include "mainwindow.h"
 
-void reader_win(const QString &portName, QSerialPort::BaudRate BR, QSerialPort::DataBits DB,
-                QSerialPort::Parity P, QSerialPort::StopBits SB, QSerialPort::FlowControl FC,
-                const std::string &pathFileName);
-
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -143,8 +139,8 @@ void    MainWindow::buttonCheckAction(void)
     this->_liftVertical->hide();
     for (QVector<ComPort *>::iterator it = _comPorts.begin(); it < _comPorts.end(); ++it)
         (*it)->getCheckBox()->hide();
-    QTimer::singleShot(3000, this->_gifLabel, &QLabel::hide);
-    QTimer::singleShot(3000, this,
+    QTimer::singleShot(1000, this->_gifLabel, &QLabel::hide);
+    QTimer::singleShot(1000, this,
         [=](void)
         {
             for (QVector<ComPort *>::iterator it = _comPorts.begin(); it < _comPorts.end(); ++it)
@@ -153,7 +149,7 @@ void    MainWindow::buttonCheckAction(void)
                 
             QList<QSerialPortInfo> portList = QSerialPortInfo::availablePorts();
             for (const QSerialPortInfo& port : portList)
-                this->_comPorts.push_back(new ComPort(port.portName(), this->_groupBox));
+                this->_comPorts.push_back(new ComPort(port, this->_groupBox));
             this->_portCount = this->_comPorts.size();
             if (this->_portCount > 12)
             {
@@ -174,73 +170,73 @@ void    MainWindow::buttonCheckAction(void)
 
 void    MainWindow::buttonNextAction()
 {
-    ComPort	*target;
+    ComPort	*comPort;
     
-    target = nullptr;
+    comPort = nullptr;
     for (QVector<ComPort *>::iterator it = _comPorts.begin(); it != _comPorts.end(); ++it)
     {
          
         if ((*it)->getCheckBox()->isChecked() == true )
         {
-            target = *it;
+            comPort = *it;
             break ;
         }
     }
-    if (target == nullptr)
+    if (comPort == nullptr)
         return ;
     
-    target->_propertyWindow = new QDialog(this);
-    target->_propertyWindow->setModal(true);
+    comPort->_propertyWindow = new QDialog(this);
+    comPort->_propertyWindow->setModal(true);
 
-    target->_propertyWindow->setMinimumSize(360, 300);
-    target->_propertyWindow->setMaximumSize(360, 300);
-    target->_propertyWindow->setWindowTitle("Properties");
-    target->_propertyWindow->setWindowIcon(QIcon(":/Imgs/oqni.ico"));
-    target->_propertyWindow->setWindowFilePath(":/Imgs/oqni.ico");
-    target->_propertyWindow->setStyleSheet("background: #e6e6e6;");
+    comPort->_propertyWindow->setMinimumSize(360, 300);
+    comPort->_propertyWindow->setMaximumSize(360, 300);
+    comPort->_propertyWindow->setWindowTitle("Properties");
+    comPort->_propertyWindow->setWindowIcon(QIcon(":/Imgs/oqni.ico"));
+    comPort->_propertyWindow->setWindowFilePath(":/Imgs/oqni.ico");
+    comPort->_propertyWindow->setStyleSheet("background: #e6e6e6;");
     
-    QLabel *portName = new QLabel("Port name:         " + target->getPortName(), target->_propertyWindow);
+    QLabel *portName = new QLabel("Port name:         " + comPort->getPortName(), comPort->_propertyWindow);
     portName->setGeometry(10, 10, 430, 30);
-    QLabel *baudRate = new QLabel("Baud Rate:" , target->_propertyWindow);
+    QLabel *baudRate = new QLabel("Baud Rate:" , comPort->_propertyWindow);
     baudRate->setGeometry(10, 50, 130, 30);
-    QLabel *dataBits = new QLabel("Data Bits:", target->_propertyWindow);
+    QLabel *dataBits = new QLabel("Data Bits:", comPort->_propertyWindow);
     dataBits->setGeometry(10, 90, 130, 30);
-    QLabel *parity = new QLabel("Parity:", target->_propertyWindow);
+    QLabel *parity = new QLabel("Parity:", comPort->_propertyWindow);
     parity->setGeometry(10, 130, 130, 30);
-    QLabel *stopBits = new QLabel("Stop Bits:", target->_propertyWindow);
+    QLabel *stopBits = new QLabel("Stop Bits:", comPort->_propertyWindow);
     stopBits->setGeometry(10, 170, 130, 30);
-    QLabel *flowControl = new QLabel("Flow Control:", target->_propertyWindow);
+    QLabel *flowControl = new QLabel("Flow Control:", comPort->_propertyWindow);
     flowControl->setGeometry(10, 210, 130, 30);
     
     
-    QComboBox *baudComboBox = new QComboBox(target->_propertyWindow);
+    QComboBox *baudComboBox = new QComboBox(comPort->_propertyWindow);
     baudComboBox->addItems(this->_baudRateItems);
     baudComboBox->setGeometry(150, 50, 200, 30);
     
-    QComboBox *dataComboBox = new QComboBox(target->_propertyWindow);
+    QComboBox *dataComboBox = new QComboBox(comPort->_propertyWindow);
     dataComboBox->addItems(this->_dataBitsItems);
     dataComboBox->setGeometry(150, 90, 200, 30);
     
-    QComboBox *parityComboBox = new QComboBox(target->_propertyWindow);
+    QComboBox *parityComboBox = new QComboBox(comPort->_propertyWindow);
     parityComboBox->addItems(this->_parityItems);
     parityComboBox->setGeometry(150, 130, 200, 30);
     
-    QComboBox *stopComboBox = new QComboBox(target->_propertyWindow);
+    QComboBox *stopComboBox = new QComboBox(comPort->_propertyWindow);
     stopComboBox->addItems(this->_stopBitsItems);
     stopComboBox->setGeometry(150, 170, 200, 30);
     
-    QComboBox *flowComboBox = new QComboBox(target->_propertyWindow);
+    QComboBox *flowComboBox = new QComboBox(comPort->_propertyWindow);
     flowComboBox->addItems(this->_flowControlItems);
     flowComboBox->setGeometry(150, 210, 200, 30);
     
-   	target->_cancel = this->createButton("Cancel", 10, 255, 100, 30, nullptr, target->_propertyWindow);
-   	target->_setDefault = this->createButton("Default", 130, 255, 100, 30, nullptr, target->_propertyWindow);
-   	target->_start = this->createButton("Start", 250, 255, 100, 30, nullptr, target->_propertyWindow);
+    comPort->_cancel = this->createButton("Cancel", 10, 255, 100, 30, nullptr, comPort->_propertyWindow);
+    comPort->_setDefault = this->createButton("Default", 130, 255, 100, 30, nullptr, comPort->_propertyWindow);
+    comPort->_start = this->createButton("Start", 250, 255, 100, 30, nullptr, comPort->_propertyWindow);
     
-    connect(target->_cancel, &QPushButton::clicked, target->_propertyWindow,
+    connect(comPort->_cancel, &QPushButton::clicked, comPort->_propertyWindow,
 		[=](void)
 		{
-			target->_propertyWindow->close();
+            comPort->_propertyWindow->close();
             delete portName;
             delete baudRate;
             delete dataBits;
@@ -252,11 +248,11 @@ void    MainWindow::buttonNextAction()
             delete parityComboBox;
             delete stopComboBox;
             delete flowComboBox;
-			delete target->_propertyWindow;
+            delete comPort->_propertyWindow;
             this->_buttonNext->setStyleSheet(MY_DEFINED_DEFAULT_BUTTON);
 		});
     
-	connect(target->_setDefault, &QPushButton::clicked, target->_propertyWindow,
+    connect(comPort->_setDefault, &QPushButton::clicked, comPort->_propertyWindow,
 		[=](void)
 		{
         		baudComboBox->setCurrentIndex(9);
@@ -266,7 +262,7 @@ void    MainWindow::buttonNextAction()
         		flowComboBox->setCurrentIndex(0);
 		});
     
-	connect(target->_start, &QPushButton::clicked, target->_propertyWindow,
+    connect(comPort->_start, &QPushButton::clicked, comPort->_propertyWindow,
 		[=](void)
 		{
             QFileDialog dialog;
@@ -278,21 +274,19 @@ void    MainWindow::buttonNextAction()
                 QDir::homePath()
             );
             
-            selectedDirectory += ("/" + createFileName(target->getPortName()));
+            selectedDirectory += ("/" + createFileName(comPort->getPortName()));
             std::string fileName = selectedDirectory.toStdString();
             
-        		target->setBaudRate(baudComboBox->currentText(), this->_baudRateItems);
-				target->setDataBits(dataComboBox->currentText(), this->_dataBitsItems);
-	        	target->setParity(parityComboBox->currentText(), this->_parityItems);
-	        	target->setStopBits(stopComboBox->currentText(), this->_stopBitsItems);
-	        	target->setFlowControl(flowComboBox->currentText(), this->_flowControlItems);
-            
-                reader_win(target->getPortName(), target->getBaudRate(), target->getDataBits(),
-                           target->getParity(), target->getStopBits(), target->getFlowControl(),
-                           fileName);
+            comPort->setBaudRate(baudComboBox->currentText(), this->_baudRateItems);
+            comPort->setDataBits(dataComboBox->currentText(), this->_dataBitsItems);
+            comPort->setParity(parityComboBox->currentText(), this->_parityItems);
+            comPort->setStopBits(stopComboBox->currentText(), this->_stopBitsItems);
+            comPort->setFlowControl(flowComboBox->currentText(), this->_flowControlItems);
+
+            reader_win(comPort, fileName);
 		});
 
-    target->_propertyWindow->exec();
+    comPort->_propertyWindow->exec();
 }
 
 const QString   MainWindow::createFileName(const QString &portName)

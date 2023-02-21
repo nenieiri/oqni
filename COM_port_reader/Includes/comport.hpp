@@ -9,23 +9,24 @@
 # include <QDialog>
 # include <QPushButton>
 # include <QSerialPort>
+# include <QSerialPortInfo>
 # include <QStringList>
 
 class	ComPort
 {
     public:
-        ComPort(const QString &name, QGroupBox *groupbox);
+        ComPort(const QSerialPortInfo &port, QGroupBox *groupbox);
         ~ComPort(void);
 
     public:
-        void    	setPortName(QString &name);
         void    	setBaudRate(const QString &rate, QStringList &items);
         void    	setDataBits(const QString &bits, QStringList &items);
         void    	setParity(const QString &parity, QStringList &items);
         void    	setStopBits(const QString &bits, QStringList &items);
         void    	setFlowControl(const QString &flowcontrol, QStringList &items);
 
-        const QString               getPortName(void) const {return _portName;}
+        const QSerialPortInfo       &getPort(void) const {return _port;}
+        const QString               &getPortName(void) const {return _portName;}
         QSerialPort::BaudRate       getBaudRate(void) const {return _baudRate;}
         QSerialPort::DataBits       getDataBits(void) const {return _dataBits;}
         QSerialPort::Parity         getParity(void) const {return _parity;}
@@ -36,12 +37,14 @@ class	ComPort
         QRadioButton	*getCheckBox(void) const {return _checkBox;}  //delete
 
     private:
-        QString					_portName;
-        QSerialPort::BaudRate	_baudRate;
-        QSerialPort::DataBits	_dataBits;
-        QSerialPort::Parity		_parity;
-        QSerialPort::StopBits	_stopBits;
-        QSerialPort::FlowControl	_flowControl;
+        const QSerialPortInfo       _port;
+        const QString               _portName;
+        QSerialPort::BaudRate       _baudRate;
+        QSerialPort::DataBits       _dataBits;
+        QSerialPort::Parity         _parity;
+        QSerialPort::StopBits       _stopBits;
+        QSerialPort::FlowControl    _flowControl;
+
         
         //QCheckBox       			*_checkBox;
         QRadioButton    			*_checkBox; //delete

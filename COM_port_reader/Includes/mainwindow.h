@@ -1,28 +1,7 @@
 #ifndef MAINWINDOW_H
 # define MAINWINDOW_H
 
-# include <QApplication>
-# include <QMainWindow>
-# include <QScreen>
-# include <QPushButton>
-# include <QComboBox>
-# include <QLabel>
-# include <QMovie>
-# include <QTimer>
-# include <QGroupBox>
-# include <QCheckBox>
-# include <QVector>
-# include <QDebug>
-# include <QScrollBar>
-# include <QDialog>
-# include <QSerialPortInfo>
-# include <QWidget>
-# include <QDateTime>
-# include <QFileDialog>
-# include <QDir>
-
-# include <functional>
-
+# include "all.hpp"
 # include "../ui_mainwindow.h"
 # include "comport.hpp"
 

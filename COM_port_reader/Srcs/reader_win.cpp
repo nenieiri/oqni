@@ -1,13 +1,6 @@
-#include <iostream>
-#include <fstream>
-#include <string>
+#include "all.hpp"
 
-#include <QSerialPort>
-#include <QSerialPortInfo>
-#include <QString>
-#include <QDebug>
-
-void    parser(std::string &line, const std::string &pathFileName)
+static void    parser(std::string &line, const std::string &pathFileName)
 {
     size_t      found;
     std::string tokenX = "XVALUE=";
@@ -50,36 +43,32 @@ void    parser(std::string &line, const std::string &pathFileName)
     MyFile.close();
 }
 
-void reader_win(const QString &portName, QSerialPort::BaudRate BR, QSerialPort::DataBits DB,
-                QSerialPort::Parity P, QSerialPort::StopBits SB, QSerialPort::FlowControl FC,
-                const std::string &pathFileName)
+void reader_win(const ComPort *comPort, const std::string &pathFileName)
 {
-    QSerialPort serial;
+    QSerialPort port;
     QByteArray  data;
     std::string line;
 
-    foreach (const QSerialPortInfo &info, QSerialPortInfo::availablePorts())
-    {
-        if (info.portName() == portName)
-        {
-            serial.setPort(info);
-            break;
-        }
-    }
+    port.setPort(comPort->getPort());
+//    port.setBaudRate(comPort->getBaudRate());
+//    port.setDataBits(comPort->getDataBits());
+//    port.setParity(comPort->getParity());
+//    port.setStopBits(comPort->getStopBits());
+//    port.setFlowControl(comPort->getFlowControl());
 
-    serial.setBaudRate(BR);
-    serial.setDataBits(DB);
-    serial.setParity(P);
-    serial.setStopBits(SB);
-    serial.setFlowControl(FC);
+    port.setBaudRate(QSerialPort::Baud9600);
+    port.setDataBits(QSerialPort::Data8);
+    port.setParity(QSerialPort::NoParity);
+    port.setStopBits(QSerialPort::OneStop);
+    port.setFlowControl(QSerialPort::NoFlowControl);
 
-//    serial.setBaudRate(QSerialPort::Baud9600);
-//    serial.setDataBits(QSerialPort::Data8);
-//    serial.setParity(QSerialPort::NoParity);
-//    serial.setStopBits(QSerialPort::OneStop);
-//    serial.setFlowControl(QSerialPort::NoFlowControl);
+    qDebug() << (comPort->getBaudRate() == QSerialPort::Baud9600);
+    qDebug() << (comPort->getDataBits() == QSerialPort::Data8);
+    qDebug() << (comPort->getParity() == QSerialPort::SpaceParity);
+    qDebug() << (comPort->getStopBits() == QSerialPort::OneAndHalfStop);
+    qDebug() << (comPort->getFlowControl() == QSerialPort::SoftwareControl);
 
-    if (!serial.open(QIODevice::ReadOnly))
+    if (!port.open(QIODevice::ReadOnly))
     {
         qDebug() << "Failed to open serial port";
         return ;
@@ -87,9 +76,9 @@ void reader_win(const QString &portName, QSerialPort::BaudRate BR, QSerialPort::
 
     while (true)
     {
-        if (serial.waitForReadyRead(1000))
+        if (port.waitForReadyRead(1000))
         {
-            data = serial.read(1); // Read one byte from the serial port
+            data = port.read(1); // Read one byte from the serial port
             if (!data.isEmpty() && data.at(0) == '\n') // Get the character from the QByteArray
             {
                 line += data.at(0);
