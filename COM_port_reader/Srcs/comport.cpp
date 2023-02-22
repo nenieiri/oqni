@@ -19,6 +19,12 @@ ComPort::ComPort(const QSerialPortInfo &port, QGroupBox *groupbox) : \
 
     this->_toolButton = new QToolButton(groupbox);
     this->_toolButton->setIcon(QIcon(":/Imgs/config.png"));
+    this->_toolButton->setIconSize(QSize(25, 25));
+    this->_toolButton->setCursor(Qt::PointingHandCursor);
+    this->_toolButton->setToolTip("Set properties");
+   	this->_toolButton->setStyleSheet("QToolButton { border: 0px; } \
+									  QToolButton:hover { border-radius: 5px; border: 1px solid red; background: yellow;} \
+									  QToolTip { font-size: 14pt; border: 0px; }");
 }
 
 ComPort::~ComPort()

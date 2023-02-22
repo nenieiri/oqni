@@ -123,7 +123,7 @@ void    MainWindow::createLiftVertical(int x, int y, int width, int height)
                 (*it)->getCheckBox()->setGeometry(40, liftRatio, 285, 20);
                 (*it)->getCheckBox()->raise();
 
-                (*it)->getToolButton()->setGeometry(10, liftRatio, 20, 20);
+                (*it)->getToolButton()->setGeometry(5, liftRatio - 5, 30, 30);
                 (*it)->getToolButton()->raise();
                 if (liftRatio >= 40)
                 {
@@ -181,7 +181,7 @@ void    MainWindow::buttonCheckAction(void)
                 (*it)->getCheckBox()->show();
                 (*it)->getCheckBox()->setStyleSheet("border: 0px solid gray;");
 
-                (*it)->getToolButton()->setGeometry(10, 40 * (1 + (it - _comPorts.begin())), 20, 20);
+                (*it)->getToolButton()->setGeometry(5, 40 * (1 + (it - _comPorts.begin())) - 5, 30, 30);
 
                 connect((*it)->getCheckBox(), &QRadioButton::clicked, (*it)->getToolButton(),
                     [=](void)
@@ -221,23 +221,23 @@ void	MainWindow::buttonNextAction()
     if (comPort == nullptr)
         return ;
     
-//    connect(comPort->_saveProperies, &QPushButton::clicked, comPort->_propertyWindow,
-//		[=](void)
-//		{
-//            QFileDialog dialog;
-//            dialog.setOption(QFileDialog::ShowDirsOnly);
+    connect(this->_buttonNext, &QPushButton::clicked, this,
+		[=](void)
+		{
+            QFileDialog dialog;
+            dialog.setOption(QFileDialog::ShowDirsOnly);
             
-//            QString selectedDirectory = dialog.getExistingDirectory(
-//                this,
-//                "Select directory to save file",
-//                QDir::homePath()
-//            );
+            QString selectedDirectory = dialog.getExistingDirectory(
+                this,
+                "Select directory to save file",
+                QDir::homePath()
+            );
             
-//            QString fileName = selectedDirectory + "/" + createFileName(comPort->getPortName());
+            QString fileName = selectedDirectory + "/" + createFileName(comPort->getPortName());
 
-//			ThreadRuner *threadReader = new ThreadRuner(comPort, fileName.toStdString());
-//			threadReader->start();
-//		});
+			ThreadRuner *threadReader = new ThreadRuner(comPort, fileName.toStdString());
+			threadReader->start();
+		});
 }
 
 void    MainWindow::buttonToolAction(ComPort *comPort)
