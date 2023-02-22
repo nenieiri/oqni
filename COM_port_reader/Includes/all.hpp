@@ -25,6 +25,7 @@
 # include <QStringList>
 # include <QRadioButton>
 # include <QLineEdit>
+# include <QMessageBox>
 
 # include <functional>
 # include <iostream>

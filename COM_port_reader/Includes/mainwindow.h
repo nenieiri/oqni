@@ -55,7 +55,7 @@ class MainWindow : public QMainWindow
 
         ComPort             *_previewsCheckBox; // temp to delete
 
-        QDialog             *_windowNext;
+        QDialog             *_windowSaveTo;
 };
 
 #endif

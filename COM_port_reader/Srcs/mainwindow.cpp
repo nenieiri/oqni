@@ -211,14 +211,14 @@ void	MainWindow::buttonSaveToAction()
     QString     selectedDirectory;
     QString     fileName;
     
-    this->_windowNext = new QDialog(this);
-    this->_windowNext->setModal(true);
-    this->_windowNext->setMinimumSize(500, 500);
-    this->_windowNext->setMaximumSize(500, 500);
-    this->_windowNext->setWindowTitle("OQNI: Drawer");
-    this->_windowNext->setWindowIcon(QIcon(":/Imgs/oqni.ico"));
-    this->_windowNext->setWindowFilePath(":/Imgs/oqni.ico");
-    this->_windowNext->setStyleSheet("background: #e6e6e6;");
+    this->_windowSaveTo = new QDialog(this);
+    this->_windowSaveTo->setModal(true);
+    this->_windowSaveTo->setMinimumSize(500, 500);
+    this->_windowSaveTo->setMaximumSize(500, 500);
+    this->_windowSaveTo->setWindowTitle("OQNI: Drawer");
+    this->_windowSaveTo->setWindowIcon(QIcon(":/Imgs/oqni.ico"));
+    this->_windowSaveTo->setWindowFilePath(":/Imgs/oqni.ico");
+    this->_windowSaveTo->setStyleSheet("background: #e6e6e6;");
 
 
     for (QVector<ComPort *>::iterator it = _comPorts.begin(); it != _comPorts.end(); ++it)
@@ -232,18 +232,18 @@ void	MainWindow::buttonSaveToAction()
     }
     if (comPort == nullptr)
     {
-        delete this->_windowNext;
+        delete this->_windowSaveTo;
         return ;
     }
     
     dialog.setOption(QFileDialog::ShowDirsOnly);
     dialog.setWindowTitle(tr("Select directory to save file")); // test this on Windows OS!!!
 
-    selectedDirectory = dialog.getExistingDirectory(this->_windowNext, tr("Save to"), QDir::homePath());
+    selectedDirectory = dialog.getExistingDirectory(this->_windowSaveTo, tr("Save to"), QDir::homePath());
 
     if (selectedDirectory == "")
     {
-        delete this->_windowNext;
+        delete this->_windowSaveTo;
         this->_buttonSaveTo->setStyleSheet(MY_DEFINED_RELEASED_BUTTON);
         return ;
     }
@@ -253,30 +253,52 @@ void	MainWindow::buttonSaveToAction()
 //	ThreadRuner *threadReader = new ThreadRuner(comPort, fileName.toStdString());
 //	threadReader->start();
 
-    QLabel *showSelectedDir1 = new QLabel("Save to:", this->_windowNext);
+    QLabel *showSelectedDir1 = new QLabel("Save to:", this->_windowSaveTo);
     showSelectedDir1->setGeometry(10, 10, 100, 30);
 
-    QLabel *showSelectedDir2 = new QLabel(selectedDirectory, this->_windowNext);
+    QLabel *showSelectedDir2 = new QLabel(selectedDirectory, this->_windowSaveTo);
     showSelectedDir2->setGeometry(90, 10, 480, 30);
     showSelectedDir2->setToolTip(selectedDirectory);
     showSelectedDir2->setStyleSheet("font-size: 14px; color: blue;");
 
-    QLabel *setTimer = new QLabel("Set duration (in seconds):  ", this->_windowNext);
+    QLabel *setTimer = new QLabel("Set duration (in seconds):  ", this->_windowSaveTo);
     setTimer->setGeometry(10, 40, 240, 30);
 
-    QLineEdit *lineEdit = new QLineEdit(this->_windowNext);
-    lineEdit->setPlaceholderText(" enter here");
+    QLineEdit *lineEdit = new QLineEdit(this->_windowSaveTo);
+    lineEdit->setPlaceholderText(" enter here ");
     lineEdit->setGeometry(250, 40, 90, 30);
     lineEdit->setStyleSheet("background: white; font-size: 14px;");
-//    this->_windowNext->setCentralWidget(lineEdit);
+    lineEdit->setToolTip("Please enter only numeric values.");
 
-    this->_windowNext->exec();
+    /* --- If the text contains a non-numeric character, show warrnig msg --- */
+    connect(lineEdit, &QLineEdit::textChanged, this->_windowSaveTo,
+        [=](void)
+        {
+            QString text = lineEdit->text();
+            bool hasNonNumericChar = false;
+            for (int i = 0; i < text.length(); i++)
+            {
+                if (text[i].isDigit() == false)
+                {
+                    hasNonNumericChar = true;
+                    lineEdit->setStyleSheet("QLineEdit { background-color: red; }");
+                    QMessageBox::warning(this->_windowSaveTo, tr("Invalid Input"),
+                                        tr("Please enter a numeric value."), QMessageBox::Ok);
+                    break ;
+                }
+            }
+            if (hasNonNumericChar == false)
+                lineEdit->setStyleSheet("QLineEdit { background-color: white; }");
+        });
+    /* ---------------------------------------------------------------------- */
+
+    this->_windowSaveTo->exec();
     this->_buttonSaveTo->setStyleSheet(MY_DEFINED_RELEASED_BUTTON);
     delete showSelectedDir1;
     delete showSelectedDir2;
     delete lineEdit;
     delete setTimer;
-    delete this->_windowNext;
+    delete this->_windowSaveTo;
 }
 
 void    MainWindow::buttonToolAction(ComPort *comPort)
@@ -343,11 +365,11 @@ void    MainWindow::buttonToolAction(ComPort *comPort)
     connect(comPort->_setDefaultProperties, &QPushButton::clicked, comPort->_windowProperty,
 		[=](void)
 		{
-                baudComboBox->setCurrentIndex(7);
-        		dataComboBox->setCurrentIndex(3);
-        		parityComboBox->setCurrentIndex(0);
-        		stopComboBox->setCurrentIndex(0);
-        		flowComboBox->setCurrentIndex(0);
+            baudComboBox->setCurrentIndex(7);
+            dataComboBox->setCurrentIndex(3);
+            parityComboBox->setCurrentIndex(0);
+            stopComboBox->setCurrentIndex(0);
+            flowComboBox->setCurrentIndex(0);
 		});
     connect(comPort->_saveProperies, &QPushButton::clicked, comPort->_windowProperty,
         [=](void)
