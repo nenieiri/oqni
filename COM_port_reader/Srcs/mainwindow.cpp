@@ -253,14 +253,29 @@ void	MainWindow::buttonSaveToAction()
 //	ThreadRuner *threadReader = new ThreadRuner(comPort, fileName.toStdString());
 //	threadReader->start();
 
-    QLabel *showSelectedDir = new QLabel("SAVE TO:  " + selectedDirectory, this->_windowNext);
-    showSelectedDir->setGeometry(10, 20, 480, 30);
-    showSelectedDir->setToolTip(selectedDirectory);
-    showSelectedDir->setStyleSheet("font-size: 12px;");
+    QLabel *showSelectedDir1 = new QLabel("Save to:", this->_windowNext);
+    showSelectedDir1->setGeometry(10, 10, 100, 30);
+
+    QLabel *showSelectedDir2 = new QLabel(selectedDirectory, this->_windowNext);
+    showSelectedDir2->setGeometry(90, 10, 480, 30);
+    showSelectedDir2->setToolTip(selectedDirectory);
+    showSelectedDir2->setStyleSheet("font-size: 14px; color: blue;");
+
+    QLabel *setTimer = new QLabel("Set duration (in seconds):  ", this->_windowNext);
+    setTimer->setGeometry(10, 40, 240, 30);
+
+    QLineEdit *lineEdit = new QLineEdit(this->_windowNext);
+    lineEdit->setPlaceholderText(" enter here");
+    lineEdit->setGeometry(250, 40, 90, 30);
+    lineEdit->setStyleSheet("background: white; font-size: 14px;");
+//    this->_windowNext->setCentralWidget(lineEdit);
 
     this->_windowNext->exec();
     this->_buttonSaveTo->setStyleSheet(MY_DEFINED_RELEASED_BUTTON);
-    delete showSelectedDir;
+    delete showSelectedDir1;
+    delete showSelectedDir2;
+    delete lineEdit;
+    delete setTimer;
     delete this->_windowNext;
 }
 

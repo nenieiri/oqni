@@ -24,6 +24,7 @@
 # include <QString>
 # include <QStringList>
 # include <QRadioButton>
+# include <QLineEdit>
 
 # include <functional>
 # include <iostream>
