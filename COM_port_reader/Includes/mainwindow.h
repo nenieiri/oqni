@@ -33,6 +33,8 @@ class MainWindow : public QMainWindow
         void            buttonNextAction(void);
         const QString   createFileName(const QString &portName);
 
+    private slots:
+		void			buttonToolAction(ComPort *comPort);
 
     private:
         Ui::MainWindow      *ui;

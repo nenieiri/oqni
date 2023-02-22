@@ -192,13 +192,19 @@ void    MainWindow::buttonCheckAction(void)
                             this->_previewsCheckBox->getToolButton()->hide();
                         this->_previewsCheckBox = *it;
                     });
-                if ((*it)->getCheckBox()->isChecked() == false )
+                if ((*it)->getCheckBox()->isChecked() == false)
                     (*it)->getToolButton()->hide();
+                
+                connect((*it)->getToolButton(), &QToolButton::clicked, this,
+					[=](void)
+					{
+						this->buttonToolAction(*it);
+					});
             }
         });
 }
 
-void    MainWindow::buttonNextAction()
+void	MainWindow::buttonNextAction()
 {
     ComPort	*comPort;
     
@@ -215,6 +221,27 @@ void    MainWindow::buttonNextAction()
     if (comPort == nullptr)
         return ;
     
+//    connect(comPort->_saveProperies, &QPushButton::clicked, comPort->_propertyWindow,
+//		[=](void)
+//		{
+//            QFileDialog dialog;
+//            dialog.setOption(QFileDialog::ShowDirsOnly);
+            
+//            QString selectedDirectory = dialog.getExistingDirectory(
+//                this,
+//                "Select directory to save file",
+//                QDir::homePath()
+//            );
+            
+//            QString fileName = selectedDirectory + "/" + createFileName(comPort->getPortName());
+
+//			ThreadRuner *threadReader = new ThreadRuner(comPort, fileName.toStdString());
+//			threadReader->start();
+//		});
+}
+
+void    MainWindow::buttonToolAction(ComPort *comPort)
+{
     comPort->_propertyWindow = new QDialog(this);
     comPort->_propertyWindow->setModal(true);
 
@@ -287,7 +314,6 @@ void    MainWindow::buttonNextAction()
             delete comPort->_propertyWindow;
             this->_buttonNext->setStyleSheet(MY_DEFINED_DEFAULT_BUTTON);
 		});
-    
     connect(comPort->_setDefaultProperties, &QPushButton::clicked, comPort->_propertyWindow,
 		[=](void)
 		{
@@ -297,7 +323,6 @@ void    MainWindow::buttonNextAction()
         		stopComboBox->setCurrentIndex(0);
         		flowComboBox->setCurrentIndex(0);
 		});
-
     connect(comPort->_saveProperies, &QPushButton::clicked, comPort->_propertyWindow,
         [=](void)
         {
@@ -322,25 +347,6 @@ void    MainWindow::buttonNextAction()
             delete comPort->_propertyWindow;
             this->_buttonNext->setStyleSheet(MY_DEFINED_DEFAULT_BUTTON);
         });
-    
-//    connect(comPort->_saveProperies, &QPushButton::clicked, comPort->_propertyWindow,
-//		[=](void)
-//		{
-//            QFileDialog dialog;
-//            dialog.setOption(QFileDialog::ShowDirsOnly);
-            
-//            QString selectedDirectory = dialog.getExistingDirectory(
-//                this,
-//                "Select directory to save file",
-//                QDir::homePath()
-//            );
-            
-//            QString fileName = selectedDirectory + "/" + createFileName(comPort->getPortName());
-
-//			ThreadRuner *threadReader = new ThreadRuner(comPort, fileName.toStdString());
-//			threadReader->start();
-//		});
-
     comPort->_propertyWindow->exec();
 }
 
