@@ -54,6 +54,8 @@ class MainWindow : public QMainWindow
         QStringList         _flowControlItems;
 
         ComPort             *_previewsCheckBox; // temp to delete
+
+        QDialog             *_windowNext;
 };
 
 #endif

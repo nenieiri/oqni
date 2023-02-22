@@ -66,7 +66,7 @@ class	ComPort
         QToolButton                 *_toolButton;
         
     public: //temp
-        QDialog         *_propertyWindow;
+        QDialog         *_windowProperty;
         QPushButton		*_cancelProperties;
         QPushButton		*_setDefaultProperties;
         QPushButton		*_saveProperies;

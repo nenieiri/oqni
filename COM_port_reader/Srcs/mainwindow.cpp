@@ -242,53 +242,53 @@ void	MainWindow::buttonNextAction()
 
 void    MainWindow::buttonToolAction(ComPort *comPort)
 {
-    comPort->_propertyWindow = new QDialog(this);
-    comPort->_propertyWindow->setModal(true);
+    comPort->_windowProperty = new QDialog(this);
+    comPort->_windowProperty->setModal(true);
 
-    comPort->_propertyWindow->setMinimumSize(360, 300);
-    comPort->_propertyWindow->setMaximumSize(360, 300);
-    comPort->_propertyWindow->setWindowTitle("Properties");
-    comPort->_propertyWindow->setWindowIcon(QIcon(":/Imgs/oqni.ico"));
-    comPort->_propertyWindow->setWindowFilePath(":/Imgs/oqni.ico");
-    comPort->_propertyWindow->setStyleSheet("background: #e6e6e6;");
+    comPort->_windowProperty->setMinimumSize(360, 300);
+    comPort->_windowProperty->setMaximumSize(360, 300);
+    comPort->_windowProperty->setWindowTitle("Properties");
+    comPort->_windowProperty->setWindowIcon(QIcon(":/Imgs/oqni.ico"));
+    comPort->_windowProperty->setWindowFilePath(":/Imgs/oqni.ico");
+    comPort->_windowProperty->setStyleSheet("background: #e6e6e6;");
     
-    QLabel *portName = new QLabel("Port name:         " + comPort->getPortName(), comPort->_propertyWindow);
+    QLabel *portName = new QLabel("Port name:         " + comPort->getPortName(), comPort->_windowProperty);
     portName->setGeometry(10, 10, 430, 30);
-    QLabel *baudRate = new QLabel("Baud Rate:" , comPort->_propertyWindow);
+    QLabel *baudRate = new QLabel("Baud Rate:" , comPort->_windowProperty);
     baudRate->setGeometry(10, 50, 130, 30);
-    QLabel *dataBits = new QLabel("Data Bits:", comPort->_propertyWindow);
+    QLabel *dataBits = new QLabel("Data Bits:", comPort->_windowProperty);
     dataBits->setGeometry(10, 90, 130, 30);
-    QLabel *parity = new QLabel("Parity:", comPort->_propertyWindow);
+    QLabel *parity = new QLabel("Parity:", comPort->_windowProperty);
     parity->setGeometry(10, 130, 130, 30);
-    QLabel *stopBits = new QLabel("Stop Bits:", comPort->_propertyWindow);
+    QLabel *stopBits = new QLabel("Stop Bits:", comPort->_windowProperty);
     stopBits->setGeometry(10, 170, 130, 30);
-    QLabel *flowControl = new QLabel("Flow Control:", comPort->_propertyWindow);
+    QLabel *flowControl = new QLabel("Flow Control:", comPort->_windowProperty);
     flowControl->setGeometry(10, 210, 130, 30);
     
     
-    QComboBox *baudComboBox = new QComboBox(comPort->_propertyWindow);
+    QComboBox *baudComboBox = new QComboBox(comPort->_windowProperty);
     baudComboBox->addItems(this->_baudRateItems);
     baudComboBox->setGeometry(150, 50, 200, 30);
     
-    QComboBox *dataComboBox = new QComboBox(comPort->_propertyWindow);
+    QComboBox *dataComboBox = new QComboBox(comPort->_windowProperty);
     dataComboBox->addItems(this->_dataBitsItems);
     dataComboBox->setGeometry(150, 90, 200, 30);
     
-    QComboBox *parityComboBox = new QComboBox(comPort->_propertyWindow);
+    QComboBox *parityComboBox = new QComboBox(comPort->_windowProperty);
     parityComboBox->addItems(this->_parityItems);
     parityComboBox->setGeometry(150, 130, 200, 30);
     
-    QComboBox *stopComboBox = new QComboBox(comPort->_propertyWindow);
+    QComboBox *stopComboBox = new QComboBox(comPort->_windowProperty);
     stopComboBox->addItems(this->_stopBitsItems);
     stopComboBox->setGeometry(150, 170, 200, 30);
     
-    QComboBox *flowComboBox = new QComboBox(comPort->_propertyWindow);
+    QComboBox *flowComboBox = new QComboBox(comPort->_windowProperty);
     flowComboBox->addItems(this->_flowControlItems);
     flowComboBox->setGeometry(150, 210, 200, 30);
     
-    comPort->_cancelProperties = this->createButton("Cancel", 10, 255, 100, 30, nullptr, comPort->_propertyWindow);
-    comPort->_setDefaultProperties = this->createButton("Default", 130, 255, 100, 30, nullptr, comPort->_propertyWindow);
-    comPort->_saveProperies = this->createButton("Save", 250, 255, 100, 30, nullptr, comPort->_propertyWindow);
+    comPort->_cancelProperties = this->createButton("Cancel", 10, 255, 100, 30, nullptr, comPort->_windowProperty);
+    comPort->_setDefaultProperties = this->createButton("Default", 130, 255, 100, 30, nullptr, comPort->_windowProperty);
+    comPort->_saveProperies = this->createButton("Save", 250, 255, 100, 30, nullptr, comPort->_windowProperty);
 
     baudComboBox->setCurrentIndex(comPort->getBaudRateIndex());
     dataComboBox->setCurrentIndex(comPort->getDataBitsIndex());
@@ -296,10 +296,10 @@ void    MainWindow::buttonToolAction(ComPort *comPort)
     stopComboBox->setCurrentIndex(comPort->getStopBitsIndex());
     flowComboBox->setCurrentIndex(comPort->getFlowControlIndex());
     
-    connect(comPort->_cancelProperties, &QPushButton::clicked, comPort->_propertyWindow,
+    connect(comPort->_cancelProperties, &QPushButton::clicked, comPort->_windowProperty,
 		[=](void)
 		{
-            comPort->_propertyWindow->close();
+            comPort->_windowProperty->close();
             delete portName;
             delete baudRate;
             delete dataBits;
@@ -311,10 +311,10 @@ void    MainWindow::buttonToolAction(ComPort *comPort)
             delete parityComboBox;
             delete stopComboBox;
             delete flowComboBox;
-            delete comPort->_propertyWindow;
+            delete comPort->_windowProperty;
             this->_buttonNext->setStyleSheet(MY_DEFINED_DEFAULT_BUTTON);
 		});
-    connect(comPort->_setDefaultProperties, &QPushButton::clicked, comPort->_propertyWindow,
+    connect(comPort->_setDefaultProperties, &QPushButton::clicked, comPort->_windowProperty,
 		[=](void)
 		{
                 baudComboBox->setCurrentIndex(7);
@@ -323,7 +323,7 @@ void    MainWindow::buttonToolAction(ComPort *comPort)
         		stopComboBox->setCurrentIndex(0);
         		flowComboBox->setCurrentIndex(0);
 		});
-    connect(comPort->_saveProperies, &QPushButton::clicked, comPort->_propertyWindow,
+    connect(comPort->_saveProperies, &QPushButton::clicked, comPort->_windowProperty,
         [=](void)
         {
             comPort->setBaudRate(baudComboBox->currentText(), this->_baudRateItems);
@@ -332,7 +332,7 @@ void    MainWindow::buttonToolAction(ComPort *comPort)
             comPort->setStopBits(stopComboBox->currentText(), this->_stopBitsItems);
             comPort->setFlowControl(flowComboBox->currentText(), this->_flowControlItems);
 
-            comPort->_propertyWindow->close();
+            comPort->_windowProperty->close();
             delete portName;
             delete baudRate;
             delete dataBits;
@@ -344,10 +344,10 @@ void    MainWindow::buttonToolAction(ComPort *comPort)
             delete parityComboBox;
             delete stopComboBox;
             delete flowComboBox;
-            delete comPort->_propertyWindow;
+            delete comPort->_windowProperty;
             this->_buttonNext->setStyleSheet(MY_DEFINED_DEFAULT_BUTTON);
         });
-    comPort->_propertyWindow->exec();
+    comPort->_windowProperty->exec();
 }
 
 const QString   MainWindow::createFileName(const QString &portName)
