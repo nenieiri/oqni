@@ -50,6 +50,8 @@ class MainWindow : public QMainWindow
         QStringList         _parityItems;
         QStringList         _stopBitsItems;
         QStringList         _flowControlItems;
+
+        ComPort             *_previewsCheckBox; // temp to delete
 };
 
 #endif

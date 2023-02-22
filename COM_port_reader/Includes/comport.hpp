@@ -11,6 +11,7 @@
 # include <QSerialPort>
 # include <QSerialPortInfo>
 # include <QStringList>
+# include <QToolButton>
 
 class	ComPort
 {
@@ -39,8 +40,9 @@ class	ComPort
         unsigned int                getStopBitsIndex(void) const {return _stopBitsIndex;}
         unsigned int                getFlowControlIndex(void) const {return _flowControlIndex;}
         
-        //QCheckBox       *getCheckBox(void) const {return _checkBox;}
-        QRadioButton	*getCheckBox(void) const {return _checkBox;}  //delete
+        //QCheckBox                 *getCheckBox(void) const {return _checkBox;}
+        QRadioButton                *getCheckBox(void) const {return _checkBox;}  //delete
+        QToolButton                 *getToolButton(void) const {return _toolButton;}
 
     private:
         const QSerialPortInfo       _port;
@@ -60,6 +62,8 @@ class	ComPort
         
         //QCheckBox       			*_checkBox;
         QRadioButton    			*_checkBox; //delete
+
+        QToolButton                 *_toolButton;
         
     public: //temp
         QDialog         *_propertyWindow;

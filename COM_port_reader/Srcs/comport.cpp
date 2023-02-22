@@ -16,11 +16,15 @@ ComPort::ComPort(const QSerialPortInfo &port, QGroupBox *groupbox) : \
 {
     //this->_checkBox = new QCheckBox(this->_portName, groupbox);
     this->_checkBox = new QRadioButton(this->_portName, groupbox); //delete
+
+    this->_toolButton = new QToolButton(groupbox);
+    this->_toolButton->setIcon(QIcon(":/Imgs/config.png"));
 }
 
 ComPort::~ComPort()
 {
     delete this->_checkBox;
+    delete this->_toolButton;
 }
 
 void	ComPort::setBaudRate(const QString &rate, QStringList &items)

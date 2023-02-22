@@ -3,5 +3,6 @@
         <file>Imgs/oqni.ico</file>
         <file>Imgs/background.png</file>
         <file>Imgs/loading.gif</file>
+        <file>Imgs/config.png</file>
     </qresource>
 </RCC>

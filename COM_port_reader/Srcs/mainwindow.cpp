@@ -9,10 +9,10 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     
     this->putWindowOnScreen(700, 616);
-    this->_buttonCheck = this->createButton("Check connected ports", 20, 30, 320, 30, std::bind(&MainWindow::buttonCheckAction, this), this);
-    this->addLoadingAnimation(this->_buttonCheck, 21, 150, 310, 310);
-    this->createGroupBox(20, 70, 320, 515);
-    this->createLiftVertical(319, 71, 20, 513);
+    this->_buttonCheck = this->createButton("Check connected ports", 20, 30, 380, 30, std::bind(&MainWindow::buttonCheckAction, this), this);
+    this->addLoadingAnimation(this->_buttonCheck, 21, 150, 370, 370);
+    this->createGroupBox(20, 70, 380, 515);
+    this->createLiftVertical(379, 71, 20, 513);
     this->_buttonNext = this->createButton("Next", 560, 555, 100, 30, std::bind(&MainWindow::buttonNextAction, this), this);
     
     _baudRateItems = {"1200", "2400", "4800", "9600", "19200", "38400", "57600", "115200"};
@@ -120,12 +120,22 @@ void    MainWindow::createLiftVertical(int x, int y, int width, int height)
             for (QVector<ComPort *>::iterator it = _comPorts.begin(); it < _comPorts.end(); ++it)
             {
                 liftRatio = 40 * (1 + (it - _comPorts.begin()) - this->_liftVertical->value());
-                (*it)->getCheckBox()->setGeometry(10, liftRatio, 285, 20);
+                (*it)->getCheckBox()->setGeometry(40, liftRatio, 285, 20);
                 (*it)->getCheckBox()->raise();
+
+                (*it)->getToolButton()->setGeometry(10, liftRatio, 20, 20);
+                (*it)->getToolButton()->raise();
                 if (liftRatio >= 40)
+                {
                     (*it)->getCheckBox()->show();
+                    if ((*it)->getCheckBox()->isChecked() == true )
+                    (*it)->getToolButton()->show();
+                }
                 else
+                {
                     (*it)->getCheckBox()->hide();
+                    (*it)->getToolButton()->hide();
+                }
                 (*it)->getCheckBox()->setStyleSheet("border: 0px solid gray;");
             }
         });
@@ -134,11 +144,16 @@ void    MainWindow::createLiftVertical(int x, int y, int width, int height)
 void    MainWindow::buttonCheckAction(void)
 {
     /* ----------- show animation and update checkboxes' list -------------- */
+
+    this->_previewsCheckBox = nullptr;
     this->_gifLabel->show();
     this->_gifMovie->start();
     this->_liftVertical->hide();
     for (QVector<ComPort *>::iterator it = _comPorts.begin(); it < _comPorts.end(); ++it)
+    {
         (*it)->getCheckBox()->hide();
+        (*it)->getToolButton()->hide();
+    }
     QTimer::singleShot(1000, this->_gifLabel, &QLabel::hide);
     QTimer::singleShot(1000, this,
         [=](void)
@@ -150,6 +165,7 @@ void    MainWindow::buttonCheckAction(void)
             QList<QSerialPortInfo> portList = QSerialPortInfo::availablePorts();
             for (const QSerialPortInfo& port : portList)
                 this->_comPorts.push_back(new ComPort(port, this->_groupBox));
+
             this->_portCount = this->_comPorts.size();
             if (this->_portCount > 12)
             {
@@ -160,10 +176,24 @@ void    MainWindow::buttonCheckAction(void)
             }
             for (QVector<ComPort *>::iterator it = _comPorts.begin(); it < _comPorts.end(); ++it)
             {
-                (*it)->getCheckBox()->setGeometry(10, 40 * (1 + (it - _comPorts.begin())), 285, 20);
+                (*it)->getCheckBox()->setGeometry(40, 40 * (1 + (it - _comPorts.begin())), 285, 20);
                 (*it)->getCheckBox()->raise();
                 (*it)->getCheckBox()->show();
                 (*it)->getCheckBox()->setStyleSheet("border: 0px solid gray;");
+
+                (*it)->getToolButton()->setGeometry(10, 40 * (1 + (it - _comPorts.begin())), 20, 20);
+
+                connect((*it)->getCheckBox(), &QRadioButton::clicked, (*it)->getToolButton(),
+                    [=](void)
+                    {
+                        (*it)->getToolButton()->raise();
+                        (*it)->getToolButton()->show();
+                        if (this->_previewsCheckBox && this->_previewsCheckBox != *it)
+                            this->_previewsCheckBox->getToolButton()->hide();
+                        this->_previewsCheckBox = *it;
+                    });
+                if ((*it)->getCheckBox()->isChecked() == false )
+                    (*it)->getToolButton()->hide();
             }
         });
 }
@@ -175,7 +205,7 @@ void    MainWindow::buttonNextAction()
     comPort = nullptr;
     for (QVector<ComPort *>::iterator it = _comPorts.begin(); it != _comPorts.end(); ++it)
     {
-         
+
         if ((*it)->getCheckBox()->isChecked() == true )
         {
             comPort = *it;
