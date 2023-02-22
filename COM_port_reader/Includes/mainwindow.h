@@ -56,6 +56,7 @@ class MainWindow : public QMainWindow
         ComPort             *_previewsCheckBox; // temp to delete
 
         QDialog             *_windowSaveTo;
+        int                 _durationTimerValue;
 };
 
 #endif

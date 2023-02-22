@@ -269,26 +269,32 @@ void	MainWindow::buttonSaveToAction()
     lineEdit->setGeometry(250, 40, 90, 30);
     lineEdit->setStyleSheet("background: white; font-size: 14px;");
     lineEdit->setToolTip("Please enter only numeric values.");
+    this->_durationTimerValue = 0;
 
     /* --- If the text contains a non-numeric character, show warrnig msg --- */
     connect(lineEdit, &QLineEdit::textChanged, this->_windowSaveTo,
         [=](void)
         {
             QString text = lineEdit->text();
-            bool hasNonNumericChar = false;
+            bool hasOnlyDigits = true;
             for (int i = 0; i < text.length(); i++)
             {
                 if (text[i].isDigit() == false)
                 {
-                    hasNonNumericChar = true;
+                    hasOnlyDigits = false;
                     lineEdit->setStyleSheet("QLineEdit { background-color: red; }");
+                    this->_durationTimerValue = 0;
                     QMessageBox::warning(this->_windowSaveTo, tr("Invalid Input"),
                                         tr("Please enter a numeric value."), QMessageBox::Ok);
                     break ;
                 }
             }
-            if (hasNonNumericChar == false)
+            if (hasOnlyDigits == true)
+            {
                 lineEdit->setStyleSheet("QLineEdit { background-color: white; }");
+                this->_durationTimerValue = text.toInt();
+            }
+            qDebug() << _durationTimerValue;
         });
     /* ---------------------------------------------------------------------- */
 
