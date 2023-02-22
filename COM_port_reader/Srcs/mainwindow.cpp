@@ -294,7 +294,6 @@ void	MainWindow::buttonSaveToAction()
                 lineEdit->setStyleSheet("QLineEdit { background-color: white; }");
                 this->_durationTimerValue = text.toInt();
             }
-            qDebug() << _durationTimerValue;
         });
     /* ---------------------------------------------------------------------- */
 
