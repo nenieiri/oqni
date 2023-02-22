@@ -30,7 +30,7 @@ class MainWindow : public QMainWindow
         void            createGroupBox(int x, int y, int width, int height);
         void            createLiftVertical(int x, int y, int width, int height);
         void            buttonCheckAction(void);
-        void            buttonNextAction(void);
+        void            buttonSaveToAction(void);
         const QString   createFileName(const QString &portName);
 
     private slots:
@@ -39,7 +39,7 @@ class MainWindow : public QMainWindow
     private:
         Ui::MainWindow      *ui;
         QPushButton         *_buttonCheck;
-        QPushButton         *_buttonNext;
+        QPushButton         *_buttonSaveTo;
         QLabel              *_gifLabel;
         QMovie              *_gifMovie;
         QGroupBox           *_groupBox;

@@ -13,7 +13,7 @@ MainWindow::MainWindow(QWidget *parent)
     this->addLoadingAnimation(this->_buttonCheck, 21, 150, 370, 370);
     this->createGroupBox(20, 70, 380, 515);
     this->createLiftVertical(379, 71, 20, 513);
-    this->_buttonNext = this->createButton("Next", 560, 555, 100, 30, std::bind(&MainWindow::buttonNextAction, this), this);
+    this->_buttonSaveTo = this->createButton("Save to", 560, 555, 100, 30, std::bind(&MainWindow::buttonSaveToAction, this), this);
     
     _baudRateItems = {"1200", "2400", "4800", "9600", "19200", "38400", "57600", "115200"};
     _dataBitsItems = {"5", "6", "7", "8"};
@@ -204,11 +204,23 @@ void    MainWindow::buttonCheckAction(void)
         });
 }
 
-void	MainWindow::buttonNextAction()
+void	MainWindow::buttonSaveToAction()
 {
-    ComPort	*comPort;
+    ComPort     *comPort = nullptr;
+    QFileDialog dialog;
+    QString     selectedDirectory;
+    QString     fileName;
     
-    comPort = nullptr;
+    this->_windowNext = new QDialog(this);
+    this->_windowNext->setModal(true);
+    this->_windowNext->setMinimumSize(500, 500);
+    this->_windowNext->setMaximumSize(500, 500);
+    this->_windowNext->setWindowTitle("OQNI: Drawer");
+    this->_windowNext->setWindowIcon(QIcon(":/Imgs/oqni.ico"));
+    this->_windowNext->setWindowFilePath(":/Imgs/oqni.ico");
+    this->_windowNext->setStyleSheet("background: #e6e6e6;");
+
+
     for (QVector<ComPort *>::iterator it = _comPorts.begin(); it != _comPorts.end(); ++it)
     {
 
@@ -219,25 +231,37 @@ void	MainWindow::buttonNextAction()
         }
     }
     if (comPort == nullptr)
+    {
+        delete this->_windowNext;
         return ;
+    }
     
-    connect(this->_buttonNext, &QPushButton::clicked, this,
-		[=](void)
-		{
-            QFileDialog dialog;
-            dialog.setOption(QFileDialog::ShowDirsOnly);
-            
-            QString selectedDirectory = dialog.getExistingDirectory(
-                this,
-                "Select directory to save file",
-                QDir::homePath()
-            );
-            
-            QString fileName = selectedDirectory + "/" + createFileName(comPort->getPortName());
+    dialog.setOption(QFileDialog::ShowDirsOnly);
+    dialog.setWindowTitle(tr("Select directory to save file")); // test this on Windows OS!!!
 
-			ThreadRuner *threadReader = new ThreadRuner(comPort, fileName.toStdString());
-			threadReader->start();
-		});
+    selectedDirectory = dialog.getExistingDirectory(this->_windowNext, tr("Save to"), QDir::homePath());
+
+    if (selectedDirectory == "")
+    {
+        delete this->_windowNext;
+        this->_buttonSaveTo->setStyleSheet(MY_DEFINED_RELEASED_BUTTON);
+        return ;
+    }
+
+    fileName = selectedDirectory + "/" + createFileName(comPort->getPortName());
+
+//	ThreadRuner *threadReader = new ThreadRuner(comPort, fileName.toStdString());
+//	threadReader->start();
+
+    QLabel *showSelectedDir = new QLabel("SAVE TO:  " + selectedDirectory, this->_windowNext);
+    showSelectedDir->setGeometry(10, 20, 480, 30);
+    showSelectedDir->setToolTip(selectedDirectory);
+    showSelectedDir->setStyleSheet("font-size: 12px;");
+
+    this->_windowNext->exec();
+    this->_buttonSaveTo->setStyleSheet(MY_DEFINED_RELEASED_BUTTON);
+    delete showSelectedDir;
+    delete this->_windowNext;
 }
 
 void    MainWindow::buttonToolAction(ComPort *comPort)
@@ -300,19 +324,6 @@ void    MainWindow::buttonToolAction(ComPort *comPort)
 		[=](void)
 		{
             comPort->_windowProperty->close();
-            delete portName;
-            delete baudRate;
-            delete dataBits;
-            delete parity;
-            delete stopBits;
-            delete flowControl;
-            delete baudComboBox;
-            delete dataComboBox;
-            delete parityComboBox;
-            delete stopComboBox;
-            delete flowComboBox;
-            delete comPort->_windowProperty;
-            this->_buttonNext->setStyleSheet(MY_DEFINED_DEFAULT_BUTTON);
 		});
     connect(comPort->_setDefaultProperties, &QPushButton::clicked, comPort->_windowProperty,
 		[=](void)
@@ -333,21 +344,21 @@ void    MainWindow::buttonToolAction(ComPort *comPort)
             comPort->setFlowControl(flowComboBox->currentText(), this->_flowControlItems);
 
             comPort->_windowProperty->close();
-            delete portName;
-            delete baudRate;
-            delete dataBits;
-            delete parity;
-            delete stopBits;
-            delete flowControl;
-            delete baudComboBox;
-            delete dataComboBox;
-            delete parityComboBox;
-            delete stopComboBox;
-            delete flowComboBox;
-            delete comPort->_windowProperty;
-            this->_buttonNext->setStyleSheet(MY_DEFINED_DEFAULT_BUTTON);
         });
+
     comPort->_windowProperty->exec();
+    delete portName;
+    delete baudRate;
+    delete dataBits;
+    delete parity;
+    delete stopBits;
+    delete flowControl;
+    delete baudComboBox;
+    delete dataComboBox;
+    delete parityComboBox;
+    delete stopComboBox;
+    delete flowComboBox;
+    delete comPort->_windowProperty;
 }
 
 const QString   MainWindow::createFileName(const QString &portName)
