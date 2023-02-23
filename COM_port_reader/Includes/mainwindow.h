@@ -25,11 +25,16 @@ class MainWindow : public QMainWindow
 
     private:
         void            putWindowOnScreen(int windowWidth, int windowHeight);
-        QPushButton     *createButton(const QString &name, int x, int y, int width, int height, std::function<void(void)> action, QWidget *box);
+        QPushButton     *createButton(const QString &name, int x, int y, int width, \
+                                      int height, std::function<void(void)> action, QWidget *box);
         void            addLoadingAnimation(QPushButton *button, int x, int y, int width, int height);
         void            createGroupBox(int x, int y, int width, int height);
         void            createLiftVertical(int x, int y, int width, int height);
         void            buttonCheckAction(void);
+		void			setParametersDesign(QLabel *showReadingPort1, QLabel *showReadingPort2, \
+                    				    	QLabel *showSelectedDir1, QLabel *showSelectedDir2, \
+                    				    	QLabel *setTimer1, QLabel *setTimer2, \
+                                            QLineEdit *lineEdit, QString &selectedDirectory);
         void            buttonSaveToAction(void);
         const QString   createFileName(const QString &portName);
 

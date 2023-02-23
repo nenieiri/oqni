@@ -204,7 +204,64 @@ void    MainWindow::buttonCheckAction(void)
         });
 }
 
-void	MainWindow::buttonSaveToAction()
+void		MainWindow::setParametersDesign(QLabel *showReadingPort1, QLabel *showReadingPort2, \
+										QLabel *showSelectedDir1, QLabel *showSelectedDir2, \
+										QLabel *setTimer1, QLabel *setTimer2, \
+                                    		QLineEdit *lineEdit, QString &selectedDirectory)
+{
+    showReadingPort1->setGeometry(10, 10, 100, 30);
+    showReadingPort2->setGeometry(120, 10, 480, 30);
+    showReadingPort2->setToolTip(selectedDirectory);
+    showReadingPort2->setStyleSheet("font-size: 14px; color: blue;");
+    
+    showSelectedDir1->setGeometry(10, 40, 100, 30);
+    showSelectedDir2->setGeometry(120, 40, 480, 30);
+    showSelectedDir2->setToolTip(selectedDirectory);
+    showSelectedDir2->setStyleSheet("font-size: 14px; color: blue;");
+
+    setTimer1->setGeometry(10, 70, 100, 30);
+    setTimer2->setGeometry(210, 70, 100, 30);
+    setTimer2->setStyleSheet("font-size: 14px; color: blue;");
+
+    lineEdit->setPlaceholderText("enter here");
+    lineEdit->setGeometry(120, 70, 83, 30);
+    lineEdit->setStyleSheet("background: white; font-size: 14px; padding: 0 5px; color: blue;");
+    lineEdit->setToolTip("Please enter only numeric values.");
+    lineEdit->setMaxLength(4);
+    this->_durationTimerValue = 0;
+
+    /* --- If the text contains a non-numeric character, show warrnig msg --- */
+    connect(lineEdit, &QLineEdit::textChanged, this->_windowSaveTo,
+        [=](void)
+        {
+        	if (lineEdit->text().length() == 0)
+            {
+                lineEdit->setStyleSheet("background: white; font-size: 14px; padding: 0 5px; color: blue;");
+                return ;
+			}
+            QString text = lineEdit->text();
+            bool hasOnlyDigits = true;
+            for (int i = 0; i < text.length(); i++)
+            {
+                if (text[i].isDigit() == false)
+                {
+                    hasOnlyDigits = false;
+                    lineEdit->setStyleSheet("QLineEdit { background-color: red; padding: 0 5px; color: blue;}");
+                    this->_durationTimerValue = 0;
+                    QMessageBox::warning(this->_windowSaveTo, tr("Invalid Input"),
+                                        tr("Please enter a numeric value."), QMessageBox::Ok);
+                    break ;
+                }
+            }
+            if (hasOnlyDigits == true)
+            {
+                lineEdit->setStyleSheet("QLineEdit { background-color: white; padding: 0 5px; color: blue;}");
+                this->_durationTimerValue = text.toInt();
+            }
+        });
+}
+
+void		MainWindow::buttonSaveToAction()
 {
     ComPort     *comPort = nullptr;
     QFileDialog dialog;
@@ -250,70 +307,22 @@ void	MainWindow::buttonSaveToAction()
 
     fileName = selectedDirectory + "/" + createFileName(comPort->getPortName());
 
-//	ThreadRuner *threadReader = new ThreadRuner(comPort, fileName.toStdString());
-//	threadReader->start();
-
     QLabel *showReadingPort1 = new QLabel("Read from:", this->_windowSaveTo);
-    showReadingPort1->setGeometry(10, 10, 100, 30);
-
     QLabel *showReadingPort2 = new QLabel(comPort->getPortName(), this->_windowSaveTo);
-    showReadingPort2->setGeometry(120, 10, 480, 30);
-    showReadingPort2->setToolTip(selectedDirectory);
-    showReadingPort2->setStyleSheet("font-size: 14px; color: blue;");
 
     QLabel *showSelectedDir1 = new QLabel("     Save to:", this->_windowSaveTo);
-    showSelectedDir1->setGeometry(10, 40, 100, 30);
-
     QLabel *showSelectedDir2 = new QLabel(selectedDirectory, this->_windowSaveTo);
-    showSelectedDir2->setGeometry(120, 40, 480, 30);
-    showSelectedDir2->setToolTip(selectedDirectory);
-    showSelectedDir2->setStyleSheet("font-size: 14px; color: blue;");
 
     QLabel *setTimer1 = new QLabel("   Duration:", this->_windowSaveTo);
-    setTimer1->setGeometry(10, 70, 100, 30);
-
     QLabel *setTimer2 = new QLabel("seconds  ", this->_windowSaveTo);
-    setTimer2->setGeometry(210, 70, 100, 30);
-    setTimer2->setStyleSheet("font-size: 14px; color: blue;");
-
     QLineEdit *lineEdit = new QLineEdit(this->_windowSaveTo);
-    lineEdit->setPlaceholderText("enter here");
-    lineEdit->setGeometry(120, 70, 83, 30);
-    lineEdit->setStyleSheet("background: white; font-size: 14px; padding: 0 5px; color: blue;");
-    lineEdit->setToolTip("Please enter only numeric values.");
-    lineEdit->setMaxLength(4);
-    this->_durationTimerValue = 0;
+    
+    setParametersDesign(showReadingPort1, showReadingPort2, \
+                        showSelectedDir1, showSelectedDir2, \
+                        setTimer1, setTimer2, lineEdit, selectedDirectory);
 
-    /* --- If the text contains a non-numeric character, show warrnig msg --- */
-    connect(lineEdit, &QLineEdit::textChanged, this->_windowSaveTo,
-        [=](void)
-        {
-        	if (lineEdit->text().length() == 0)
-            {
-                lineEdit->setStyleSheet("background: white; font-size: 14px; padding: 0 5px; color: blue;");
-                return ;
-			}
-            QString text = lineEdit->text();
-            bool hasOnlyDigits = true;
-            for (int i = 0; i < text.length(); i++)
-            {
-                if (text[i].isDigit() == false)
-                {
-                    hasOnlyDigits = false;
-                    lineEdit->setStyleSheet("QLineEdit { background-color: red; padding: 0 5px; color: blue;}");
-                    this->_durationTimerValue = 0;
-                    QMessageBox::warning(this->_windowSaveTo, tr("Invalid Input"),
-                                        tr("Please enter a numeric value."), QMessageBox::Ok);
-                    break ;
-                }
-            }
-            if (hasOnlyDigits == true)
-            {
-                lineEdit->setStyleSheet("QLineEdit { background-color: white; padding: 0 5px; color: blue;}");
-                this->_durationTimerValue = text.toInt();
-            }
-        });
-    /* ---------------------------------------------------------------------- */
+//	ThreadRuner *threadReader = new ThreadRuner(comPort, fileName.toStdString());
+//	threadReader->start();
 
     this->_windowSaveTo->exec();
     this->_buttonSaveTo->setStyleSheet(MY_DEFINED_RELEASED_BUTTON);
