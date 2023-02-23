@@ -54,7 +54,8 @@ void    MainWindow::putWindowOnScreen(int windowWidth, int windowHeight)
     this->setStyleSheet("background-image: url(:/Imgs/background.png); font-size: 20px");
 }
 
-QPushButton    *MainWindow::createButton(const QString &name, int x, int y, int width, int height, std::function<void(void)> onPressAction, QWidget *box)
+QPushButton    *MainWindow::createButton(const QString &name, int x, int y, int width, \
+                                         int height, std::function<void(void)> onPressAction, QWidget *box)
 {
     QPushButton *button;
    
@@ -228,6 +229,7 @@ void		MainWindow::setParametersDesign(QLabel *showReadingPort1, QLabel *showRead
     lineEdit->setStyleSheet("background: white; font-size: 14px; padding: 0 5px; color: blue;");
     lineEdit->setToolTip("Please enter only numeric values.");
     lineEdit->setMaxLength(4);
+    lineEdit->setAlignment(Qt::AlignCenter);
     this->_durationTimerValue = 0;
 
     /* --- If the text contains a non-numeric character, show warrnig msg --- */
@@ -237,6 +239,7 @@ void		MainWindow::setParametersDesign(QLabel *showReadingPort1, QLabel *showRead
         	if (lineEdit->text().length() == 0)
             {
                 lineEdit->setStyleSheet("background: white; font-size: 14px; padding: 0 5px; color: blue;");
+                this->_durationTimerValue = 0;
                 return ;
 			}
             QString text = lineEdit->text();
@@ -246,7 +249,7 @@ void		MainWindow::setParametersDesign(QLabel *showReadingPort1, QLabel *showRead
                 if (text[i].isDigit() == false)
                 {
                     hasOnlyDigits = false;
-                    lineEdit->setStyleSheet("QLineEdit { background-color: red; padding: 0 5px; color: blue;}");
+                    lineEdit->setStyleSheet("background-color: red; padding: 0 5px; color: blue;");
                     this->_durationTimerValue = 0;
                     QMessageBox::warning(this->_windowSaveTo, tr("Invalid Input"),
                                         tr("Please enter a numeric value."), QMessageBox::Ok);
@@ -255,7 +258,7 @@ void		MainWindow::setParametersDesign(QLabel *showReadingPort1, QLabel *showRead
             }
             if (hasOnlyDigits == true)
             {
-                lineEdit->setStyleSheet("QLineEdit { background-color: white; padding: 0 5px; color: blue;}");
+                lineEdit->setStyleSheet("background-color: white; padding: 0 5px; color: blue;");
                 this->_durationTimerValue = text.toInt();
             }
         });
@@ -277,7 +280,6 @@ void		MainWindow::buttonSaveToAction()
     this->_windowSaveTo->setWindowFilePath(":/Imgs/oqni.ico");
     this->_windowSaveTo->setStyleSheet("background: #e6e6e6;");
 
-
     for (QVector<ComPort *>::iterator it = _comPorts.begin(); it != _comPorts.end(); ++it)
     {
 
@@ -294,25 +296,19 @@ void		MainWindow::buttonSaveToAction()
     }
     
     dialog.setOption(QFileDialog::ShowDirsOnly);
-    dialog.setWindowTitle(tr("Select directory to save file")); // test this on Windows OS!!!
-
     selectedDirectory = dialog.getExistingDirectory(this->_windowSaveTo, tr("Save to"), QDir::homePath());
-
     if (selectedDirectory == "")
     {
         delete this->_windowSaveTo;
         this->_buttonSaveTo->setStyleSheet(MY_DEFINED_RELEASED_BUTTON);
         return ;
     }
-
     fileName = selectedDirectory + "/" + createFileName(comPort->getPortName());
 
     QLabel *showReadingPort1 = new QLabel("Read from:", this->_windowSaveTo);
     QLabel *showReadingPort2 = new QLabel(comPort->getPortName(), this->_windowSaveTo);
-
     QLabel *showSelectedDir1 = new QLabel("     Save to:", this->_windowSaveTo);
     QLabel *showSelectedDir2 = new QLabel(selectedDirectory, this->_windowSaveTo);
-
     QLabel *setTimer1 = new QLabel("   Duration:", this->_windowSaveTo);
     QLabel *setTimer2 = new QLabel("seconds  ", this->_windowSaveTo);
     QLineEdit *lineEdit = new QLineEdit(this->_windowSaveTo);
@@ -321,6 +317,23 @@ void		MainWindow::buttonSaveToAction()
                         showSelectedDir1, showSelectedDir2, \
                         setTimer1, setTimer2, lineEdit, selectedDirectory);
 
+    QPushButton	*cancel = this->createButton("Cancel", 10, 255, 100, 30, nullptr, this->_windowSaveTo);
+    connect(cancel, &QPushButton::clicked, this->_windowSaveTo,
+		[=](void)
+		{
+            this->_windowSaveTo->close();
+		});
+    
+    QPushButton	*start = this->createButton("Start", 200, 255, 100, 30, nullptr, this->_windowSaveTo);
+    connect(start, &QPushButton::clicked, this->_windowSaveTo,
+		[=](void)
+		{
+        		if (this->_durationTimerValue == 0)
+                return ;
+        		lineEdit->setEnabled(false);
+        		lineEdit->setStyleSheet("background-color: #D3D3D3; padding: 0 5px; color: blue;");
+		});
+    
 //	ThreadRuner *threadReader = new ThreadRuner(comPort, fileName.toStdString());
 //	threadReader->start();
 
@@ -333,6 +346,8 @@ void		MainWindow::buttonSaveToAction()
     delete setTimer1;
     delete setTimer2;
     delete lineEdit;
+    delete cancel;
+    delete start;
     delete this->_windowSaveTo;
 }
 
