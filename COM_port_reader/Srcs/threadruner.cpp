@@ -1,4 +1,4 @@
-#include "../Includes/threadruner.hpp"
+#include "threadruner.hpp"
 
 ThreadRuner::ThreadRuner(ComPort *comPort, const std::string &fileName)
 			: _comPort(comPort)

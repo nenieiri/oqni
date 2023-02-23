@@ -19,12 +19,14 @@ set(PROJECT_SOURCES
         Includes/mainwindow.h
         Includes/comport.hpp
         Includes/all.hpp
-		Includes/threadruner.hpp
+								Includes/threadruner.hpp
+								Includes/threaddisplaytimer.hpp
 		
         Srcs/comport.cpp
         Srcs/main.cpp
         Srcs/mainwindow.cpp
-		Srcs/threadruner.cpp
+								Srcs/threadruner.cpp
+								Srcs/threaddisplaytimer.cpp
 		
         mainwindow.ui
         ResourceFiles.qrc

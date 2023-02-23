@@ -1,5 +1,4 @@
 #include "mainwindow.h"
-#include <QMetaEnum>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -212,7 +211,6 @@ void		MainWindow::setParametersDesign(QLabel *showReadingPort1, QLabel *showRead
 {
     showReadingPort1->setGeometry(10, 10, 100, 30);
     showReadingPort2->setGeometry(120, 10, 480, 30);
-    showReadingPort2->setToolTip(selectedDirectory);
     showReadingPort2->setStyleSheet("font-size: 14px; color: blue;");
     
     showSelectedDir1->setGeometry(10, 40, 100, 30);
@@ -276,28 +274,34 @@ void		MainWindow::windowSaveToButtonsFunctionality(QPushButton *start, QPushButt
     connect(start, &QPushButton::clicked, this->_windowSaveTo,
 		[=](void)
 		{
-        		if (this->_durationTimerValue == 0)
+            if (this->_durationTimerValue == 0)
                 return ;
             cancel->setEnabled(false);
 			cancel->setStyleSheet("border-radius: 6px; background-color: #D3D3D3;");
             start->setEnabled(false);
 			start->setStyleSheet("border-radius: 6px; background-color: #D3D3D3;");
 			stop->setEnabled(true);
-        		stop->setStyleSheet(MY_DEFINED_DEFAULT_BUTTON);
-        		lineEdit->setEnabled(false);
-        		lineEdit->setStyleSheet("background-color: #D3D3D3; padding: 0 5px; color: blue;");
+            stop->setStyleSheet(MY_DEFINED_DEFAULT_BUTTON);
+            lineEdit->setEnabled(false);
+            lineEdit->setStyleSheet("background-color: #D3D3D3; padding: 0 5px; color: blue;");
+            this->_threadDisplayTimer = new ThreadDisplayTimer(this->_durationTimerValue, this->_windowSaveTo);
+            this->_threadDisplayTimer->start();
 		});
     connect(stop, &QPushButton::clicked, this->_windowSaveTo,
 		[=](void)
 		{
             cancel->setEnabled(true);
-        		cancel->setStyleSheet(MY_DEFINED_DEFAULT_BUTTON);
+            cancel->setStyleSheet(MY_DEFINED_DEFAULT_BUTTON);
             start->setEnabled(true);
-        		start->setStyleSheet(MY_DEFINED_DEFAULT_BUTTON);
+            start->setStyleSheet(MY_DEFINED_DEFAULT_BUTTON);
 			stop->setEnabled(false);
 			stop->setStyleSheet("border-radius: 6px; background-color: #D3D3D3;");
-        		lineEdit->setEnabled(true);
-        		lineEdit->setStyleSheet("background-color: white; padding: 0 5px; color: blue;");
+            lineEdit->setEnabled(true);
+            lineEdit->setStyleSheet("background-color: white; padding: 0 5px; color: blue;");
+            
+            this->_threadDisplayTimer->requestInterruption();
+            this->_threadDisplayTimer->wait();
+            delete this->_threadDisplayTimer;
 		});
 }
 
@@ -355,15 +359,16 @@ void		MainWindow::buttonSaveToAction()
     QLabel *setTimer2 = new QLabel("seconds  ", this->_windowSaveTo);
     QLineEdit *lineEdit = new QLineEdit(this->_windowSaveTo);
     
-    setParametersDesign(showReadingPort1, showReadingPort2, \
+    this->setParametersDesign(showReadingPort1, showReadingPort2, \
                         showSelectedDir1, showSelectedDir2, \
                         setTimer1, setTimer2, lineEdit, selectedDirectory);
     
-	windowSaveToButtonsFunctionality(start, stop, cancel, lineEdit);
+	this->windowSaveToButtonsFunctionality(start, stop, cancel, lineEdit);
     
 //	ThreadRuner *threadReader = new ThreadRuner(comPort, fileName.toStdString());
 //	threadReader->start();
-
+    
+    
     this->_windowSaveTo->exec();
     this->_buttonSaveTo->setStyleSheet(MY_DEFINED_RELEASED_BUTTON);
     delete showReadingPort1;

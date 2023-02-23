@@ -40,7 +40,6 @@ class MainWindow : public QMainWindow
         void            buttonSaveToAction(void);
         const QString   createFileName(const QString &portName);
 
-    private slots:
 		void			buttonToolAction(ComPort *comPort);
 
     private:
@@ -64,6 +63,7 @@ class MainWindow : public QMainWindow
 
         QDialog             *_windowSaveTo;
         int                 _durationTimerValue;
+        ThreadDisplayTimer  *_threadDisplayTimer;
 };
 
 #endif

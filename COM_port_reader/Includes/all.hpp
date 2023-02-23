@@ -35,5 +35,6 @@
 
 # include "comport.hpp"
 # include "threadruner.hpp"
+# include "threaddisplaytimer.hpp"
 
 #endif
