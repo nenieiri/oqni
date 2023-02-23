@@ -22,23 +22,32 @@ ThreadDisplayTimer::ThreadDisplayTimer(int durationTimerValue, QDialog *windowSa
         text += "0" + QString::number(num);
     
     this->_displayTimerLabel = new QLabel(text, windowSaveTo);
+    this->_imageLabel = new QLabel("", windowSaveTo);
+    this->_imageSecondsLabel = new QLabel("", windowSaveTo);
 }
 
 ThreadDisplayTimer::~ThreadDisplayTimer()
 {
     delete _displayTimerLabel;
+    delete _imageLabel;
+    delete _imageSecondsLabel;
 }
 
-void		ThreadDisplayTimer::run()
+void    ThreadDisplayTimer::run()
 {
-    this->_displayTimerLabel->setGeometry(300, 70, 100, 30);
+    this->_displayTimerLabel->setGeometry(280, 65, 150, 40);
     this->_displayTimerLabel->setAlignment(Qt::AlignCenter);
+    this->_displayTimerLabel->setStyleSheet("font-size: 34px; color: #B22222; font-weight: bold;");
     this->_displayTimerLabel->show();
 
     int seconds = this->_durationTimerValue;
+    int imgFlag = 0;
     
     while (!isInterruptionRequested())
     {
+        this->showImage(&imgFlag, 4, 3, 4, 3);
+        imgFlag++;
+
         QThread::usleep(1000000);
         seconds--;
         int minutes = seconds / 60;
@@ -50,6 +59,51 @@ void		ThreadDisplayTimer::run()
         this->_displayTimerLabel->setText(text);
 
         if (seconds == 0)
+        {
+            this->_imageLabel->hide();
+            this->_imageSecondsLabel->hide();
             break ;
+        }
     }
+//    emit finished();
+}
+
+void    ThreadDisplayTimer::showImage(int *imgFlag, int sec1, int sec2, int sec3, int sec4)
+{
+    QString path;
+    QString imageSeconds;
+
+    if ((*imgFlag) > sec1 + sec2 + sec3 + sec4 - 1)
+        (*imgFlag) = 0;
+    if ((*imgFlag) < sec1)
+    {
+        path = ":/Imgs/1)relax_4sec.png";
+        imageSeconds = QString::number(sec1 - (*imgFlag) % sec1);
+    }
+    else if ((*imgFlag) < sec1 + sec2)
+    {
+        path = ":/Imgs/2)tiptoe_3sec.png";
+        imageSeconds = QString::number(sec1 + sec2 - (*imgFlag) % (sec1 + sec2));
+    }
+    else if ((*imgFlag) < sec1 + sec2 + sec3)
+    {
+        path = ":/Imgs/3)relax_4sec.png";
+        imageSeconds = QString::number(sec1 + sec2 + sec3 - (*imgFlag) % (sec1 + sec2 + sec3));
+    }
+    else
+    {
+        path = ":/Imgs/4)heels_3sec.png";
+        imageSeconds = QString::number(sec1 + sec2 + sec3 + sec4 - (*imgFlag) % (sec1 + sec2 + sec3 + sec4));
+    }
+
+    QPixmap pixmap(path);
+    QPixmap scaledPixmap = pixmap.scaled(400, 400, Qt::KeepAspectRatio);
+    this->_imageLabel->setGeometry(40, 160, 400, 400);
+    this->_imageLabel->setPixmap(scaledPixmap);
+    this->_imageLabel->show();
+
+    this->_imageSecondsLabel->setText(imageSeconds);
+    this->_imageSecondsLabel->setGeometry(220, 540, 150, 150);
+    this->_imageSecondsLabel->setStyleSheet("font-size: 150px; font-weight: bold;");
+    this->_imageSecondsLabel->show();
 }

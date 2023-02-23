@@ -39,8 +39,10 @@ class MainWindow : public QMainWindow
                                                          QPushButton *cancel, QLineEdit *lineEdit);
         void            buttonSaveToAction(void);
         const QString   createFileName(const QString &portName);
-
 		void			buttonToolAction(ComPort *comPort);
+
+//    private slots:
+//        void            onThreadDisplayTimerFinished(void);
 
     private:
         Ui::MainWindow      *ui;

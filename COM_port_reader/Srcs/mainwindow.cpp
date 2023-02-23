@@ -204,7 +204,7 @@ void    MainWindow::buttonCheckAction(void)
         });
 }
 
-void		MainWindow::setParametersDesign(QLabel *showReadingPort1, QLabel *showReadingPort2, \
+void    MainWindow::setParametersDesign(QLabel *showReadingPort1, QLabel *showReadingPort2, \
 										QLabel *showSelectedDir1, QLabel *showSelectedDir2, \
 										QLabel *setTimer1, QLabel *setTimer2, \
                                     		QLineEdit *lineEdit, QString &selectedDirectory)
@@ -262,7 +262,7 @@ void		MainWindow::setParametersDesign(QLabel *showReadingPort1, QLabel *showRead
         });
 }
 
-void		MainWindow::windowSaveToButtonsFunctionality(QPushButton *start, QPushButton *stop, QPushButton *cancel, QLineEdit *lineEdit)
+void    MainWindow::windowSaveToButtonsFunctionality(QPushButton *start, QPushButton *stop, QPushButton *cancel, QLineEdit *lineEdit)
 {
     stop->setEnabled(false);
     stop->setStyleSheet("border-radius: 6px; background-color: #D3D3D3;");
@@ -298,14 +298,14 @@ void		MainWindow::windowSaveToButtonsFunctionality(QPushButton *start, QPushButt
 			stop->setStyleSheet("border-radius: 6px; background-color: #D3D3D3;");
             lineEdit->setEnabled(true);
             lineEdit->setStyleSheet("background-color: white; padding: 0 5px; color: blue;");
-            
             this->_threadDisplayTimer->requestInterruption();
             this->_threadDisplayTimer->wait();
             delete this->_threadDisplayTimer;
 		});
+//    connect(this->_threadDisplayTimer, &ThreadDisplayTimer::finished, this, &MainWindow::onThreadDisplayTimerFinished);
 }
 
-void		MainWindow::buttonSaveToAction()
+void    MainWindow::buttonSaveToAction()
 {
     ComPort     *comPort = nullptr;
     QFileDialog dialog;
@@ -314,16 +314,16 @@ void		MainWindow::buttonSaveToAction()
     
     this->_windowSaveTo = new QDialog(this);
     this->_windowSaveTo->setModal(true);
-    this->_windowSaveTo->setMinimumSize(500, 500);
-    this->_windowSaveTo->setMaximumSize(500, 500);
+    this->_windowSaveTo->setMinimumSize(500, 700);
+    this->_windowSaveTo->setMaximumSize(500, 700);
     this->_windowSaveTo->setWindowTitle("OQNI: Drawer");
     this->_windowSaveTo->setWindowIcon(QIcon(":/Imgs/oqni.ico"));
     this->_windowSaveTo->setWindowFilePath(":/Imgs/oqni.ico");
     this->_windowSaveTo->setStyleSheet("background: #e6e6e6;");
+    this->_windowSaveTo->setWindowFlag(Qt::WindowCloseButtonHint, false); // Remove the closing button
 
     for (QVector<ComPort *>::iterator it = _comPorts.begin(); it != _comPorts.end(); ++it)
     {
-
         if ((*it)->getCheckBox()->isChecked() == true )
         {
             comPort = *it;
@@ -367,7 +367,6 @@ void		MainWindow::buttonSaveToAction()
     
 //	ThreadRuner *threadReader = new ThreadRuner(comPort, fileName.toStdString());
 //	threadReader->start();
-    
     
     this->_windowSaveTo->exec();
     this->_buttonSaveTo->setStyleSheet(MY_DEFINED_RELEASED_BUTTON);
@@ -462,7 +461,6 @@ void    MainWindow::buttonToolAction(ComPort *comPort)
             comPort->setParity(parityComboBox->currentText(), this->_parityItems);
             comPort->setStopBits(stopComboBox->currentText(), this->_stopBitsItems);
             comPort->setFlowControl(flowComboBox->currentText(), this->_flowControlItems);
-
             comPort->_windowProperty->close();
         });
 
@@ -489,3 +487,10 @@ const QString   MainWindow::createFileName(const QString &portName)
 
     return fileName;
 }
+
+//void   MainWindow::onThreadDisplayTimerFinished(void)
+//{
+//    ThreadDisplayTimer *childThread = qobject_cast<ThreadDisplayTimer *>(sender());
+//    if (childThread)
+//        childThread->deleteLater();
+//}

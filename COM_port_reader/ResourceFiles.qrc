@@ -4,5 +4,10 @@
         <file>Imgs/background.png</file>
         <file>Imgs/loading.gif</file>
         <file>Imgs/config.png</file>
+        <file>Imgs/1)relax_4sec.png</file>
+        <file>Imgs/2)tiptoe_3sec.png</file>
+        <file>Imgs/3)relax_4sec.png</file>
+        <file>Imgs/4)heels_3sec.png</file>
+        <file>Imgs/legAnimation.gif</file>
     </qresource>
 </RCC>
