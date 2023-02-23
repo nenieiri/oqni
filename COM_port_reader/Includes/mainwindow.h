@@ -35,6 +35,8 @@ class MainWindow : public QMainWindow
                     				    	QLabel *showSelectedDir1, QLabel *showSelectedDir2, \
                     				    	QLabel *setTimer1, QLabel *setTimer2, \
                                             QLineEdit *lineEdit, QString &selectedDirectory);
+		void			windowSaveToButtonsFunctionality(QPushButton *start, QPushButton *stop, \
+                                                         QPushButton *cancel, QLineEdit *lineEdit);
         void            buttonSaveToAction(void);
         const QString   createFileName(const QString &portName);
 

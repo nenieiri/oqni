@@ -264,6 +264,43 @@ void		MainWindow::setParametersDesign(QLabel *showReadingPort1, QLabel *showRead
         });
 }
 
+void		MainWindow::windowSaveToButtonsFunctionality(QPushButton *start, QPushButton *stop, QPushButton *cancel, QLineEdit *lineEdit)
+{
+    stop->setEnabled(false);
+    stop->setStyleSheet("border-radius: 6px; background-color: #D3D3D3;");
+    connect(cancel, &QPushButton::clicked, this->_windowSaveTo,
+		[=](void)
+		{
+            this->_windowSaveTo->close();
+		});
+    connect(start, &QPushButton::clicked, this->_windowSaveTo,
+		[=](void)
+		{
+        		if (this->_durationTimerValue == 0)
+                return ;
+            cancel->setEnabled(false);
+			cancel->setStyleSheet("border-radius: 6px; background-color: #D3D3D3;");
+            start->setEnabled(false);
+			start->setStyleSheet("border-radius: 6px; background-color: #D3D3D3;");
+			stop->setEnabled(true);
+        		stop->setStyleSheet(MY_DEFINED_DEFAULT_BUTTON);
+        		lineEdit->setEnabled(false);
+        		lineEdit->setStyleSheet("background-color: #D3D3D3; padding: 0 5px; color: blue;");
+		});
+    connect(stop, &QPushButton::clicked, this->_windowSaveTo,
+		[=](void)
+		{
+            cancel->setEnabled(true);
+        		cancel->setStyleSheet(MY_DEFINED_DEFAULT_BUTTON);
+            start->setEnabled(true);
+        		start->setStyleSheet(MY_DEFINED_DEFAULT_BUTTON);
+			stop->setEnabled(false);
+			stop->setStyleSheet("border-radius: 6px; background-color: #D3D3D3;");
+        		lineEdit->setEnabled(true);
+        		lineEdit->setStyleSheet("background-color: white; padding: 0 5px; color: blue;");
+		});
+}
+
 void		MainWindow::buttonSaveToAction()
 {
     ComPort     *comPort = nullptr;
@@ -296,7 +333,8 @@ void		MainWindow::buttonSaveToAction()
     }
     
     dialog.setOption(QFileDialog::ShowDirsOnly);
-    selectedDirectory = dialog.getExistingDirectory(this->_windowSaveTo, tr("Save to"), QDir::homePath());
+    selectedDirectory = dialog.getExistingDirectory(this->_windowSaveTo, tr("Save to"), \
+                                            QStandardPaths::writableLocation(QStandardPaths::DesktopLocation));
     if (selectedDirectory == "")
     {
         delete this->_windowSaveTo;
@@ -305,34 +343,23 @@ void		MainWindow::buttonSaveToAction()
     }
     fileName = selectedDirectory + "/" + createFileName(comPort->getPortName());
 
+    QPushButton	*cancel = this->createButton("Cancel", 10, 110, 100, 30, nullptr, this->_windowSaveTo);
+    QPushButton	*start = this->createButton("Start", 120, 110, 100, 30, nullptr, this->_windowSaveTo);
+    QPushButton	*stop = this->createButton("Stop", 230, 110, 100, 30, nullptr, this->_windowSaveTo);
+
     QLabel *showReadingPort1 = new QLabel("Read from:", this->_windowSaveTo);
     QLabel *showReadingPort2 = new QLabel(comPort->getPortName(), this->_windowSaveTo);
-    QLabel *showSelectedDir1 = new QLabel("     Save to:", this->_windowSaveTo);
+    QLabel *showSelectedDir1 = new QLabel("Save to:", this->_windowSaveTo);
     QLabel *showSelectedDir2 = new QLabel(selectedDirectory, this->_windowSaveTo);
-    QLabel *setTimer1 = new QLabel("   Duration:", this->_windowSaveTo);
+    QLabel *setTimer1 = new QLabel("Duration:", this->_windowSaveTo);
     QLabel *setTimer2 = new QLabel("seconds  ", this->_windowSaveTo);
     QLineEdit *lineEdit = new QLineEdit(this->_windowSaveTo);
     
     setParametersDesign(showReadingPort1, showReadingPort2, \
                         showSelectedDir1, showSelectedDir2, \
                         setTimer1, setTimer2, lineEdit, selectedDirectory);
-
-    QPushButton	*cancel = this->createButton("Cancel", 10, 255, 100, 30, nullptr, this->_windowSaveTo);
-    connect(cancel, &QPushButton::clicked, this->_windowSaveTo,
-		[=](void)
-		{
-            this->_windowSaveTo->close();
-		});
     
-    QPushButton	*start = this->createButton("Start", 200, 255, 100, 30, nullptr, this->_windowSaveTo);
-    connect(start, &QPushButton::clicked, this->_windowSaveTo,
-		[=](void)
-		{
-        		if (this->_durationTimerValue == 0)
-                return ;
-        		lineEdit->setEnabled(false);
-        		lineEdit->setStyleSheet("background-color: #D3D3D3; padding: 0 5px; color: blue;");
-		});
+	windowSaveToButtonsFunctionality(start, stop, cancel, lineEdit);
     
 //	ThreadRuner *threadReader = new ThreadRuner(comPort, fileName.toStdString());
 //	threadReader->start();
@@ -348,6 +375,7 @@ void		MainWindow::buttonSaveToAction()
     delete lineEdit;
     delete cancel;
     delete start;
+    delete stop;
     delete this->_windowSaveTo;
 }
 

@@ -26,6 +26,7 @@
 # include <QRadioButton>
 # include <QLineEdit>
 # include <QMessageBox>
+# include <QStandardPaths>
 
 # include <functional>
 # include <iostream>
