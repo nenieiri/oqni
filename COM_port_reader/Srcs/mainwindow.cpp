@@ -261,20 +261,26 @@ void	MainWindow::buttonSaveToAction()
     showSelectedDir2->setToolTip(selectedDirectory);
     showSelectedDir2->setStyleSheet("font-size: 14px; color: blue;");
 
-    QLabel *setTimer = new QLabel("Set duration (in seconds):  ", this->_windowSaveTo);
+    QLabel *setTimer = new QLabel("Duration (in seconds):  ", this->_windowSaveTo);
     setTimer->setGeometry(10, 40, 240, 30);
 
     QLineEdit *lineEdit = new QLineEdit(this->_windowSaveTo);
-    lineEdit->setPlaceholderText(" enter here ");
-    lineEdit->setGeometry(250, 40, 90, 30);
-    lineEdit->setStyleSheet("background: white; font-size: 14px;");
+    lineEdit->setPlaceholderText("enter here");
+    lineEdit->setGeometry(215, 40, 83, 30);
+    lineEdit->setStyleSheet("background: white; font-size: 14px; padding: 0 5px");
     lineEdit->setToolTip("Please enter only numeric values.");
+    lineEdit->setMaxLength(4);
     this->_durationTimerValue = 0;
 
     /* --- If the text contains a non-numeric character, show warrnig msg --- */
     connect(lineEdit, &QLineEdit::textChanged, this->_windowSaveTo,
         [=](void)
         {
+        	if (lineEdit->text().length() == 0)
+            {
+				lineEdit->setStyleSheet("background: white; font-size: 14px; padding: 0 5px; ");
+                return ;
+			}
             QString text = lineEdit->text();
             bool hasOnlyDigits = true;
             for (int i = 0; i < text.length(); i++)
@@ -282,7 +288,7 @@ void	MainWindow::buttonSaveToAction()
                 if (text[i].isDigit() == false)
                 {
                     hasOnlyDigits = false;
-                    lineEdit->setStyleSheet("QLineEdit { background-color: red; }");
+                    lineEdit->setStyleSheet("QLineEdit { background-color: red; padding: 0 5px; }");
                     this->_durationTimerValue = 0;
                     QMessageBox::warning(this->_windowSaveTo, tr("Invalid Input"),
                                         tr("Please enter a numeric value."), QMessageBox::Ok);
@@ -291,7 +297,7 @@ void	MainWindow::buttonSaveToAction()
             }
             if (hasOnlyDigits == true)
             {
-                lineEdit->setStyleSheet("QLineEdit { background-color: white; }");
+                lineEdit->setStyleSheet("QLineEdit { background-color: white; padding: 0 5px; }");
                 this->_durationTimerValue = text.toInt();
             }
         });
