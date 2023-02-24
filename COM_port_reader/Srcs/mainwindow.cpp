@@ -262,11 +262,11 @@ void    MainWindow::setParametersDesign(QLabel *showReadingPort1, QLabel *showRe
         });
 }
 
-void    MainWindow::windowSaveToButtonsFunctionality(QPushButton *start, QPushButton *stop, QPushButton *cancel, QLineEdit *lineEdit)
+void    MainWindow::windowSaveToButtonsFunctionality(QPushButton *start, QPushButton *stop, QPushButton *close, QLineEdit *lineEdit)
 {
     stop->setEnabled(false);
     stop->setStyleSheet("border-radius: 6px; background-color: #D3D3D3;");
-    connect(cancel, &QPushButton::clicked, this->_windowSaveTo,
+    connect(close, &QPushButton::clicked, this->_windowSaveTo,
 		[=](void)
 		{
             this->_windowSaveTo->close();
@@ -276,8 +276,8 @@ void    MainWindow::windowSaveToButtonsFunctionality(QPushButton *start, QPushBu
 		{
             if (this->_durationTimerValue == 0)
                 return ;
-            cancel->setEnabled(false);
-			cancel->setStyleSheet("border-radius: 6px; background-color: #D3D3D3;");
+            close->setEnabled(false);
+            close->setStyleSheet("border-radius: 6px; background-color: #D3D3D3;");
             start->setEnabled(false);
 			start->setStyleSheet("border-radius: 6px; background-color: #D3D3D3;");
 			stop->setEnabled(true);
@@ -290,8 +290,8 @@ void    MainWindow::windowSaveToButtonsFunctionality(QPushButton *start, QPushBu
     connect(stop, &QPushButton::clicked, this->_windowSaveTo,
 		[=](void)
 		{
-            cancel->setEnabled(true);
-            cancel->setStyleSheet(MY_DEFINED_DEFAULT_BUTTON);
+            close->setEnabled(true);
+            close->setStyleSheet(MY_DEFINED_DEFAULT_BUTTON);
             start->setEnabled(true);
             start->setStyleSheet(MY_DEFINED_DEFAULT_BUTTON);
 			stop->setEnabled(false);
@@ -347,7 +347,7 @@ void    MainWindow::buttonSaveToAction()
     }
     fileName = selectedDirectory + "/" + createFileName(comPort->getPortName());
 
-    QPushButton	*cancel = this->createButton("Cancel", 10, 110, 100, 30, nullptr, this->_windowSaveTo);
+    QPushButton	*close = this->createButton("Close", 10, 110, 100, 30, nullptr, this->_windowSaveTo);
     QPushButton	*start = this->createButton("Start", 120, 110, 100, 30, nullptr, this->_windowSaveTo);
     QPushButton	*stop = this->createButton("Stop", 230, 110, 100, 30, nullptr, this->_windowSaveTo);
 
@@ -363,7 +363,7 @@ void    MainWindow::buttonSaveToAction()
                         showSelectedDir1, showSelectedDir2, \
                         setTimer1, setTimer2, lineEdit, selectedDirectory);
     
-	this->windowSaveToButtonsFunctionality(start, stop, cancel, lineEdit);
+    this->windowSaveToButtonsFunctionality(start, stop, close, lineEdit);
     
 //	ThreadRuner *threadReader = new ThreadRuner(comPort, fileName.toStdString());
 //	threadReader->start();
@@ -377,7 +377,7 @@ void    MainWindow::buttonSaveToAction()
     delete setTimer1;
     delete setTimer2;
     delete lineEdit;
-    delete cancel;
+    delete close;
     delete start;
     delete stop;
     delete this->_windowSaveTo;
