@@ -26,8 +26,8 @@ class ThreadDisplayTimer : public QThread
         QLabel *_imageLabel;
         QLabel *_imageSecondsLabel;
 
-//    signals:
-//        void finished();
+    signals:
+        void finishedSignal();
 };
 
 #endif

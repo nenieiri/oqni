@@ -33,26 +33,30 @@ class MainWindow : public QMainWindow
         void            buttonCheckAction(void);
 		void			setParametersDesign(QLabel *showReadingPort1, QLabel *showReadingPort2, \
                     				    	QLabel *showSelectedDir1, QLabel *showSelectedDir2, \
-                    				    	QLabel *setTimer1, QLabel *setTimer2, QLineEdit *lineEdit, \
-                                            QString &selectedDirectory, QPushButton *start);
-		void			windowSaveToButtonsFunctionality(QPushButton *start, QPushButton *stop, \
-                                                         QPushButton *cancel, QLineEdit *lineEdit);
+                    				    	QLabel *setTimer1, QLabel *setTimer2, QString &selectedDirectory);
+		void			windowSaveToButtonsFunctionality(void);
         void            buttonSaveToAction(void);
         const QString   createFileName(const QString &portName);
 		void			buttonToolAction(ComPort *comPort);
 
-//    private slots:
-//        void            onThreadDisplayTimerFinished(void);
+    private slots:
+        void            onThreadDisplayTimerFinished(void);
 
     private:
         Ui::MainWindow      *ui;
+        
         QPushButton         *_buttonCheck;
         QPushButton         *_buttonSaveTo;
+        QPushButton         *_buttonStart;
+        QPushButton         *_buttonStop;
+        QPushButton         *_buttonClose;
+        QLineEdit			*_lineEdit;
+        QLabel              *_finishMsgLabel;
+        
         QLabel              *_gifLabel;
         QMovie              *_gifMovie;
         QGroupBox           *_groupBox;
         QVector<ComPort *>  _comPorts;
-        int                 _portCount;
         QScrollBar          *_liftVertical;
         
         QStringList         _baudRateItems;
@@ -60,10 +64,11 @@ class MainWindow : public QMainWindow
         QStringList         _parityItems;
         QStringList         _stopBitsItems;
         QStringList         _flowControlItems;
-
-        ComPort             *_previewsCheckBox; // temp to delete
-
         QDialog             *_windowSaveTo;
+        
+        ComPort             *_previewsCheckBox; // temp to delete
+        
+        int                 _portCount;
         int                 _durationTimerValue;
         ThreadDisplayTimer  *_threadDisplayTimer;
 };

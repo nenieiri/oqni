@@ -62,10 +62,10 @@ void    ThreadDisplayTimer::run()
         {
             this->_imageSecondsLabel->hide();
             this->_imageLabel->hide();
+			emit finishedSignal();
             break ;
         }
     }
-//    emit finished();
 }
 
 void    ThreadDisplayTimer::showImage(int *imgFlag, int sec1, int sec2, int sec3, int sec4)
