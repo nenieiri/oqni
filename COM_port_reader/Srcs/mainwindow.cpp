@@ -282,6 +282,8 @@ void    MainWindow::windowSaveToButtonsFunctionality(void)
 		{
             if (this->_durationTimerValue == 0)
                 return ;
+			this->_windowSaveTo->setMinimumSize(500, 700);
+			this->_windowSaveTo->setMaximumSize(500, 700);
             this->_buttonClose->setEnabled(false);
             this->_buttonClose->setStyleSheet("border-radius: 6px; background-color: #D3D3D3;");
             this->_buttonStart->setEnabled(false);
@@ -298,12 +300,14 @@ void    MainWindow::windowSaveToButtonsFunctionality(void)
     connect(this->_buttonStop, &QPushButton::clicked, this->_windowSaveTo,
 		[=](void)
 		{
+            this->_windowSaveTo->setMinimumSize(500, 155);
+            this->_windowSaveTo->setMaximumSize(500, 155);
             this->_buttonClose->setEnabled(true);
             this->_buttonClose->setStyleSheet(MY_DEFINED_DEFAULT_BUTTON);
             this->_buttonStart->setEnabled(true);
             this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_BUTTON);
-			this->_buttonStop->setEnabled(false);
-			this->_buttonStop->setStyleSheet("border-radius: 6px; background-color: #D3D3D3;");
+            this->_buttonStop->setEnabled(false);
+            this->_buttonStop->setStyleSheet("border-radius: 6px; background-color: #D3D3D3;");
             this->_lineEdit->setEnabled(true);
             this->_lineEdit->setStyleSheet("background-color: white; padding: 0 5px; color: blue;");
             this->_threadDisplayTimer->requestInterruption();
@@ -311,7 +315,7 @@ void    MainWindow::windowSaveToButtonsFunctionality(void)
             this->_finishMsgLabel->setText("Stopped");
             this->_finishMsgLabel->show();
             delete this->_threadDisplayTimer;
-			this->_threadDisplayTimer = nullptr;
+            this->_threadDisplayTimer = nullptr;
 		});
     connect(this->_buttonClose, &QPushButton::clicked, this->_windowSaveTo,
         [=](void)
@@ -329,8 +333,18 @@ void    MainWindow::buttonSaveToAction()
     
     this->_windowSaveTo = new QDialog(this);
     this->_windowSaveTo->setModal(true);
-    this->_windowSaveTo->setMinimumSize(500, 700);
-    this->_windowSaveTo->setMaximumSize(500, 700);
+    
+    QScreen *screen = QApplication::primaryScreen();
+    QSize screenSize = screen->size();
+    int screenWidth = screenSize.width();
+    int screenHeight = screenSize.height();
+    int windowWidth = 500;
+    int windowHeight = 155;    
+    this->_windowSaveTo->setGeometry((screenWidth - windowWidth) / 2, \
+                                    (screenHeight - windowHeight) / 2 - 300, \
+                                    windowWidth, windowHeight);    
+    this->_windowSaveTo->setMinimumSize(windowWidth, windowHeight);
+    this->_windowSaveTo->setMaximumSize(windowWidth, windowHeight);
     this->_windowSaveTo->setWindowTitle("OQNI: Drawer");
     this->_windowSaveTo->setWindowIcon(QIcon(":/Imgs/oqni.ico"));
     this->_windowSaveTo->setWindowFilePath(":/Imgs/oqni.ico");
@@ -508,7 +522,9 @@ const QString   MainWindow::createFileName(const QString &portName)
 
 void   MainWindow::onThreadDisplayTimerFinished(void)
 {
-	this->_buttonClose->setEnabled(true);
+    this->_windowSaveTo->setMinimumSize(500, 155);
+    this->_windowSaveTo->setMaximumSize(500, 155);
+    this->_buttonClose->setEnabled(true);
 	this->_buttonClose->setStyleSheet(MY_DEFINED_DEFAULT_BUTTON);
 	this->_buttonStart->setEnabled(true);
 	this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_BUTTON);
