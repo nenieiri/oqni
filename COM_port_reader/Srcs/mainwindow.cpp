@@ -342,7 +342,6 @@ void    MainWindow::buttonSaveToAction()
     ComPort     *comPort = nullptr;
     QFileDialog dialog;
     QString     selectedDirectory;
-    QString     fileName;
     
     this->_windowSaveTo = new QDialog(this);
     this->_windowSaveTo->setModal(true);
