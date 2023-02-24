@@ -33,8 +33,8 @@ class MainWindow : public QMainWindow
         void            buttonCheckAction(void);
 		void			setParametersDesign(QLabel *showReadingPort1, QLabel *showReadingPort2, \
                     				    	QLabel *showSelectedDir1, QLabel *showSelectedDir2, \
-                    				    	QLabel *setTimer1, QLabel *setTimer2, \
-                                            QLineEdit *lineEdit, QString &selectedDirectory);
+                    				    	QLabel *setTimer1, QLabel *setTimer2, QLineEdit *lineEdit, \
+                                            QString &selectedDirectory, QPushButton *start);
 		void			windowSaveToButtonsFunctionality(QPushButton *start, QPushButton *stop, \
                                                          QPushButton *cancel, QLineEdit *lineEdit);
         void            buttonSaveToAction(void);

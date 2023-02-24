@@ -103,7 +103,7 @@ void    ThreadDisplayTimer::showImage(int *imgFlag, int sec1, int sec2, int sec3
     this->_imageLabel->show();
 
     this->_imageSecondsLabel->setText(imageSeconds);
-    this->_imageSecondsLabel->setGeometry(220, 540, 150, 150);
+    this->_imageSecondsLabel->setGeometry(205, 540, 150, 150);
     this->_imageSecondsLabel->setStyleSheet("font-size: 150px; font-weight: bold;");
     this->_imageSecondsLabel->show();
 }

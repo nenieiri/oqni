@@ -206,8 +206,8 @@ void    MainWindow::buttonCheckAction(void)
 
 void    MainWindow::setParametersDesign(QLabel *showReadingPort1, QLabel *showReadingPort2, \
 										QLabel *showSelectedDir1, QLabel *showSelectedDir2, \
-										QLabel *setTimer1, QLabel *setTimer2, \
-                                    		QLineEdit *lineEdit, QString &selectedDirectory)
+										QLabel *setTimer1, QLabel *setTimer2, QLineEdit *lineEdit, \
+                                        QString &selectedDirectory, QPushButton *start)
 {
     showReadingPort1->setGeometry(10, 10, 100, 30);
     showReadingPort2->setGeometry(120, 10, 480, 30);
@@ -238,6 +238,8 @@ void    MainWindow::setParametersDesign(QLabel *showReadingPort1, QLabel *showRe
             {
                 lineEdit->setStyleSheet("background: white; font-size: 14px; padding: 0 5px; color: blue;");
                 this->_durationTimerValue = 0;
+				start->setEnabled(false);
+				start->setStyleSheet("border-radius: 6px; background-color: #D3D3D3;");
                 return ;
 			}
             QString text = lineEdit->text();
@@ -249,6 +251,8 @@ void    MainWindow::setParametersDesign(QLabel *showReadingPort1, QLabel *showRe
                     hasOnlyDigits = false;
                     lineEdit->setStyleSheet("background-color: red; padding: 0 5px; color: blue;");
                     this->_durationTimerValue = 0;
+					start->setEnabled(false);
+					start->setStyleSheet("border-radius: 6px; background-color: #D3D3D3;");
                     QMessageBox::warning(this->_windowSaveTo, tr("Invalid Input"),
                                         tr("Please enter a numeric value."), QMessageBox::Ok);
                     break ;
@@ -258,6 +262,8 @@ void    MainWindow::setParametersDesign(QLabel *showReadingPort1, QLabel *showRe
             {
                 lineEdit->setStyleSheet("background-color: white; padding: 0 5px; color: blue;");
                 this->_durationTimerValue = text.toInt();
+				start->setEnabled(true);
+				start->setStyleSheet(MY_DEFINED_DEFAULT_BUTTON);
             }
         });
 }
@@ -266,6 +272,8 @@ void    MainWindow::windowSaveToButtonsFunctionality(QPushButton *start, QPushBu
 {
     stop->setEnabled(false);
     stop->setStyleSheet("border-radius: 6px; background-color: #D3D3D3;");
+	start->setEnabled(false);
+	start->setStyleSheet("border-radius: 6px; background-color: #D3D3D3;");
     connect(start, &QPushButton::clicked, this->_windowSaveTo,
 		[=](void)
 		{
@@ -361,7 +369,7 @@ void    MainWindow::buttonSaveToAction()
     
     this->setParametersDesign(showReadingPort1, showReadingPort2, \
                         showSelectedDir1, showSelectedDir2, \
-                        setTimer1, setTimer2, lineEdit, selectedDirectory);
+                        setTimer1, setTimer2, lineEdit, selectedDirectory, start);
     
     this->windowSaveToButtonsFunctionality(start, stop, close, lineEdit);
     
