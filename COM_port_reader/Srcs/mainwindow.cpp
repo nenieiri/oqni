@@ -266,11 +266,6 @@ void    MainWindow::windowSaveToButtonsFunctionality(QPushButton *start, QPushBu
 {
     stop->setEnabled(false);
     stop->setStyleSheet("border-radius: 6px; background-color: #D3D3D3;");
-    connect(close, &QPushButton::clicked, this->_windowSaveTo,
-		[=](void)
-		{
-            this->_windowSaveTo->close();
-		});
     connect(start, &QPushButton::clicked, this->_windowSaveTo,
 		[=](void)
 		{
@@ -302,6 +297,11 @@ void    MainWindow::windowSaveToButtonsFunctionality(QPushButton *start, QPushBu
             this->_threadDisplayTimer->wait();
             delete this->_threadDisplayTimer;
 		});
+    connect(close, &QPushButton::clicked, this->_windowSaveTo,
+        [=](void)
+        {
+            this->_windowSaveTo->close();
+        });
 //    connect(this->_threadDisplayTimer, &ThreadDisplayTimer::finished, this, &MainWindow::onThreadDisplayTimerFinished);
 }
 
@@ -347,9 +347,9 @@ void    MainWindow::buttonSaveToAction()
     }
     fileName = selectedDirectory + "/" + createFileName(comPort->getPortName());
 
-    QPushButton	*close = this->createButton("Close", 10, 110, 100, 30, nullptr, this->_windowSaveTo);
-    QPushButton	*start = this->createButton("Start", 120, 110, 100, 30, nullptr, this->_windowSaveTo);
-    QPushButton	*stop = this->createButton("Stop", 230, 110, 100, 30, nullptr, this->_windowSaveTo);
+    QPushButton	*start = this->createButton("Start", 10, 110, 100, 30, nullptr, this->_windowSaveTo);
+    QPushButton	*stop = this->createButton("Stop", 120, 110, 100, 30, nullptr, this->_windowSaveTo);
+    QPushButton	*close = this->createButton("Close", 230, 110, 100, 30, nullptr, this->_windowSaveTo);
 
     QLabel *showReadingPort1 = new QLabel("Read from:", this->_windowSaveTo);
     QLabel *showReadingPort2 = new QLabel(comPort->getPortName(), this->_windowSaveTo);
