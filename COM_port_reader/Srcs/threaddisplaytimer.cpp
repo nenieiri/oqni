@@ -60,8 +60,8 @@ void    ThreadDisplayTimer::run()
 
         if (seconds == 0)
         {
-            this->_imageLabel->hide();
             this->_imageSecondsLabel->hide();
+            this->_imageLabel->hide();
             break ;
         }
     }

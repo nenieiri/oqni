@@ -120,7 +120,7 @@ void    MainWindow::createLiftVertical(int x, int y, int width, int height)
             for (QVector<ComPort *>::iterator it = _comPorts.begin(); it < _comPorts.end(); ++it)
             {
                 liftRatio = 40 * (1 + (it - _comPorts.begin()) - this->_liftVertical->value());
-                (*it)->getCheckBox()->setGeometry(40, liftRatio, 285, 20);
+                (*it)->getCheckBox()->setGeometry(40, liftRatio, 285, 24);
                 (*it)->getCheckBox()->raise();
 
                 (*it)->getToolButton()->setGeometry(5, liftRatio - 5, 30, 30);
@@ -176,7 +176,7 @@ void    MainWindow::buttonCheckAction(void)
             }
             for (QVector<ComPort *>::iterator it = _comPorts.begin(); it < _comPorts.end(); ++it)
             {
-                (*it)->getCheckBox()->setGeometry(40, 40 * (1 + (it - _comPorts.begin())), 285, 20);
+                (*it)->getCheckBox()->setGeometry(40, 40 * (1 + (it - _comPorts.begin())), 285, 24);
                 (*it)->getCheckBox()->raise();
                 (*it)->getCheckBox()->show();
                 (*it)->getCheckBox()->setStyleSheet("border: 0px solid gray;");
