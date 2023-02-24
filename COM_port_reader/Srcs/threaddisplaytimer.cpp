@@ -35,7 +35,7 @@ ThreadDisplayTimer::~ThreadDisplayTimer()
 
 void    ThreadDisplayTimer::run()
 {
-    this->_displayTimerLabel->setGeometry(280, 65, 150, 40);
+    this->_displayTimerLabel->setGeometry(285, 65, 160, 40);
     this->_displayTimerLabel->setAlignment(Qt::AlignCenter);
     this->_displayTimerLabel->setStyleSheet("font-size: 34px; color: #B22222; font-weight: bold;");
     this->_displayTimerLabel->show();
