@@ -6,10 +6,10 @@ int main(int argc, char *argv[])
     MainWindow w;
     w.show();
     
-    QList<QSerialPortInfo> portList = QSerialPortInfo::availablePorts();
-    for (const QSerialPortInfo& port : portList) {        
-   //     qDebug() << port.portName();
-    }
+//    QList<QSerialPortInfo> portList = QSerialPortInfo::availablePorts();
+//    for (const QSerialPortInfo& port : portList) {        
+//   //     qDebug() << port.portName();
+//    }
         
     return a.exec();
 }

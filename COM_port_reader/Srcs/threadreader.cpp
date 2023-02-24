@@ -1,21 +1,27 @@
-#include "threadruner.hpp"
+#include "threadreader.hpp"
 
-ThreadRuner::ThreadRuner(ComPort *comPort, const std::string &fileName)
+ThreadReader::ThreadReader(ComPort *comPort, const QString &selectedDirectory, ThreadDisplayTimer *threadDisplayTimer)
 			: _comPort(comPort)
-            , _fileName(fileName)
+{
+    QDateTime   currentDateTime = QDateTime::currentDateTime();
+    QString     fileName = selectedDirectory + "/" + \
+                            comPort->getPortName() + "_" + \
+                            currentDateTime.toString("yyyy-MM-dd_hh-mm-ss") + ".csv";
+    
+    this->_fileName = fileName.toStdString();
+    this->_threadDisplayTimer = threadDisplayTimer;
+}
+
+ThreadReader::~ThreadReader()
 {
 }
 
-ThreadRuner::~ThreadRuner()
-{
-}
-
-void		ThreadRuner::run()
+void    ThreadReader::run()
 {
 	reader(_comPort, _fileName);
 }
 
-void		ThreadRuner::parserUno(std::string &line, const std::string &pathFileName)
+void    ThreadReader::parserUno(std::string &line, const std::string &pathFileName)
 {
     size_t      found;
     std::string tokenX = "XVALUE=";
@@ -35,30 +41,30 @@ void		ThreadRuner::parserUno(std::string &line, const std::string &pathFileName)
     if (!MyFile.is_open())
         return ;
     if (file_is_empty)
-        MyFile << "X,Y,Z\n";
+        MyFile << "X,Y,Z,LABEL\n";
 
     found = line.find(tokenX);
     if (found != std::string::npos)
-        MyFile << std::stoi(line.substr(found + tokenX.length())) << ",";
+        MyFile << abs(std::stoi(line.substr(found + tokenX.length())) % 100) << ",";
     else
         MyFile << ",";
 
     found = line.find(tokenY);
     if (found != std::string::npos)
-        MyFile << std::stoi(line.substr(found + tokenY.length())) << ",";
+        MyFile << abs(std::stoi(line.substr(found + tokenY.length())) % 100) << ",";
     else
         MyFile << ",";
 
     found = line.find(tokenZ);
     if (found != std::string::npos)
-        MyFile << std::stoi(line.substr(found + tokenZ.length())) << "\n";
+        MyFile << abs(std::stoi(line.substr(found + tokenZ.length())) % 100) << "," << this->_threadDisplayTimer->getCurrentImgLabel() << "\n";
     else
-        MyFile << "\n";
+        MyFile << "," << this->_threadDisplayTimer->getCurrentImgLabel() << "\n";
 
     MyFile.close();
 }
 
-void ThreadRuner::reader(const ComPort *comPort, const std::string &pathFileName)
+void ThreadReader::reader(const ComPort *comPort, const std::string &pathFileName)
 {
     QSerialPort port;
     QByteArray  data;

@@ -34,9 +34,8 @@ class MainWindow : public QMainWindow
 		void			setParametersDesign(QLabel *showReadingPort1, QLabel *showReadingPort2, \
                     				    	QLabel *showSelectedDir1, QLabel *showSelectedDir2, \
                     				    	QLabel *setTimer1, QLabel *setTimer2, QString &selectedDirectory);
-		void			windowSaveToButtonsFunctionality(void);
+		void			windowSaveToButtonsFunctionality(ComPort *comPort, const QString &selectedDirectory);
         void            buttonSaveToAction(void);
-        const QString   createFileName(const QString &portName);
 		void			buttonToolAction(ComPort *comPort);
 
     private slots:
@@ -71,6 +70,7 @@ class MainWindow : public QMainWindow
         int                 _portCount;
         int                 _durationTimerValue;
         ThreadDisplayTimer  *_threadDisplayTimer;
+        ThreadReader         *_threadReader;
 };
 
 #endif

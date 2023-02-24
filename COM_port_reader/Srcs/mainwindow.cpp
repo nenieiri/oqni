@@ -271,7 +271,7 @@ void    MainWindow::setParametersDesign(QLabel *showReadingPort1, QLabel *showRe
         });
 }
 
-void    MainWindow::windowSaveToButtonsFunctionality(void)
+void    MainWindow::windowSaveToButtonsFunctionality(ComPort *comPort, const QString &selectedDirectory)
 {
     this->_buttonStop->setEnabled(false);
     this->_buttonStop->setStyleSheet("border-radius: 6px; background-color: #D3D3D3;");
@@ -292,8 +292,13 @@ void    MainWindow::windowSaveToButtonsFunctionality(void)
             this->_buttonStop->setStyleSheet(MY_DEFINED_DEFAULT_BUTTON);
             this->_lineEdit->setEnabled(false);
             this->_lineEdit->setStyleSheet("background-color: #D3D3D3; padding: 0 5px; color: blue;");
+            
             this->_threadDisplayTimer = new ThreadDisplayTimer(this->_durationTimerValue, this->_windowSaveTo);
             this->_threadDisplayTimer->start();
+            
+            this->_threadReader = new ThreadReader(comPort, selectedDirectory, this->_threadDisplayTimer);
+            this->_threadReader->start();
+            
             this->_finishMsgLabel->hide();
 			connect(this->_threadDisplayTimer, &ThreadDisplayTimer::finishedSignal, this, &MainWindow::onThreadDisplayTimerFinished);
 		});
@@ -310,12 +315,20 @@ void    MainWindow::windowSaveToButtonsFunctionality(void)
             this->_buttonStop->setStyleSheet("border-radius: 6px; background-color: #D3D3D3;");
             this->_lineEdit->setEnabled(true);
             this->_lineEdit->setStyleSheet("background-color: white; padding: 0 5px; color: blue;");
+            
             this->_threadDisplayTimer->requestInterruption();
-            this->_threadDisplayTimer->wait();
-            this->_finishMsgLabel->setText("Stopped");
-            this->_finishMsgLabel->show();
+            this->_threadDisplayTimer->wait();    
             delete this->_threadDisplayTimer;
             this->_threadDisplayTimer = nullptr;
+        
+            this->_threadReader->requestInterruption();    
+            this->_threadReader->wait();    
+            delete this->_threadReader;
+            this->_threadReader = nullptr;
+        
+            this->_finishMsgLabel->setText("Stopped");
+            this->_finishMsgLabel->show();
+        
 		});
     connect(this->_buttonClose, &QPushButton::clicked, this->_windowSaveTo,
         [=](void)
@@ -374,8 +387,7 @@ void    MainWindow::buttonSaveToAction()
         this->_buttonSaveTo->setStyleSheet(MY_DEFINED_RELEASED_BUTTON);
         return ;
     }
-    fileName = selectedDirectory + "/" + createFileName(comPort->getPortName());
-
+    
     this->_buttonStart = this->createButton("Start", 10, 110, 100, 30, nullptr, this->_windowSaveTo);
     this->_buttonStop = this->createButton("Stop", 120, 110, 100, 30, nullptr, this->_windowSaveTo);
     this->_buttonClose = this->createButton("Close", 230, 110, 100, 30, nullptr, this->_windowSaveTo);
@@ -394,10 +406,7 @@ void    MainWindow::buttonSaveToAction()
                         showSelectedDir1, showSelectedDir2, \
                         setTimer1, setTimer2, selectedDirectory);
     
-    this->windowSaveToButtonsFunctionality();
-    
-//	ThreadRuner *threadReader = new ThreadRuner(comPort, fileName.toStdString());
-//	threadReader->start();
+    this->windowSaveToButtonsFunctionality(comPort, selectedDirectory);
     
     this->_windowSaveTo->exec();
     this->_buttonSaveTo->setStyleSheet(MY_DEFINED_RELEASED_BUTTON);
@@ -511,15 +520,6 @@ void    MainWindow::buttonToolAction(ComPort *comPort)
     delete comPort->_windowProperty;
 }
 
-const QString   MainWindow::createFileName(const QString &portName)
-{
-    QDateTime         currentDateTime = QDateTime::currentDateTime();
-    const QString     formattedDateTime = currentDateTime.toString("yyyy-MM-dd_hh-mm-ss");
-    const QString     fileName = portName + "_" + formattedDateTime + ".csv";
-
-    return fileName;
-}
-
 void   MainWindow::onThreadDisplayTimerFinished(void)
 {
     this->_windowSaveTo->setMinimumSize(500, 155);
@@ -532,9 +532,16 @@ void   MainWindow::onThreadDisplayTimerFinished(void)
 	this->_buttonStop->setStyleSheet("border-radius: 6px; background-color: #D3D3D3;");
 	this->_lineEdit->setEnabled(true);
 	this->_lineEdit->setStyleSheet("background-color: white; padding: 0 5px; color: blue;");
+    
     this->_threadDisplayTimer->wait();
-	this->_finishMsgLabel->setText("Finished");
-    this->_finishMsgLabel->show();
-    delete this->_threadDisplayTimer;
+	delete this->_threadDisplayTimer;
     this->_threadDisplayTimer = nullptr;
+    
+    this->_threadReader->requestInterruption();    
+    this->_threadReader->wait();    
+    delete this->_threadReader;
+    this->_threadReader = nullptr;
+    
+    this->_finishMsgLabel->setText("Finished");
+    this->_finishMsgLabel->show();
 }

@@ -77,21 +77,25 @@ void    ThreadDisplayTimer::showImage(int *imgFlag, int sec1, int sec2, int sec3
         (*imgFlag) = 0;
     if ((*imgFlag) < sec1)
     {
+        this->_currentImgLabel = 1;
         path = ":/Imgs/1)relax_4sec.png";
         imageSeconds = QString::number(sec1 - (*imgFlag) % sec1);
     }
     else if ((*imgFlag) < sec1 + sec2)
     {
+        this->_currentImgLabel = 2;
         path = ":/Imgs/2)tiptoe_3sec.png";
         imageSeconds = QString::number(sec1 + sec2 - (*imgFlag) % (sec1 + sec2));
     }
     else if ((*imgFlag) < sec1 + sec2 + sec3)
     {
+        this->_currentImgLabel = 1;
         path = ":/Imgs/3)relax_4sec.png";
         imageSeconds = QString::number(sec1 + sec2 + sec3 - (*imgFlag) % (sec1 + sec2 + sec3));
     }
     else
     {
+        this->_currentImgLabel = 3;
         path = ":/Imgs/4)heels_3sec.png";
         imageSeconds = QString::number(sec1 + sec2 + sec3 + sec4 - (*imgFlag) % (sec1 + sec2 + sec3 + sec4));
     }
@@ -106,4 +110,9 @@ void    ThreadDisplayTimer::showImage(int *imgFlag, int sec1, int sec2, int sec3
     this->_imageSecondsLabel->setGeometry(205, 540, 150, 150);
     this->_imageSecondsLabel->setStyleSheet("font-size: 150px; font-weight: bold;");
     this->_imageSecondsLabel->show();
+}
+
+int ThreadDisplayTimer::getCurrentImgLabel(void)
+{
+    return this->_currentImgLabel;
 }

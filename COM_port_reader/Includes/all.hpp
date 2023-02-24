@@ -34,7 +34,8 @@
 # include <string>
 
 # include "comport.hpp"
-# include "threadruner.hpp"
+# include "threadreader.hpp"
 # include "threaddisplaytimer.hpp"
+# include "../Includes/threaddisplaytimer.hpp"
 
 #endif
