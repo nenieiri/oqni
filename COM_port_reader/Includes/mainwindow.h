@@ -32,9 +32,7 @@ class MainWindow : public QMainWindow
         void            createGroupBox(int x, int y, int width, int height);
         void            createLiftVertical(int x, int y, int width, int height);
         void            buttonCheckAction(void);
-		void			setParametersDesign(QLabel *showReadingPort1, QLabel *showReadingPort2, \
-                    				    	QLabel *showSelectedDir1, QLabel *showSelectedDir2, \
-                    				    	QLabel *setTimer1, QLabel *setTimer2, QString &selectedDirectory);
+		void			setParametersDesign(QString &selectedDirectory);
 		void			windowSaveToButtonsFunctionality(ComPort *comPort, const QString &selectedDirectory);
         void            buttonSaveToAction(void);
 		void			buttonToolAction(ComPort *comPort);

@@ -204,22 +204,20 @@ void    MainWindow::buttonCheckAction(void)
         });
 }
 
-void    MainWindow::setParametersDesign(QLabel *showReadingPort1, QLabel *showReadingPort2, \
-										QLabel *showSelectedDir1, QLabel *showSelectedDir2, \
-										QLabel *setTimer1, QLabel *setTimer2, QString &selectedDirectory)
+void    MainWindow::setParametersDesign(QString &selectedDirectory)
 {
-    showReadingPort1->setGeometry(10, 10, 100, 30);
-    showReadingPort2->setGeometry(120, 10, 480, 30);
-    showReadingPort2->setStyleSheet("font-size: 14px; color: blue;");
+    this->_windowSaveTo->getShowReadingPort1()->setGeometry(10, 10, 100, 30);
+    this->_windowSaveTo->getShowReadingPort2()->setGeometry(120, 10, 480, 30);
+    this->_windowSaveTo->getShowReadingPort2()->setStyleSheet("font-size: 14px; color: blue;");
     
-    showSelectedDir1->setGeometry(10, 40, 100, 30);
-    showSelectedDir2->setGeometry(120, 40, 480, 30);
-    showSelectedDir2->setToolTip(selectedDirectory);
-    showSelectedDir2->setStyleSheet("font-size: 14px; color: blue;");
+    this->_windowSaveTo->getShowSelectedDir1()->setGeometry(10, 40, 100, 30);
+    this->_windowSaveTo->getShowSelectedDir2()->setGeometry(120, 40, 480, 30);
+    this->_windowSaveTo->getShowSelectedDir2()->setToolTip(selectedDirectory);
+    this->_windowSaveTo->getShowSelectedDir2()->setStyleSheet("font-size: 14px; color: blue;");
 
-    setTimer1->setGeometry(10, 70, 100, 30);
-    setTimer2->setGeometry(210, 70, 100, 30);
-    setTimer2->setStyleSheet("font-size: 14px; color: blue;");
+    this->_windowSaveTo->getTimer1()->setGeometry(10, 70, 100, 30);
+    this->_windowSaveTo->getTimer2()->setGeometry(210, 70, 100, 30);
+    this->_windowSaveTo->getTimer2()->setStyleSheet("font-size: 14px; color: blue;");
 /*
     this->_lineEdit->setPlaceholderText("enter here");
     this->_lineEdit->setGeometry(120, 70, 83, 30);
@@ -395,15 +393,12 @@ void    MainWindow::buttonSaveToAction()
     this->_windowSaveTo->setButtonStop(createButton("Stop", 120, 110, 100, 30, nullptr, this->_windowSaveTo));
     this->_windowSaveTo->setButtonClose(createButton("Close", 230, 110, 100, 30, nullptr, this->_windowSaveTo));
 
-    /*
-    this->setParametersDesign(showReadingPort1, showReadingPort2, \
-                        showSelectedDir1, showSelectedDir2, \
-                        setTimer1, setTimer2, selectedDirectory);
-    
-    this->windowSaveToButtonsFunctionality(comPort, selectedDirectory);
+    this->setParametersDesign(selectedDirectory);
+                        
+    //this->windowSaveToButtonsFunctionality(comPort, selectedDirectory);
     
     this->_windowSaveTo->exec();
-    this->_buttonSaveTo->setStyleSheet(MY_DEFINED_RELEASED_BUTTON);*/
+    this->_buttonSaveTo->setStyleSheet(MY_DEFINED_RELEASED_BUTTON);
     delete this->_windowSaveTo;
 }
 

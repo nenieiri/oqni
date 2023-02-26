@@ -18,24 +18,33 @@ class WindowSaveTo : public QDialog
         void				setButtonStop(const QPushButton *buttonStop);
         void				setButtonClose(const QPushButton *buttonClose);
         
+        QLineEdit			*getLineEdit() const;
+        QLabel				*getFinishMsgLabel() const;
+        
         const QPushButton	*getButtonStart() const;
         const QPushButton	*getButtonStop() const;
         const QPushButton	*getButtonClose() const;
+        QLabel				*getShowReadingPort1() const;
+        QLabel				*getShowReadingPort2() const;
+        QLabel				*getShowSelectedDir1() const;
+        QLabel				*getShowSelectedDir2() const;
+        QLabel				*getTimer1() const;
+        QLabel				*getTimer2() const;
         
     private:
         const QPushButton	*_buttonStart;
         const QPushButton	*_buttonStop;
         const QPushButton	*_buttonClose;
 
-        const QLineEdit		*_lineEdit;
-        const QLabel		*_finishMsgLabel;
+        QLineEdit			*_lineEdit;
+        QLabel				*_finishMsgLabel;
 
-		const QLabel		*_showReadingPort1;
-		const QLabel		*_showReadingPort2;
-		const QLabel		*_showSelectedDir1;
-		const QLabel		*_showSelectedDir2;
-		const QLabel		*_setTimer1;
-		const QLabel		*_setTimer2;
+		QLabel				*_showReadingPort1;
+		QLabel				*_showReadingPort2;
+		QLabel				*_showSelectedDir1;
+		QLabel				*_showSelectedDir2;
+		QLabel				*_timer1;
+		QLabel				*_timer2;
 };
 
 #endif
