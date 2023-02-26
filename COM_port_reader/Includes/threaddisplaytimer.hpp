@@ -5,8 +5,9 @@
 # include <QThread>
 # include <QLabel>
 # include <QDialog>
-
-# include "all.hpp"
+# include <QApplication>
+# include <QScreen>
+# include <QDateTime>
 
 class ThreadDisplayTimer : public QThread
 {

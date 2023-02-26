@@ -6,24 +6,31 @@
 # include <QPushButton>
 # include <QLineEdit>
 # include <QLabel>
+# include <QScreen>
+# include <QApplication>
+
+# include "threadreader.hpp"
+# include "threaddisplaytimer.hpp"
+# include "mainwindow.h"
+
+class MainWindow;
 
 class WindowSaveTo : public QDialog
 {
 	public:
-		WindowSaveTo(QWidget *parent = nullptr);
+		WindowSaveTo(MainWindow *parent);
 		~WindowSaveTo();
         
     public:
-        void				setButtonStart(const QPushButton *buttonStart);
-        void				setButtonStop(const QPushButton *buttonStop);
-        void				setButtonClose(const QPushButton *buttonClose);
+        void				setButtonStart(QPushButton *buttonStart);
+        void				setButtonStop(QPushButton *buttonStop);
+        void				setButtonClose(QPushButton *buttonClose);
         
         QLineEdit			*getLineEdit() const;
         QLabel				*getFinishMsgLabel() const;
-        
-        const QPushButton	*getButtonStart() const;
-        const QPushButton	*getButtonStop() const;
-        const QPushButton	*getButtonClose() const;
+        QPushButton			*getButtonStart() const;
+        QPushButton			*getButtonStop() const;
+        QPushButton			*getButtonClose() const;
         QLabel				*getShowReadingPort1() const;
         QLabel				*getShowReadingPort2() const;
         QLabel				*getShowSelectedDir1() const;
@@ -32,9 +39,13 @@ class WindowSaveTo : public QDialog
         QLabel				*getTimer2() const;
         
     private:
-        const QPushButton	*_buttonStart;
-        const QPushButton	*_buttonStop;
-        const QPushButton	*_buttonClose;
+		void				onThreadDisplayTimerFinished(void);
+		void				setParametersDesign(void);
+        
+    private:
+        QPushButton			*_buttonStart;
+        QPushButton			*_buttonStop;
+        QPushButton			*_buttonClose;
 
         QLineEdit			*_lineEdit;
         QLabel				*_finishMsgLabel;
@@ -45,6 +56,12 @@ class WindowSaveTo : public QDialog
 		QLabel				*_showSelectedDir2;
 		QLabel				*_timer1;
 		QLabel				*_timer2;
+
+        ComPort				*_selectedComPort;
+        
+        ThreadDisplayTimer  *_threadDisplayTimer;
+        ThreadReader        *_threadReader;
+		int					_durationTimerValue;
 };
 
 #endif

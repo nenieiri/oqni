@@ -5,13 +5,13 @@
 # include <QThread>
 # include <QDebug>
 
+# include <iostream>
 # include <string>
+# include <fstream>
 # include <cstdlib>
 
 # include "comport.hpp"
-# include "all.hpp"
-
-class ThreadDisplayTimer;
+# include "threaddisplaytimer.hpp"
 
 class ThreadReader : public QThread
 {

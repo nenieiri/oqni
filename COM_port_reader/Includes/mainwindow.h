@@ -16,6 +16,8 @@ QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
 
+class WindowSaveTo;
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -23,6 +25,9 @@ class MainWindow : public QMainWindow
     public:
         MainWindow(QWidget *parent = nullptr);
         ~MainWindow();
+        
+    public:
+        ComPort			*getSelectedComPort() const {return _selectedComPort;}
 
     private:
         void            putWindowOnScreen(int windowWidth, int windowHeight);
@@ -32,8 +37,6 @@ class MainWindow : public QMainWindow
         void            createGroupBox(int x, int y, int width, int height);
         void            createLiftVertical(int x, int y, int width, int height);
         void            buttonCheckAction(void);
-		void			setParametersDesign(QString &selectedDirectory);
-		void			windowSaveToButtonsFunctionality(ComPort *comPort, const QString &selectedDirectory);
         void            buttonSaveToAction(void);
 		void			buttonToolAction(ComPort *comPort);
 
@@ -50,6 +53,7 @@ class MainWindow : public QMainWindow
         QMovie              *_gifMovie;
         QGroupBox           *_groupBox;
         QVector<ComPort *>  _comPorts;
+        ComPort             *_selectedComPort;
         QScrollBar          *_liftVertical;
         
         QStringList         _baudRateItems;
@@ -62,9 +66,6 @@ class MainWindow : public QMainWindow
         ComPort             *_previewsCheckBox; // temp to delete
         
         int                 _portCount;
-        int                 _durationTimerValue;
-        ThreadDisplayTimer  *_threadDisplayTimer;
-        ThreadReader        *_threadReader;
 };
 
 #endif

@@ -36,6 +36,5 @@
 # include "comport.hpp"
 # include "threadreader.hpp"
 # include "threaddisplaytimer.hpp"
-# include "../Includes/threaddisplaytimer.hpp"
 
 #endif

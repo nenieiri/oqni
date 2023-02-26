@@ -4,6 +4,7 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
     , _portCount(0)
+    , _selectedComPort(nullptr)
 {
     ui->setupUi(this);
     
@@ -204,185 +205,25 @@ void    MainWindow::buttonCheckAction(void)
         });
 }
 
-void    MainWindow::setParametersDesign(QString &selectedDirectory)
-{
-    this->_windowSaveTo->getShowReadingPort1()->setGeometry(10, 10, 100, 30);
-    this->_windowSaveTo->getShowReadingPort2()->setGeometry(120, 10, 480, 30);
-    this->_windowSaveTo->getShowReadingPort2()->setStyleSheet("font-size: 14px; color: blue;");
-    
-    this->_windowSaveTo->getShowSelectedDir1()->setGeometry(10, 40, 100, 30);
-    this->_windowSaveTo->getShowSelectedDir2()->setGeometry(120, 40, 480, 30);
-    this->_windowSaveTo->getShowSelectedDir2()->setToolTip(selectedDirectory);
-    this->_windowSaveTo->getShowSelectedDir2()->setStyleSheet("font-size: 14px; color: blue;");
-
-    this->_windowSaveTo->getTimer1()->setGeometry(10, 70, 100, 30);
-    this->_windowSaveTo->getTimer2()->setGeometry(210, 70, 100, 30);
-    this->_windowSaveTo->getTimer2()->setStyleSheet("font-size: 14px; color: blue;");
-/*
-    this->_lineEdit->setPlaceholderText("enter here");
-    this->_lineEdit->setGeometry(120, 70, 83, 30);
-    this->_lineEdit->setStyleSheet("background: white; font-size: 14px; padding: 0 5px; color: blue;");
-    this->_lineEdit->setToolTip("Please enter only numeric values.");
-    this->_lineEdit->setMaxLength(4);
-    this->_lineEdit->setAlignment(Qt::AlignCenter);
-    this->_durationTimerValue = 0;
-    
-    this->_finishMsgLabel->setGeometry(285, 65, 160, 40);
-    this->_finishMsgLabel->setAlignment(Qt::AlignCenter);
-    this->_finishMsgLabel->setStyleSheet("font-size: 24px; color: #B22222; font-weight: bold;");
-
-*/
-    /* --- If the text contains a non-numeric character, show warrnig msg --- */
- /*   connect(this->_lineEdit, &QLineEdit::textChanged, this->_windowSaveTo,
-        [=](void)
-        {
-        	if (this->_lineEdit->text().length() == 0)
-            {
-                this->_lineEdit->setStyleSheet("background: white; font-size: 14px; padding: 0 5px; color: blue;");
-                this->_durationTimerValue = 0;
-				this->_buttonStart->setEnabled(false);
-				this->_buttonStart->setStyleSheet("border-radius: 6px; background-color: #D3D3D3;");
-                return ;
-			}
-            QString text = this->_lineEdit->text();
-            bool hasOnlyDigits = true;
-            for (int i = 0; i < text.length(); i++)
-            {
-                if (text[i].isDigit() == false)
-                {
-                    hasOnlyDigits = false;
-                    this->_lineEdit->setStyleSheet("background-color: red; padding: 0 5px; color: blue;");
-                    this->_durationTimerValue = 0;
-					this->_buttonStart->setEnabled(false);
-					this->_buttonStart->setStyleSheet("border-radius: 6px; background-color: #D3D3D3;");
-                    QMessageBox::warning(this->_windowSaveTo, tr("Invalid Input"),
-                                        tr("Please enter a numeric value."), QMessageBox::Ok);
-                    break ;
-                }
-            }
-            if (hasOnlyDigits == true)
-            {
-                this->_lineEdit->setStyleSheet("background-color: white; padding: 0 5px; color: blue;");
-                this->_durationTimerValue = text.toInt();
-				this->_buttonStart->setEnabled(true);
-				this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_BUTTON);
-            }
-        });
-        */
-}
-
-void    MainWindow::windowSaveToButtonsFunctionality(ComPort *comPort, const QString &selectedDirectory)
-{
-/*    this->_buttonStop->setEnabled(false);
-    this->_buttonStop->setStyleSheet("border-radius: 6px; background-color: #D3D3D3;");
-	this->_buttonStart->setEnabled(false);
-	this->_buttonStart->setStyleSheet("border-radius: 6px; background-color: #D3D3D3;");
-    connect(this->_buttonStart, &QPushButton::clicked, this->_windowSaveTo,
-		[=](void)
-		{
-            if (this->_durationTimerValue == 0)
-                return ;
-			this->_windowSaveTo->setMinimumSize(500, 700);
-			this->_windowSaveTo->setMaximumSize(500, 700);
-            this->_buttonClose->setEnabled(false);
-            this->_buttonClose->setStyleSheet("border-radius: 6px; background-color: #D3D3D3;");
-            this->_buttonStart->setEnabled(false);
-			this->_buttonStart->setStyleSheet("border-radius: 6px; background-color: #D3D3D3;");
-			this->_buttonStop->setEnabled(true);
-            this->_buttonStop->setStyleSheet(MY_DEFINED_DEFAULT_BUTTON);
-            this->_lineEdit->setEnabled(false);
-            this->_lineEdit->setStyleSheet("background-color: #D3D3D3; padding: 0 5px; color: blue;");
-            
-            this->_threadDisplayTimer = new ThreadDisplayTimer(this->_durationTimerValue, this->_windowSaveTo);
-            this->_threadDisplayTimer->start();
-            
-            this->_threadReader = new ThreadReader(comPort, selectedDirectory, this->_threadDisplayTimer);
-            this->_threadReader->start();
-            
-            this->_finishMsgLabel->hide();
-			connect(this->_threadDisplayTimer, &ThreadDisplayTimer::finishedSignal, this, &MainWindow::onThreadDisplayTimerFinished);
-		});
-    connect(this->_buttonStop, &QPushButton::clicked, this->_windowSaveTo,
-		[=](void)
-		{
-            this->_windowSaveTo->setMinimumSize(500, 155);
-            this->_windowSaveTo->setMaximumSize(500, 155);
-            this->_buttonClose->setEnabled(true);
-            this->_buttonClose->setStyleSheet(MY_DEFINED_DEFAULT_BUTTON);
-            this->_buttonStart->setEnabled(true);
-            this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_BUTTON);
-            this->_buttonStop->setEnabled(false);
-            this->_buttonStop->setStyleSheet("border-radius: 6px; background-color: #D3D3D3;");
-            this->_lineEdit->setEnabled(true);
-            this->_lineEdit->setStyleSheet("background-color: white; padding: 0 5px; color: blue;");
-            
-            this->_threadDisplayTimer->requestInterruption();
-            this->_threadDisplayTimer->wait();    
-            delete this->_threadDisplayTimer;
-            this->_threadDisplayTimer = nullptr;
-        
-            this->_threadReader->requestInterruption();    
-            this->_threadReader->wait();    
-            delete this->_threadReader;
-            this->_threadReader = nullptr;
-        
-            this->_finishMsgLabel->setText("Stopped");
-            this->_finishMsgLabel->show();
-        
-		});
-    connect(this->_buttonClose, &QPushButton::clicked, this->_windowSaveTo,
-        [=](void)
-        {
-            this->_windowSaveTo->close();
-        });
-        */
-}
-
 void    MainWindow::buttonSaveToAction()
 {
-    ComPort     *comPort = nullptr;
-    QFileDialog dialog;
-    QString     selectedDirectory;
-    
-    this->_windowSaveTo = new WindowSaveTo(this);
-    this->_windowSaveTo->setModal(true);
-
     for (QVector<ComPort *>::iterator it = _comPorts.begin(); it != _comPorts.end(); ++it)
     {
         if ((*it)->getCheckBox()->isChecked() == true )
         {
-            comPort = *it;
+            this->_selectedComPort = *it;
             break ;
         }
     }
-    if (comPort == nullptr)
+    if (this->_selectedComPort == nullptr)
     {
         delete this->_windowSaveTo;
         return ;
     }
     
-    QScreen *screen = QApplication::primaryScreen();
-    QSize screenSize = screen->size();
-    int screenWidth = screenSize.width();
-    int screenHeight = screenSize.height();
-    int windowWidth = 500;
-    int windowHeight = 155;    
+    this->_windowSaveTo = new WindowSaveTo(this);
     
-    this->_windowSaveTo->setGeometry((screenWidth - windowWidth) / 2, \
-                                    (screenHeight - windowHeight) / 2 - 300, \
-                                    windowWidth, windowHeight);
-    this->_windowSaveTo->setMinimumSize(windowWidth, windowHeight);
-    this->_windowSaveTo->setMaximumSize(windowWidth, windowHeight);
-    this->_windowSaveTo->setWindowTitle("OQNI: Drawer");
-    this->_windowSaveTo->setWindowIcon(QIcon(":/Imgs/oqni.ico"));
-    this->_windowSaveTo->setWindowFilePath(":/Imgs/oqni.ico");
-    this->_windowSaveTo->setStyleSheet("background: #e6e6e6;");
-    this->_windowSaveTo->setWindowFlag(Qt::WindowCloseButtonHint, false); // Remove the closing button
-    
-    dialog.setOption(QFileDialog::ShowDirsOnly);
-    selectedDirectory = dialog.getExistingDirectory(this->_windowSaveTo, tr("Save to"), \
-                                            QStandardPaths::writableLocation(QStandardPaths::DesktopLocation));
-    if (selectedDirectory == "")
+    if (this->_windowSaveTo->getShowSelectedDir2() == nullptr)
     {
         delete this->_windowSaveTo;
         this->_buttonSaveTo->setStyleSheet(MY_DEFINED_RELEASED_BUTTON);
@@ -392,10 +233,6 @@ void    MainWindow::buttonSaveToAction()
     this->_windowSaveTo->setButtonStart(createButton("Start", 10, 110, 100, 30, nullptr, this->_windowSaveTo));
     this->_windowSaveTo->setButtonStop(createButton("Stop", 120, 110, 100, 30, nullptr, this->_windowSaveTo));
     this->_windowSaveTo->setButtonClose(createButton("Close", 230, 110, 100, 30, nullptr, this->_windowSaveTo));
-
-    this->setParametersDesign(selectedDirectory);
-                        
-    //this->windowSaveToButtonsFunctionality(comPort, selectedDirectory);
     
     this->_windowSaveTo->exec();
     this->_buttonSaveTo->setStyleSheet(MY_DEFINED_RELEASED_BUTTON);
@@ -498,28 +335,3 @@ void    MainWindow::buttonToolAction(ComPort *comPort)
     delete comPort->_windowProperty;
 }
 
-void   MainWindow::onThreadDisplayTimerFinished(void)
-{
-    this->_windowSaveTo->setMinimumSize(500, 155);
-    this->_windowSaveTo->setMaximumSize(500, 155);
- /*   this->_buttonClose->setEnabled(true);
-	this->_buttonClose->setStyleSheet(MY_DEFINED_DEFAULT_BUTTON);
-	this->_buttonStart->setEnabled(true);
-	this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_BUTTON);
-	this->_buttonStop->setEnabled(false);
-	this->_buttonStop->setStyleSheet("border-radius: 6px; background-color: #D3D3D3;");
-	this->_lineEdit->setEnabled(true);
-	this->_lineEdit->setStyleSheet("background-color: white; padding: 0 5px; color: blue;");
-    
-    this->_threadDisplayTimer->wait();
-	delete this->_threadDisplayTimer;
-    this->_threadDisplayTimer = nullptr;
-    
-    this->_threadReader->requestInterruption();    
-    this->_threadReader->wait();    
-    delete this->_threadReader;
-    this->_threadReader = nullptr;
-    
-    this->_finishMsgLabel->setText("Finished");
-    this->_finishMsgLabel->show(); */
-}
