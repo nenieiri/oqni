@@ -362,7 +362,7 @@ void    MainWindow::buttonSaveToAction()
         delete this->_windowSaveTo;
         return ;
     }
-   /* 
+    
     QScreen *screen = QApplication::primaryScreen();
     QSize screenSize = screen->size();
     int screenWidth = screenSize.width();
@@ -372,7 +372,7 @@ void    MainWindow::buttonSaveToAction()
     
     this->_windowSaveTo->setGeometry((screenWidth - windowWidth) / 2, \
                                     (screenHeight - windowHeight) / 2 - 300, \
-                                    windowWidth, windowHeight);    
+                                    windowWidth, windowHeight);
     this->_windowSaveTo->setMinimumSize(windowWidth, windowHeight);
     this->_windowSaveTo->setMaximumSize(windowWidth, windowHeight);
     this->_windowSaveTo->setWindowTitle("OQNI: Drawer");
@@ -389,23 +389,13 @@ void    MainWindow::buttonSaveToAction()
         delete this->_windowSaveTo;
         this->_buttonSaveTo->setStyleSheet(MY_DEFINED_RELEASED_BUTTON);
         return ;
-    }*/
+    }
     
     this->_windowSaveTo->setButtonStart(createButton("Start", 10, 110, 100, 30, nullptr, this->_windowSaveTo));
     this->_windowSaveTo->setButtonStop(createButton("Stop", 120, 110, 100, 30, nullptr, this->_windowSaveTo));
     this->_windowSaveTo->setButtonClose(createButton("Close", 230, 110, 100, 30, nullptr, this->_windowSaveTo));
 
     /*
-    QLabel *showReadingPort1 = new QLabel("Read from:", this->_windowSaveTo);
-    QLabel *showReadingPort2 = new QLabel(comPort->getPortName(), this->_windowSaveTo);
-    QLabel *showSelectedDir1 = new QLabel("Save to:", this->_windowSaveTo);
-    QLabel *showSelectedDir2 = new QLabel(selectedDirectory, this->_windowSaveTo);
-    QLabel *setTimer1 = new QLabel("Duration:", this->_windowSaveTo);
-    QLabel *setTimer2 = new QLabel("seconds  ", this->_windowSaveTo);
-    
-    this->_lineEdit = new QLineEdit(this->_windowSaveTo);
-    this->_finishMsgLabel = new QLabel("", this->_windowSaveTo);
-    
     this->setParametersDesign(showReadingPort1, showReadingPort2, \
                         showSelectedDir1, showSelectedDir2, \
                         setTimer1, setTimer2, selectedDirectory);
@@ -413,20 +403,8 @@ void    MainWindow::buttonSaveToAction()
     this->windowSaveToButtonsFunctionality(comPort, selectedDirectory);
     
     this->_windowSaveTo->exec();
-    this->_buttonSaveTo->setStyleSheet(MY_DEFINED_RELEASED_BUTTON);
-    delete showReadingPort1;
-    delete showReadingPort2;
-    delete showSelectedDir1;
-    delete showSelectedDir2;
-    delete setTimer1;
-    delete setTimer2;
-    delete this->_lineEdit;
-    delete this->_buttonClose;
-    delete this->_buttonStart;
-    delete this->_buttonStop;
-    delete this->_finishMsgLabel;
+    this->_buttonSaveTo->setStyleSheet(MY_DEFINED_RELEASED_BUTTON);*/
     delete this->_windowSaveTo;
-    */
 }
 
 void    MainWindow::buttonToolAction(ComPort *comPort)

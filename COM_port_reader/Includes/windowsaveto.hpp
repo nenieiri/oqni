@@ -26,8 +26,16 @@ class WindowSaveTo : public QDialog
         const QPushButton	*_buttonStart;
         const QPushButton	*_buttonStop;
         const QPushButton	*_buttonClose;
-        QLineEdit			*_lineEdit;
-        QLabel              *_finishMsgLabel;
+
+        const QLineEdit		*_lineEdit;
+        const QLabel		*_finishMsgLabel;
+
+		const QLabel		*_showReadingPort1;
+		const QLabel		*_showReadingPort2;
+		const QLabel		*_showSelectedDir1;
+		const QLabel		*_showSelectedDir2;
+		const QLabel		*_setTimer1;
+		const QLabel		*_setTimer2;
 };
 
 #endif
