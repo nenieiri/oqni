@@ -78,10 +78,7 @@ void ThreadReader::reader(const ComPort *comPort, const std::string &pathFileNam
     port.setFlowControl(comPort->getFlowControl());
 
     if (!port.open(QIODevice::ReadOnly))
-    {
-        qDebug() << "Failed to open serial port";
         return ;
-    }
 
     while (!isInterruptionRequested())
     {

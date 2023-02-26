@@ -72,8 +72,6 @@ WindowSaveTo::~WindowSaveTo()
 
 /* -------------------------------- Setters --------------------------------- */
 
-#include <QDebug>
-
 void		WindowSaveTo::setButtonStart(QPushButton *buttonStart)
 {
     this->_buttonStart = buttonStart;
@@ -91,7 +89,7 @@ void		WindowSaveTo::setButtonStart(QPushButton *buttonStart)
 			this->_buttonStart->setEnabled(false);
 			this->_buttonStart->setStyleSheet("border-radius: 6px; background-color: #D3D3D3;");
 			this->_buttonStop->setEnabled(true);
-//			this->_buttonStop->setStyleSheet(MY_DEFINED_DEFAULT_BUTTON);
+			this->_buttonStop->setStyleSheet(MY_DEFINED_DEFAULT_BUTTON);
 			this->_lineEdit->setEnabled(false);
 			this->_lineEdit->setStyleSheet("background-color: #D3D3D3; padding: 0 5px; color: blue;");
             
@@ -117,9 +115,9 @@ void		WindowSaveTo::setButtonStop(QPushButton *buttonStop)
             this->setMinimumSize(500, 155);
             this->setMaximumSize(500, 155);
             this->_buttonClose->setEnabled(true);
-//            this->_buttonClose->setStyleSheet(MY_DEFINED_DEFAULT_BUTTON);
+            this->_buttonClose->setStyleSheet(MY_DEFINED_DEFAULT_BUTTON);
             this->_buttonStart->setEnabled(true);
-//            this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_BUTTON);
+            this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_BUTTON);
             this->_buttonStop->setEnabled(false);
             this->_buttonStop->setStyleSheet("border-radius: 6px; background-color: #D3D3D3;");
             this->_lineEdit->setEnabled(true);
@@ -143,7 +141,7 @@ void		WindowSaveTo::setButtonStop(QPushButton *buttonStop)
 
 void		WindowSaveTo::setButtonClose(QPushButton *buttonClose)
 {
-    this->_buttonStart = buttonClose;
+    this->_buttonClose = buttonClose;
     connect(this->_buttonClose, &QPushButton::clicked, this,
         [=](void)
         {
@@ -178,19 +176,9 @@ QLabel	*WindowSaveTo::getFinishMsgLabel() const
     return (this->_finishMsgLabel);
 }
 
-QLabel	*WindowSaveTo::getShowReadingPort1() const
-{
-    return (this->_showReadingPort1);
-}
-
 QLabel	*WindowSaveTo::getShowReadingPort2() const
 {
     return (this->_showReadingPort2);
-}
-
-QLabel	*WindowSaveTo::getShowSelectedDir1() const
-{
-    return (this->_showSelectedDir1);
 }
 
 QLabel	*WindowSaveTo::getShowSelectedDir2() const
@@ -198,43 +186,7 @@ QLabel	*WindowSaveTo::getShowSelectedDir2() const
     return (this->_showSelectedDir2);
 }
 
-QLabel	*WindowSaveTo::getTimer1() const
-{
-    return (this->_timer1);
-}
-
-QLabel	*WindowSaveTo::getTimer2() const
-{
-    return (this->_timer2);
-}
-
 /* ---------------------------- Member functions ---------------------------- */
-
-void   WindowSaveTo::onThreadDisplayTimerFinished(void)
-{
-	this->setMinimumSize(500, 155);
-	this->setMaximumSize(500, 155);
-	this->_buttonClose->setEnabled(true);
-	this->_buttonClose->setStyleSheet(MY_DEFINED_DEFAULT_BUTTON);
-	this->_buttonStart->setEnabled(true);
-	this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_BUTTON);
-	this->_buttonStop->setEnabled(false);
-	this->_buttonStop->setStyleSheet("border-radius: 6px; background-color: #D3D3D3;");
-	this->_lineEdit->setEnabled(true);
-	this->_lineEdit->setStyleSheet("background-color: white; padding: 0 5px; color: blue;");
-
-    this->_threadDisplayTimer->wait();
-	delete this->_threadDisplayTimer;
-    this->_threadDisplayTimer = nullptr;
-    
-    this->_threadReader->requestInterruption();
-    this->_threadReader->wait();
-    delete this->_threadReader;
-    this->_threadReader = nullptr;
-    
-    this->_finishMsgLabel->setText("Finished");
-    this->_finishMsgLabel->show();
-}
 
 void    WindowSaveTo::setParametersDesign(void)
 {
@@ -299,4 +251,30 @@ void    WindowSaveTo::setParametersDesign(void)
 				this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_BUTTON);
             }
         });
+}
+
+void   WindowSaveTo::onThreadDisplayTimerFinished(void)
+{
+	this->setMinimumSize(500, 155);
+	this->setMaximumSize(500, 155);
+	this->_buttonClose->setEnabled(true);
+	this->_buttonClose->setStyleSheet(MY_DEFINED_DEFAULT_BUTTON);
+	this->_buttonStart->setEnabled(true);
+	this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_BUTTON);
+	this->_buttonStop->setEnabled(false);
+	this->_buttonStop->setStyleSheet("border-radius: 6px; background-color: #D3D3D3;");
+	this->_lineEdit->setEnabled(true);
+	this->_lineEdit->setStyleSheet("background-color: white; padding: 0 5px; color: blue;");
+
+    this->_threadDisplayTimer->wait();
+	delete this->_threadDisplayTimer;
+    this->_threadDisplayTimer = nullptr;
+    
+    this->_threadReader->requestInterruption();
+    this->_threadReader->wait();
+    delete this->_threadReader;
+    this->_threadReader = nullptr;
+    
+    this->_finishMsgLabel->setText("Finished");
+    this->_finishMsgLabel->show();
 }

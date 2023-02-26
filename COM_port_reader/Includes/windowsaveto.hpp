@@ -31,12 +31,8 @@ class WindowSaveTo : public QDialog
         QPushButton			*getButtonStart() const;
         QPushButton			*getButtonStop() const;
         QPushButton			*getButtonClose() const;
-        QLabel				*getShowReadingPort1() const;
         QLabel				*getShowReadingPort2() const;
-        QLabel				*getShowSelectedDir1() const;
         QLabel				*getShowSelectedDir2() const;
-        QLabel				*getTimer1() const;
-        QLabel				*getTimer2() const;
         
     private:
 		void				setParametersDesign(void);

@@ -3,7 +3,7 @@
 
 # include <QObject>
 # include <QThread>
-# include <QDebug>
+# include <QMessageBox>
 
 # include <iostream>
 # include <string>

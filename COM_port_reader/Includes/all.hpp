@@ -29,9 +29,6 @@
 # include <QStandardPaths>
 
 # include <functional>
-# include <iostream>
-# include <fstream>
-# include <string>
 
 # include "comport.hpp"
 # include "threadreader.hpp"
