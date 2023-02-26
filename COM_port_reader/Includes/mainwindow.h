@@ -4,6 +4,7 @@
 # include "all.hpp"
 # include "../ui_mainwindow.h"
 # include "comport.hpp"
+# include "windowsaveto.hpp"
 
 # define MY_DEFINED_DEFAULT_BUTTON  "QPushButton {border-radius: 6px; color: black; border: 1px solid gray;    background: #6FD5CA;} \
                                QPushButton:hover {border-radius: 6px; color: black; border: 1px solid #0078D4; background: #B9E8E2;}"
@@ -46,11 +47,6 @@ class MainWindow : public QMainWindow
         
         QPushButton         *_buttonCheck;
         QPushButton         *_buttonSaveTo;
-        QPushButton         *_buttonStart;
-        QPushButton         *_buttonStop;
-        QPushButton         *_buttonClose;
-        QLineEdit			*_lineEdit;
-        QLabel              *_finishMsgLabel;
         
         QLabel              *_gifLabel;
         QMovie              *_gifMovie;
@@ -63,14 +59,14 @@ class MainWindow : public QMainWindow
         QStringList         _parityItems;
         QStringList         _stopBitsItems;
         QStringList         _flowControlItems;
-        QDialog             *_windowSaveTo;
+        WindowSaveTo        *_windowSaveTo;
         
         ComPort             *_previewsCheckBox; // temp to delete
         
         int                 _portCount;
         int                 _durationTimerValue;
         ThreadDisplayTimer  *_threadDisplayTimer;
-        ThreadReader         *_threadReader;
+        ThreadReader        *_threadReader;
 };
 
 #endif

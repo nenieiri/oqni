@@ -220,7 +220,7 @@ void    MainWindow::setParametersDesign(QLabel *showReadingPort1, QLabel *showRe
     setTimer1->setGeometry(10, 70, 100, 30);
     setTimer2->setGeometry(210, 70, 100, 30);
     setTimer2->setStyleSheet("font-size: 14px; color: blue;");
-
+/*
     this->_lineEdit->setPlaceholderText("enter here");
     this->_lineEdit->setGeometry(120, 70, 83, 30);
     this->_lineEdit->setStyleSheet("background: white; font-size: 14px; padding: 0 5px; color: blue;");
@@ -233,8 +233,9 @@ void    MainWindow::setParametersDesign(QLabel *showReadingPort1, QLabel *showRe
     this->_finishMsgLabel->setAlignment(Qt::AlignCenter);
     this->_finishMsgLabel->setStyleSheet("font-size: 24px; color: #B22222; font-weight: bold;");
 
+*/
     /* --- If the text contains a non-numeric character, show warrnig msg --- */
-    connect(this->_lineEdit, &QLineEdit::textChanged, this->_windowSaveTo,
+ /*   connect(this->_lineEdit, &QLineEdit::textChanged, this->_windowSaveTo,
         [=](void)
         {
         	if (this->_lineEdit->text().length() == 0)
@@ -269,11 +270,12 @@ void    MainWindow::setParametersDesign(QLabel *showReadingPort1, QLabel *showRe
 				this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_BUTTON);
             }
         });
+        */
 }
 
 void    MainWindow::windowSaveToButtonsFunctionality(ComPort *comPort, const QString &selectedDirectory)
 {
-    this->_buttonStop->setEnabled(false);
+/*    this->_buttonStop->setEnabled(false);
     this->_buttonStop->setStyleSheet("border-radius: 6px; background-color: #D3D3D3;");
 	this->_buttonStart->setEnabled(false);
 	this->_buttonStart->setStyleSheet("border-radius: 6px; background-color: #D3D3D3;");
@@ -335,6 +337,7 @@ void    MainWindow::windowSaveToButtonsFunctionality(ComPort *comPort, const QSt
         {
             this->_windowSaveTo->close();
         });
+        */
 }
 
 void    MainWindow::buttonSaveToAction()
@@ -343,25 +346,8 @@ void    MainWindow::buttonSaveToAction()
     QFileDialog dialog;
     QString     selectedDirectory;
     
-    this->_windowSaveTo = new QDialog(this);
+    this->_windowSaveTo = new WindowSaveTo(this);
     this->_windowSaveTo->setModal(true);
-    
-    QScreen *screen = QApplication::primaryScreen();
-    QSize screenSize = screen->size();
-    int screenWidth = screenSize.width();
-    int screenHeight = screenSize.height();
-    int windowWidth = 500;
-    int windowHeight = 155;    
-    this->_windowSaveTo->setGeometry((screenWidth - windowWidth) / 2, \
-                                    (screenHeight - windowHeight) / 2 - 300, \
-                                    windowWidth, windowHeight);    
-    this->_windowSaveTo->setMinimumSize(windowWidth, windowHeight);
-    this->_windowSaveTo->setMaximumSize(windowWidth, windowHeight);
-    this->_windowSaveTo->setWindowTitle("OQNI: Drawer");
-    this->_windowSaveTo->setWindowIcon(QIcon(":/Imgs/oqni.ico"));
-    this->_windowSaveTo->setWindowFilePath(":/Imgs/oqni.ico");
-    this->_windowSaveTo->setStyleSheet("background: #e6e6e6;");
-    this->_windowSaveTo->setWindowFlag(Qt::WindowCloseButtonHint, false); // Remove the closing button
 
     for (QVector<ComPort *>::iterator it = _comPorts.begin(); it != _comPorts.end(); ++it)
     {
@@ -376,6 +362,24 @@ void    MainWindow::buttonSaveToAction()
         delete this->_windowSaveTo;
         return ;
     }
+   /* 
+    QScreen *screen = QApplication::primaryScreen();
+    QSize screenSize = screen->size();
+    int screenWidth = screenSize.width();
+    int screenHeight = screenSize.height();
+    int windowWidth = 500;
+    int windowHeight = 155;    
+    
+    this->_windowSaveTo->setGeometry((screenWidth - windowWidth) / 2, \
+                                    (screenHeight - windowHeight) / 2 - 300, \
+                                    windowWidth, windowHeight);    
+    this->_windowSaveTo->setMinimumSize(windowWidth, windowHeight);
+    this->_windowSaveTo->setMaximumSize(windowWidth, windowHeight);
+    this->_windowSaveTo->setWindowTitle("OQNI: Drawer");
+    this->_windowSaveTo->setWindowIcon(QIcon(":/Imgs/oqni.ico"));
+    this->_windowSaveTo->setWindowFilePath(":/Imgs/oqni.ico");
+    this->_windowSaveTo->setStyleSheet("background: #e6e6e6;");
+    this->_windowSaveTo->setWindowFlag(Qt::WindowCloseButtonHint, false); // Remove the closing button
     
     dialog.setOption(QFileDialog::ShowDirsOnly);
     selectedDirectory = dialog.getExistingDirectory(this->_windowSaveTo, tr("Save to"), \
@@ -385,12 +389,13 @@ void    MainWindow::buttonSaveToAction()
         delete this->_windowSaveTo;
         this->_buttonSaveTo->setStyleSheet(MY_DEFINED_RELEASED_BUTTON);
         return ;
-    }
+    }*/
     
-    this->_buttonStart = this->createButton("Start", 10, 110, 100, 30, nullptr, this->_windowSaveTo);
-    this->_buttonStop = this->createButton("Stop", 120, 110, 100, 30, nullptr, this->_windowSaveTo);
-    this->_buttonClose = this->createButton("Close", 230, 110, 100, 30, nullptr, this->_windowSaveTo);
+    this->_windowSaveTo->setButtonStart(createButton("Start", 10, 110, 100, 30, nullptr, this->_windowSaveTo));
+    this->_windowSaveTo->setButtonStop(createButton("Stop", 120, 110, 100, 30, nullptr, this->_windowSaveTo));
+    this->_windowSaveTo->setButtonClose(createButton("Close", 230, 110, 100, 30, nullptr, this->_windowSaveTo));
 
+    /*
     QLabel *showReadingPort1 = new QLabel("Read from:", this->_windowSaveTo);
     QLabel *showReadingPort2 = new QLabel(comPort->getPortName(), this->_windowSaveTo);
     QLabel *showSelectedDir1 = new QLabel("Save to:", this->_windowSaveTo);
@@ -421,6 +426,7 @@ void    MainWindow::buttonSaveToAction()
     delete this->_buttonStop;
     delete this->_finishMsgLabel;
     delete this->_windowSaveTo;
+    */
 }
 
 void    MainWindow::buttonToolAction(ComPort *comPort)
@@ -523,7 +529,7 @@ void   MainWindow::onThreadDisplayTimerFinished(void)
 {
     this->_windowSaveTo->setMinimumSize(500, 155);
     this->_windowSaveTo->setMaximumSize(500, 155);
-    this->_buttonClose->setEnabled(true);
+ /*   this->_buttonClose->setEnabled(true);
 	this->_buttonClose->setStyleSheet(MY_DEFINED_DEFAULT_BUTTON);
 	this->_buttonStart->setEnabled(true);
 	this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_BUTTON);
@@ -542,5 +548,5 @@ void   MainWindow::onThreadDisplayTimerFinished(void)
     this->_threadReader = nullptr;
     
     this->_finishMsgLabel->setText("Finished");
-    this->_finishMsgLabel->show();
+    this->_finishMsgLabel->show(); */
 }
