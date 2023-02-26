@@ -5,12 +5,12 @@ WindowSaveTo::WindowSaveTo(MainWindow *parent)
 {
     QFileDialog dialog;
     QString     selectedDirectory;
-    QScreen *screen = QApplication::primaryScreen();
-    QSize screenSize = screen->size();
-    int screenWidth = screenSize.width();
-    int screenHeight = screenSize.height();
-    int windowWidth = 500;
-    int windowHeight = 155;    
+    QScreen     *screen = QApplication::primaryScreen();
+    QSize       screenSize = screen->size();
+    int         screenWidth = screenSize.width();
+    int         screenHeight = screenSize.height();
+    int         windowWidth = 500;
+    int         windowHeight = 155;    
 
     this->_buttonStart = nullptr;
     this->_buttonStop = nullptr;
@@ -190,6 +190,9 @@ QLabel	*WindowSaveTo::getShowSelectedDir2() const
 
 void    WindowSaveTo::setParametersDesign(void)
 {
+    if (_showSelectedDir2 == nullptr)
+        return ;
+    
     this->_showReadingPort1->setGeometry(10, 10, 100, 30);
     this->_showReadingPort2->setGeometry(120, 10, 480, 30);
     this->_showReadingPort2->setStyleSheet("font-size: 14px; color: blue;");
