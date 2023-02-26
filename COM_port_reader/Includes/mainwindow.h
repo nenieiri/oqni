@@ -40,9 +40,6 @@ class MainWindow : public QMainWindow
         void            buttonSaveToAction(void);
 		void			buttonToolAction(ComPort *comPort);
 
-    private slots:
-        void            onThreadDisplayTimerFinished(void);
-
     private:
         Ui::MainWindow      *ui;
         

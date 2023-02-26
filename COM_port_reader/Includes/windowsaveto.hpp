@@ -39,8 +39,10 @@ class WindowSaveTo : public QDialog
         QLabel				*getTimer2() const;
         
     private:
-		void				onThreadDisplayTimerFinished(void);
 		void				setParametersDesign(void);
+        
+    private slots:
+        void                onThreadDisplayTimerFinished(void);
         
     private:
         QPushButton			*_buttonStart;
