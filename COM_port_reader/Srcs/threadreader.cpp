@@ -77,14 +77,35 @@ void ThreadReader::reader(const ComPort *comPort, const std::string &pathFileNam
     port.setStopBits(comPort->getStopBits());
     port.setFlowControl(comPort->getFlowControl());
 
-    if (!port.open(QIODevice::ReadOnly))
-        return ;
-
-    while (!isInterruptionRequested())
+    port.close();
+    if (!port.open(QIODevice::ReadWrite))
     {
-        if (port.waitForReadyRead(1000))
+        qDebug() << "Faild to open serial port!";
+        return ;
+    }
+    
+           
+    QByteArray dataWrite;
+    dataWrite.append(static_cast<char>(0)); // First byte
+    dataWrite.append(static_cast<char>(4)); // Second byte
+    
+    port.write(dataWrite); 
+    
+    QByteArray dataClose;
+    dataClose.append(static_cast<unsigned char>(-1)); // First byte
+    port.write(dataClose);
+    port.close();
+    
+    data = port.read(7);
+    qDebug() << data.toHex();
+//    while (!isInterruptionRequested())
+    for (int i = 0; i < 20 && !isInterruptionRequested(); ++i)
+    {
+        if (port.waitForReadyRead(5000))
         {
-            data = port.read(1);
+//            qDebug() << "ners2";
+            data = port.read(20);
+            qDebug() << data.toHex();
             if (!data.isEmpty() && data.at(0) == '\n')
             {
                 line += data.at(0);
@@ -95,5 +116,8 @@ void ThreadReader::reader(const ComPort *comPort, const std::string &pathFileNam
                     line += data.at(0);
         }
     }
+//    QByteArray dataClose;
+//    dataClose.append(static_cast<char>(-1)); // First byte
+//    port.write(dataClose); 
     port.close();
 }

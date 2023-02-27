@@ -8,11 +8,11 @@ ComPort::ComPort(const QSerialPortInfo &port, QGroupBox *groupbox) : \
                 _parity(QSerialPort::NoParity), \
                 _stopBits(QSerialPort::OneStop), \
                 _flowControl(QSerialPort::NoFlowControl), \
-                _baudRateIndex(-1), \
-                _dataBitsIndex(-1), \
-                _parityIndex(-1), \
-                _stopBitsIndex(-1), \
-                _flowControlIndex(-1) \
+                _baudRateIndex(7), \
+                _dataBitsIndex(3), \
+                _parityIndex(0), \
+                _stopBitsIndex(0), \
+                _flowControlIndex(0) \
 {
     //this->_checkBox = new QCheckBox(this->_portName, groupbox);
     this->_checkBox = new QRadioButton(this->_portName, groupbox); //delete
