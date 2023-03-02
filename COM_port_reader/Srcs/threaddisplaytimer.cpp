@@ -35,7 +35,7 @@ ThreadDisplayTimer::~ThreadDisplayTimer()
 
 void    ThreadDisplayTimer::run()
 {
-    this->_displayTimerLabel->setGeometry(285, 65, 160, 40);
+    this->_displayTimerLabel->setGeometry(360, 205, 160, 40);
     this->_displayTimerLabel->setAlignment(Qt::AlignCenter);
     this->_displayTimerLabel->setStyleSheet("font-size: 34px; color: #B22222; font-weight: bold;");
     this->_displayTimerLabel->show();
@@ -102,12 +102,12 @@ void    ThreadDisplayTimer::showImage(int *imgFlag, int sec1, int sec2, int sec3
 
     QPixmap pixmap(path);
     QPixmap scaledPixmap = pixmap.scaled(400, 400, Qt::KeepAspectRatio);
-    this->_imageLabel->setGeometry(40, 160, 400, 400);
+    this->_imageLabel->setGeometry(620, 20, 400, 400);
     this->_imageLabel->setPixmap(scaledPixmap);
     this->_imageLabel->show();
 
     this->_imageSecondsLabel->setText(imageSeconds);
-    this->_imageSecondsLabel->setGeometry(205, 540, 150, 150);
+    this->_imageSecondsLabel->setGeometry(785, 580, 150, 150);
     this->_imageSecondsLabel->setStyleSheet("font-size: 150px; font-weight: bold;");
     this->_imageSecondsLabel->show();
 }

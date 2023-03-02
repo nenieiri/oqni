@@ -29,28 +29,18 @@ class WindowNext : public QDialog
         void				setButtonClose(QPushButton *buttonClose);
         void				setButtonBrowse(QPushButton *buttonBrowse);
         
-        QLineEdit			*getLineEdit() const;
-        QLabel				*getFinishMsgLabel() const;
-        QPushButton			*getButtonStart() const;
-        QPushButton			*getButtonStop() const;
-        QPushButton			*getButtonClose() const;
-        QLabel				*getShowReadingPort2() const;
-        
     private:
 		void				setParametersDesign(void);
-        void                createDirectory(const QString &path);
+        void				createDirectory(const QString &path);
         
     private slots:
-		void            		onThreadDisplayTimerFinished(void);
+		void				onThreadDisplayTimerFinished(void);
         
     private:
         QPushButton			*_buttonStart;
         QPushButton			*_buttonStop;
         QPushButton			*_buttonClose;
 		QPushButton			*_buttonBrowse;
-
-        QLineEdit			*_lineEdit;
-        QLabel				*_finishMsgLabel;
 
 		QLabel				*_showReadingPort1;
 		QLabel				*_showReadingPort2;
@@ -59,8 +49,21 @@ class WindowNext : public QDialog
 		QLabel				*_showSelectedDir1;
 		QLineEdit			*_showSelectedDir2;
         
+		QLabel				*_recordingFolder1;
+		QLineEdit			*_recordingFolder2;
+		QLineEdit			*_recordingFolder3;
+		QLineEdit			*_recordingFolder4;
+		QLineEdit			*_recordingFolder5;
+        
+		QLabel				*_placement1;
+		QLabel				*_placement3;
+        
+		QLabel				*_protocol1;
+		QLabel				*_protocol3;
+        
 		QLabel				*_timer1;
-		QLabel				*_timer2;
+        QLineEdit			*_lineEdit;
+        QLabel				*_finishMsgLabel;
 
         ComPort				*_selectedComPort;
         

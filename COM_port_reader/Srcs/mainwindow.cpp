@@ -223,10 +223,10 @@ void    MainWindow::buttonNextAction()
     
     this->_windowNext = new WindowNext(this);
     
-    this->_windowNext->setButtonStart(createButton("Start", 10, 140, 100, 30, nullptr, this->_windowNext));
-    this->_windowNext->setButtonStop(createButton("Stop", 120, 140, 100, 30, nullptr, this->_windowNext));
-    this->_windowNext->setButtonClose(createButton("Close", 230, 140, 100, 30, nullptr, this->_windowNext));
     this->_windowNext->setButtonBrowse(createButton("Browse", 490, 50, 100, 30, nullptr, this->_windowNext));
+    this->_windowNext->setButtonStart(createButton("Start", 140, 260, 100, 30, nullptr, this->_windowNext));
+    this->_windowNext->setButtonStop(createButton("Stop", 250, 260, 100, 30, nullptr, this->_windowNext));
+    this->_windowNext->setButtonClose(createButton("Close", 360, 260, 100, 30, nullptr, this->_windowNext));
     
     this->_windowNext->exec();
     this->_buttonNext->setStyleSheet(MY_DEFINED_RELEASED_BUTTON);
