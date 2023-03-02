@@ -11,6 +11,8 @@
 # include <QApplication>
 # include <QCoreApplication>
 # include <QComboBox>
+# include <QStringList>
+# include <QCloseEvent>
 
 # include "threadreader.hpp"
 # include "threaddisplaytimer.hpp"
@@ -33,9 +35,13 @@ class WindowNext : public QDialog
     private:
 		void				setParametersDesign(void);
         void				createDirectory(const QString &path);
+        QStringList         *findExpProtokols(const QString &path);
         
     private slots:
 		void				onThreadDisplayTimerFinished(void);
+        
+    protected:
+        void                closeEvent(QCloseEvent *event) override;
         
     private:
         QPushButton			*_buttonStart;
@@ -75,6 +81,8 @@ class WindowNext : public QDialog
         ThreadDisplayTimer  *_threadDisplayTimer;
         ThreadReader        *_threadReader;
 		int					_durationTimerValue;
+
+        bool                _closeEventFlag;
 };
 
 #endif

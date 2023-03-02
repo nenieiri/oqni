@@ -8,12 +8,14 @@ WindowNext::WindowNext(MainWindow *parent)
     int         screenWidth = screenSize.width();
     int         screenHeight = screenSize.height();
     int         windowWidth = 600;
-    int         windowHeight = 395;    
+    int         windowHeight = 350;    
 
     this->_buttonBrowse = nullptr;
     this->_buttonStart = nullptr;
     this->_buttonStop = nullptr;
     this->_buttonClose = nullptr;
+    
+    this->_closeEventFlag = false;
     
     this->_selectedComPort = parent->getSelectedComPort();
     
@@ -40,6 +42,9 @@ WindowNext::WindowNext(MainWindow *parent)
 
     this->_protocol1 = new QLabel("Recording Protocol:", this);
     this->_protocol2 = new QComboBox(this);
+    QStringList *items = this->findExpProtokols("/Users/vkhlghat/Desktop/oqni/exp_protocols");
+    this->_protocol2->addItems(*items);
+    delete items;
     this->_protocol3 = new QLabel("Limb:", this);
     this->_protocol4 = new QComboBox(this);
     this->_protocol4->addItems({"left leg", "right leg"});
@@ -51,8 +56,8 @@ WindowNext::WindowNext(MainWindow *parent)
     
     this->setModal(true);
     
-    this->setGeometry((screenWidth - windowWidth) / 2, \
-    						(screenHeight - windowHeight) / 2 - 300, \
+    this->setGeometry((screenWidth - windowWidth) / 2 - 300, \
+    						(screenHeight - windowHeight) / 2 - 200, \
                     		windowWidth, windowHeight);
     this->setMinimumSize(windowWidth, windowHeight);
     this->setMaximumSize(windowWidth, windowHeight);
@@ -93,9 +98,17 @@ WindowNext::~WindowNext()
     delete _finishMsgLabel;
 }
 
+void    WindowNext::closeEvent(QCloseEvent *event)
+{
+    if (_closeEventFlag == true)
+        event->accept();
+    else
+        event->ignore();
+}
+
 /* -------------------------------- Setters --------------------------------- */
 
-void		WindowNext::setButtonStart(QPushButton *buttonStart)
+void    WindowNext::setButtonStart(QPushButton *buttonStart)
 {
     this->_buttonStart = buttonStart;
     this->_buttonStart->setEnabled(false);
@@ -108,8 +121,8 @@ void		WindowNext::setButtonStart(QPushButton *buttonStart)
             this->createDirectory(_selectedDirectory);
             if (this->_selectedDirectory == "")
                 return ;
-			this->setMinimumSize(1040, 395);
-			this->setMaximumSize(1040, 395);
+			this->setMinimumSize(1200, 700);
+			this->setMaximumSize(1200, 700);
 			this->_buttonClose->setEnabled(false);
 			this->_buttonClose->setStyleSheet("border-radius: 6px; background-color: #D3D3D3;");
 			this->_buttonStart->setEnabled(false);
@@ -122,6 +135,21 @@ void		WindowNext::setButtonStart(QPushButton *buttonStart)
             this->_showSelectedDir2->setEnabled(false);
 			this->_showSelectedDir2->setStyleSheet("font-size: 14px; background-color: #D3D3D3; padding: 0 5px; color: blue;");
 			this->_showSelectedDir2->setCursorPosition(0);
+            
+            this->_recordingFolder2->setEnabled(false);
+			this->_recordingFolder2->setStyleSheet("font-size: 14px; background-color: #D3D3D3; padding: 0 5px; color: blue;");
+            this->_recordingFolder3->setEnabled(false);
+			this->_recordingFolder3->setStyleSheet("font-size: 14px; background-color: #D3D3D3; padding: 0 5px; color: blue;");
+            
+            this->_placement2->setEnabled(false);
+			this->_placement2->setStyleSheet("font-size: 14px; background-color: #D3D3D3; padding: 0 5px; color: blue;");
+            this->_placement4->setEnabled(false);
+			this->_placement4->setStyleSheet("font-size: 14px; background-color: #D3D3D3; padding: 0 5px; color: blue;");
+            
+            this->_protocol2->setEnabled(false);
+			this->_protocol2->setStyleSheet("font-size: 14px; background-color: #D3D3D3; padding: 0 5px; color: blue;");
+            this->_protocol4->setEnabled(false);
+			this->_protocol4->setStyleSheet("font-size: 14px; background-color: #D3D3D3; padding: 0 5px; color: blue;");
             
             this->_threadDisplayTimer = new ThreadDisplayTimer(this->_durationTimerValue, this);
             this->_threadDisplayTimer->start();
@@ -142,8 +170,8 @@ void		WindowNext::setButtonStop(QPushButton *buttonStop)
     connect(this->_buttonStop, &QPushButton::clicked, this,
 		[=](void)
 		{
-            this->setMinimumSize(600, 395);
-            this->setMaximumSize(600, 395);
+            this->setMinimumSize(600, 350);
+            this->setMaximumSize(600, 350);
             this->_buttonClose->setEnabled(true);
             this->_buttonClose->setStyleSheet(MY_DEFINED_DEFAULT_BUTTON);
             this->_buttonStart->setEnabled(true);
@@ -155,6 +183,21 @@ void		WindowNext::setButtonStop(QPushButton *buttonStop)
         
             this->_showSelectedDir2->setEnabled(true);
             this->_showSelectedDir2->setStyleSheet("font-size: 14px; background-color: white; padding: 0 5px; color: blue;");
+        
+            this->_recordingFolder2->setEnabled(true);
+            this->_recordingFolder2->setStyleSheet("font-size: 14px; background-color: white; padding: 0 5px; color: blue;");
+            this->_recordingFolder3->setEnabled(true);
+            this->_recordingFolder3->setStyleSheet("font-size: 14px; background-color: white; padding: 0 5px; color: blue;");
+        
+            this->_placement2->setEnabled(true);
+            this->_placement2->setStyleSheet("font-size: 14px; background-color: white; padding: 0 5px; color: blue;");
+            this->_placement4->setEnabled(true);
+            this->_placement4->setStyleSheet("font-size: 14px; background-color: white; padding: 0 5px; color: blue;");
+        
+            this->_protocol2->setEnabled(true);
+            this->_protocol2->setStyleSheet("font-size: 14px; background-color: white; padding: 0 5px; color: blue;");
+            this->_protocol4->setEnabled(true);
+            this->_protocol4->setStyleSheet("font-size: 14px; background-color: white; padding: 0 5px; color: blue;");
             
             this->_threadDisplayTimer->requestInterruption();
             this->_threadDisplayTimer->wait();    
@@ -178,6 +221,7 @@ void		WindowNext::setButtonClose(QPushButton *buttonClose)
     connect(this->_buttonClose, &QPushButton::clicked, this,
         [=](void)
         {
+            this->_closeEventFlag = true;
             this->close();
         });
 }
@@ -221,21 +265,21 @@ void    WindowNext::setParametersDesign(void)
     
     this->_recordingFolder1->setGeometry(10, 90, 160, 30);
     this->_recordingFolder1->setStyleSheet("font-size: 18px;");
-    this->_recordingFolder2->setGeometry(180, 90, 90, 30);
+    this->_recordingFolder2->setGeometry(180, 90, 105, 30);
     this->_recordingFolder2->setAlignment(Qt::AlignCenter);
     this->_recordingFolder2->setStyleSheet("background: white; font-size: 14px; padding: 0 5px; color: blue;");
     this->_recordingFolder2->setText("BL-003");
-    this->_recordingFolder3->setGeometry(286, 90, 90, 30);
+    this->_recordingFolder3->setGeometry(300, 90, 128, 30);
     this->_recordingFolder3->setMaxLength(3);
     this->_recordingFolder3->setAlignment(Qt::AlignCenter);
     this->_recordingFolder3->setStyleSheet("background: white; font-size: 14px; padding: 0 5px; color: blue;");
     this->_recordingFolder3->setText("000");
-    this->_recordingFolder4->setGeometry(392, 90, 90, 30);
+    this->_recordingFolder4->setGeometry(438, 90, 70, 30);
     this->_recordingFolder4->setEnabled(false);
     this->_recordingFolder4->setMaxLength(6);
     this->_recordingFolder4->setAlignment(Qt::AlignCenter);
     this->_recordingFolder4->setStyleSheet("font-size: 14px; background-color: #D3D3D3; padding: 0 5px; color: blue;");
-    this->_recordingFolder5->setGeometry(498, 90, 90, 30);
+    this->_recordingFolder5->setGeometry(518, 90, 70, 30);
     this->_recordingFolder5->setEnabled(false);
     this->_recordingFolder5->setMaxLength(1);
     this->_recordingFolder5->setAlignment(Qt::AlignCenter);
@@ -243,27 +287,27 @@ void    WindowNext::setParametersDesign(void)
 
     this->_placement1->setGeometry(10, 130, 160, 30);
     this->_placement1->setStyleSheet("font-size: 18px;");
-    this->_placement2->setGeometry(180, 130, 90, 30);
-    this->_placement2->setStyleSheet("font-size: 14px;");
-    this->_placement3->setGeometry(286, 130, 160, 30);
+    this->_placement2->setGeometry(180, 130, 105, 30);
+    this->_placement2->setStyleSheet("background: white; font-size: 14px; padding: 0 5px; color: blue;");
+    this->_placement3->setGeometry(300, 130, 160, 30);
     this->_placement3->setStyleSheet("font-size: 18px;");
     this->_placement4->setGeometry(438, 130, 150, 30);
-    this->_placement4->setStyleSheet("font-size: 14px;");
+    this->_placement4->setStyleSheet("background: white; font-size: 14px; padding: 0 5px; color: blue;");
 
     this->_protocol1->setGeometry(10, 170, 160, 30);
     this->_protocol1->setStyleSheet("font-size: 18px;");
-    this->_protocol2->setGeometry(180, 170, 90, 30);
-    this->_protocol2->setStyleSheet("font-size: 14px;");
-    this->_protocol3->setGeometry(286, 170, 160, 30);
+    this->_protocol2->setGeometry(180, 170, 105, 30);
+    this->_protocol2->setStyleSheet("background: white; font-size: 14px; padding: 0 5px; color: blue;");
+    this->_protocol3->setGeometry(300, 170, 160, 30);
     this->_protocol3->setStyleSheet("font-size: 18px;");
     this->_protocol4->setGeometry(438, 170, 150, 30);
-    this->_protocol4->setStyleSheet("font-size: 14px;");
+    this->_protocol4->setStyleSheet("background: white; font-size: 14px; padding: 0 5px; color: blue;");
 
     this->_timer1->setGeometry(10, 210, 160, 30);
     this->_timer1->setStyleSheet("font-size: 18px;");
 
     this->_lineEdit->setPlaceholderText("enter here");
-    this->_lineEdit->setGeometry(180, 210, 90, 30);
+    this->_lineEdit->setGeometry(180, 210, 105, 30);
     this->_lineEdit->setStyleSheet("background: white; font-size: 14px; padding: 0 5px; color: blue;");
     this->_lineEdit->setToolTip("Please enter only numeric values.");
     this->_lineEdit->setMaxLength(4);
@@ -340,11 +384,24 @@ void    WindowNext::createDirectory(const QString &path)
             this->_selectedDirectory = "";
 }
 
+QStringList *WindowNext::findExpProtokols(const QString &path)
+{
+    QStringList     *items = new QStringList();    
+    QDir            directory(path);
+    QFileInfoList   fileList;
+    
+    directory.setNameFilters(QStringList() << "*.csv");
+    fileList = directory.entryInfoList();
+    for (const QFileInfo& fileInfo : fileList)
+        if (fileInfo.isFile())
+            items->append(fileInfo.fileName().left(fileInfo.fileName().length() - 4));
+    return items;
+}
 
 void   WindowNext::onThreadDisplayTimerFinished(void)
 {
-	this->setMinimumSize(600, 395);
-	this->setMaximumSize(600, 395);
+	this->setMinimumSize(600, 350);
+	this->setMaximumSize(600, 350);
 	this->_buttonClose->setEnabled(true);
 	this->_buttonClose->setStyleSheet(MY_DEFINED_DEFAULT_BUTTON);
 	this->_buttonStart->setEnabled(true);
@@ -356,6 +413,21 @@ void   WindowNext::onThreadDisplayTimerFinished(void)
     
     this->_showSelectedDir2->setEnabled(true);
     this->_showSelectedDir2->setStyleSheet("font-size: 14px; background-color: white; padding: 0 5px; color: blue;");
+    
+    this->_recordingFolder2->setEnabled(true);
+    this->_recordingFolder2->setStyleSheet("font-size: 14px; background-color: white; padding: 0 5px; color: blue;");
+    this->_recordingFolder3->setEnabled(true);
+    this->_recordingFolder3->setStyleSheet("font-size: 14px; background-color: white; padding: 0 5px; color: blue;");
+    
+    this->_placement2->setEnabled(true);
+    this->_placement2->setStyleSheet("font-size: 14px; background-color: white; padding: 0 5px; color: blue;");
+    this->_placement4->setEnabled(true);
+    this->_placement4->setStyleSheet("font-size: 14px; background-color: white; padding: 0 5px; color: blue;");
+    
+    this->_protocol2->setEnabled(true);
+    this->_protocol2->setStyleSheet("font-size: 14px; background-color: white; padding: 0 5px; color: blue;");
+    this->_protocol4->setEnabled(true);
+    this->_protocol4->setStyleSheet("font-size: 14px; background-color: white; padding: 0 5px; color: blue;");
 
     this->_threadDisplayTimer->wait();
 	delete this->_threadDisplayTimer;

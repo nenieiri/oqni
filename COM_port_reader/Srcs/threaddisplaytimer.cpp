@@ -101,13 +101,13 @@ void    ThreadDisplayTimer::showImage(int *imgFlag, int sec1, int sec2, int sec3
     }
 
     QPixmap pixmap(path);
-    QPixmap scaledPixmap = pixmap.scaled(400, 400, Qt::KeepAspectRatio);
-    this->_imageLabel->setGeometry(620, 20, 400, 400);
+    QPixmap scaledPixmap = pixmap.scaled(550, 550, Qt::KeepAspectRatio);
+    this->_imageLabel->setGeometry(620, 20, 550, 550);
     this->_imageLabel->setPixmap(scaledPixmap);
     this->_imageLabel->show();
 
     this->_imageSecondsLabel->setText(imageSeconds);
-    this->_imageSecondsLabel->setGeometry(785, 580, 150, 150);
+    this->_imageSecondsLabel->setGeometry(850, 550, 150, 150);
     this->_imageSecondsLabel->setStyleSheet("font-size: 150px; font-weight: bold;");
     this->_imageSecondsLabel->show();
 }
