@@ -258,7 +258,6 @@ void    MainWindow::buttonToolAction(ComPort *comPort)
     QLabel *flowControl = new QLabel("Flow Control:", comPort->_windowProperty);
     flowControl->setGeometry(10, 210, 130, 30);
     
-    
     QComboBox *baudComboBox = new QComboBox(comPort->_windowProperty);
     baudComboBox->addItems(this->_baudRateItems);
     baudComboBox->setGeometry(150, 50, 200, 30);

@@ -32,10 +32,17 @@ WindowNext::WindowNext(MainWindow *parent)
     this->_recordingFolder5 = new QLineEdit(this);
 
     this->_placement1 = new QLabel("OPT Placement:", this);
+    this->_placement2 = new QComboBox(this);
+    this->_placement2->addItems({"1.1, 1.2", "3.1, 3.2", "4.1, 4.2"});
     this->_placement3 = new QLabel("IMU Placement:", this);
+    this->_placement4 = new QComboBox(this);
+    this->_placement4->addItems({"above knee", "below knee"});
 
     this->_protocol1 = new QLabel("Recording Protocol:", this);
+    this->_protocol2 = new QComboBox(this);
     this->_protocol3 = new QLabel("Limb:", this);
+    this->_protocol4 = new QComboBox(this);
+    this->_protocol4->addItems({"left leg", "right leg"});
 
     this->_timer1 = new QLabel("Duration (seconds):", this);
     
@@ -74,13 +81,13 @@ WindowNext::~WindowNext()
     delete _recordingFolder4;
     delete _recordingFolder5;
     delete _placement1;
-//    delete _placement2;
+    delete _placement2;
     delete _placement3;
-//    delete _placement4;
+    delete _placement4;
     delete _protocol1;
-//    delete _protocol2;
+    delete _protocol2;
     delete _protocol3;
-//    delete _protocol4;
+    delete _protocol4;
     delete _timer1;
     delete _lineEdit;
     delete _finishMsgLabel;
@@ -217,10 +224,12 @@ void    WindowNext::setParametersDesign(void)
     this->_recordingFolder2->setGeometry(180, 90, 90, 30);
     this->_recordingFolder2->setAlignment(Qt::AlignCenter);
     this->_recordingFolder2->setStyleSheet("background: white; font-size: 14px; padding: 0 5px; color: blue;");
+    this->_recordingFolder2->setText("BL-003");
     this->_recordingFolder3->setGeometry(286, 90, 90, 30);
     this->_recordingFolder3->setMaxLength(3);
     this->_recordingFolder3->setAlignment(Qt::AlignCenter);
     this->_recordingFolder3->setStyleSheet("background: white; font-size: 14px; padding: 0 5px; color: blue;");
+    this->_recordingFolder3->setText("000");
     this->_recordingFolder4->setGeometry(392, 90, 90, 30);
     this->_recordingFolder4->setEnabled(false);
     this->_recordingFolder4->setMaxLength(6);
@@ -234,13 +243,21 @@ void    WindowNext::setParametersDesign(void)
 
     this->_placement1->setGeometry(10, 130, 160, 30);
     this->_placement1->setStyleSheet("font-size: 18px;");
+    this->_placement2->setGeometry(180, 130, 90, 30);
+    this->_placement2->setStyleSheet("font-size: 14px;");
     this->_placement3->setGeometry(286, 130, 160, 30);
     this->_placement3->setStyleSheet("font-size: 18px;");
+    this->_placement4->setGeometry(438, 130, 150, 30);
+    this->_placement4->setStyleSheet("font-size: 14px;");
 
     this->_protocol1->setGeometry(10, 170, 160, 30);
     this->_protocol1->setStyleSheet("font-size: 18px;");
+    this->_protocol2->setGeometry(180, 170, 90, 30);
+    this->_protocol2->setStyleSheet("font-size: 14px;");
     this->_protocol3->setGeometry(286, 170, 160, 30);
     this->_protocol3->setStyleSheet("font-size: 18px;");
+    this->_protocol4->setGeometry(438, 170, 150, 30);
+    this->_protocol4->setStyleSheet("font-size: 14px;");
 
     this->_timer1->setGeometry(10, 210, 160, 30);
     this->_timer1->setStyleSheet("font-size: 18px;");

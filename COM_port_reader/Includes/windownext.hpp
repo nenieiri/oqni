@@ -10,6 +10,7 @@
 # include <QScreen>
 # include <QApplication>
 # include <QCoreApplication>
+# include <QComboBox>
 
 # include "threadreader.hpp"
 # include "threaddisplaytimer.hpp"
@@ -56,10 +57,14 @@ class WindowNext : public QDialog
 		QLineEdit			*_recordingFolder5;
         
 		QLabel				*_placement1;
+		QComboBox			*_placement2;
 		QLabel				*_placement3;
+		QComboBox			*_placement4;
         
 		QLabel				*_protocol1;
+		QComboBox			*_protocol2;
 		QLabel				*_protocol3;
+		QComboBox			*_protocol4;
         
 		QLabel				*_timer1;
         QLineEdit			*_lineEdit;
