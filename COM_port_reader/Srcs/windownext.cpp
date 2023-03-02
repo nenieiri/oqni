@@ -74,6 +74,9 @@ void		WindowNext::setButtonStart(QPushButton *buttonStart)
 		{
             if (this->_durationTimerValue == 0)
                 return ;
+            this->createDirectory(_selectedDirectory);
+            if (this->_selectedDirectory == "")
+                return ;
 			this->setMinimumSize(600, 700);
 			this->setMaximumSize(600, 700);
 			this->_buttonClose->setEnabled(false);
@@ -84,6 +87,9 @@ void		WindowNext::setButtonStart(QPushButton *buttonStart)
 			this->_buttonStop->setStyleSheet(MY_DEFINED_DEFAULT_BUTTON);
 			this->_lineEdit->setEnabled(false);
 			this->_lineEdit->setStyleSheet("background-color: #D3D3D3; padding: 0 5px; color: blue;");
+            
+            this->_showSelectedDir2->setEnabled(false);
+			this->_showSelectedDir2->setStyleSheet("font-size: 14px; background-color: #D3D3D3; padding: 0 5px; color: blue;");
             
             this->_threadDisplayTimer = new ThreadDisplayTimer(this->_durationTimerValue, this);
             this->_threadDisplayTimer->start();
@@ -114,6 +120,9 @@ void		WindowNext::setButtonStop(QPushButton *buttonStop)
             this->_buttonStop->setStyleSheet("border-radius: 6px; background-color: #D3D3D3;");
             this->_lineEdit->setEnabled(true);
             this->_lineEdit->setStyleSheet("background-color: white; padding: 0 5px; color: blue;");
+        
+            this->_showSelectedDir2->setEnabled(true);
+            this->_showSelectedDir2->setStyleSheet("font-size: 14px; background-color: white; padding: 0 5px; color: blue;");
             
             this->_threadDisplayTimer->requestInterruption();
             this->_threadDisplayTimer->wait();    
@@ -204,9 +213,8 @@ void    WindowNext::setParametersDesign(void)
     
     this->_showSelectedDir1->setGeometry(10, 50, 100, 30);
     this->_showSelectedDir2->setGeometry(120, 50, 360, 30);
-    this->_showSelectedDir2->setEnabled(false);
     this->_showSelectedDir2->setCursorPosition(0);
-    this->_showSelectedDir2->setStyleSheet("font-size: 14px; background-color: #D3D3D3; padding: 0 5px; color: blue;");
+    this->_showSelectedDir2->setStyleSheet("background: white; font-size: 14px; padding: 0 5px; color: blue;");
     this->_showSelectedDir2->setToolTip(_selectedDirectory);
 
     this->_timer1->setGeometry(10, 90, 100, 30);
@@ -262,7 +270,35 @@ void    WindowNext::setParametersDesign(void)
 				this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_BUTTON);
             }
         });
+    
+    /* --- If the SaveTo lineEdit text changed --- */
+    connect(this->_showSelectedDir2, &QLineEdit::textChanged, this,
+        [=](void)
+        {
+            if (this->_showSelectedDir2->text().length() == 0)
+            {
+                this->_showSelectedDir2->setStyleSheet("background: white; font-size: 14px; padding: 0 5px; color: blue;");
+                this->_buttonStart->setEnabled(false);
+                this->_buttonStart->setStyleSheet("border-radius: 6px; background-color: #D3D3D3;");
+            }
+            else
+            {
+                this->_buttonStart->setEnabled(true);
+				this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_BUTTON);
+            }
+            this->_selectedDirectory = this->_showSelectedDir2->text();
+        });
 }
+
+void    WindowNext::createDirectory(const QString &path)
+{
+    QDir dir(path);
+    
+    if (!dir.exists())
+        if(!dir.mkpath(path))
+            this->_selectedDirectory = "";
+}
+
 
 void   WindowNext::onThreadDisplayTimerFinished(void)
 {
@@ -276,6 +312,9 @@ void   WindowNext::onThreadDisplayTimerFinished(void)
 	this->_buttonStop->setStyleSheet("border-radius: 6px; background-color: #D3D3D3;");
 	this->_lineEdit->setEnabled(true);
 	this->_lineEdit->setStyleSheet("background-color: white; padding: 0 5px; color: blue;");
+    
+    this->_showSelectedDir2->setEnabled(true);
+    this->_showSelectedDir2->setStyleSheet("font-size: 14px; background-color: white; padding: 0 5px; color: blue;");
 
     this->_threadDisplayTimer->wait();
 	delete this->_threadDisplayTimer;

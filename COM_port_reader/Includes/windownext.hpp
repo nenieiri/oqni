@@ -37,7 +37,8 @@ class WindowNext : public QDialog
         QLabel				*getShowReadingPort2() const;
         
     private:
-		void					setParametersDesign(void);
+		void				setParametersDesign(void);
+        void                createDirectory(const QString &path);
         
     private slots:
 		void            		onThreadDisplayTimerFinished(void);
