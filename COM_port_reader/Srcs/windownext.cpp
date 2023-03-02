@@ -1,16 +1,14 @@
-#include "windowsaveto.hpp"
+#include "windownext.hpp"
 
-WindowSaveTo::WindowSaveTo(MainWindow *parent)
+WindowNext::WindowNext(MainWindow *parent)
     : QDialog(parent)
 {
-    QFileDialog dialog;
-    QString     selectedDirectory;
     QScreen     *screen = QApplication::primaryScreen();
     QSize       screenSize = screen->size();
     int         screenWidth = screenSize.width();
     int         screenHeight = screenSize.height();
-    int         windowWidth = 500;
-    int         windowHeight = 155;    
+    int         windowWidth = 600;
+    int         windowHeight = 195;    
 
     this->_buttonStart = nullptr;
     this->_buttonStop = nullptr;
@@ -20,18 +18,11 @@ WindowSaveTo::WindowSaveTo(MainWindow *parent)
     
     this->_showReadingPort1 = new QLabel("Read from:", this);
 	this->_showReadingPort2 = new QLabel(this->_selectedComPort->getPortName(), this);
-    this->_showSelectedDir1 = new QLabel("Save to:", this);
     
-    dialog.setOption(QFileDialog::ShowDirsOnly);
-    selectedDirectory = dialog.getExistingDirectory(this, tr("Save to"), \
-            QStandardPaths::writableLocation(QStandardPaths::DesktopLocation));
-    if (selectedDirectory == "")
-		this->_showSelectedDir2 = nullptr;
-    else
-    {
-		this->_showSelectedDir2 = new QLabel(selectedDirectory, this);
-		this->_showSelectedDir2->setToolTip(selectedDirectory);
-    }
+    this->_showSelectedDir1 = new QLabel("Save to:", this);
+    this->_showSelectedDir2 = new QLineEdit(this);
+    this->_selectedDirectory = QCoreApplication::applicationDirPath() + "/Recordings/";
+    this->_showSelectedDir2->setText(_selectedDirectory);
 
     this->_timer1 = new QLabel("Duration:", this);
     this->_timer2 = new QLabel("seconds  ", this);
@@ -55,11 +46,12 @@ WindowSaveTo::WindowSaveTo(MainWindow *parent)
     this->setParametersDesign();
 }
 
-WindowSaveTo::~WindowSaveTo()
+WindowNext::~WindowNext()
 {
     delete _buttonClose;
     delete _buttonStart;
     delete _buttonStop;
+    delete _buttonBrowse;
     delete _showReadingPort1;
     delete _showReadingPort2;
     delete _showSelectedDir1;
@@ -72,7 +64,7 @@ WindowSaveTo::~WindowSaveTo()
 
 /* -------------------------------- Setters --------------------------------- */
 
-void		WindowSaveTo::setButtonStart(QPushButton *buttonStart)
+void		WindowNext::setButtonStart(QPushButton *buttonStart)
 {
     this->_buttonStart = buttonStart;
     this->_buttonStart->setEnabled(false);
@@ -82,8 +74,8 @@ void		WindowSaveTo::setButtonStart(QPushButton *buttonStart)
 		{
             if (this->_durationTimerValue == 0)
                 return ;
-			this->setMinimumSize(500, 700);
-			this->setMaximumSize(500, 700);
+			this->setMinimumSize(600, 700);
+			this->setMaximumSize(600, 700);
 			this->_buttonClose->setEnabled(false);
 			this->_buttonClose->setStyleSheet("border-radius: 6px; background-color: #D3D3D3;");
 			this->_buttonStart->setEnabled(false);
@@ -100,11 +92,11 @@ void		WindowSaveTo::setButtonStart(QPushButton *buttonStart)
             this->_threadReader->start();
             
             this->_finishMsgLabel->hide();
-			connect(this->_threadDisplayTimer, &ThreadDisplayTimer::finishedSignal, this, &WindowSaveTo::onThreadDisplayTimerFinished);
+			connect(this->_threadDisplayTimer, &ThreadDisplayTimer::finishedSignal, this, &WindowNext::onThreadDisplayTimerFinished);
 		});
 }
 
-void		WindowSaveTo::setButtonStop(QPushButton *buttonStop)
+void		WindowNext::setButtonStop(QPushButton *buttonStop)
 {
     this->_buttonStop = buttonStop;
     this->_buttonStop->setEnabled(false);
@@ -112,8 +104,8 @@ void		WindowSaveTo::setButtonStop(QPushButton *buttonStop)
     connect(this->_buttonStop, &QPushButton::clicked, this,
 		[=](void)
 		{
-            this->setMinimumSize(500, 155);
-            this->setMaximumSize(500, 155);
+            this->setMinimumSize(600, 195);
+            this->setMaximumSize(600, 195);
             this->_buttonClose->setEnabled(true);
             this->_buttonClose->setStyleSheet(MY_DEFINED_DEFAULT_BUTTON);
             this->_buttonStart->setEnabled(true);
@@ -139,7 +131,7 @@ void		WindowSaveTo::setButtonStop(QPushButton *buttonStop)
 		});
 }
 
-void		WindowSaveTo::setButtonClose(QPushButton *buttonClose)
+void		WindowNext::setButtonClose(QPushButton *buttonClose)
 {
     this->_buttonClose = buttonClose;
     connect(this->_buttonClose, &QPushButton::clicked, this,
@@ -149,70 +141,86 @@ void		WindowSaveTo::setButtonClose(QPushButton *buttonClose)
         });
 }
 
+void		WindowNext::setButtonBrowse(QPushButton *buttonBrowse)
+{
+    this->_buttonBrowse = buttonBrowse;
+    connect(this->_buttonBrowse, &QPushButton::clicked, this,
+        [=](void)
+        {
+			QFileDialog dialog;
+			QString     selectedDirectoryTmp;
+			
+		    dialog.setOption(QFileDialog::ShowDirsOnly);
+			selectedDirectoryTmp = dialog.getExistingDirectory(this, tr("Save to"), \
+					QStandardPaths::writableLocation(QStandardPaths::DesktopLocation));
+			if (selectedDirectoryTmp != "")
+            {
+				this->_showSelectedDir2->setText(selectedDirectoryTmp);
+				this->_showSelectedDir2->setCursorPosition(0);
+                this->_showSelectedDir2->setToolTip(selectedDirectoryTmp);
+            }
+        });
+}
+
 /* -------------------------------- Getters --------------------------------- */
 
-QPushButton	*WindowSaveTo::getButtonStart() const
+QPushButton	*WindowNext::getButtonStart() const
 {
     return (this->_buttonStart);
 }
 
-QPushButton	*WindowSaveTo::getButtonStop() const
+QPushButton	*WindowNext::getButtonStop() const
 {
     return (this->_buttonStop);
 }
 
-QPushButton	*WindowSaveTo::getButtonClose() const
+QPushButton	*WindowNext::getButtonClose() const
 {
     return (this->_buttonClose);
 }
 
-QLineEdit	*WindowSaveTo::getLineEdit() const
+QLineEdit	*WindowNext::getLineEdit() const
 {
     return (this->_lineEdit);
 }
 
-QLabel	*WindowSaveTo::getFinishMsgLabel() const
+QLabel	*WindowNext::getFinishMsgLabel() const
 {
     return (this->_finishMsgLabel);
 }
 
-QLabel	*WindowSaveTo::getShowReadingPort2() const
+QLabel	*WindowNext::getShowReadingPort2() const
 {
     return (this->_showReadingPort2);
 }
 
-QLabel	*WindowSaveTo::getShowSelectedDir2() const
-{
-    return (this->_showSelectedDir2);
-}
-
 /* ---------------------------- Member functions ---------------------------- */
 
-void    WindowSaveTo::setParametersDesign(void)
+void    WindowNext::setParametersDesign(void)
 {
-    if (_showSelectedDir2 == nullptr)
-        return ;
-    
     this->_showReadingPort1->setGeometry(10, 10, 100, 30);
     this->_showReadingPort2->setGeometry(120, 10, 480, 30);
     this->_showReadingPort2->setStyleSheet("font-size: 14px; color: blue;");
     
-    this->_showSelectedDir1->setGeometry(10, 40, 100, 30);
-    this->_showSelectedDir2->setGeometry(120, 40, 480, 30);
-    this->_showSelectedDir2->setStyleSheet("font-size: 14px; color: blue;");
+    this->_showSelectedDir1->setGeometry(10, 50, 100, 30);
+    this->_showSelectedDir2->setGeometry(120, 50, 360, 30);
+    this->_showSelectedDir2->setEnabled(false);
+    this->_showSelectedDir2->setCursorPosition(0);
+    this->_showSelectedDir2->setStyleSheet("font-size: 14px; background-color: #D3D3D3; padding: 0 5px; color: blue;");
+    this->_showSelectedDir2->setToolTip(_selectedDirectory);
 
-    this->_timer1->setGeometry(10, 70, 100, 30);
-    this->_timer2->setGeometry(210, 70, 100, 30);
+    this->_timer1->setGeometry(10, 90, 100, 30);
+    this->_timer2->setGeometry(210, 90, 100, 30);
     this->_timer2->setStyleSheet("font-size: 14px; color: blue;");
 
     this->_lineEdit->setPlaceholderText("enter here");
-    this->_lineEdit->setGeometry(120, 70, 83, 30);
+    this->_lineEdit->setGeometry(120, 90, 83, 30);
     this->_lineEdit->setStyleSheet("background: white; font-size: 14px; padding: 0 5px; color: blue;");
     this->_lineEdit->setToolTip("Please enter only numeric values.");
     this->_lineEdit->setMaxLength(4);
     this->_lineEdit->setAlignment(Qt::AlignCenter);
     
-    this->_finishMsgLabel->setGeometry(285, 65, 160, 40);
+    this->_finishMsgLabel->setGeometry(285, 85, 160, 40);
     this->_finishMsgLabel->setAlignment(Qt::AlignCenter);
     this->_finishMsgLabel->setStyleSheet("font-size: 24px; color: #B22222; font-weight: bold;");
     
@@ -256,10 +264,10 @@ void    WindowSaveTo::setParametersDesign(void)
         });
 }
 
-void   WindowSaveTo::onThreadDisplayTimerFinished(void)
+void   WindowNext::onThreadDisplayTimerFinished(void)
 {
-	this->setMinimumSize(500, 155);
-	this->setMaximumSize(500, 155);
+	this->setMinimumSize(600, 195);
+	this->setMaximumSize(600, 195);
 	this->_buttonClose->setEnabled(true);
 	this->_buttonClose->setStyleSheet(MY_DEFINED_DEFAULT_BUTTON);
 	this->_buttonStart->setEnabled(true);

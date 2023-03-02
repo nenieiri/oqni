@@ -21,14 +21,14 @@ set(PROJECT_SOURCES
         Includes/all.hpp
 		Includes/threaddisplaytimer.hpp
 		Includes/threadreader.hpp
-		Includes/windowsaveto.hpp
+		Includes/windownext.hpp
 
         Srcs/comport.cpp
         Srcs/main.cpp
         Srcs/mainwindow.cpp
 		Srcs/threaddisplaytimer.cpp
 		Srcs/threadreader.cpp
-		Srcs/windowsaveto.cpp
+		Srcs/windownext.cpp
 		
         mainwindow.ui
         ResourceFiles.qrc

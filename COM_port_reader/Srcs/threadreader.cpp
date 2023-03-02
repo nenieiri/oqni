@@ -84,7 +84,6 @@ void ThreadReader::reader(const ComPort *comPort, const std::string &pathFileNam
         return ;
     }
     
-           
     QByteArray dataWrite;
     dataWrite.append(static_cast<char>(0)); // First byte
     dataWrite.append(static_cast<char>(4)); // Second byte
@@ -94,7 +93,6 @@ void ThreadReader::reader(const ComPort *comPort, const std::string &pathFileNam
     QByteArray dataClose;
     dataClose.append(static_cast<unsigned char>(-1)); // First byte
     port.write(dataClose);
-    port.close();
     
     data = port.read(7);
     qDebug() << data.toHex();
@@ -103,10 +101,9 @@ void ThreadReader::reader(const ComPort *comPort, const std::string &pathFileNam
     {
         if (port.waitForReadyRead(5000))
         {
-//            qDebug() << "ners2";
             data = port.read(20);
             qDebug() << data.toHex();
-            if (!data.isEmpty() && data.at(0) == '\n')
+            if (!data.isEmpty())
             {
                 line += data.at(0);
                 parserUno(line, pathFileName);

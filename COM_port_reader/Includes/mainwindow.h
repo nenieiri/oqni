@@ -4,7 +4,7 @@
 # include "all.hpp"
 # include "../ui_mainwindow.h"
 # include "comport.hpp"
-# include "windowsaveto.hpp"
+# include "windownext.hpp"
 
 # define MY_DEFINED_DEFAULT_BUTTON  "QPushButton {border-radius: 6px; color: black; border: 1px solid gray;    background: #6FD5CA;} \
                                QPushButton:hover {border-radius: 6px; color: black; border: 1px solid #0078D4; background: #B9E8E2;}"
@@ -16,7 +16,7 @@ QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
 
-class WindowSaveTo;
+class WindowNext;
 
 class MainWindow : public QMainWindow
 {
@@ -37,14 +37,14 @@ class MainWindow : public QMainWindow
         void            createGroupBox(int x, int y, int width, int height);
         void            createLiftVertical(int x, int y, int width, int height);
         void            buttonCheckAction(void);
-        void            buttonSaveToAction(void);
-		void			buttonToolAction(ComPort *comPort);
+        void            buttonNextAction(void);
+		void            buttonToolAction(ComPort *comPort);
 
     private:
         Ui::MainWindow      *ui;
         
         QPushButton         *_buttonCheck;
-        QPushButton         *_buttonSaveTo;
+        QPushButton         *_buttonNext;
         
         QLabel              *_gifLabel;
         QMovie              *_gifMovie;
@@ -58,7 +58,7 @@ class MainWindow : public QMainWindow
         QStringList         _parityItems;
         QStringList         _stopBitsItems;
         QStringList         _flowControlItems;
-        WindowSaveTo        *_windowSaveTo;
+        WindowNext          *_windowNext;
         
         ComPort             *_previewsCheckBox; // temp to delete
         

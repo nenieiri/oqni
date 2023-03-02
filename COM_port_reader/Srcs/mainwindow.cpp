@@ -13,7 +13,7 @@ MainWindow::MainWindow(QWidget *parent)
     this->addLoadingAnimation(this->_buttonCheck, 21, 150, 370, 370);
     this->createGroupBox(20, 70, 380, 515);
     this->createLiftVertical(379, 71, 20, 513);
-    this->_buttonSaveTo = this->createButton("Save to", 560, 555, 100, 30, std::bind(&MainWindow::buttonSaveToAction, this), this);
+    this->_buttonNext = this->createButton("Next", 560, 555, 100, 30, std::bind(&MainWindow::buttonNextAction, this), this);
     
     _baudRateItems = {"1200", "2400", "4800", "9600", "19200", "38400", "57600", "115200"};
     _dataBitsItems = {"5", "6", "7", "8"};
@@ -205,7 +205,7 @@ void    MainWindow::buttonCheckAction(void)
         });
 }
 
-void    MainWindow::buttonSaveToAction()
+void    MainWindow::buttonNextAction()
 {
     for (QVector<ComPort *>::iterator it = _comPorts.begin(); it != _comPorts.end(); ++it)
     {
@@ -217,26 +217,20 @@ void    MainWindow::buttonSaveToAction()
     }
     if (this->_selectedComPort == nullptr)
     {
-        delete this->_windowSaveTo;
+        delete this->_windowNext;
         return ;
     }
     
-    this->_windowSaveTo = new WindowSaveTo(this);
+    this->_windowNext = new WindowNext(this);
     
-    if (this->_windowSaveTo->getShowSelectedDir2() == nullptr)
-    {
-        delete this->_windowSaveTo;
-        this->_buttonSaveTo->setStyleSheet(MY_DEFINED_RELEASED_BUTTON);
-        return ;
-    }
+    this->_windowNext->setButtonStart(createButton("Start", 10, 140, 100, 30, nullptr, this->_windowNext));
+    this->_windowNext->setButtonStop(createButton("Stop", 120, 140, 100, 30, nullptr, this->_windowNext));
+    this->_windowNext->setButtonClose(createButton("Close", 230, 140, 100, 30, nullptr, this->_windowNext));
+    this->_windowNext->setButtonBrowse(createButton("Browse", 490, 50, 100, 30, nullptr, this->_windowNext));
     
-    this->_windowSaveTo->setButtonStart(createButton("Start", 10, 110, 100, 30, nullptr, this->_windowSaveTo));
-    this->_windowSaveTo->setButtonStop(createButton("Stop", 120, 110, 100, 30, nullptr, this->_windowSaveTo));
-    this->_windowSaveTo->setButtonClose(createButton("Close", 230, 110, 100, 30, nullptr, this->_windowSaveTo));
-    
-    this->_windowSaveTo->exec();
-    this->_buttonSaveTo->setStyleSheet(MY_DEFINED_RELEASED_BUTTON);
-    delete this->_windowSaveTo;
+    this->_windowNext->exec();
+    this->_buttonNext->setStyleSheet(MY_DEFINED_RELEASED_BUTTON);
+    delete this->_windowNext;
 }
 
 void    MainWindow::buttonToolAction(ComPort *comPort)
