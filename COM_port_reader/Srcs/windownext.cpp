@@ -50,6 +50,7 @@ WindowNext::WindowNext(MainWindow *parent)
     this->_protocol3 = new QLabel("Limb:", this);
     this->_protocol4 = new QComboBox(this);
     this->_protocol4->addItems({"left leg", "right leg"});
+    this->readExpProtocol();
 
     this->_timer1 = new QLabel("Duration (seconds):", this);
     
@@ -122,8 +123,6 @@ void    WindowNext::setButtonStart(QPushButton *buttonStart)
                 return ;
             this->createDirectory(_selectedDirectory);
             if (this->_selectedDirectory == "")
-                return ;
-            if (this->readExpProtocol() == 0 || this->_expProtocol.isEmpty() == true)
                 return ;
             
 			this->setMinimumSize(1200, 700);
@@ -319,25 +318,24 @@ void    WindowNext::setParametersDesign(void)
     this->_lineEdit->setGeometry(180, 210, 105, 30);
     this->_lineEdit->setStyleSheet("background: white; font-size: 14px; padding: 0 5px; color: blue;");
     this->_lineEdit->setToolTip("Please enter only numeric values.");
-    this->_lineEdit->setMaxLength(4);
+    this->_lineEdit->setMaxLength(3);
     this->_lineEdit->setAlignment(Qt::AlignCenter);
     
     this->_finishMsgLabel->setGeometry(360, 205, 160, 40);
     this->_finishMsgLabel->setAlignment(Qt::AlignCenter);
     this->_finishMsgLabel->setStyleSheet("font-size: 24px; color: #B22222; font-weight: bold;");
     
-    this->_durationTimerValue = 0;
-
     /* --- If the text contains a non-numeric character, show warrnig msg --- */
+    this->_lineEdit->setText(QString::number(this->_durationMax));
     connect(this->_lineEdit, &QLineEdit::textChanged, this,
         [=](void)
         {
+			this->_durationTimerValue = 0;
+			this->_buttonStart->setEnabled(false);
+			this->_buttonStart->setStyleSheet("border-radius: 6px; background-color: #D3D3D3;");
         	if (this->_lineEdit->text().length() == 0)
             {
                 this->_lineEdit->setStyleSheet("background: white; font-size: 14px; padding: 0 5px; color: blue;");
-				this->_durationTimerValue = 0;
-				this->_buttonStart->setEnabled(false);
-				this->_buttonStart->setStyleSheet("border-radius: 6px; background-color: #D3D3D3;");
                 return ;
 			}
             QString text = this->_lineEdit->text();
@@ -348,9 +346,6 @@ void    WindowNext::setParametersDesign(void)
                 {
                     hasOnlyDigits = false;
                     this->_lineEdit->setStyleSheet("background-color: red; padding: 0 5px; color: blue;");
-                    this->_durationTimerValue = 0;
-					this->_buttonStart->setEnabled(false);
-					this->_buttonStart->setStyleSheet("border-radius: 6px; background-color: #D3D3D3;");
                     QMessageBox::warning(this, tr("Invalid Input"),
                                         tr("Please enter a numeric value."), QMessageBox::Ok);
                     break ;
@@ -358,14 +353,24 @@ void    WindowNext::setParametersDesign(void)
             }
             if (hasOnlyDigits == true)
             {
-                this->_lineEdit->setStyleSheet("background-color: white; padding: 0 5px; color: blue;");
-                this->_durationTimerValue = text.toInt();
-				this->_buttonStart->setEnabled(true);
-				this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_BUTTON);
+                if (this->_lineEdit->text().toInt() > this->_durationMax)
+                {
+                    this->_lineEdit->setStyleSheet("background-color: red; padding: 0 5px; color: blue;");
+                    QString msg = "Duration can't be greater than protocol time (";
+                    msg += QString::number(this->_durationMax) + " sec).";
+                    QMessageBox::warning(this, tr("Invalid Input"), msg, QMessageBox::Ok);
+                }
+                else
+                {
+					this->_lineEdit->setStyleSheet("font-size: 14px; background-color: white; padding: 0 5px; color: blue;");
+					this->_durationTimerValue = text.toInt();
+					this->_buttonStart->setEnabled(true);
+					this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_BUTTON);
+                }
             }
         });
     
-    /* --- If the SaveTo lineEdit text changed --- */
+    /* --- If the SaveTo (Browse) lineEdit text changed --- */
     connect(this->_showSelectedDir2, &QLineEdit::textChanged, this,
         [=](void)
         {
@@ -382,6 +387,14 @@ void    WindowNext::setParametersDesign(void)
             }
             this->_selectedDirectory = this->_showSelectedDir2->text();
         });
+    
+    /* --- When expProtocol combo box value changed --- */
+    connect(this->_protocol2, &QComboBox::currentTextChanged, this,
+        [=](void)
+    	{
+			this->readExpProtocol();
+			this->_lineEdit->setText(QString::number(this->_durationMax));
+    	});
 }
 
 void    WindowNext::createDirectory(const QString &path)
@@ -417,13 +430,18 @@ int	WindowNext::readExpProtocol(void)
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
 		return (0);
     QTextStream in(&file);
-    while (!in.atEnd()) {
-        QString line = in.readLine();
+    int i = 0;
+    while (!in.atEnd())
+    {
+        QString line = in.readLine().trimmed();
+        if (line.isEmpty())
+            continue ;
         this->_expProtocol.push_back(line.split(","));
         this->_durationMax += this->_expProtocol.back()[2].toInt();
     }
     file.close();
     this->_expProtocol.pop_front();
+    this->_durationTimerValue = this->_durationMax;
     return (1);
 }
 
