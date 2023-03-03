@@ -123,6 +123,9 @@ void    WindowNext::setButtonStart(QPushButton *buttonStart)
             this->createDirectory(_selectedDirectory);
             if (this->_selectedDirectory == "")
                 return ;
+            if (this->readExpProtocol() == 0 || this->_expProtocol.isEmpty() == true)
+                return ;
+            
 			this->setMinimumSize(1200, 700);
 			this->setMaximumSize(1200, 700);
 			this->_buttonClose->setEnabled(false);
@@ -154,8 +157,6 @@ void    WindowNext::setButtonStart(QPushButton *buttonStart)
 			this->_protocol4->setStyleSheet("font-size: 14px; background-color: #D3D3D3; padding: 0 5px; color: blue;");
             
 			this->_closeEventFlag = false;
-            
-            this->readExpProtocol();
             
             this->_threadDisplayTimer = new ThreadDisplayTimer(this->_durationTimerValue, this);
             this->_threadDisplayTimer->start();
@@ -406,11 +407,22 @@ QStringList *WindowNext::findExpProtocols(const QString &path)
     return items;
 }
 
-void	WindowNext::readExpProtocol(void)
+int	WindowNext::readExpProtocol(void)
 {
     QString	protocol = this->_expProtocolsPath + "/";
     protocol += this->_protocol2->currentText() + ".csv";
-//    qDebug() << protocol;
+    
+    QFile file(protocol);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+		return (0);
+    QTextStream in(&file);
+    while (!in.atEnd()) {
+        QString line = in.readLine();
+        this->_expProtocol.push_back(line.split(","));
+    }
+    file.close();
+    this->_expProtocol.pop_front();
+    return (1);
 }
 
 void   WindowNext::onThreadDisplayTimerFinished(void)

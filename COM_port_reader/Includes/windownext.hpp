@@ -14,6 +14,9 @@
 # include <QStringList>
 # include <QCloseEvent>
 # include <QStandardPaths>
+# include <QFile>
+# include <QTextStream>
+# include <QList>
 
 # include "threadreader.hpp"
 # include "threaddisplaytimer.hpp"
@@ -37,7 +40,7 @@ class WindowNext : public QDialog
 		void				setParametersDesign(void);
         void				createDirectory(const QString &path);
         QStringList         *findExpProtocols(const QString &path);
-        void				readExpProtocol(void);
+        int					readExpProtocol(void);
         
     private slots:
 		void				onThreadDisplayTimerFinished(void);
@@ -85,6 +88,8 @@ class WindowNext : public QDialog
 		int					_durationTimerValue;
 
         QString				_expProtocolsPath;
+        QList<QStringList>	_expProtocol;
+        
         bool                _closeEventFlag;
 };
 
