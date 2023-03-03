@@ -89,6 +89,7 @@ class WindowNext : public QDialog
 
         QString				_expProtocolsPath;
         QList<QStringList>	_expProtocol;
+        int					_durationMax;
         
         bool                _closeEventFlag;
 };

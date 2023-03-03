@@ -412,6 +412,7 @@ int	WindowNext::readExpProtocol(void)
     QString	protocol = this->_expProtocolsPath + "/";
     protocol += this->_protocol2->currentText() + ".csv";
     
+    this->_durationMax = 0;
     QFile file(protocol);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
 		return (0);
@@ -419,6 +420,7 @@ int	WindowNext::readExpProtocol(void)
     while (!in.atEnd()) {
         QString line = in.readLine();
         this->_expProtocol.push_back(line.split(","));
+        this->_durationMax += this->_expProtocol.back()[2].toInt();
     }
     file.close();
     this->_expProtocol.pop_front();
