@@ -1,6 +1,6 @@
 #include "threaddisplaytimer.hpp"
 
-ThreadDisplayTimer::ThreadDisplayTimer(int durationTimerValue, QDialog *windowSaveTo)
+ThreadDisplayTimer::ThreadDisplayTimer(int durationTimerValue, QDialog *windowSaveTo, QString &expProtocolsPath, QList<QStringList>	&expProtocol)
 			: _durationTimerValue(durationTimerValue)
 {
     QString text;
@@ -24,6 +24,8 @@ ThreadDisplayTimer::ThreadDisplayTimer(int durationTimerValue, QDialog *windowSa
     this->_displayTimerLabel = new QLabel(text, windowSaveTo);
     this->_imageLabel = new QLabel("", windowSaveTo);
     this->_imageSecondsLabel = new QLabel("", windowSaveTo);
+    this->_expProtocolsPath = expProtocolsPath;
+    this->_expProtocol = expProtocol;
 }
 
 ThreadDisplayTimer::~ThreadDisplayTimer()
@@ -40,13 +42,31 @@ void    ThreadDisplayTimer::run()
     this->_displayTimerLabel->setStyleSheet("font-size: 34px; color: #B22222; font-weight: bold;");
     this->_displayTimerLabel->show();
 
-    int seconds = this->_durationTimerValue;
-    int imgFlag = 0;
+    int         seconds = this->_durationTimerValue;
+    int         label;
+    int         currecntSecond;
+    QString     imgPath;
+    
+    QList<QStringList>::iterator it = this->_expProtocol.begin();
+    
+    currecntSecond = (*it)[2].toInt();
+    imgPath = (*it)[3];
+    imgPath = this->_expProtocolsPath.left(this->_expProtocolsPath.length() - 13) + imgPath;
+    label = (*it)[1].toInt();
     
     while (!isInterruptionRequested())
     {
-        this->showImage(&imgFlag, 4, 3, 4, 3);
-        imgFlag++;
+        if (currecntSecond == 0)
+        {
+            it++;
+            currecntSecond = (*it)[2].toInt();
+            imgPath = (*it)[3];
+            imgPath = this->_expProtocolsPath.left(this->_expProtocolsPath.length() - 13) + imgPath;
+            label = (*it)[1].toInt();
+        }
+        this->_currentImgLabel = label;
+        this->showImage(currecntSecond, imgPath);
+        currecntSecond--;
 
         QThread::usleep(1000000);
         seconds--;
@@ -68,46 +88,19 @@ void    ThreadDisplayTimer::run()
     }
 }
 
-void    ThreadDisplayTimer::showImage(int *imgFlag, int sec1, int sec2, int sec3, int sec4)
+void    ThreadDisplayTimer::showImage(int currecntSecond, const QString &imgPath)
 {
-    QString path;
-    QString imageSeconds;
-
-    if ((*imgFlag) > sec1 + sec2 + sec3 + sec4 - 1)
-        (*imgFlag) = 0;
-    if ((*imgFlag) < sec1)
-    {
-        this->_currentImgLabel = 1;
-        path = ":/Imgs/1)relax_4sec.png";
-        imageSeconds = QString::number(sec1 - (*imgFlag) % sec1);
-    }
-    else if ((*imgFlag) < sec1 + sec2)
-    {
-        this->_currentImgLabel = 2;
-        path = ":/Imgs/2)tiptoe_3sec.png";
-        imageSeconds = QString::number(sec1 + sec2 - (*imgFlag) % (sec1 + sec2));
-    }
-    else if ((*imgFlag) < sec1 + sec2 + sec3)
-    {
-        this->_currentImgLabel = 1;
-        path = ":/Imgs/3)relax_4sec.png";
-        imageSeconds = QString::number(sec1 + sec2 + sec3 - (*imgFlag) % (sec1 + sec2 + sec3));
-    }
-    else
-    {
-        this->_currentImgLabel = 3;
-        path = ":/Imgs/4)heels_3sec.png";
-        imageSeconds = QString::number(sec1 + sec2 + sec3 + sec4 - (*imgFlag) % (sec1 + sec2 + sec3 + sec4));
-    }
-
-    QPixmap pixmap(path);
+    QPixmap pixmap(imgPath);
     QPixmap scaledPixmap = pixmap.scaled(550, 550, Qt::KeepAspectRatio);
+    QString imageSeconds = QString::number(currecntSecond);    
+    
+    
     this->_imageLabel->setGeometry(620, 20, 550, 550);
     this->_imageLabel->setPixmap(scaledPixmap);
     this->_imageLabel->show();
 
     this->_imageSecondsLabel->setText(imageSeconds);
-    this->_imageSecondsLabel->setGeometry(850, 550, 150, 150);
+    this->_imageSecondsLabel->setGeometry(850, 550, 280, 150);
     this->_imageSecondsLabel->setStyleSheet("font-size: 150px; font-weight: bold;");
     this->_imageSecondsLabel->show();
 }

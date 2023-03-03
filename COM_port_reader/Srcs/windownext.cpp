@@ -157,7 +157,7 @@ void    WindowNext::setButtonStart(QPushButton *buttonStart)
             
 			this->_closeEventFlag = false;
             
-            this->_threadDisplayTimer = new ThreadDisplayTimer(this->_durationTimerValue, this);
+            this->_threadDisplayTimer = new ThreadDisplayTimer(this->_durationTimerValue, this, this->_expProtocolsPath, this->_expProtocol);
             this->_threadDisplayTimer->start();
             
             this->_threadReader = new ThreadReader(_selectedComPort, _showSelectedDir2->text(), _threadDisplayTimer);
@@ -424,11 +424,11 @@ int	WindowNext::readExpProtocol(void)
 {
     QString	protocol = this->_expProtocolsPath + "/";
     protocol += this->_protocol2->currentText() + ".csv";
-    
+    this->_expProtocol.clear();
     this->_durationMax = 0;
     QFile file(protocol);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
-		return (0);
+		return (1);
     QTextStream in(&file);
     int i = 0;
     while (!in.atEnd())
@@ -442,7 +442,7 @@ int	WindowNext::readExpProtocol(void)
     file.close();
     this->_expProtocol.pop_front();
     this->_durationTimerValue = this->_durationMax;
-    return (1);
+    return (0);
 }
 
 void   WindowNext::onThreadDisplayTimerFinished(void)

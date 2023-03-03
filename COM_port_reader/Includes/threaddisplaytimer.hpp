@@ -8,26 +8,29 @@
 # include <QApplication>
 # include <QScreen>
 # include <QDateTime>
+# include <QList>
 
 class ThreadDisplayTimer : public QThread
 {
 	Q_OBJECT
     
 	public:
-		ThreadDisplayTimer(int durationTimerValue, QDialog *windowSaveTo);
+		ThreadDisplayTimer(int durationTimerValue, QDialog *windowSaveTo, QString &expProtocolsPath, QList<QStringList>	&expProtocol);
 		~ThreadDisplayTimer();
 
     public:
 		void    run() override;
-        void    showImage(int *imgFlag, int sec1, int sec2, int sec3, int sec4);
+        void    showImage(int currecntSecond, const QString &imgPath);
         int     getCurrentImgLabel(void);
         
     private:
-        int     _durationTimerValue;
-        int     _currentImgLabel;
-        QLabel *_displayTimerLabel;
-        QLabel *_imageLabel;
-        QLabel *_imageSecondsLabel;
+        int                 _durationTimerValue;
+        int                 _currentImgLabel;
+        QLabel              *_displayTimerLabel;
+        QLabel              *_imageLabel;
+        QLabel              *_imageSecondsLabel;
+        QString             _expProtocolsPath;
+        QList<QStringList>	_expProtocol;
         
     signals:
         void finishedSignal();
