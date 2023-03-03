@@ -42,9 +42,9 @@ WindowNext::WindowNext(MainWindow *parent)
 
     this->_protocol1 = new QLabel("Recording Protocol:", this);
     this->_protocol2 = new QComboBox(this);
-	QString desktopPath = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
-    desktopPath += "/oqni/exp_protocols";
-    QStringList *items = this->findExpProtokols(desktopPath);
+	this->_expProtocolsPath = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
+    this->_expProtocolsPath += "/oqni/exp_protocols";
+    QStringList *items = this->findExpProtocols(this->_expProtocolsPath);
     this->_protocol2->addItems(*items);
     delete items;
     this->_protocol3 = new QLabel("Limb:", this);
@@ -386,7 +386,7 @@ void    WindowNext::createDirectory(const QString &path)
             this->_selectedDirectory = "";
 }
 
-QStringList *WindowNext::findExpProtokols(const QString &path)
+QStringList *WindowNext::findExpProtocols(const QString &path)
 {
     QStringList     *items = new QStringList();    
     QDir            directory(path);

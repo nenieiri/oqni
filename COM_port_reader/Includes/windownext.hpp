@@ -36,7 +36,7 @@ class WindowNext : public QDialog
     private:
 		void				setParametersDesign(void);
         void				createDirectory(const QString &path);
-        QStringList         *findExpProtokols(const QString &path);
+        QStringList         *findExpProtocols(const QString &path);
         
     private slots:
 		void				onThreadDisplayTimerFinished(void);
@@ -83,6 +83,7 @@ class WindowNext : public QDialog
         ThreadReader        *_threadReader;
 		int					_durationTimerValue;
 
+        QString				_expProtocolsPath;
         bool                _closeEventFlag;
 };
 
