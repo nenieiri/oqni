@@ -67,9 +67,7 @@ void    ThreadDisplayTimer::run()
         this->_currentImgLabel = label;
         this->showImage(currecntSecond, imgPath);
         currecntSecond--;
-
-        QThread::usleep(1000000);
-        seconds--;
+        
         int minutes = seconds / 60;
         int hours = minutes / 60;
         QString text = QString("%1:%2:%3")
@@ -85,7 +83,8 @@ void    ThreadDisplayTimer::run()
 			emit finishedSignal();
             break ;
         }
-    }
+        QThread::usleep(1000000);
+        seconds--;}
 }
 
 void    ThreadDisplayTimer::showImage(int currecntSecond, const QString &imgPath)

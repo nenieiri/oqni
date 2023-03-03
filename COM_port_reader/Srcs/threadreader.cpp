@@ -18,7 +18,7 @@ ThreadReader::~ThreadReader()
 
 void    ThreadReader::run()
 {
-	reader(_comPort, _fileName);
+	//reader(_comPort, _fileName);
 }
 
 void    ThreadReader::parserUno(std::string &line, const std::string &pathFileName)

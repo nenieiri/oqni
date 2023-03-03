@@ -114,8 +114,11 @@ void    WindowNext::closeEvent(QCloseEvent *event)
 void    WindowNext::setButtonStart(QPushButton *buttonStart)
 {
     this->_buttonStart = buttonStart;
-    this->_buttonStart->setEnabled(false);
-	this->_buttonStart->setStyleSheet("border-radius: 6px; background-color: #D3D3D3;");
+    if (this->_durationTimerValue == 0)
+    {
+		this->_buttonStart->setEnabled(false);
+		this->_buttonStart->setStyleSheet("border-radius: 6px; background-color: #D3D3D3;");
+    }
     connect(this->_buttonStart, &QPushButton::clicked, this,
 		[=](void)
 		{
@@ -456,7 +459,7 @@ void   WindowNext::onThreadDisplayTimerFinished(void)
 	this->_buttonStop->setEnabled(false);
 	this->_buttonStop->setStyleSheet("border-radius: 6px; background-color: #D3D3D3;");
 	this->_lineEdit->setEnabled(true);
-	this->_lineEdit->setStyleSheet("background-color: white; padding: 0 5px; color: blue;");
+	this->_lineEdit->setStyleSheet("background-color: white; padding: 0 5px; color: blue; font-size: 14px");
     
     this->_showSelectedDir2->setEnabled(true);
     this->_showSelectedDir2->setStyleSheet("font-size: 14px; background-color: white; padding: 0 5px; color: blue;");
@@ -479,7 +482,7 @@ void   WindowNext::onThreadDisplayTimerFinished(void)
     this->_threadDisplayTimer->wait();
 	delete this->_threadDisplayTimer;
     this->_threadDisplayTimer = nullptr;
-    
+
     this->_threadReader->requestInterruption();
     this->_threadReader->wait();
     delete this->_threadReader;
