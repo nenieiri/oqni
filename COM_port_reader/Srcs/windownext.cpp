@@ -42,7 +42,9 @@ WindowNext::WindowNext(MainWindow *parent)
 
     this->_protocol1 = new QLabel("Recording Protocol:", this);
     this->_protocol2 = new QComboBox(this);
-    QStringList *items = this->findExpProtokols("/Users/vkhlghat/Desktop/oqni/exp_protocols");
+	QString desktopPath = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
+    desktopPath += "/oqni/exp_protocols";
+    QStringList *items = this->findExpProtokols(desktopPath);
     this->_protocol2->addItems(*items);
     delete items;
     this->_protocol3 = new QLabel("Limb:", this);

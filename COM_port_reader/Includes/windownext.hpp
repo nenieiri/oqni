@@ -13,6 +13,7 @@
 # include <QComboBox>
 # include <QStringList>
 # include <QCloseEvent>
+# include <QStandardPaths>
 
 # include "threadreader.hpp"
 # include "threaddisplaytimer.hpp"
