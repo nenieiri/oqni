@@ -15,7 +15,7 @@ WindowNext::WindowNext(MainWindow *parent)
     this->_buttonStop = nullptr;
     this->_buttonClose = nullptr;
     
-    this->_closeEventFlag = false;
+    this->_closeEventFlag = true;
     
     this->_selectedComPort = parent->getSelectedComPort();
     
@@ -153,6 +153,10 @@ void    WindowNext::setButtonStart(QPushButton *buttonStart)
             this->_protocol4->setEnabled(false);
 			this->_protocol4->setStyleSheet("font-size: 14px; background-color: #D3D3D3; padding: 0 5px; color: blue;");
             
+			this->_closeEventFlag = false;
+            
+            this->readExpProtocol();
+            
             this->_threadDisplayTimer = new ThreadDisplayTimer(this->_durationTimerValue, this);
             this->_threadDisplayTimer->start();
             
@@ -172,6 +176,8 @@ void		WindowNext::setButtonStop(QPushButton *buttonStop)
     connect(this->_buttonStop, &QPushButton::clicked, this,
 		[=](void)
 		{
+			this->_closeEventFlag = true;
+        
             this->setMinimumSize(600, 350);
             this->setMaximumSize(600, 350);
             this->_buttonClose->setEnabled(true);
@@ -400,6 +406,13 @@ QStringList *WindowNext::findExpProtocols(const QString &path)
     return items;
 }
 
+void	WindowNext::readExpProtocol(void)
+{
+    QString	protocol = this->_expProtocolsPath + "/";
+    protocol += this->_protocol2->currentText() + ".csv";
+//    qDebug() << protocol;
+}
+
 void   WindowNext::onThreadDisplayTimerFinished(void)
 {
 	this->setMinimumSize(600, 350);
@@ -442,4 +455,6 @@ void   WindowNext::onThreadDisplayTimerFinished(void)
     
     this->_finishMsgLabel->setText("Finished");
     this->_finishMsgLabel->show();
+    
+    this->_closeEventFlag = true;
 }
