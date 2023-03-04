@@ -6,11 +6,16 @@
 # include "comport.hpp"
 # include "windownext.hpp"
 
-# define MY_DEFINED_DEFAULT_BUTTON  "QPushButton {border-radius: 6px; color: black; border: 1px solid gray;    background: #6FD5CA;} \
-                               QPushButton:hover {border-radius: 6px; color: black; border: 1px solid #0078D4; background: #B9E8E2;}"
-# define MY_DEFINED_RELEASED_BUTTON "QPushButton {border-radius: 6px; color: black; border: 1px solid #0078D4; background: #6FD5CA;} \
-                               QPushButton:hover {border-radius: 6px; color: black; border: 1px solid #0078D4; background: #B9E8E2;}"
-# define MY_DEFINED_PRESSED_BUTTON               "border-radius: 6px; color: blue;  border: 1px solid #0078D4; background: white;"
+# define MY_DEFINED_DEFAULT_AVTIVE_BUTTON   "QPushButton {border-radius: 6px; background: #6FD5CA; color: black; border: 1px solid gray;} \
+                                       QPushButton:hover {border-radius: 6px; background: #B9E8E2; color: black; border: 1px solid #0078D4;}"
+# define MY_DEFINED_DEFAULT_PASSIVE_BUTTON               "border-radius: 6px; background: #D3D3D3;"
+# define MY_DEFINED_RELEASED_BUTTON         "QPushButton {border-radius: 6px; background: #6FD5CA; color: black; border: 1px solid #0078D4;} \
+                                       QPushButton:hover {border-radius: 6px; background: #B9E8E2; color: black; border: 1px solid #0078D4;}"
+# define MY_DEFINED_PRESSED_BUTTON                       "border-radius: 6px; background: white;   color: blue;  border: 1px solid #0078D4;"
+# define MY_DEFINED_DEFAULT_ACTIVE_TEXT     "font-size: 14px; padding: 0 5px; background: white;   color: blue;"
+# define MY_DEFINED_DEFAULT_ACTIVE_TEXT2    "font-size: 14px; padding: 0 5px; background: white;   color: blue; selection-background-color: transparent;"
+# define MY_DEFINED_DEFAULT_PASSIVE_TEXT    "font-size: 14px; padding: 0 5px; background: #D3D3D3; color: blue;"
+# define MY_DEFINED_DEFAULT_PASSIVE_TEXT2   "font-size: 14px; padding: 0 5px; background: #D3D3D3; color: gray;"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }

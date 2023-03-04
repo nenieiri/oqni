@@ -63,7 +63,7 @@ QPushButton    *MainWindow::createButton(const QString &name, int x, int y, int 
     button = new QPushButton(name, box);
     button->setGeometry(x, y, width, height);
     button->setCursor(Qt::PointingHandCursor);
-    button->setStyleSheet(MY_DEFINED_DEFAULT_BUTTON);
+    button->setStyleSheet(MY_DEFINED_DEFAULT_AVTIVE_BUTTON);
     connect(button, &QPushButton::released, button,
         [=](void)
         {
@@ -72,7 +72,7 @@ QPushButton    *MainWindow::createButton(const QString &name, int x, int y, int 
     connect(button, &QPushButton::clicked, button,
         [=](void)
         {
-            button->setStyleSheet(MY_DEFINED_DEFAULT_BUTTON);
+            button->setStyleSheet(MY_DEFINED_DEFAULT_AVTIVE_BUTTON);
         });
     connect(button, &QPushButton::pressed, button,
         [=](void)
@@ -229,7 +229,7 @@ void    MainWindow::buttonNextAction()
     this->_windowNext->setButtonClose(createButton("Close", 360, 300, 100, 30, nullptr, this->_windowNext));
     
     this->_windowNext->exec();
-    this->_buttonNext->setStyleSheet(MY_DEFINED_RELEASED_BUTTON);
+//    this->_buttonNext->setStyleSheet(MY_DEFINED_RELEASED_BUTTON);
     delete this->_windowNext;
 }
 

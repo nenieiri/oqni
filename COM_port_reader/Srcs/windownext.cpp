@@ -117,7 +117,7 @@ void    WindowNext::setButtonStart(QPushButton *buttonStart)
     if (this->_durationTimerValue == 0)
     {
 		this->_buttonStart->setEnabled(false);
-		this->_buttonStart->setStyleSheet("border-radius: 6px; background-color: #D3D3D3;");
+        this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_BUTTON);
     }
     connect(this->_buttonStart, &QPushButton::clicked, this,
 		[=](void)
@@ -134,32 +134,32 @@ void    WindowNext::setButtonStart(QPushButton *buttonStart)
 			this->setMinimumSize(1200, 700);
 			this->setMaximumSize(1200, 700);
 			this->_buttonClose->setEnabled(false);
-			this->_buttonClose->setStyleSheet("border-radius: 6px; background-color: #D3D3D3;");
+            this->_buttonClose->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_BUTTON);
 			this->_buttonStart->setEnabled(false);
-			this->_buttonStart->setStyleSheet("border-radius: 6px; background-color: #D3D3D3;");
+            this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_BUTTON);
 			this->_buttonStop->setEnabled(true);
-			this->_buttonStop->setStyleSheet(MY_DEFINED_DEFAULT_BUTTON);
+            this->_buttonStop->setStyleSheet(MY_DEFINED_DEFAULT_AVTIVE_BUTTON);
 			this->_lineEdit->setEnabled(false);
-			this->_lineEdit->setStyleSheet("background-color: #D3D3D3; padding: 0 5px; color: blue;");
+            this->_lineEdit->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_TEXT);
             
             this->_showSelectedDir2->setEnabled(false);
-			this->_showSelectedDir2->setStyleSheet("font-size: 14px; background-color: #D3D3D3; padding: 0 5px; color: blue;");
+            this->_showSelectedDir2->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_TEXT);
 			this->_showSelectedDir2->setCursorPosition(0);
             
             this->_recordingFolder2->setEnabled(false);
-			this->_recordingFolder2->setStyleSheet("font-size: 14px; background-color: #D3D3D3; padding: 0 5px; color: blue;");
+            this->_recordingFolder2->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_TEXT);
             this->_recordingFolder3->setEnabled(false);
-			this->_recordingFolder3->setStyleSheet("font-size: 14px; background-color: #D3D3D3; padding: 0 5px; color: blue;");
+            this->_recordingFolder3->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_TEXT);
             
             this->_placement2->setEnabled(false);
-			this->_placement2->setStyleSheet("font-size: 14px; background-color: #D3D3D3; padding: 0 5px; color: blue;");
+            this->_placement2->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_TEXT);
             this->_placement4->setEnabled(false);
-			this->_placement4->setStyleSheet("font-size: 14px; background-color: #D3D3D3; padding: 0 5px; color: blue;");
+            this->_placement4->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_TEXT);
             
             this->_protocol2->setEnabled(false);
-			this->_protocol2->setStyleSheet("font-size: 14px; background-color: #D3D3D3; padding: 0 5px; color: blue;");
+            this->_protocol2->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_TEXT);
             this->_protocol4->setEnabled(false);
-			this->_protocol4->setStyleSheet("font-size: 14px; background-color: #D3D3D3; padding: 0 5px; color: blue;");
+            this->_protocol4->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_TEXT);
             
 			this->_closeEventFlag = false;
             
@@ -178,7 +178,7 @@ void		WindowNext::setButtonStop(QPushButton *buttonStop)
 {
     this->_buttonStop = buttonStop;
     this->_buttonStop->setEnabled(false);
-    this->_buttonStop->setStyleSheet("border-radius: 6px; background-color: #D3D3D3;");
+    this->_buttonStop->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_BUTTON);
     connect(this->_buttonStop, &QPushButton::clicked, this,
 		[=](void)
 		{
@@ -187,31 +187,31 @@ void		WindowNext::setButtonStop(QPushButton *buttonStop)
             this->setMinimumSize(600, 350);
             this->setMaximumSize(600, 350);
             this->_buttonClose->setEnabled(true);
-            this->_buttonClose->setStyleSheet(MY_DEFINED_DEFAULT_BUTTON);
+            this->_buttonClose->setStyleSheet(MY_DEFINED_DEFAULT_AVTIVE_BUTTON);
             this->_buttonStart->setEnabled(true);
-            this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_BUTTON);
+            this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_AVTIVE_BUTTON);
             this->_buttonStop->setEnabled(false);
-            this->_buttonStop->setStyleSheet("border-radius: 6px; background-color: #D3D3D3;");
+            this->_buttonStop->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_BUTTON);
             this->_lineEdit->setEnabled(true);
-            this->_lineEdit->setStyleSheet("background-color: white; padding: 0 5px; color: blue;");
+            this->_lineEdit->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
         
             this->_showSelectedDir2->setEnabled(true);
-            this->_showSelectedDir2->setStyleSheet("font-size: 14px; background-color: white; padding: 0 5px; color: blue;");
+            this->_showSelectedDir2->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
         
             this->_recordingFolder2->setEnabled(true);
-            this->_recordingFolder2->setStyleSheet("font-size: 14px; background-color: white; padding: 0 5px; color: blue;");
+            this->_recordingFolder2->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
             this->_recordingFolder3->setEnabled(true);
-            this->_recordingFolder3->setStyleSheet("font-size: 14px; background-color: white; padding: 0 5px; color: blue;");
+            this->_recordingFolder3->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
         
             this->_placement2->setEnabled(true);
-            this->_placement2->setStyleSheet("font-size: 14px; background-color: white; padding: 0 5px; color: blue;");
+            this->_placement2->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
             this->_placement4->setEnabled(true);
-            this->_placement4->setStyleSheet("font-size: 14px; background-color: white; padding: 0 5px; color: blue;");
+            this->_placement4->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
         
             this->_protocol2->setEnabled(true);
-            this->_protocol2->setStyleSheet("font-size: 14px; background-color: white; padding: 0 5px; color: blue;");
+            this->_protocol2->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
             this->_protocol4->setEnabled(true);
-            this->_protocol4->setStyleSheet("font-size: 14px; background-color: white; padding: 0 5px; color: blue;");
+            this->_protocol4->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
             
             this->_threadDisplayTimer->requestInterruption();
             this->_threadDisplayTimer->wait();    
@@ -274,57 +274,57 @@ void    WindowNext::setParametersDesign(void)
     this->_showSelectedDir1->setStyleSheet("font-size: 18px;");
     this->_showSelectedDir2->setGeometry(120, 50, 360, 30);
     this->_showSelectedDir2->setCursorPosition(0);
-    this->_showSelectedDir2->setStyleSheet("background: white; font-size: 14px; padding: 0 5px; color: blue;");
+    this->_showSelectedDir2->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
     this->_showSelectedDir2->setToolTip(_selectedDirectory);
     
     this->_recordingFolder1->setGeometry(10, 90, 160, 30);
     this->_recordingFolder1->setStyleSheet("font-size: 18px;");
     this->_recordingFolder2->setGeometry(180, 90, 105, 30);
     this->_recordingFolder2->setAlignment(Qt::AlignCenter);
-    this->_recordingFolder2->setStyleSheet("background: white; font-size: 14px; padding: 0 5px; color: blue;");
+    this->_recordingFolder2->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
     this->_recordingFolder2->setText("BL-003");
     this->_recordingFolder3->setGeometry(300, 90, 128, 30);
     this->_recordingFolder3->setMaxLength(3);
     this->_recordingFolder3->setAlignment(Qt::AlignCenter);
-    this->_recordingFolder3->setStyleSheet("background: white; font-size: 14px; padding: 0 5px; color: blue;");
+    this->_recordingFolder3->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
     this->_recordingFolder3->setText("000");
     this->_recordingFolder4->setGeometry(438, 90, 70, 30);
     this->_recordingFolder4->setEnabled(false);
     this->_recordingFolder4->setMaxLength(6);
     this->_recordingFolder4->setAlignment(Qt::AlignCenter);
-    this->_recordingFolder4->setStyleSheet("font-size: 14px; background-color: #D3D3D3; padding: 0 5px; color: gray;");
+    this->_recordingFolder4->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_TEXT2);
     this->_recordingFolder4->setText(QDate::currentDate().toString("yyMMdd"));
     this->_recordingFolder5->setGeometry(518, 90, 70, 30);
     this->_recordingFolder5->setEnabled(false);
     this->_recordingFolder5->setMaxLength(6);
     this->_recordingFolder5->setAlignment(Qt::AlignCenter);
-    this->_recordingFolder5->setStyleSheet("font-size: 14px; background-color: #D3D3D3; padding: 0 5px; color: gray;");
+    this->_recordingFolder5->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_TEXT2);
     this->_recordingFolder5->setText(QTime::currentTime().toString("hhmmss"));
 
     this->_placement1->setGeometry(10, 130, 160, 30);
     this->_placement1->setStyleSheet("font-size: 18px;");
     this->_placement2->setGeometry(180, 130, 105, 30);
-    this->_placement2->setStyleSheet("background: white; font-size: 14px; padding: 0 5px; color: blue;");
+    this->_placement2->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
     this->_placement3->setGeometry(300, 130, 160, 30);
     this->_placement3->setStyleSheet("font-size: 18px;");
     this->_placement4->setGeometry(438, 130, 150, 30);
-    this->_placement4->setStyleSheet("background: white; font-size: 14px; padding: 0 5px; color: blue;");
+    this->_placement4->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
 
     this->_protocol1->setGeometry(10, 170, 160, 30);
     this->_protocol1->setStyleSheet("font-size: 18px;");
     this->_protocol2->setGeometry(180, 170, 105, 30);
-    this->_protocol2->setStyleSheet("background: white; font-size: 14px; padding: 0 5px; color: blue;");
+    this->_protocol2->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
     this->_protocol3->setGeometry(300, 170, 160, 30);
     this->_protocol3->setStyleSheet("font-size: 18px;");
     this->_protocol4->setGeometry(438, 170, 150, 30);
-    this->_protocol4->setStyleSheet("background: white; font-size: 14px; padding: 0 5px; color: blue;");
+    this->_protocol4->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
 
     this->_timer1->setGeometry(10, 210, 160, 30);
     this->_timer1->setStyleSheet("font-size: 18px;");
 
     this->_lineEdit->setPlaceholderText("enter here");
     this->_lineEdit->setGeometry(180, 210, 105, 30);
-    this->_lineEdit->setStyleSheet("background: white; font-size: 14px; padding: 0 5px; color: blue;");
+    this->_lineEdit->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
     this->_lineEdit->setToolTip("Please enter only numeric values.");
     this->_lineEdit->setMaxLength(3);
     this->_lineEdit->setAlignment(Qt::AlignCenter);
@@ -340,10 +340,10 @@ void    WindowNext::setParametersDesign(void)
         {
 			this->_durationTimerValue = 0;
 			this->_buttonStart->setEnabled(false);
-			this->_buttonStart->setStyleSheet("border-radius: 6px; background-color: #D3D3D3;");
+            this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_BUTTON);
         	if (this->_lineEdit->text().length() == 0)
             {
-                this->_lineEdit->setStyleSheet("background: white; font-size: 14px; padding: 0 5px; color: blue;");
+                this->_lineEdit->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
                 return ;
 			}
             QString text = this->_lineEdit->text();
@@ -370,10 +370,10 @@ void    WindowNext::setParametersDesign(void)
                 }
                 else
                 {
-					this->_lineEdit->setStyleSheet("font-size: 14px; background-color: white; padding: 0 5px; color: blue;");
+                    this->_lineEdit->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
 					this->_durationTimerValue = text.toInt();
 					this->_buttonStart->setEnabled(true);
-					this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_BUTTON);
+                    this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_AVTIVE_BUTTON);
                 }
             }
         });
@@ -385,12 +385,12 @@ void    WindowNext::setParametersDesign(void)
             if (this->_showSelectedDir2->text().length() == 0)
             {
                 this->_buttonStart->setEnabled(false);
-                this->_buttonStart->setStyleSheet("border-radius: 6px; background-color: #D3D3D3;");
+                this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_BUTTON);
             }
             else
             {
                 this->_buttonStart->setEnabled(true);
-				this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_BUTTON);
+                this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_AVTIVE_BUTTON);
             }
             this->_selectedDirectory = this->_showSelectedDir2->text();
         });
@@ -402,12 +402,12 @@ void    WindowNext::setParametersDesign(void)
             if (this->_recordingFolder2->text().length() == 0)
             {
                 this->_buttonStart->setEnabled(false);
-                this->_buttonStart->setStyleSheet("border-radius: 6px; background-color: #D3D3D3;");
+                this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_BUTTON);
             }
             else
             {
                 this->_buttonStart->setEnabled(true);
-                this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_BUTTON);
+                this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_AVTIVE_BUTTON);
             }
     	});
 
@@ -418,22 +418,44 @@ void    WindowNext::setParametersDesign(void)
             if (this->_recordingFolder3->text().length() == 0)
             {
                 this->_buttonStart->setEnabled(false);
-                this->_buttonStart->setStyleSheet("border-radius: 6px; background-color: #D3D3D3;");
+                this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_BUTTON);
             }
             else
             {
                 this->_buttonStart->setEnabled(true);
-                this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_BUTTON);
+                this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_AVTIVE_BUTTON);
             }
     	});
     
+    /* --- When _placement2 value changed --- */
+    connect(this->_placement2, &QComboBox::currentTextChanged, this,
+        [=](void)
+        {
+            this->_placement2->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT2);
+        });
+
+    /* --- When _placement4 value changed --- */
+    connect(this->_placement4, &QComboBox::currentTextChanged, this,
+        [=](void)
+        {
+            this->_placement4->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT2);
+        });
+
     /* --- When expProtocol combo box value changed --- */
     connect(this->_protocol2, &QComboBox::currentTextChanged, this,
         [=](void)
     	{
-			this->readExpProtocol();
+            this->readExpProtocol();
 			this->_lineEdit->setText(QString::number(this->_durationMax));
+            this->_protocol2->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT2);
     	});
+
+    /* --- When _protocol4 value changed --- */
+    connect(this->_protocol4, &QComboBox::currentTextChanged, this,
+        [=](void)
+        {
+            this->_protocol4->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT2);
+        });
 }
 
 void    WindowNext::createDirectory(const QString &path)
@@ -489,31 +511,31 @@ void   WindowNext::onThreadDisplayTimerFinished(void)
 	this->setMinimumSize(600, 350);
 	this->setMaximumSize(600, 350);
 	this->_buttonClose->setEnabled(true);
-	this->_buttonClose->setStyleSheet(MY_DEFINED_DEFAULT_BUTTON);
+    this->_buttonClose->setStyleSheet(MY_DEFINED_DEFAULT_AVTIVE_BUTTON);
 	this->_buttonStart->setEnabled(true);
-	this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_BUTTON);
+    this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_AVTIVE_BUTTON);
 	this->_buttonStop->setEnabled(false);
-	this->_buttonStop->setStyleSheet("border-radius: 6px; background-color: #D3D3D3;");
+    this->_buttonStop->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_BUTTON);
 	this->_lineEdit->setEnabled(true);
-	this->_lineEdit->setStyleSheet("background-color: white; padding: 0 5px; color: blue; font-size: 14px");
+    this->_lineEdit->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
     
     this->_showSelectedDir2->setEnabled(true);
-    this->_showSelectedDir2->setStyleSheet("font-size: 14px; background-color: white; padding: 0 5px; color: blue;");
+    this->_showSelectedDir2->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
     
     this->_recordingFolder2->setEnabled(true);
-    this->_recordingFolder2->setStyleSheet("font-size: 14px; background-color: white; padding: 0 5px; color: blue;");
+    this->_recordingFolder2->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
     this->_recordingFolder3->setEnabled(true);
-    this->_recordingFolder3->setStyleSheet("font-size: 14px; background-color: white; padding: 0 5px; color: blue;");
+    this->_recordingFolder3->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
     
     this->_placement2->setEnabled(true);
-    this->_placement2->setStyleSheet("font-size: 14px; background-color: white; padding: 0 5px; color: blue;");
+    this->_placement2->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
     this->_placement4->setEnabled(true);
-    this->_placement4->setStyleSheet("font-size: 14px; background-color: white; padding: 0 5px; color: blue;");
+    this->_placement4->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
     
     this->_protocol2->setEnabled(true);
-    this->_protocol2->setStyleSheet("font-size: 14px; background-color: white; padding: 0 5px; color: blue;");
+    this->_protocol2->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
     this->_protocol4->setEnabled(true);
-    this->_protocol4->setStyleSheet("font-size: 14px; background-color: white; padding: 0 5px; color: blue;");
+    this->_protocol4->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
 
     this->_threadDisplayTimer->wait();
 	delete this->_threadDisplayTimer;
