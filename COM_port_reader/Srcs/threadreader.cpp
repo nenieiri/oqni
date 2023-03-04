@@ -18,7 +18,7 @@ ThreadReader::~ThreadReader()
 
 void    ThreadReader::run()
 {
-	//reader(_comPort, _fileName);
+	reader(_comPort, _fileName);
 }
 
 void    ThreadReader::parserUno(std::string &line, const std::string &pathFileName)
@@ -64,11 +64,13 @@ void    ThreadReader::parserUno(std::string &line, const std::string &pathFileNa
     MyFile.close();
 }
 
-void ThreadReader::reader(const ComPort *comPort, const std::string &pathFileName)
+void    ThreadReader::reader(const ComPort *comPort, const std::string &pathFileName)
 {
     QSerialPort port;
-    QByteArray  data;
+    QByteArray  dataRead;
+    QByteArray  dataWrite;
     std::string line;
+    int			byteCount;
 
     port.setPort(comPort->getPort());
     port.setBaudRate(comPort->getBaudRate());
@@ -77,44 +79,84 @@ void ThreadReader::reader(const ComPort *comPort, const std::string &pathFileNam
     port.setStopBits(comPort->getStopBits());
     port.setFlowControl(comPort->getFlowControl());
 
-    port.close();
     if (!port.open(QIODevice::ReadWrite))
     {
         qDebug() << "Faild to open serial port!";
         return ;
     }
     
-    QByteArray dataWrite;
+    byteCount = requestPortConfig(port);
+    if (byteCount == -1)
+        return ;
+    
+    dataWrite.clear();
     dataWrite.append(static_cast<char>(0)); // First byte
-    dataWrite.append(static_cast<char>(4)); // Second byte
+    dataWrite.append(static_cast<char>(6)); // Second byte
     
     port.write(dataWrite); 
-    
-    QByteArray dataClose;
-    dataClose.append(static_cast<unsigned char>(-1)); // First byte
-    port.write(dataClose);
-    
-    data = port.read(7);
-    qDebug() << data.toHex();
-//    while (!isInterruptionRequested())
-    for (int i = 0; i < 20 && !isInterruptionRequested(); ++i)
+    if (port.waitForReadyRead(1000))
+        dataRead = port.read(7);
+    else
     {
-        if (port.waitForReadyRead(5000))
-        {
-            data = port.read(20);
-            qDebug() << data.toHex();
-            if (!data.isEmpty())
-            {
-                line += data.at(0);
-                parserUno(line, pathFileName);
-                line = "";
-            }
-            else if (!data.isEmpty() && data.at(0) != '\n')
-                    line += data.at(0);
-        }
+		this->stopAndClosePort(port);
+        return ;
     }
-//    QByteArray dataClose;
-//    dataClose.append(static_cast<char>(-1)); // First byte
-//    port.write(dataClose); 
+    
+    while (!isInterruptionRequested())
+    {
+        for (int i = 0; i < 20 && !isInterruptionRequested(); ++i) //tmp
+        {
+            if (port.waitForReadyRead(1000))
+            {
+                dataRead = port.read(20);
+                qDebug() << dataRead.toHex();
+                if (!dataRead.isEmpty())
+                {
+                    line += dataRead.at(0);
+                    parserUno(line, pathFileName);
+                    line = "";
+                }
+            }
+            else
+                break ;
+        }
+        break ;
+    }
+    this->stopAndClosePort(port);
+}
+
+void    ThreadReader::stopAndClosePort(QSerialPort &port)
+{
+    QByteArray  dataWrite;
+    
+    dataWrite.append(static_cast<char>(-1));
+    port.write(dataWrite);
+    port.flush();
     port.close();
+}
+
+int    ThreadReader::requestPortConfig(QSerialPort &port)
+{
+    QByteArray  dataWrite;
+    QByteArray  dataRead;
+    QString     preamble = "aa55aa55";
+    
+    dataWrite.append(static_cast<char>(127)); // Requesting configuration
+    port.write(dataWrite);
+    if (port.waitForReadyRead(1000))
+        dataRead = port.read(12);
+    else
+    {
+		this->stopAndClosePort(port);
+        return -1;
+    }
+    if (dataRead.startsWith(preamble.toUtf8()) != 0) // checking if the first 4 bytes are 'aa55aa55'
+    {
+        qDebug() << "'aa55aa55' is not recevied.";
+		this->stopAndClosePort(port);
+        return -1;
+    }
+    qDebug() << "1 " << dataRead.toHex();
+    
+    return 666;
 }

@@ -125,9 +125,9 @@ void    WindowNext::setButtonStart(QPushButton *buttonStart)
             if (this->_durationTimerValue == 0)
                 return ;
             
-            this->createDirectory(_selectedDirectory + "/" + _recordingFolder2->text() + "/" + _recordingFolder2->text() + \
-                                  "_" + _recordingFolder3->text() + "_" + QDate::currentDate().toString("yyMMdd"));
-            
+            QString fullSavingPath = _selectedDirectory + "/" + _recordingFolder2->text() + "/" + _recordingFolder2->text() + \
+                                  "_" + _recordingFolder3->text() + "_" + QDate::currentDate().toString("yyMMdd");
+            this->createDirectory(fullSavingPath);
             if (this->_selectedDirectory == "")
                 return ;
             
@@ -166,7 +166,7 @@ void    WindowNext::setButtonStart(QPushButton *buttonStart)
             this->_threadDisplayTimer = new ThreadDisplayTimer(this->_durationTimerValue, this, this->_expProtocolsPath, this->_expProtocol);
             this->_threadDisplayTimer->start();
             
-            this->_threadReader = new ThreadReader(_selectedComPort, _showSelectedDir2->text(), _threadDisplayTimer);
+            this->_threadReader = new ThreadReader(_selectedComPort, fullSavingPath, _threadDisplayTimer);
             this->_threadReader->start();
             
             this->_finishMsgLabel->hide();
