@@ -27,7 +27,6 @@ WindowNext::WindowNext(MainWindow *parent)
 //    this->_selectedDirectory = QCoreApplication::applicationDirPath() + "/Recordings";
     this->_selectedDirectory = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation) + "/oqni/Recordings";
     this->_showSelectedDir2->setText(_selectedDirectory);
-    this->_recordingFolder = "/BL-003/BL-003_000_" + QDate::currentDate().toString("yyMMdd");
     
     this->_recordingFolder1 = new QLabel("Recording Folder:", this);
     this->_recordingFolder2 = new QLineEdit(this);
@@ -125,7 +124,10 @@ void    WindowNext::setButtonStart(QPushButton *buttonStart)
 		{
             if (this->_durationTimerValue == 0)
                 return ;
-            this->createDirectory(_selectedDirectory);
+            
+            this->createDirectory(_selectedDirectory + "/" + _recordingFolder2->text() + "/" + _recordingFolder2->text() + \
+                                  "_" + _recordingFolder3->text() + "_" + QDate::currentDate().toString("yyMMdd"));
+            
             if (this->_selectedDirectory == "")
                 return ;
             
@@ -160,9 +162,6 @@ void    WindowNext::setButtonStart(QPushButton *buttonStart)
 			this->_protocol4->setStyleSheet("font-size: 14px; background-color: #D3D3D3; padding: 0 5px; color: blue;");
             
 			this->_closeEventFlag = false;
-            
-            this->_recordingFolder = "/" + this->_recordingFolder2->text() + "/" + this->_recordingFolder2->text() + \
-                            "_" + this->_recordingFolder3->text() + "_" + QDate::currentDate().toString("yyMMdd");
             
             this->_threadDisplayTimer = new ThreadDisplayTimer(this->_durationTimerValue, this, this->_expProtocolsPath, this->_expProtocol);
             this->_threadDisplayTimer->start();
@@ -410,7 +409,6 @@ void    WindowNext::setParametersDesign(void)
                 this->_buttonStart->setEnabled(true);
                 this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_BUTTON);
             }
-            QString folder2 = this->_recordingFolder.mid(this->_recordingFolder.indexOf('/') + 1);
     	});
 
     /* --- When recordingFolder3 text changed --- */
