@@ -24,8 +24,10 @@ WindowNext::WindowNext(MainWindow *parent)
     
     this->_showSelectedDir1 = new QLabel("Save to:", this);
     this->_showSelectedDir2 = new QLineEdit(this);
-    this->_selectedDirectory = QCoreApplication::applicationDirPath() + "/Recordings/";
+//    this->_selectedDirectory = QCoreApplication::applicationDirPath() + "/Recordings";
+    this->_selectedDirectory = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation) + "/oqni/Recordings";
     this->_showSelectedDir2->setText(_selectedDirectory);
+    this->_recordingFolder = "/BL-003/BL-003_000_" + QDate::currentDate().toString("yyMMdd");
     
     this->_recordingFolder1 = new QLabel("Recording Folder:", this);
     this->_recordingFolder2 = new QLineEdit(this);
@@ -42,8 +44,7 @@ WindowNext::WindowNext(MainWindow *parent)
 
     this->_protocol1 = new QLabel("Recording Protocol:", this);
     this->_protocol2 = new QComboBox(this);
-	this->_expProtocolsPath = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
-    this->_expProtocolsPath += "/oqni/exp_protocols";
+	this->_expProtocolsPath = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation) + "/oqni/exp_protocols";
     QStringList *items = this->findExpProtocols(this->_expProtocolsPath);
     this->_protocol2->addItems(*items);
     delete items;
@@ -159,6 +160,9 @@ void    WindowNext::setButtonStart(QPushButton *buttonStart)
 			this->_protocol4->setStyleSheet("font-size: 14px; background-color: #D3D3D3; padding: 0 5px; color: blue;");
             
 			this->_closeEventFlag = false;
+            
+            this->_recordingFolder = "/" + this->_recordingFolder2->text() + "/" + this->_recordingFolder2->text() + \
+                            "_" + this->_recordingFolder3->text() + "_" + QDate::currentDate().toString("yyMMdd");
             
             this->_threadDisplayTimer = new ThreadDisplayTimer(this->_durationTimerValue, this, this->_expProtocolsPath, this->_expProtocol);
             this->_threadDisplayTimer->start();
@@ -289,12 +293,14 @@ void    WindowNext::setParametersDesign(void)
     this->_recordingFolder4->setEnabled(false);
     this->_recordingFolder4->setMaxLength(6);
     this->_recordingFolder4->setAlignment(Qt::AlignCenter);
-    this->_recordingFolder4->setStyleSheet("font-size: 14px; background-color: #D3D3D3; padding: 0 5px; color: blue;");
+    this->_recordingFolder4->setStyleSheet("font-size: 14px; background-color: #D3D3D3; padding: 0 5px; color: gray;");
+    this->_recordingFolder4->setText(QDate::currentDate().toString("yyMMdd"));
     this->_recordingFolder5->setGeometry(518, 90, 70, 30);
     this->_recordingFolder5->setEnabled(false);
-    this->_recordingFolder5->setMaxLength(1);
+    this->_recordingFolder5->setMaxLength(6);
     this->_recordingFolder5->setAlignment(Qt::AlignCenter);
-    this->_recordingFolder5->setStyleSheet("font-size: 14px; background-color: #D3D3D3; padding: 0 5px; color: blue;");
+    this->_recordingFolder5->setStyleSheet("font-size: 14px; background-color: #D3D3D3; padding: 0 5px; color: gray;");
+    this->_recordingFolder5->setText(QTime::currentTime().toString("hhmmss"));
 
     this->_placement1->setGeometry(10, 130, 160, 30);
     this->_placement1->setStyleSheet("font-size: 18px;");
@@ -379,7 +385,6 @@ void    WindowNext::setParametersDesign(void)
         {
             if (this->_showSelectedDir2->text().length() == 0)
             {
-                this->_showSelectedDir2->setStyleSheet("background: white; font-size: 14px; padding: 0 5px; color: blue;");
                 this->_buttonStart->setEnabled(false);
                 this->_buttonStart->setStyleSheet("border-radius: 6px; background-color: #D3D3D3;");
             }
@@ -390,6 +395,39 @@ void    WindowNext::setParametersDesign(void)
             }
             this->_selectedDirectory = this->_showSelectedDir2->text();
         });
+
+    /* --- When recordingFolder2 text changed --- */
+    connect(this->_recordingFolder2, &QLineEdit::textChanged, this,
+        [=](void)
+    	{
+            if (this->_recordingFolder2->text().length() == 0)
+            {
+                this->_buttonStart->setEnabled(false);
+                this->_buttonStart->setStyleSheet("border-radius: 6px; background-color: #D3D3D3;");
+            }
+            else
+            {
+                this->_buttonStart->setEnabled(true);
+                this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_BUTTON);
+            }
+            QString folder2 = this->_recordingFolder.mid(this->_recordingFolder.indexOf('/') + 1);
+    	});
+
+    /* --- When recordingFolder3 text changed --- */
+    connect(this->_recordingFolder3, &QLineEdit::textChanged, this,
+        [=](void)
+    	{
+            if (this->_recordingFolder3->text().length() == 0)
+            {
+                this->_buttonStart->setEnabled(false);
+                this->_buttonStart->setStyleSheet("border-radius: 6px; background-color: #D3D3D3;");
+            }
+            else
+            {
+                this->_buttonStart->setEnabled(true);
+                this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_BUTTON);
+            }
+    	});
     
     /* --- When expProtocol combo box value changed --- */
     connect(this->_protocol2, &QComboBox::currentTextChanged, this,

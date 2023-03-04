@@ -57,6 +57,7 @@ class WindowNext : public QDialog
 		QLabel				*_showReadingPort1;
 		QLabel				*_showReadingPort2;
         QString				_selectedDirectory;
+        QString				_recordingFolder;
         
 		QLabel				*_showSelectedDir1;
 		QLineEdit			*_showSelectedDir2;
