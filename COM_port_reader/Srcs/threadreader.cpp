@@ -68,7 +68,7 @@ void    ThreadReader::reader(const ComPort *comPort, const std::string &pathFile
 {
     QSerialPort port;
     QByteArray  dataRead;
-    std::string line;
+    QString     line;
     int			bytesTillData;
     int			bytesTotal;
     char        bytesPA     = 4; // Preamble bytes
@@ -79,8 +79,10 @@ void    ThreadReader::reader(const ComPort *comPort, const std::string &pathFile
     int         info[2];
     
     char            id;
-    char            counter;
+    unsigned char   counter;
     unsigned int    data;
+    
+    unsigned char   oldCounter[2];
 
     port.setPort(comPort->getPort());
     port.setBaudRate(comPort->getBaudRate());
@@ -98,37 +100,83 @@ void    ThreadReader::reader(const ComPort *comPort, const std::string &pathFile
         return ;
     if (requestPortStart(port) == -1)
         return ;
+    
+    
+    
+    //************************************************************
+    //************************************************************
+    
+    int file_is_empty = 0;
+
+    std::ofstream createFile(this->_fileName, std::ios::app);
+    createFile.close();
+
+    std::ifstream infile(this->_fileName, std::ios::binary | std::ios::ate);
+    if (infile.tellg() == 0)
+        file_is_empty = 1;
+    infile.close();
+
+    std::ofstream MyFile(this->_fileName, std::ios::app);
+    if (!MyFile.is_open())
+        return ;
+    if (file_is_empty)
+        MyFile << "data1,data2,data3,LABEL\n";
+    
+    //************************************************************
+    //************************************************************
+    
+    
+    
     bytesTillData = bytesPA + bytesID + bytesCO + bytesCH + bytesOCH;
     bytesTotal = bytesTillData + info[0] * info[1];
+    
+    for (int i = 0; i < 2; ++i)
+    {
+        line = "";
+        if (port.waitForReadyRead(MY_READY_READ_TIME))
+        {
+            dataRead = port.read(bytesTotal);
+            id = dataRead.mid(bytesPA, bytesID).toHex().toUInt(nullptr, 16);
+            oldCounter[id -1] = dataRead.mid(bytesPA + bytesID, bytesCO).toHex().toUInt(nullptr, 16);
+            for (int i = 0; i < info[0]; ++i)
+            {
+                data = dataRead.mid(bytesTillData + i * info[1], info[1]).toHex().toUInt(nullptr, 16);
+                line += QString::number(data) + ",";
+            }
+            line += QString::number(this->_threadDisplayTimer->getCurrentImgLabel()) + "\n";
+            MyFile << line.toStdString();
+        }
+    }
     while (!isInterruptionRequested())
     {
         for (int i = 0; i < 15 && !isInterruptionRequested(); ++i) //tmp
         {
+            line = "";
             if (port.waitForReadyRead(MY_READY_READ_TIME))
             {
                 dataRead = port.read(bytesTotal);
-                qDebug() << dataRead.toHex();
-                
                 id = dataRead.mid(bytesPA, bytesID).toHex().toUInt(nullptr, 16);
                 counter = dataRead.mid(bytesPA + bytesID, bytesCO).toHex().toUInt(nullptr, 16);
+                if ((counter - oldCounter[id - 1]) != 1)
+                {
+                    for (int i = 0; i < (counter - oldCounter[id - 1]) - 1; ++i)
+                        line += "\n";
+                }
+                oldCounter[id -1] = counter;
                 for (int i = 0; i < info[0]; ++i)
                 {
                     data = dataRead.mid(bytesTillData + i * info[1], info[1]).toHex().toUInt(nullptr, 16);
-                    qDebug() << static_cast<int>(id) << "  " << static_cast<int>(counter) << "  " << data;
+                    line += QString::number(data) + ",";
                 }
-                
-                if (!dataRead.isEmpty())
-                {
-                    line += dataRead.at(0);
-                    parserUno(line, pathFileName);
-                    line = "";
-                }
+                line += QString::number(this->_threadDisplayTimer->getCurrentImgLabel()) + "\n";
+                MyFile << line.toStdString();
             }
             else
                 break ;
         }
         break ;
     }
+    MyFile.close();
     this->stopAndClosePort(port);
 }
 
