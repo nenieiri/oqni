@@ -138,7 +138,7 @@ void    WindowNext::setButtonStart(QPushButton *buttonStart)
 			this->_buttonStart->setEnabled(false);
             this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_BUTTON);
 			this->_buttonStop->setEnabled(true);
-            this->_buttonStop->setStyleSheet(MY_DEFINED_DEFAULT_AVTIVE_BUTTON);
+            this->_buttonStop->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_BUTTON);
 			this->_lineEdit->setEnabled(false);
             this->_lineEdit->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_TEXT);
             
@@ -187,9 +187,9 @@ void		WindowNext::setButtonStop(QPushButton *buttonStop)
             this->setMinimumSize(600, 350);
             this->setMaximumSize(600, 350);
             this->_buttonClose->setEnabled(true);
-            this->_buttonClose->setStyleSheet(MY_DEFINED_DEFAULT_AVTIVE_BUTTON);
+            this->_buttonClose->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_BUTTON);
             this->_buttonStart->setEnabled(true);
-            this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_AVTIVE_BUTTON);
+            this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_BUTTON);
             this->_buttonStop->setEnabled(false);
             this->_buttonStop->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_BUTTON);
             this->_lineEdit->setEnabled(true);
@@ -373,7 +373,7 @@ void    WindowNext::setParametersDesign(void)
                     this->_lineEdit->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
 					this->_durationTimerValue = text.toInt();
 					this->_buttonStart->setEnabled(true);
-                    this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_AVTIVE_BUTTON);
+                    this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_BUTTON);
                 }
             }
         });
@@ -390,7 +390,7 @@ void    WindowNext::setParametersDesign(void)
             else
             {
                 this->_buttonStart->setEnabled(true);
-                this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_AVTIVE_BUTTON);
+                this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_BUTTON);
             }
             this->_selectedDirectory = this->_showSelectedDir2->text();
         });
@@ -407,7 +407,7 @@ void    WindowNext::setParametersDesign(void)
             else
             {
                 this->_buttonStart->setEnabled(true);
-                this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_AVTIVE_BUTTON);
+                this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_BUTTON);
             }
     	});
 
@@ -423,7 +423,7 @@ void    WindowNext::setParametersDesign(void)
             else
             {
                 this->_buttonStart->setEnabled(true);
-                this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_AVTIVE_BUTTON);
+                this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_BUTTON);
             }
     	});
     
@@ -511,9 +511,9 @@ void   WindowNext::onThreadDisplayTimerFinished(void)
 	this->setMinimumSize(600, 350);
 	this->setMaximumSize(600, 350);
 	this->_buttonClose->setEnabled(true);
-    this->_buttonClose->setStyleSheet(MY_DEFINED_DEFAULT_AVTIVE_BUTTON);
+    this->_buttonClose->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_BUTTON);
 	this->_buttonStart->setEnabled(true);
-    this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_AVTIVE_BUTTON);
+    this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_BUTTON);
 	this->_buttonStop->setEnabled(false);
     this->_buttonStop->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_BUTTON);
 	this->_lineEdit->setEnabled(true);

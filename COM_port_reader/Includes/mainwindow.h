@@ -6,7 +6,7 @@
 # include "comport.hpp"
 # include "windownext.hpp"
 
-# define MY_DEFINED_DEFAULT_AVTIVE_BUTTON   "QPushButton {border-radius: 6px; background: #6FD5CA; color: black; border: 1px solid gray;} \
+# define MY_DEFINED_DEFAULT_ACTIVE_BUTTON   "QPushButton {border-radius: 6px; background: #6FD5CA; color: black; border: 1px solid gray;} \
                                        QPushButton:hover {border-radius: 6px; background: #B9E8E2; color: black; border: 1px solid #0078D4;}"
 # define MY_DEFINED_DEFAULT_PASSIVE_BUTTON               "border-radius: 6px; background: #D3D3D3;"
 # define MY_DEFINED_RELEASED_BUTTON         "QPushButton {border-radius: 6px; background: #6FD5CA; color: black; border: 1px solid #0078D4;} \

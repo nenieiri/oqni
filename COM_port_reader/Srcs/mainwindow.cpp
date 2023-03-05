@@ -14,6 +14,8 @@ MainWindow::MainWindow(QWidget *parent)
     this->createGroupBox(20, 70, 380, 515);
     this->createLiftVertical(379, 71, 20, 513);
     this->_buttonNext = this->createButton("Next", 560, 555, 100, 30, std::bind(&MainWindow::buttonNextAction, this), this);
+    this->_buttonNext->setEnabled(false);
+    this->_buttonNext->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_BUTTON);
     
     _baudRateItems = {"1200", "2400", "4800", "9600", "19200", "38400", "57600", "115200"};
     _dataBitsItems = {"5", "6", "7", "8"};
@@ -63,7 +65,7 @@ QPushButton    *MainWindow::createButton(const QString &name, int x, int y, int 
     button = new QPushButton(name, box);
     button->setGeometry(x, y, width, height);
     button->setCursor(Qt::PointingHandCursor);
-    button->setStyleSheet(MY_DEFINED_DEFAULT_AVTIVE_BUTTON);
+    button->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_BUTTON);
     connect(button, &QPushButton::released, button,
         [=](void)
         {
@@ -72,7 +74,7 @@ QPushButton    *MainWindow::createButton(const QString &name, int x, int y, int 
     connect(button, &QPushButton::clicked, button,
         [=](void)
         {
-            button->setStyleSheet(MY_DEFINED_DEFAULT_AVTIVE_BUTTON);
+            button->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_BUTTON);
         });
     connect(button, &QPushButton::pressed, button,
         [=](void)
@@ -187,6 +189,8 @@ void    MainWindow::buttonCheckAction(void)
                 connect((*it)->getCheckBox(), &QRadioButton::clicked, (*it)->getToolButton(),
                     [=](void)
                     {
+                        this->_buttonNext->setEnabled(true);
+                        this->_buttonNext->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_BUTTON);
                         (*it)->getToolButton()->raise();
                         (*it)->getToolButton()->show();
                         if (this->_previewsCheckBox && this->_previewsCheckBox != *it)
