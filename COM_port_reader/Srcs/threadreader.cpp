@@ -68,9 +68,19 @@ void    ThreadReader::reader(const ComPort *comPort, const std::string &pathFile
 {
     QSerialPort port;
     QByteArray  dataRead;
-    QByteArray  dataWrite;
     std::string line;
-    int			byteCount;
+    int			bytesTillData;
+    int			bytesTotal;
+    char        bytesPA     = 4; // Preamble bytes
+    char        bytesID     = 1; // ID bytes
+    char        bytesCO     = 1; // Counter bytes
+    char        bytesCH     = 1; // Channels bytes
+    char        bytesOCH    = 1; // One channel bytes
+    int         info[2];
+    
+    char            id;
+    char            counter;
+    unsigned int    data;
 
     port.setPort(comPort->getPort());
     port.setBaudRate(comPort->getBaudRate());
@@ -84,21 +94,29 @@ void    ThreadReader::reader(const ComPort *comPort, const std::string &pathFile
         qDebug() << "Faild to open serial port!";
         return ;
     }
-    
-    byteCount = requestPortConfig(port);
-    if (byteCount == -1)
+    if (requestPortConfig(port, info) == -1)
         return ;
     if (requestPortStart(port) == -1)
         return ;
-    
+    bytesTillData = bytesPA + bytesID + bytesCO + bytesCH + bytesOCH;
+    bytesTotal = bytesTillData + info[0] * info[1];
     while (!isInterruptionRequested())
     {
-        for (int i = 0; i < 5 && !isInterruptionRequested(); ++i) //tmp
+        for (int i = 0; i < 15 && !isInterruptionRequested(); ++i) //tmp
         {
             if (port.waitForReadyRead(MY_READY_READ_TIME))
             {
-                dataRead = port.read(byteCount);
+                dataRead = port.read(bytesTotal);
                 qDebug() << dataRead.toHex();
+                
+                id = dataRead.mid(bytesPA, bytesID).toHex().toUInt(nullptr, 16);
+                counter = dataRead.mid(bytesPA + bytesID, bytesCO).toHex().toUInt(nullptr, 16);
+                for (int i = 0; i < info[0]; ++i)
+                {
+                    data = dataRead.mid(bytesTillData + i * info[1], info[1]).toHex().toUInt(nullptr, 16);
+                    qDebug() << static_cast<int>(id) << "  " << static_cast<int>(counter) << "  " << data;
+                }
+                
                 if (!dataRead.isEmpty())
                 {
                     line += dataRead.at(0);
@@ -124,13 +142,11 @@ void    ThreadReader::stopAndClosePort(QSerialPort &port)
     port.close();
 }
 
-int    ThreadReader::requestPortConfig(QSerialPort &port)
+int    ThreadReader::requestPortConfig(QSerialPort &port, int *info)
 {
     QByteArray  dataWrite;
     QByteArray  dataRead;
     int         preamble = 0xaa55aa55;
-    int         previewsBytes = 0;
-    int         length;
     
     dataWrite.append(static_cast<char>(127)); // Requesting configuration
     port.write(dataWrite);
@@ -147,14 +163,9 @@ int    ThreadReader::requestPortConfig(QSerialPort &port)
 		this->stopAndClosePort(port);
         return -1;
     }
-    previewsBytes += 4; // preamble bytes
-    previewsBytes += 1; // ID bytes
-    previewsBytes += 1; // Counter bytes
-    previewsBytes += 1; // Number of channels
-    previewsBytes += 1; // Number of bytes in one channel
-    length = previewsBytes + (dataRead.mid(9, 1).toHex().toUInt(nullptr, 16) * dataRead.mid(10, 1).toHex().toUInt(nullptr, 16));
-    
-    return length;
+    info[0] = dataRead.mid(9, 1).toHex().toUInt(nullptr, 16);  // Number of channels following (N)
+    info[1] = dataRead.mid(10, 1).toHex().toUInt(nullptr, 16); // Number of bytes in one channel data (M)
+    return 0;
 }
 
 int    ThreadReader::requestPortStart(QSerialPort &port)

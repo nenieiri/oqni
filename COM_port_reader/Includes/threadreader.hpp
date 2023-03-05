@@ -30,7 +30,7 @@ class ThreadReader : public QThread
 		void    reader(const ComPort *comPort, const std::string &pathFileName);
 		void    parserUno(std::string &line, const std::string &pathFileName);
         void    stopAndClosePort(QSerialPort &port);
-        int     requestPortConfig(QSerialPort &port);
+        int     requestPortConfig(QSerialPort &port, int *info);
         int     requestPortStart(QSerialPort &port);
     
     private:
