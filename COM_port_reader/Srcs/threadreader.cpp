@@ -141,15 +141,8 @@ int    ThreadReader::requestPortConfig(QSerialPort &port)
 		this->stopAndClosePort(port);
         return -1;
     }
-    if (dataRead.toHex().mid(0, 4).toInt() != preamble) // checking if the first 4 bytes are 'aa55aa55'
+    if (dataRead.mid(0, 4).toHex().toUInt(nullptr, 16) != preamble) // checking if the first 4 bytes are 'aa55aa55'
     {
-        auto y = dataRead.mid(0, 4);
-        bool ok;
-        auto x = y.toInt(&ok, 16);
-        qDebug() << "x = " << x;
-        qDebug() << "type of x is " << typeid(x).name();
-        
-//        qDebug() << dataRead.mid(0, 4).toHex() << "   O: " << preamble;
         qDebug() << "'aa55aa55' is not recevied.";
 		this->stopAndClosePort(port);
         return -1;
@@ -159,7 +152,7 @@ int    ThreadReader::requestPortConfig(QSerialPort &port)
     previewsBytes += 1; // Counter bytes
     previewsBytes += 1; // Number of channels
     previewsBytes += 1; // Number of bytes in one channel
-    length = previewsBytes + (dataRead.toHex().mid(18, 2).toInt() * dataRead.toHex().mid(20, 2).toInt());
+    length = previewsBytes + (dataRead.mid(9, 1).toHex().toUInt(nullptr, 16) * dataRead.mid(10, 1).toHex().toUInt(nullptr, 16));
     
     return length;
 }
@@ -168,7 +161,7 @@ int    ThreadReader::requestPortStart(QSerialPort &port)
 {
     QByteArray  dataWrite;
     QByteArray  dataRead;
-    QString     preamble = "aa55aa55";
+    int         preamble = 0xaa55aa55;
 
     dataWrite.append(static_cast<char>(0)); // First byte
     dataWrite.append(static_cast<char>(6)); // Second byte
@@ -181,7 +174,7 @@ int    ThreadReader::requestPortStart(QSerialPort &port)
         this->stopAndClosePort(port);
         return -1;
     }
-    if (dataRead.startsWith(preamble.toUtf8()) != 0) // checking if the first 4 bytes are 'aa55aa55'
+    if (dataRead.mid(0, 4).toHex().toUInt(nullptr, 16) != preamble) // checking if the first 4 bytes are 'aa55aa55'
     {
         qDebug() << "'aa55aa55' is not recevied.";
 		this->stopAndClosePort(port);
