@@ -233,7 +233,7 @@ void    MainWindow::buttonNextAction()
     this->_windowNext->setButtonClose(createButton("Close", 360, 300, 100, 30, nullptr, this->_windowNext));
     
     this->_windowNext->exec();
-//    this->_buttonNext->setStyleSheet(MY_DEFINED_RELEASED_BUTTON);
+    this->_buttonNext->setStyleSheet(MY_DEFINED_RELEASED_BUTTON);
     delete this->_windowNext;
 }
 

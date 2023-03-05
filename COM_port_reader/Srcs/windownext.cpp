@@ -364,7 +364,7 @@ void    WindowNext::setParametersDesign(void)
                 if (this->_lineEdit->text().toInt() > this->_durationMax)
                 {
                     this->_lineEdit->setStyleSheet("background-color: red; padding: 0 5px; color: blue;");
-                    QString msg = "Duration can't be greater than protocol time (";
+                    QString msg = "Duration can't be greater<br>than protocol time (";
                     msg += QString::number(this->_durationMax) + " sec).";
                     QMessageBox::warning(this, tr("Invalid Input"), msg, QMessageBox::Ok);
                 }
