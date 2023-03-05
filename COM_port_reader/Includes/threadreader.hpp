@@ -20,7 +20,7 @@ class ThreadReader : public QThread
 	Q_OBJECT
     
 	public:
-		ThreadReader(ComPort *comPort, const QString &selectedDirectory, ThreadDisplayTimer *threadDisplayTimer);
+        ThreadReader(ComPort *comPort, const QString &fullSavingPath, ThreadDisplayTimer *threadDisplayTimer);
 		~ThreadReader();
 
     public:
@@ -28,14 +28,13 @@ class ThreadReader : public QThread
         
     private:
 		void    reader(const ComPort *comPort, const std::string &pathFileName);
-		void    parserUno(std::string &line, const std::string &pathFileName);
         void    stopAndClosePort(QSerialPort &port);
         int     requestPortConfig(QSerialPort &port, int *info);
         int     requestPortStart(QSerialPort &port);
     
     private:
 		ComPort             *_comPort;
-        std::string         _fileName;
+        std::string         _fileNamePrefix;
         ThreadDisplayTimer  *_threadDisplayTimer;
 };
 

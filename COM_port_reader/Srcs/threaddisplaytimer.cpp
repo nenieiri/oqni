@@ -84,7 +84,8 @@ void    ThreadDisplayTimer::run()
             break ;
         }
         QThread::usleep(1000000);
-        seconds--;}
+        seconds--;
+    }
 }
 
 void    ThreadDisplayTimer::showImage(int currecntSecond, const QString &imgPath)

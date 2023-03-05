@@ -1,14 +1,10 @@
 #include "threadreader.hpp"
 
-ThreadReader::ThreadReader(ComPort *comPort, const QString &selectedDirectory, ThreadDisplayTimer *threadDisplayTimer)
+ThreadReader::ThreadReader(ComPort *comPort, const QString &fullSavingPath, ThreadDisplayTimer *threadDisplayTimer)
 			: _comPort(comPort)
 {
-    QDateTime   currentDateTime = QDateTime::currentDateTime();
-    QString     fileName = selectedDirectory + "/" + \
-                            comPort->getPortName() + "_" + \
-                            currentDateTime.toString("yyyy-MM-dd_hh-mm-ss") + ".csv";
-    
-    this->_fileName = fileName.toStdString();
+    QString fileNamePrefix = fullSavingPath + "/" + QDateTime::currentDateTime().toString("yyMMdd_hhmmss") + "_DGT";
+    this->_fileNamePrefix = fileNamePrefix.toStdString();
     this->_threadDisplayTimer = threadDisplayTimer;
 }
 
@@ -18,57 +14,17 @@ ThreadReader::~ThreadReader()
 
 void    ThreadReader::run()
 {
-	reader(_comPort, _fileName);
+    reader(_comPort, _fileNamePrefix);
 }
 
-void    ThreadReader::parserUno(std::string &line, const std::string &pathFileName)
-{
-    size_t      found;
-    std::string tokenX = "XVALUE=";
-    std::string tokenY = "ZVALUE=";
-    std::string tokenZ = "YVALUE=";
-    int         file_is_empty = 0;
-
-    std::ofstream createFile(pathFileName, std::ios::app);
-    createFile.close();
-
-    std::ifstream infile(pathFileName, std::ios::binary | std::ios::ate);
-    if (infile.tellg() == 0)
-        file_is_empty = 1;
-    infile.close();
-
-    std::ofstream MyFile(pathFileName, std::ios::app);
-    if (!MyFile.is_open())
-        return ;
-    if (file_is_empty)
-        MyFile << "X,Y,Z,LABEL\n";
-
-    found = line.find(tokenX);
-    if (found != std::string::npos)
-        MyFile << abs(std::stoi(line.substr(found + tokenX.length())) % 100) << ",";
-    else
-        MyFile << ",";
-
-    found = line.find(tokenY);
-    if (found != std::string::npos)
-        MyFile << abs(std::stoi(line.substr(found + tokenY.length())) % 100) << ",";
-    else
-        MyFile << ",";
-
-    found = line.find(tokenZ);
-    if (found != std::string::npos)
-        MyFile << abs(std::stoi(line.substr(found + tokenZ.length())) % 100) << "," << this->_threadDisplayTimer->getCurrentImgLabel() << "\n";
-    else
-        MyFile << "," << this->_threadDisplayTimer->getCurrentImgLabel() << "\n";
-
-    MyFile.close();
-}
-
-void    ThreadReader::reader(const ComPort *comPort, const std::string &pathFileName)
+void    ThreadReader::reader(const ComPort *comPort, const std::string &pathFileNamePrefix)
 {
     QSerialPort port;
     QByteArray  dataRead;
     QString     line;
+    std::array<std::ofstream, 2>  myFiles;
+
+    qint64      start;
     int			bytesTillData;
     int			bytesTotal;
     char        bytesPA     = 4; // Preamble bytes
@@ -100,39 +56,25 @@ void    ThreadReader::reader(const ComPort *comPort, const std::string &pathFile
         return ;
     if (requestPortStart(port) == -1)
         return ;
+    start = QDateTime::currentDateTime().toMSecsSinceEpoch();
     
-    
-    
-    //************************************************************
-    //************************************************************
-    
-    int file_is_empty = 0;
-
-    std::ofstream createFile(this->_fileName, std::ios::app);
-    createFile.close();
-
-    std::ifstream infile(this->_fileName, std::ios::binary | std::ios::ate);
-    if (infile.tellg() == 0)
-        file_is_empty = 1;
-    infile.close();
-
-    std::ofstream MyFile(this->_fileName, std::ios::app);
-    if (!MyFile.is_open())
+    myFiles[0].open(this->_fileNamePrefix + "1.csv", std::ios::app);
+    if (!myFiles[0].is_open())
         return ;
-    if (file_is_empty)
-        MyFile << "data1,data2,data3,LABEL\n";
-    
-    //************************************************************
-    //************************************************************
-    
-    
+    myFiles[0] << "time_millisec,led11,led12,led13,label\n";
+
+    myFiles[1].open(this->_fileNamePrefix + "2.csv", std::ios::app);
+    if (!myFiles[1].is_open())
+        return ;
+    myFiles[1] << "time_millisec,led21,led22,led23,label\n";
+
     
     bytesTillData = bytesPA + bytesID + bytesCO + bytesCH + bytesOCH;
     bytesTotal = bytesTillData + info[0] * info[1];
     
     for (int i = 0; i < 2; ++i)
     {
-        line = "";
+        line = QString::number(QDateTime::currentDateTime().toMSecsSinceEpoch() - start) + ",";
         if (port.waitForReadyRead(MY_READY_READ_TIME))
         {
             dataRead = port.read(bytesTotal);
@@ -144,39 +86,36 @@ void    ThreadReader::reader(const ComPort *comPort, const std::string &pathFile
                 line += QString::number(data) + ",";
             }
             line += QString::number(this->_threadDisplayTimer->getCurrentImgLabel()) + "\n";
-            MyFile << line.toStdString();
+            myFiles[id - 1] << line.toStdString();
         }
     }
     while (!isInterruptionRequested())
     {
-        for (int i = 0; i < 15 && !isInterruptionRequested(); ++i) //tmp
+        line = QString::number(QDateTime::currentDateTime().toMSecsSinceEpoch() - start) + ",";
+        if (port.waitForReadyRead(MY_READY_READ_TIME))
         {
-            line = "";
-            if (port.waitForReadyRead(MY_READY_READ_TIME))
+            dataRead = port.read(bytesTotal);
+            id = dataRead.mid(bytesPA, bytesID).toHex().toUInt(nullptr, 16);
+            counter = dataRead.mid(bytesPA + bytesID, bytesCO).toHex().toUInt(nullptr, 16);
+            if ((counter - oldCounter[id - 1]) != 1)
             {
-                dataRead = port.read(bytesTotal);
-                id = dataRead.mid(bytesPA, bytesID).toHex().toUInt(nullptr, 16);
-                counter = dataRead.mid(bytesPA + bytesID, bytesCO).toHex().toUInt(nullptr, 16);
-                if ((counter - oldCounter[id - 1]) != 1)
-                {
-                    for (int i = 0; i < (counter - oldCounter[id - 1]) - 1; ++i)
-                        line += "\n";
-                }
-                oldCounter[id -1] = counter;
-                for (int i = 0; i < info[0]; ++i)
-                {
-                    data = dataRead.mid(bytesTillData + i * info[1], info[1]).toHex().toUInt(nullptr, 16);
-                    line += QString::number(data) + ",";
-                }
-                line += QString::number(this->_threadDisplayTimer->getCurrentImgLabel()) + "\n";
-                MyFile << line.toStdString();
+                for (int i = 0; i < (counter - oldCounter[id - 1]) - 1; ++i)
+                    line += "\n";
             }
-            else
-                break ;
+            oldCounter[id -1] = counter;
+            for (int i = 0; i < info[0]; ++i)
+            {
+                data = dataRead.mid(bytesTillData + i * info[1], info[1]).toHex().toUInt(nullptr, 16);
+                line += QString::number(data) + ",";
+            }
+            line += QString::number(this->_threadDisplayTimer->getCurrentImgLabel()) + "\n";
+            myFiles[id - 1] << line.toStdString();
         }
-        break ;
+        else
+            break ;
     }
-    MyFile.close();
+    myFiles[0].close();
+    myFiles[1].close();
     this->stopAndClosePort(port);
 }
 
