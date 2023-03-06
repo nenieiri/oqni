@@ -227,7 +227,6 @@ void		WindowNext::setButtonStop(QPushButton *buttonStop)
             this->_finishMsgLabel->setText("Stopped");
             this->_finishMsgLabel->show();
 			this->_finishMsgLabel->setStyleSheet("font-size: 28px; color: #B22222; font-weight: bold;");
-        
 		});
 }
 
@@ -526,6 +525,7 @@ int	WindowNext::readExpProtocol(void)
 
 void   WindowNext::onThreadDisplayTimerFinished(void)
 {
+    
 	this->setMinimumSize(600, 350);
 	this->setMaximumSize(600, 350);
 	this->_buttonClose->setEnabled(true);
@@ -554,6 +554,15 @@ void   WindowNext::onThreadDisplayTimerFinished(void)
     this->_protocol2->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
     this->_protocol4->setEnabled(true);
     this->_protocol4->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
+		////////////////////////////////////////////////////////////////////////////
+        		QList<QPoint>		_pointLed[6];
+            _pointLed[0] = this->_threadReader->_pointLed[0];
+            _pointLed[1] = this->_threadReader->_pointLed[1];
+            _pointLed[2] = this->_threadReader->_pointLed[2];
+            _pointLed[3] = this->_threadReader->_pointLed[3];
+            _pointLed[4] = this->_threadReader->_pointLed[4];
+            _pointLed[5] = this->_threadReader->_pointLed[5];
+		////////////////////////////////////////////////////////////////////////////
 
     this->_threadDisplayTimer->wait();
 	delete this->_threadDisplayTimer;
@@ -569,4 +578,49 @@ void   WindowNext::onThreadDisplayTimerFinished(void)
     this->_finishMsgLabel->show();
     
     this->_closeEventFlag = true;
+    
+        
+		////////////////////////////////////////////////////////////////////////////
+		// Generate some random (x,y) coordinates
+			QVector<QPointF> points;
+			for (size_t i = 0; i < _pointLed[0].size(); ++i) {
+				points << _pointLed[0][i];
+			}
+		
+			// Create a line chart
+			QChart *chart = new QChart();
+			chart->setTitle("Quadratic equation");
+			chart->legend()->hide();
+		
+			QLineSeries *series = new QLineSeries();
+			series->setColor(Qt::red);
+		
+			series->append(points);
+			chart->addSeries(series);
+		
+			// Customize the X and Y axes
+			QValueAxis *axisX = new QValueAxis();
+			axisX->setTitleText("X Axis");
+			axisX->setRange(0, 1000);
+			chart->addAxis(axisX, Qt::AlignBottom);
+			series->attachAxis(axisX);
+		
+			QValueAxis *axisY = new QValueAxis();
+			axisY->setTitleText("Y Axis");
+			axisY->setRange(-2500000000, 2500000000);
+			chart->addAxis(axisY, Qt::AlignLeft);
+			series->attachAxis(axisY);
+		
+			// Create a chart view and display the chart
+			QChartView *chartView = new QChartView(chart);
+			chartView->setRenderHint(QPainter::Antialiasing);
+		
+			QDialog *dialog = new QDialog();
+			dialog->setLayout(new QVBoxLayout);
+			dialog->layout()->addWidget(chartView);
+			dialog->resize(800, 600);
+			dialog->show();
+			dialog->raise();
+			dialog->exec();
+			////////////////////////////////////////////////////////////////////////////
 }

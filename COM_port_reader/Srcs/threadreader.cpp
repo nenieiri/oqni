@@ -20,6 +20,7 @@ void    ThreadReader::run()
     std::array<std::ofstream, 2>  myFiles;
 
     qint64      start;
+    qint64      currentTime;
     int			bytesTillData;
     int			bytesTotal;
     char        bytesPA     = 4; // Preamble bytes
@@ -73,13 +74,15 @@ void    ThreadReader::run()
     {
         if (port.waitForReadyRead(MY_READY_READ_TIME))
         {
-            line = QString::number(QDateTime::currentDateTime().toMSecsSinceEpoch() - start) + ",";
+            currentTime = QDateTime::currentDateTime().toMSecsSinceEpoch() - start;
+            line = QString::number(currentTime) + ",";
             dataRead = port.read(bytesTotal);
             id = dataRead.mid(bytesPA, bytesID).toHex().toUInt(nullptr, 16);
             oldCounter[id -1] = dataRead.mid(bytesPA + bytesID, bytesCO).toHex().toUInt(nullptr, 16);
             for (int i = 0; i < info[0]; ++i)
             {
                 data = dataRead.mid(bytesTillData + i * info[1], info[1]).toHex().toUInt(nullptr, 16);
+                this->_pointLed[(id - 1) * info[0] + i] << QPoint(currentTime, data);
                 line += QString::number(data) + ",";
             }
             line += QString::number(this->_threadDisplayTimer->getCurrentImgLabel()) + "\n";
@@ -90,7 +93,8 @@ void    ThreadReader::run()
     {
         if (port.waitForReadyRead(MY_READY_READ_TIME))
         {
-            line = QString::number(QDateTime::currentDateTime().toMSecsSinceEpoch() - start) + ",";
+            currentTime = QDateTime::currentDateTime().toMSecsSinceEpoch() - start;
+            line = QString::number(currentTime) + ",";
             dataRead = port.read(bytesTotal);
             id = dataRead.mid(bytesPA, bytesID).toHex().toUInt(nullptr, 16);
             counter = dataRead.mid(bytesPA + bytesID, bytesCO).toHex().toUInt(nullptr, 16);
@@ -103,6 +107,7 @@ void    ThreadReader::run()
             for (int i = 0; i < info[0]; ++i)
             {
                 data = dataRead.mid(bytesTillData + i * info[1], info[1]).toHex().toUInt(nullptr, 16);
+                this->_pointLed[(id - 1) * info[0] + i] << QPoint(currentTime, data);
                 line += QString::number(data) + ",";
             }
             line += QString::number(this->_threadDisplayTimer->getCurrentImgLabel()) + "\n";

@@ -4,6 +4,8 @@
 # include <QObject>
 # include <QThread>
 # include <QMessageBox>
+# include <QList>
+# include <QtCharts>
 
 # include <iostream>
 # include <string>
@@ -35,6 +37,9 @@ class ThreadReader : public QThread
 		ComPort             *_comPort;
         std::string         _fileNamePrefix;
         ThreadDisplayTimer  *_threadDisplayTimer;
+    
+    public: //tmp
+        QList<QPoint>		_pointLed[6];
 };
 
 #endif

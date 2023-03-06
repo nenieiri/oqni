@@ -12,6 +12,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 find_package(Qt6 COMPONENTS SerialPort REQUIRED)
+find_package(Qt6 COMPONENTS Charts REQUIRED)
 
 include_directories(Includes/)
 
@@ -59,6 +60,7 @@ endif()
 
 target_link_libraries(COM_port_reader PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 target_link_libraries(COM_port_reader PRIVATE Qt6::Core Qt6::SerialPort)
+target_link_libraries(COM_port_reader PRIVATE Qt6::Charts)
 
 set_target_properties(COM_port_reader PROPERTIES
     MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com
