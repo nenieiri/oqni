@@ -59,7 +59,10 @@ void    ThreadReader::run()
 
     myFiles[1].open(this->_fileNamePrefix + "2.csv", std::ios::app);
     if (!myFiles[1].is_open())
+    {
+        myFiles[0].close();
         return ;
+    }
     myFiles[1] << "time_millisec,led21,led22,led23,label\n";
 
     

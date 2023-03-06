@@ -86,7 +86,6 @@ void    ThreadDisplayTimer::run()
         QThread::usleep(1000 * (1000 - (QDateTime::currentDateTime().toMSecsSinceEpoch() - start - 1000 * (this->_durationTimerValue - seconds))));
         seconds--;
     }
-    qDebug() << QDateTime::currentDateTime().toMSecsSinceEpoch() - start;
 }
 
 void    ThreadDisplayTimer::showImage(int currecntSecond, const QString &imgPath)
