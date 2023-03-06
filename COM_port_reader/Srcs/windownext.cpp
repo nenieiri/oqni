@@ -57,7 +57,7 @@ WindowNext::WindowNext(MainWindow *parent)
     this->_lineEdit = new QLineEdit(this);
     this->_finishMsgLabel = new QLabel("", this);
     
-    this->_showChart = new QCheckBox(this);
+    this->_showChart = new QCheckBox("Display chart:     ", this);
     
     this->setModal(true);
     
@@ -226,6 +226,7 @@ void		WindowNext::setButtonStop(QPushButton *buttonStop)
         
             this->_finishMsgLabel->setText("Stopped");
             this->_finishMsgLabel->show();
+			this->_finishMsgLabel->setStyleSheet("font-size: 28px; color: #B22222; font-weight: bold;");
         
 		});
 }
@@ -330,12 +331,11 @@ void    WindowNext::setParametersDesign(void)
     this->_lineEdit->setMaxLength(3);
     this->_lineEdit->setAlignment(Qt::AlignCenter);
     
-    this->_finishMsgLabel->setGeometry(360, 205, 160, 40);
+    this->_finishMsgLabel->setGeometry(220, 248, 160, 40);
     this->_finishMsgLabel->setAlignment(Qt::AlignCenter);
     
-    this->_showChart->setGeometry(10, 250, 188, 40);
+    this->_showChart->setGeometry(288, 210, 166, 30);
     this->_showChart->setStyleSheet("font-size: 18px;");
-    this->_showChart->setText("Display chart:            ");
     this->_showChart->setLayoutDirection(Qt::RightToLeft);
     this->_showChart->setChecked(false);
     
@@ -462,6 +462,18 @@ void    WindowNext::setParametersDesign(void)
         {
             this->_protocol4->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT2);
         });
+    connect(this->_showChart, &QCheckBox::stateChanged, this,
+        [=](void)
+        {
+        		if (this->_showChart->isChecked() == true)
+            {
+                qDebug() << "true";
+            }
+            else
+            {
+                qDebug() << "false";
+            }
+        });
 }
 
 void    WindowNext::createDirectory(const QString &path)
@@ -553,6 +565,7 @@ void   WindowNext::onThreadDisplayTimerFinished(void)
     this->_threadReader = nullptr;
     
     this->_finishMsgLabel->setText("Finished");
+    this->_finishMsgLabel->setStyleSheet("font-size: 28px; color: #B22222; font-weight: bold;");
     this->_finishMsgLabel->show();
     
     this->_closeEventFlag = true;
