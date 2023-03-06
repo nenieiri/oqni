@@ -17,6 +17,7 @@
 # include <QFile>
 # include <QTextStream>
 # include <QList>
+# include <QCheckBox>
 
 # include "threadreader.hpp"
 # include "threaddisplaytimer.hpp"
@@ -80,6 +81,8 @@ class WindowNext : public QDialog
 		QLabel				*_timer1;
         QLineEdit			*_lineEdit;
         QLabel				*_finishMsgLabel;
+        
+        QCheckBox           *_showChart;
 
         ComPort				*_selectedComPort;
         

@@ -57,6 +57,8 @@ WindowNext::WindowNext(MainWindow *parent)
     this->_lineEdit = new QLineEdit(this);
     this->_finishMsgLabel = new QLabel("", this);
     
+    this->_showChart = new QCheckBox(this);
+    
     this->setModal(true);
     
     this->setGeometry((screenWidth - windowWidth) / 2 - 300, \
@@ -99,6 +101,7 @@ WindowNext::~WindowNext()
     delete _timer1;
     delete _lineEdit;
     delete _finishMsgLabel;
+    delete _showChart;
 }
 
 void    WindowNext::closeEvent(QCloseEvent *event)
@@ -329,7 +332,12 @@ void    WindowNext::setParametersDesign(void)
     
     this->_finishMsgLabel->setGeometry(360, 205, 160, 40);
     this->_finishMsgLabel->setAlignment(Qt::AlignCenter);
-    this->_finishMsgLabel->setStyleSheet("font-size: 24px; color: #B22222; font-weight: bold;");
+    
+    this->_showChart->setGeometry(10, 250, 188, 40);
+    this->_showChart->setStyleSheet("font-size: 18px;");
+    this->_showChart->setText("Display chart:            ");
+    this->_showChart->setLayoutDirection(Qt::RightToLeft);
+    this->_showChart->setChecked(false);
     
     /* --- If the text contains a non-numeric character, show warrnig msg --- */
     this->_lineEdit->setText(QString::number(this->_durationMax));
