@@ -163,9 +163,7 @@ void    WindowNext::setButtonStart(QPushButton *buttonStart)
             
 			this->_closeEventFlag = false;
             
-            this->_threadDisplayTimer = new ThreadDisplayTimer(this->_durationTimerValue, this, this->_expProtocolsPath, this->_expProtocol);
-            this->_threadDisplayTimer->start();
-            
+            this->_threadDisplayTimer = new ThreadDisplayTimer(this->_durationTimerValue, this, this->_expProtocolsPath, this->_expProtocol); // this thread starts in TreadReader thread
             this->_threadReader = new ThreadReader(_selectedComPort, fullSavingPath, _threadDisplayTimer);
             this->_threadReader->start();
             

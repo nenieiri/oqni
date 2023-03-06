@@ -27,10 +27,9 @@ class ThreadReader : public QThread
 		void    run() override;
         
     private:
-		void    reader(const ComPort *comPort, const std::string &pathFileName);
         void    stopAndClosePort(QSerialPort &port);
         int     requestPortConfig(QSerialPort &port, int *info);
-        int     requestPortStart(QSerialPort &port);
+        int     requestPortStart(QSerialPort &port, qint64 *start);
     
     private:
 		ComPort             *_comPort;

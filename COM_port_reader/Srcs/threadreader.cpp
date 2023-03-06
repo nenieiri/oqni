@@ -14,11 +14,6 @@ ThreadReader::~ThreadReader()
 
 void    ThreadReader::run()
 {
-    reader(_comPort, _fileNamePrefix);
-}
-
-void    ThreadReader::reader(const ComPort *comPort, const std::string &pathFileNamePrefix)
-{
     QSerialPort port;
     QByteArray  dataRead;
     QString     line;
@@ -40,12 +35,12 @@ void    ThreadReader::reader(const ComPort *comPort, const std::string &pathFile
     
     unsigned char   oldCounter[2];
 
-    port.setPort(comPort->getPort());
-    port.setBaudRate(comPort->getBaudRate());
-    port.setDataBits(comPort->getDataBits());
-    port.setParity(comPort->getParity());
-    port.setStopBits(comPort->getStopBits());
-    port.setFlowControl(comPort->getFlowControl());
+    port.setPort(_comPort->getPort());
+    port.setBaudRate(_comPort->getBaudRate());
+    port.setDataBits(_comPort->getDataBits());
+    port.setParity(_comPort->getParity());
+    port.setStopBits(_comPort->getStopBits());
+    port.setFlowControl(_comPort->getFlowControl());
 
     if (!port.open(QIODevice::ReadWrite))
     {
@@ -54,9 +49,8 @@ void    ThreadReader::reader(const ComPort *comPort, const std::string &pathFile
     }
     if (requestPortConfig(port, info) == -1)
         return ;
-    if (requestPortStart(port) == -1)
+    if (requestPortStart(port, &start) == -1)
         return ;
-    start = QDateTime::currentDateTime().toMSecsSinceEpoch();
     
     myFiles[0].open(this->_fileNamePrefix + "1.csv", std::ios::app);
     if (!myFiles[0].is_open())
@@ -74,9 +68,9 @@ void    ThreadReader::reader(const ComPort *comPort, const std::string &pathFile
     
     for (int i = 0; i < 2; ++i)
     {
-        line = QString::number(QDateTime::currentDateTime().toMSecsSinceEpoch() - start) + ",";
         if (port.waitForReadyRead(MY_READY_READ_TIME))
         {
+            line = QString::number(QDateTime::currentDateTime().toMSecsSinceEpoch() - start) + ",";
             dataRead = port.read(bytesTotal);
             id = dataRead.mid(bytesPA, bytesID).toHex().toUInt(nullptr, 16);
             oldCounter[id -1] = dataRead.mid(bytesPA + bytesID, bytesCO).toHex().toUInt(nullptr, 16);
@@ -91,9 +85,9 @@ void    ThreadReader::reader(const ComPort *comPort, const std::string &pathFile
     }
     while (!isInterruptionRequested())
     {
-        line = QString::number(QDateTime::currentDateTime().toMSecsSinceEpoch() - start) + ",";
         if (port.waitForReadyRead(MY_READY_READ_TIME))
         {
+            line = QString::number(QDateTime::currentDateTime().toMSecsSinceEpoch() - start) + ",";
             dataRead = port.read(bytesTotal);
             id = dataRead.mid(bytesPA, bytesID).toHex().toUInt(nullptr, 16);
             counter = dataRead.mid(bytesPA + bytesID, bytesCO).toHex().toUInt(nullptr, 16);
@@ -155,7 +149,7 @@ int    ThreadReader::requestPortConfig(QSerialPort &port, int *info)
     return 0;
 }
 
-int    ThreadReader::requestPortStart(QSerialPort &port)
+int    ThreadReader::requestPortStart(QSerialPort &port, qint64 *start)
 {
     QByteArray  dataWrite;
     QByteArray  dataRead;
@@ -166,7 +160,11 @@ int    ThreadReader::requestPortStart(QSerialPort &port)
     
     port.write(dataWrite); 
     if (port.waitForReadyRead(MY_READY_READ_TIME))
+    {
+        this->_threadDisplayTimer->start();
+        (*start) = QDateTime::currentDateTime().toMSecsSinceEpoch();
         dataRead = port.read(7);
+    }
     else
     {
         this->stopAndClosePort(port);

@@ -54,8 +54,16 @@ void    ThreadDisplayTimer::run()
     imgPath = this->_expProtocolsPath.left(this->_expProtocolsPath.length() - 13) + imgPath;
     label = (*it)[1].toInt();
     
+    qint64 start = QDateTime::currentDateTime().toMSecsSinceEpoch();
     while (!isInterruptionRequested())
     {
+        if (seconds == 0)
+        {
+            this->_imageSecondsLabel->hide();
+            this->_imageLabel->hide();
+			emit finishedSignal();
+            break ;
+        }        
         if (currecntSecond == 0)
         {
             it++;
@@ -75,17 +83,10 @@ void    ThreadDisplayTimer::run()
                            .arg(minutes % 60, 2, 10, QLatin1Char('0'))
                            .arg(seconds % 60, 2, 10, QLatin1Char('0'));
         this->_displayTimerLabel->setText(text);
-
-        if (seconds == 0)
-        {
-            this->_imageSecondsLabel->hide();
-            this->_imageLabel->hide();
-			emit finishedSignal();
-            break ;
-        }
-        QThread::usleep(1000000);
+        QThread::usleep(1000 * (1000 - (QDateTime::currentDateTime().toMSecsSinceEpoch() - start - 1000 * (this->_durationTimerValue - seconds))));
         seconds--;
     }
+    qDebug() << QDateTime::currentDateTime().toMSecsSinceEpoch() - start;
 }
 
 void    ThreadDisplayTimer::showImage(int currecntSecond, const QString &imgPath)
