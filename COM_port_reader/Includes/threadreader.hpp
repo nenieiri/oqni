@@ -18,23 +18,28 @@ class ThreadReader : public QThread
 	Q_OBJECT
     
 	public:
-        ThreadReader(ComPort *comPort, const QString &fullSavingPath, ThreadDisplayTimer *threadDisplayTimer);
+        ThreadReader(ComPort *comPort, ThreadDisplayTimer *threadDisplayTimer);
 		~ThreadReader();
 
     public:
-		void    run() override;
+		void				run() override;
+        const QString		&getFileNamePrefix() const;
+        const QString		&getFileCreationDate() const;
+        const QString		&getFileCreationTime() const;
         
     private:
-        void    stopAndClosePort(QSerialPort &port);
-        int     requestPortConfig(QSerialPort &port, int *info);
-        int     requestPortStart(QSerialPort &port, qint64 *start);
+        void				stopAndClosePort(QSerialPort &port);
+        int					requestPortConfig(QSerialPort &port, int *info);
+        int					requestPortStart(QSerialPort &port, qint64 *start);
     
     private:
 		ComPort             *_comPort;
+        QString 	        _fileCreationDate;
+        QString 	        _fileCreationTime;
+        QString 	        _fileNamePrefix;
         ThreadDisplayTimer  *_threadDisplayTimer;
     
     public: //tmp
-        QString 	        _fileNamePrefix;
         std::array<QList<QString>, 2>	_data;
 };
 

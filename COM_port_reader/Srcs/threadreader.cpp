@@ -1,15 +1,31 @@
 #include "threadreader.hpp"
 
-ThreadReader::ThreadReader(ComPort *comPort, const QString &fullSavingPath, ThreadDisplayTimer *threadDisplayTimer)
+ThreadReader::ThreadReader(ComPort *comPort, ThreadDisplayTimer *threadDisplayTimer)
 			: _comPort(comPort)
 {
-    QString fileNamePrefix = fullSavingPath + "/" + QDateTime::currentDateTime().toString("yyMMdd_hhmmss") + "_DGT";
-    this->_fileNamePrefix = fileNamePrefix;
+    this->_fileCreationDate = QDateTime::currentDateTime().toString("yyMMdd");
+    this->_fileCreationTime = QDateTime::currentDateTime().toString("hhmmss");
+    this->_fileNamePrefix += "/" + _fileCreationDate + "_" + _fileCreationTime + "_DGT";
     this->_threadDisplayTimer = threadDisplayTimer;
 }
 
 ThreadReader::~ThreadReader()
 {
+}
+
+const QString	&ThreadReader::getFileNamePrefix() const
+{
+    return (this->_fileNamePrefix);
+}
+
+const QString	&ThreadReader::getFileCreationDate() const
+{
+    return (this->_fileCreationDate);
+}
+
+const QString	&ThreadReader::getFileCreationTime() const
+{
+    return (this->_fileCreationTime);
 }
 
 void    ThreadReader::run()

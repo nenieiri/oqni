@@ -128,12 +128,6 @@ void    WindowNext::setButtonStart(QPushButton *buttonStart)
             if (this->_durationTimerValue == 0)
                 return ;
             
-            QString fullSavingPath = _selectedDirectory + "/" + _recordingFolder2->text() + "/" + _recordingFolder2->text() + \
-                                  "_" + _recordingFolder3->text() + "_" + QDate::currentDate().toString("yyMMdd");
-            this->createDirectory(fullSavingPath);
-            if (this->_selectedDirectory == "")
-                return ;
-            
 			this->setMinimumSize(1200, 700);
 			this->setMaximumSize(1200, 700);
 			this->_buttonClose->setEnabled(false);
@@ -167,7 +161,7 @@ void    WindowNext::setButtonStart(QPushButton *buttonStart)
 			this->_closeEventFlag = false;
             
             this->_threadDisplayTimer = new ThreadDisplayTimer(this->_durationTimerValue, this, this->_expProtocolsPath, this->_expProtocol); // this thread starts in TreadReader thread
-            this->_threadReader = new ThreadReader(_selectedComPort, fullSavingPath, _threadDisplayTimer);
+            this->_threadReader = new ThreadReader(_selectedComPort, _threadDisplayTimer);
             this->_threadReader->start();
             
             this->_finishMsgLabel->hide();
@@ -183,6 +177,8 @@ void		WindowNext::setButtonStop(QPushButton *buttonStop)
     connect(this->_buttonStop, &QPushButton::clicked, this,
 		[=](void)
 		{
+			saveDataToFile("000");
+        
 			this->_closeEventFlag = true;
         
             this->setMinimumSize(600, 350);
@@ -523,8 +519,57 @@ int	WindowNext::readExpProtocol(void)
     return (0);
 }
 
+void	WindowNext::saveDataToFile(const QString &subject)
+{
+	QFile  			myFile;
+	QTextStream		out;
+    
+    qDebug() << subject;
+	this->_fullSavingPath = _selectedDirectory + "/";
+    this->_fullSavingPath += _recordingFolder2->text() + "/";
+    this->_fullSavingPath += _recordingFolder2->text() + "_";
+    this->_fullSavingPath += subject + "_";
+    this->_fullSavingPath += _threadReader->getFileCreationDate();
+    
+	const QString	fileNamePrefix = _fullSavingPath + _threadReader->getFileNamePrefix();
+	
+	this->createDirectory(_fullSavingPath);
+	if (this->_selectedDirectory == "")
+		return ;
+    
+    /* ----------------------- Save first file ------------------------------ */
+	myFile.setFileName(fileNamePrefix + "1.csv");
+	if (!myFile.open(QIODevice::WriteOnly | QIODevice::Text))
+	{
+		qDebug() << "Failed to open file for writing:" << myFile.fileName();
+		return ;
+	}
+	out.setDevice(&myFile);
+	for (QList<QString>::iterator it = _threadReader->_data[0].begin(); it != _threadReader->_data[0].end(); ++it)
+		out << *it;
+	myFile.close();
+	
+    /* ----------------------- Save second file ----------------------------- */
+	myFile.setFileName(fileNamePrefix + "2.csv");
+	if (!myFile.open(QIODevice::WriteOnly | QIODevice::Text))
+	{
+		qDebug() << "Failed to open file for writing:" << myFile.fileName();
+		return ;
+	}
+	out.setDevice(&myFile);
+	for (QList<QString>::iterator it = _threadReader->_data[1].begin(); it != _threadReader->_data[1].end(); ++it)
+		out << *it;
+	myFile.close();
+}
+
 void   WindowNext::onThreadDisplayTimerFinished(void)
 {
+    if (_durationMax == _durationTimerValue)
+        saveDataToFile(_recordingFolder3->text());
+    else
+        saveDataToFile("000");
+    
+    this->_closeEventFlag = true;
     
 	this->setMinimumSize(600, 350);
 	this->setMaximumSize(600, 350);
@@ -561,41 +606,12 @@ void   WindowNext::onThreadDisplayTimerFinished(void)
 
     this->_threadReader->requestInterruption();
     this->_threadReader->wait();
-    if (_durationMax == _durationTimerValue)
-    {
-		QFile  		myFile;
-		QTextStream	out;
-		
-		myFile.setFileName(_threadReader->_fileNamePrefix + "1.csv");
-		if (!myFile.open(QIODevice::WriteOnly | QIODevice::Text))
-		{
-			qDebug() << "Failed to open file for writing:" << myFile.fileName();
-			return ;
-		}
-		out.setDevice(&myFile);
-		for (QList<QString>::iterator it = _threadReader->_data[0].begin(); it != _threadReader->_data[0].end(); ++it)
-			out << *it;
-		myFile.close();
-		
-		myFile.setFileName(_threadReader->_fileNamePrefix + "2.csv");
-		if (!myFile.open(QIODevice::WriteOnly | QIODevice::Text))
-		{
-			qDebug() << "Failed to open file for writing:" << myFile.fileName();
-			return ;
-		}
-		out.setDevice(&myFile);
-		for (QList<QString>::iterator it = _threadReader->_data[1].begin(); it != _threadReader->_data[1].end(); ++it)
-			out << *it;
-		myFile.close();
-    }
     delete this->_threadReader;
     this->_threadReader = nullptr;
     
     this->_finishMsgLabel->setText("Finished");
     this->_finishMsgLabel->setStyleSheet("font-size: 28px; color: #B22222; font-weight: bold;");
     this->_finishMsgLabel->show();
-    
-    this->_closeEventFlag = true;
     
     /*
 		////////////////////////////////////////////////////////////////////////////

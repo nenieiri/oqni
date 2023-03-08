@@ -45,6 +45,7 @@ class WindowNext : public QDialog
         void				createDirectory(const QString &path);
         QStringList         *findExpProtocols(const QString &path);
         int					readExpProtocol(void);
+        void            	saveDataToFile(const QString &subject);
         
     private slots:
 		void				onThreadDisplayTimerFinished(void);
@@ -61,6 +62,7 @@ class WindowNext : public QDialog
 		QLabel				*_showReadingPort1;
 		QLabel				*_showReadingPort2;
         QString				_selectedDirectory;
+        QString				_fullSavingPath;
         
 		QLabel				*_showSelectedDir1;
 		QLineEdit			*_showSelectedDir2;
