@@ -4,7 +4,7 @@ ThreadReader::ThreadReader(ComPort *comPort, const QString &fullSavingPath, Thre
 			: _comPort(comPort)
 {
     QString fileNamePrefix = fullSavingPath + "/" + QDateTime::currentDateTime().toString("yyMMdd_hhmmss") + "_DGT";
-    this->_fileNamePrefix = fileNamePrefix.toStdString();
+    this->_fileNamePrefix = fileNamePrefix;
     this->_threadDisplayTimer = threadDisplayTimer;
 }
 
@@ -17,7 +17,6 @@ void    ThreadReader::run()
     QSerialPort port;
     QByteArray  dataRead;
     QString     line;
-    std::array<std::ofstream, 2>  myFiles;
 
     qint64      start;
     qint64      currentTime;
@@ -53,19 +52,8 @@ void    ThreadReader::run()
     if (requestPortStart(port, &start) == -1)
         return ;
     
-    myFiles[0].open(this->_fileNamePrefix + "1.csv", std::ios::app);
-    if (!myFiles[0].is_open())
-        return ;
-    myFiles[0] << "time_millisec,led11,led12,led13,label\n";
-
-    myFiles[1].open(this->_fileNamePrefix + "2.csv", std::ios::app);
-    if (!myFiles[1].is_open())
-    {
-        myFiles[0].close();
-        return ;
-    }
-    myFiles[1] << "time_millisec,led21,led22,led23,label\n";
-
+    _data[0].push_back("time_millisec,led11,led12,led13,label\n");
+    _data[1].push_back("time_millisec,led21,led22,led23,label\n");
     
     bytesTillData = bytesPA + bytesID + bytesCO + bytesCH + bytesOCH;
     bytesTotal = bytesTillData + info[0] * info[1];
@@ -86,7 +74,7 @@ void    ThreadReader::run()
                 line += QString::number(data) + ",";
             }
             line += QString::number(this->_threadDisplayTimer->getCurrentImgLabel()) + "\n";
-            myFiles[id - 1] << line.toStdString();
+            _data[id - 1].push_back(line);
         }
     }
     while (!isInterruptionRequested())
@@ -111,13 +99,37 @@ void    ThreadReader::run()
                 line += QString::number(data) + ",";
             }
             line += QString::number(this->_threadDisplayTimer->getCurrentImgLabel()) + "\n";
-            myFiles[id - 1] << line.toStdString();
+            _data[id - 1].push_back(line);
         }
         else
             break ;
     }
-    myFiles[0].close();
-    myFiles[1].close();
+    
+    QFile  		myFile;
+    QTextStream	out;
+    
+    myFile.setFileName(this->_fileNamePrefix + "1.csv");
+    if (!myFile.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        qDebug() << "Failed to open file for writing:" << myFile.fileName();
+        return ;
+    }
+   	out.setDevice(&myFile);
+    for (QList<QString>::iterator it = _data[0].begin(); it != _data[0].end(); ++it)
+		out << *it;
+    myFile.close();
+    
+    myFile.setFileName(this->_fileNamePrefix + "2.csv");
+    if (!myFile.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        qDebug() << "Failed to open file for writing:" << myFile.fileName();
+        return ;
+    }
+   	out.setDevice(&myFile);
+    for (QList<QString>::iterator it = _data[1].begin(); it != _data[1].end(); ++it)
+		out << *it;
+    myFile.close();
+    
     this->stopAndClosePort(port);
 }
 

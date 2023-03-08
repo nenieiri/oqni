@@ -5,12 +5,11 @@
 # include <QThread>
 # include <QMessageBox>
 # include <QList>
+# include <QString>
 # include <QtCharts>
-
-# include <iostream>
-# include <string>
-# include <fstream>
-# include <cstdlib>
+# include <QFile>
+# include <QTextStream>
+# include <array>
 
 # include "comport.hpp"
 # include "threaddisplaytimer.hpp"
@@ -35,11 +34,12 @@ class ThreadReader : public QThread
     
     private:
 		ComPort             *_comPort;
-        std::string         _fileNamePrefix;
+        QString 	        _fileNamePrefix;
         ThreadDisplayTimer  *_threadDisplayTimer;
     
     public: //tmp
-        QList<QPoint>		_pointLed[6];
+        QList<QPoint>					_pointLed[6];
+        std::array<QList<QString>, 2>	_data;
 };
 
 #endif
