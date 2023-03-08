@@ -164,6 +164,9 @@ void    WindowNext::setButtonStart(QPushButton *buttonStart)
             this->_threadReader = new ThreadReader(_selectedComPort, _threadDisplayTimer);
             this->_threadReader->start();
             
+			this->_recordingFolder4->setText(_threadReader->getFileCreationDate());
+			this->_recordingFolder5->setText(_threadReader->getFileCreationTime());
+            
             this->_finishMsgLabel->hide();
 			connect(this->_threadDisplayTimer, &ThreadDisplayTimer::finishedSignal, this, &WindowNext::onThreadDisplayTimerFinished);
 		});
