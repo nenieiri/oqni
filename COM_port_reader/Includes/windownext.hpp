@@ -18,6 +18,9 @@
 # include <QTextStream>
 # include <QList>
 # include <QCheckBox>
+# include <QFile>
+# include <QTextStream>
+# include <QtCharts>
 
 # include "threadreader.hpp"
 # include "threaddisplaytimer.hpp"

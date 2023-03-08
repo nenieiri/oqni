@@ -554,15 +554,6 @@ void   WindowNext::onThreadDisplayTimerFinished(void)
     this->_protocol2->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
     this->_protocol4->setEnabled(true);
     this->_protocol4->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
-		////////////////////////////////////////////////////////////////////////////
-        		QList<QPoint>		_pointLed[6];
-            _pointLed[0] = this->_threadReader->_pointLed[0];
-            _pointLed[1] = this->_threadReader->_pointLed[1];
-            _pointLed[2] = this->_threadReader->_pointLed[2];
-            _pointLed[3] = this->_threadReader->_pointLed[3];
-            _pointLed[4] = this->_threadReader->_pointLed[4];
-            _pointLed[5] = this->_threadReader->_pointLed[5];
-		////////////////////////////////////////////////////////////////////////////
 
     this->_threadDisplayTimer->wait();
 	delete this->_threadDisplayTimer;
@@ -570,6 +561,33 @@ void   WindowNext::onThreadDisplayTimerFinished(void)
 
     this->_threadReader->requestInterruption();
     this->_threadReader->wait();
+    if (_durationMax == _durationTimerValue)
+    {
+		QFile  		myFile;
+		QTextStream	out;
+		
+		myFile.setFileName(_threadReader->_fileNamePrefix + "1.csv");
+		if (!myFile.open(QIODevice::WriteOnly | QIODevice::Text))
+		{
+			qDebug() << "Failed to open file for writing:" << myFile.fileName();
+			return ;
+		}
+		out.setDevice(&myFile);
+		for (QList<QString>::iterator it = _threadReader->_data[0].begin(); it != _threadReader->_data[0].end(); ++it)
+			out << *it;
+		myFile.close();
+		
+		myFile.setFileName(_threadReader->_fileNamePrefix + "2.csv");
+		if (!myFile.open(QIODevice::WriteOnly | QIODevice::Text))
+		{
+			qDebug() << "Failed to open file for writing:" << myFile.fileName();
+			return ;
+		}
+		out.setDevice(&myFile);
+		for (QList<QString>::iterator it = _threadReader->_data[1].begin(); it != _threadReader->_data[1].end(); ++it)
+			out << *it;
+		myFile.close();
+    }
     delete this->_threadReader;
     this->_threadReader = nullptr;
     
@@ -579,7 +597,7 @@ void   WindowNext::onThreadDisplayTimerFinished(void)
     
     this->_closeEventFlag = true;
     
-        
+    /*
 		////////////////////////////////////////////////////////////////////////////
 		// Generate some random (x,y) coordinates
 			QVector<QPointF> points;
@@ -623,4 +641,5 @@ void   WindowNext::onThreadDisplayTimerFinished(void)
 			dialog->raise();
 			dialog->exec();
 			////////////////////////////////////////////////////////////////////////////
+    */
 }

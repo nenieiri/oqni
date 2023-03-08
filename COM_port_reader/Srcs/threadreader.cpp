@@ -70,7 +70,6 @@ void    ThreadReader::run()
             for (int i = 0; i < info[0]; ++i)
             {
                 data = dataRead.mid(bytesTillData + i * info[1], info[1]).toHex().toUInt(nullptr, 16);
-                this->_pointLed[(id - 1) * info[0] + i] << QPoint(currentTime, data);
                 line += QString::number(data) + ",";
             }
             line += QString::number(this->_threadDisplayTimer->getCurrentImgLabel()) + "\n";
@@ -95,7 +94,6 @@ void    ThreadReader::run()
             for (int i = 0; i < info[0]; ++i)
             {
                 data = dataRead.mid(bytesTillData + i * info[1], info[1]).toHex().toUInt(nullptr, 16);
-                this->_pointLed[(id - 1) * info[0] + i] << QPoint(currentTime, data);
                 line += QString::number(data) + ",";
             }
             line += QString::number(this->_threadDisplayTimer->getCurrentImgLabel()) + "\n";
@@ -104,32 +102,6 @@ void    ThreadReader::run()
         else
             break ;
     }
-    
-    QFile  		myFile;
-    QTextStream	out;
-    
-    myFile.setFileName(this->_fileNamePrefix + "1.csv");
-    if (!myFile.open(QIODevice::WriteOnly | QIODevice::Text))
-    {
-        qDebug() << "Failed to open file for writing:" << myFile.fileName();
-        return ;
-    }
-   	out.setDevice(&myFile);
-    for (QList<QString>::iterator it = _data[0].begin(); it != _data[0].end(); ++it)
-		out << *it;
-    myFile.close();
-    
-    myFile.setFileName(this->_fileNamePrefix + "2.csv");
-    if (!myFile.open(QIODevice::WriteOnly | QIODevice::Text))
-    {
-        qDebug() << "Failed to open file for writing:" << myFile.fileName();
-        return ;
-    }
-   	out.setDevice(&myFile);
-    for (QList<QString>::iterator it = _data[1].begin(); it != _data[1].end(); ++it)
-		out << *it;
-    myFile.close();
-    
     this->stopAndClosePort(port);
 }
 
@@ -160,7 +132,7 @@ int    ThreadReader::requestPortConfig(QSerialPort &port, int *info)
     }
     if (dataRead.mid(0, 4).toHex().toUInt(nullptr, 16) != preamble) // checking if the first 4 bytes are 'aa55aa55'
     {
-        qDebug() << "'aa55aa55' is not recevied.";
+        qDebug() << "'aa55aa55' is not recevied, when try to config.";
 		this->stopAndClosePort(port);
         return -1;
     }
@@ -192,7 +164,7 @@ int    ThreadReader::requestPortStart(QSerialPort &port, qint64 *start)
     }
     if (dataRead.mid(0, 4).toHex().toUInt(nullptr, 16) != preamble) // checking if the first 4 bytes are 'aa55aa55'
     {
-        qDebug() << "'aa55aa55' is not recevied.";
+        qDebug() << "'aa55aa55' is not recevied, when try to start.";
 		this->stopAndClosePort(port);
         return -1;
     }
