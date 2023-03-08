@@ -169,6 +169,50 @@ void    WindowNext::setButtonStart(QPushButton *buttonStart)
             
             this->_finishMsgLabel->hide();
 			connect(this->_threadDisplayTimer, &ThreadDisplayTimer::finishedSignal, this, &WindowNext::onThreadDisplayTimerFinished);
+    
+		////////////////////////////////////////////////////////////////////////////
+			QChart *chart = new QChart();
+			chart->setTitle("Dynamic Line Chart");
+			chart->legend()->hide();
+		
+			QLineSeries *series = new QLineSeries();
+			series->setColor(Qt::red);
+			chart->addSeries(series);
+		
+			QValueAxis *axisX = new QValueAxis();
+			axisX->setTitleText("X Axis");
+			axisX->setRange(0, 10000);
+			chart->addAxis(axisX, Qt::AlignBottom);
+			series->attachAxis(axisX);
+		
+			QValueAxis *axisY = new QValueAxis();
+			axisY->setTitleText("Y Axis");
+			axisY->setRange(-2500000000, 2500000000);
+			chart->addAxis(axisY, Qt::AlignLeft);
+			series->attachAxis(axisY);
+            
+			QDialog *dialog = new QDialog();
+            
+            connect(_threadReader, &ThreadReader::stringAdded, dialog,
+            	[=](){
+					dialog->raise();
+					dialog->show();
+                	QStringList data = _threadReader->_data[0][_threadReader->_data[0].size() - 1].split(",");
+                    if (series->count() > 90)
+                        series->remove(0);
+                	series->append(data[0].toInt(), data[1].toInt());
+            	});
+		
+			QChartView *chartView = new QChartView(chart);
+			chartView->setRenderHint(QPainter::Antialiasing);
+		
+			dialog->setLayout(new QVBoxLayout);
+			dialog->layout()->addWidget(chartView);
+			dialog->resize(1000, 6000);
+			dialog->raise();
+            dialog->show();
+			dialog->exec();
+		////////////////////////////////////////////////////////////////////////////
 		});
 }
 
@@ -527,7 +571,6 @@ void	WindowNext::saveDataToFile(const QString &subject)
 	QFile  			myFile;
 	QTextStream		out;
     
-    qDebug() << subject;
 	this->_fullSavingPath = _selectedDirectory + "/";
     this->_fullSavingPath += _recordingFolder2->text() + "/";
     this->_fullSavingPath += _recordingFolder2->text() + "_";
@@ -615,50 +658,4 @@ void   WindowNext::onThreadDisplayTimerFinished(void)
     this->_finishMsgLabel->setText("Finished");
     this->_finishMsgLabel->setStyleSheet("font-size: 28px; color: #B22222; font-weight: bold;");
     this->_finishMsgLabel->show();
-    
-    /*
-		////////////////////////////////////////////////////////////////////////////
-		// Generate some random (x,y) coordinates
-			QVector<QPointF> points;
-			for (size_t i = 0; i < _pointLed[0].size(); ++i) {
-				points << _pointLed[0][i];
-			}
-		
-			// Create a line chart
-			QChart *chart = new QChart();
-			chart->setTitle("Quadratic equation");
-			chart->legend()->hide();
-		
-			QLineSeries *series = new QLineSeries();
-			series->setColor(Qt::red);
-		
-			series->append(points);
-			chart->addSeries(series);
-		
-			// Customize the X and Y axes
-			QValueAxis *axisX = new QValueAxis();
-			axisX->setTitleText("X Axis");
-			axisX->setRange(0, 1000);
-			chart->addAxis(axisX, Qt::AlignBottom);
-			series->attachAxis(axisX);
-		
-			QValueAxis *axisY = new QValueAxis();
-			axisY->setTitleText("Y Axis");
-			axisY->setRange(-2500000000, 2500000000);
-			chart->addAxis(axisY, Qt::AlignLeft);
-			series->attachAxis(axisY);
-		
-			// Create a chart view and display the chart
-			QChartView *chartView = new QChartView(chart);
-			chartView->setRenderHint(QPainter::Antialiasing);
-		
-			QDialog *dialog = new QDialog();
-			dialog->setLayout(new QVBoxLayout);
-			dialog->layout()->addWidget(chartView);
-			dialog->resize(800, 600);
-			dialog->show();
-			dialog->raise();
-			dialog->exec();
-			////////////////////////////////////////////////////////////////////////////
-    */
 }

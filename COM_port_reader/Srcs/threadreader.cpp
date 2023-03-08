@@ -90,6 +90,7 @@ void    ThreadReader::run()
             }
             line += QString::number(this->_threadDisplayTimer->getCurrentImgLabel()) + "\n";
             _data[id - 1].push_back(line);
+            emit stringAdded();
         }
     }
     while (!isInterruptionRequested())
@@ -114,6 +115,7 @@ void    ThreadReader::run()
             }
             line += QString::number(this->_threadDisplayTimer->getCurrentImgLabel()) + "\n";
             _data[id - 1].push_back(line);
+            emit stringAdded();
         }
         else
             break ;

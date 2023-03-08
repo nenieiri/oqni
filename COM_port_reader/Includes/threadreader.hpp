@@ -27,6 +27,9 @@ class ThreadReader : public QThread
         const QString		&getFileCreationDate() const;
         const QString		&getFileCreationTime() const;
         
+    signals:
+        void				stringAdded();
+        
     private:
         void				stopAndClosePort(QSerialPort &port);
         int					requestPortConfig(QSerialPort &port, int *info);
@@ -40,7 +43,7 @@ class ThreadReader : public QThread
         ThreadDisplayTimer  *_threadDisplayTimer;
     
     public: //tmp
-        std::array<QList<QString>, 2>	_data;
+        std::array<QStringList, 2>	_data;
 };
 
 #endif
