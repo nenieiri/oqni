@@ -197,16 +197,16 @@ void    WindowNext::setButtonStart(QPushButton *buttonStart)
             	[=](){
                 static int ii = -1;
                 ++ii;
-                qDebug() << "Time is:" << qFromLittleEndian<qint64>(_threadReader->_dataRead.mid((ii * 29) + 0,8).constData());
-                qDebug() << "Preamble is:" << qFromBigEndian<unsigned int>(_threadReader->_dataRead.mid((ii * 29) + 8,4).constData());
-                qDebug() << "ID is:" << qFromBigEndian<unsigned char>(_threadReader->_dataRead.mid((ii * 29) + 12,1).constData());
-                qDebug() << "Counter is:" << qFromBigEndian<unsigned char>(_threadReader->_dataRead.mid((ii * 29) + 13,1).constData());
-                qDebug() << "Channel num is:" << qFromBigEndian<unsigned char>(_threadReader->_dataRead.mid((ii * 29) + 14,1).constData());
-                qDebug() << "Channel size is:" << qFromBigEndian<unsigned char>(_threadReader->_dataRead.mid((ii * 29) + 15,1).constData());
-                qDebug() << "Data1 is:" << qFromLittleEndian<unsigned int>(_threadReader->_dataRead.mid((ii * 29) + 16,4).constData());
-                qDebug() << "Data2 is:" << qFromLittleEndian<unsigned int>(_threadReader->_dataRead.mid((ii * 29) + 20,4).constData());
-                qDebug() << "Data3 is:" << qFromLittleEndian<unsigned int>(_threadReader->_dataRead.mid((ii * 29) + 24,4).constData());
-                qDebug() << "Labvel is:" << qFromLittleEndian<unsigned char>(_threadReader->_dataRead.mid((ii * 29) + 28,1).constData());
+//                qDebug() << "Time is:" << qFromLittleEndian<qint64>(_threadReader->_dataRead.mid((ii * 29) + 0,8).constData());
+//                qDebug() << "Preamble is:" << qFromBigEndian<unsigned int>(_threadReader->_dataRead.mid((ii * 29) + 8,4).constData());
+//                qDebug() << "ID is:" << qFromBigEndian<unsigned char>(_threadReader->_dataRead.mid((ii * 29) + 12,1).constData());
+//                qDebug() << "Counter is:" << qFromBigEndian<unsigned char>(_threadReader->_dataRead.mid((ii * 29) + 13,1).constData());
+//                qDebug() << "Channel num is:" << qFromBigEndian<unsigned char>(_threadReader->_dataRead.mid((ii * 29) + 14,1).constData());
+//                qDebug() << "Channel size is:" << qFromBigEndian<unsigned char>(_threadReader->_dataRead.mid((ii * 29) + 15,1).constData());
+//                qDebug() << "Data1 is:" << qFromLittleEndian<unsigned int>(_threadReader->_dataRead.mid((ii * 29) + 16,4).constData());
+//                qDebug() << "Data2 is:" << qFromLittleEndian<unsigned int>(_threadReader->_dataRead.mid((ii * 29) + 20,4).constData());
+//                qDebug() << "Data3 is:" << qFromLittleEndian<unsigned int>(_threadReader->_dataRead.mid((ii * 29) + 24,4).constData());
+//                qDebug() << "Labvel is:" << qFromLittleEndian<unsigned char>(_threadReader->_dataRead.mid((ii * 29) + 28,1).constData());
 //					dialog->raise();
 //					dialog->show();
 //                	QStringList data = _threadReader->_data[0][_threadReader->_data[0].size() - 1].split(",");
@@ -580,61 +580,75 @@ int	WindowNext::readExpProtocol(void)
 
 void	WindowNext::saveDataToFile(const QString &subject)
 {
+	QFile  			myFile[2];
+	QTextStream		out[2];
+    char            id;
+    unsigned char   counter;
+    unsigned int    data;
+    unsigned char   oldCounter[2];
     
+    const char      bytesPA = _threadReader->getBytesPA();
+    const char      bytesID = _threadReader->getBytesID();
+    const char      bytesCO = _threadReader->getBytesCO();
+    const char      bytesCH = _threadReader->getBytesCH();
+    const char      bytesOCH = _threadReader->getBytesOCH();
+    const char      numOfCH = _threadReader->getNumOfCH();
+    const char      sizeOfCH = _threadReader->getSizeOfCH();
+    QByteArray		dataRead = _threadReader->getDataRead();
+    qint64			startTime = _threadReader->getStartTime();
+    int				totalBytes = bytesPA + bytesID + bytesCO + bytesCH + bytesOCH + numOfCH * sizeOfCH +
+                                8 + 1; // 8 - sizeof time; 1 - sizeof label;
     
-//    char            id;
-//    unsigned char   counter;
-//    unsigned int    data;
-    
-//    unsigned char   oldCounter[2];
-//    _data[0].push_back("time_millisec,led11,led12,led13,label\n");
-//    _data[1].push_back("time_millisec,led21,led22,led23,label\n");
-//	QFile  			myFile;
-//	QTextStream		out;
-    
-//	this->_fullSavingPath = _selectedDirectory + "/";
-//    this->_fullSavingPath += _recordingFolder2->text() + "/";
-//    this->_fullSavingPath += _recordingFolder2->text() + "_";
-//    this->_fullSavingPath += subject + "_";
-//    this->_fullSavingPath += _threadReader->getFileCreationDate();
-    
-//	const QString	fileNamePrefix = _fullSavingPath + _threadReader->getFileNamePrefix();
+	this->_fullSavingPath = _selectedDirectory + "/";
+    this->_fullSavingPath += _recordingFolder2->text() + "/";
+    this->_fullSavingPath += _recordingFolder2->text() + "_";
+    this->_fullSavingPath += subject + "_";
+    this->_fullSavingPath += _threadReader->getFileCreationDate();
 	
-//	this->createDirectory(_fullSavingPath);
-//	if (this->_selectedDirectory == "")
-//		return ;
-    
-//    /* ----------------------- Save first file ------------------------------ */
-//	myFile.setFileName(fileNamePrefix + "1.csv");
-//	if (!myFile.open(QIODevice::WriteOnly | QIODevice::Text))
-//	{
-//		qDebug() << "Failed to open file for writing:" << myFile.fileName();
-//		return ;
-//	}
-//	out.setDevice(&myFile);
-//	for (QList<QString>::iterator it = _threadReader->_data[0].begin(); it != _threadReader->_data[0].end(); ++it)
-//		out << *it;
-//	myFile.close();
+	const QString	fileNamePrefix = _fullSavingPath + _threadReader->getFileNamePrefix();
 	
-//    /* ----------------------- Save second file ----------------------------- */
-//	myFile.setFileName(fileNamePrefix + "2.csv");
-//	if (!myFile.open(QIODevice::WriteOnly | QIODevice::Text))
-//	{
-//		qDebug() << "Failed to open file for writing:" << myFile.fileName();
-//		return ;
-//	}
-//	out.setDevice(&myFile);
-//	for (QList<QString>::iterator it = _threadReader->_data[1].begin(); it != _threadReader->_data[1].end(); ++it)
-//		out << *it;
-//	myFile.close();
+	this->createDirectory(_fullSavingPath);
+	if (this->_selectedDirectory == "")
+		return ;
+	
+	myFile[0].setFileName(fileNamePrefix + "1.csv");
+	if (!myFile[0].open(QIODevice::WriteOnly | QIODevice::Text))
+	{
+		qDebug() << "Failed to open file for writing:" << myFile[0].fileName();
+		return ;
+	}
+	
+	myFile[1].setFileName(fileNamePrefix + "2.csv");
+	if (!myFile[1].open(QIODevice::WriteOnly | QIODevice::Text))
+	{
+		qDebug() << "Failed to open file for writing:" << myFile[1].fileName();
+		myFile[0].close();
+        myFile[0].remove();
+		return ;
+	}
+    
+	out[0].setDevice(&myFile[0]);
+	out[1].setDevice(&myFile[1]);
+    
+    out[0] << "time_millisec,led11,led12,led13,label\n";
+    out[1] << "time_millisec,led21,led22,led23,label\n";
+    
+	id = qFromBigEndian<unsigned char>(dataRead.mid(bytesPA, bytesID).constData());
+    oldCounter[id - 1] = qFromBigEndian<unsigned char>(dataRead.mid(bytesPA + bytesID, bytesCO).constData()) - 1;
+    
+	id = qFromBigEndian<unsigned char>(dataRead.mid(totalBytes + bytesPA, bytesID).constData());
+    oldCounter[id - 1] = qFromBigEndian<unsigned char>(dataRead.mid(totalBytes + bytesPA + bytesID, bytesCO).constData()) - 1;
+    
+	myFile[0].close();
+	myFile[1].close();
 }
 
 void   WindowNext::onThreadDisplayTimerFinished(void)
 {
     if (_durationMax == _durationTimerValue)
-        saveDataToFile(_recordingFolder3->text());
+        this->saveDataToFile(_recordingFolder3->text());
     else
-        saveDataToFile("000");
+        this->saveDataToFile("000");
     
     this->_closeEventFlag = true;
     

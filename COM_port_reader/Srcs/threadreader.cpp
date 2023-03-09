@@ -11,7 +11,7 @@ ThreadReader::ThreadReader(ComPort *comPort, ThreadDisplayTimer *threadDisplayTi
     this->_bytesID = 1;  // ID bytes
     this->_bytesCO = 1;  // Counter bytes
     this->_bytesCH = 1;  // Channels bytes
-    this->_bytesOCH = 1; // One channel bytes
+    this->_bytesOCH = 1; // Number of bytes in one channel data (M)
 }
 
 ThreadReader::~ThreadReader()

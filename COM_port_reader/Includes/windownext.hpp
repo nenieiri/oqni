@@ -21,6 +21,7 @@
 # include <QFile>
 # include <QTextStream>
 # include <QtCharts>
+# include <QtEndian>
 
 # include "threadreader.hpp"
 # include "threaddisplaytimer.hpp"

@@ -6,7 +6,6 @@
 # include <QMessageBox>
 # include <QList>
 # include <QString>
-# include <QtEndian>
 # include <array>
 
 # include "comport.hpp"
