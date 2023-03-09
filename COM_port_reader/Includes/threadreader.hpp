@@ -6,6 +6,7 @@
 # include <QMessageBox>
 # include <QList>
 # include <QString>
+# include <QtEndian>
 # include <array>
 
 # include "comport.hpp"
@@ -26,6 +27,15 @@ class ThreadReader : public QThread
         const QString		&getFileNamePrefix() const;
         const QString		&getFileCreationDate() const;
         const QString		&getFileCreationTime() const;
+        const char          getBytesPA() const;
+        const char          getBytesID() const;
+        const char          getBytesCO() const;
+        const char          getBytesCH() const;
+        const char          getBytesOCH() const;
+        const char          getNumOfCH() const;
+        const char          getSizeOfCH() const;
+        QByteArray			&getDataRead();
+        qint64				getStartTime() const;
         
     signals:
         void				stringAdded();
@@ -48,11 +58,8 @@ class ThreadReader : public QThread
         char                _bytesOCH; // One channel bytes
         char                _numOfCH; // Number of channels following (N)
         char                _sizeOfCH; //Number of bytes in one channel data (M)
-    
-    public: //tmp
-        std::array<QStringList, 2>	_data;
-        QByteArray                  _dataRead;
-        qint64                      _startTime;
+        QByteArray          _dataRead;
+        qint64              _startTime;
 };
 
 #endif

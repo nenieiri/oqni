@@ -580,6 +580,15 @@ int	WindowNext::readExpProtocol(void)
 
 void	WindowNext::saveDataToFile(const QString &subject)
 {
+    
+    
+//    char            id;
+//    unsigned char   counter;
+//    unsigned int    data;
+    
+//    unsigned char   oldCounter[2];
+//    _data[0].push_back("time_millisec,led11,led12,led13,label\n");
+//    _data[1].push_back("time_millisec,led21,led22,led23,label\n");
 //	QFile  			myFile;
 //	QTextStream		out;
     
