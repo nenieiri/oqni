@@ -171,47 +171,59 @@ void    WindowNext::setButtonStart(QPushButton *buttonStart)
 			connect(this->_threadDisplayTimer, &ThreadDisplayTimer::finishedSignal, this, &WindowNext::onThreadDisplayTimerFinished);
     
 		////////////////////////////////////////////////////////////////////////////
-			QChart *chart = new QChart();
-			chart->setTitle("Dynamic Line Chart");
-			chart->legend()->hide();
+//			QChart *chart = new QChart();
+//			chart->setTitle("Dynamic Line Chart");
+//			chart->legend()->hide();
 		
-			QLineSeries *series = new QLineSeries();
-			series->setColor(Qt::red);
-			chart->addSeries(series);
+//			QLineSeries *series = new QLineSeries();
+//			series->setColor(Qt::red);
+//			chart->addSeries(series);
 		
-			QValueAxis *axisX = new QValueAxis();
-			axisX->setTitleText("X Axis");
-			axisX->setRange(0, 10000);
-			chart->addAxis(axisX, Qt::AlignBottom);
-			series->attachAxis(axisX);
+//			QValueAxis *axisX = new QValueAxis();
+//			axisX->setTitleText("X Axis");
+//			axisX->setRange(0, 10000);
+//			chart->addAxis(axisX, Qt::AlignBottom);
+//			series->attachAxis(axisX);
 		
-			QValueAxis *axisY = new QValueAxis();
-			axisY->setTitleText("Y Axis");
-			axisY->setRange(-2500000000, 2500000000);
-			chart->addAxis(axisY, Qt::AlignLeft);
-			series->attachAxis(axisY);
+//			QValueAxis *axisY = new QValueAxis();
+//			axisY->setTitleText("Y Axis");
+//			axisY->setRange(-2500000000, 2500000000);
+//			chart->addAxis(axisY, Qt::AlignLeft);
+//			series->attachAxis(axisY);
             
 			QDialog *dialog = new QDialog();
             
             connect(_threadReader, &ThreadReader::stringAdded, dialog,
             	[=](){
-					dialog->raise();
-					dialog->show();
-                	QStringList data = _threadReader->_data[0][_threadReader->_data[0].size() - 1].split(",");
-                    if (series->count() > 90)
-                        series->remove(0);
-                	series->append(data[0].toInt(), data[1].toInt());
+                static int ii = -1;
+                ++ii;
+                qDebug() << "Time is:" << qFromLittleEndian<qint64>(_threadReader->_dataRead.mid((ii * 29) + 0,8).constData());
+                qDebug() << "Preamble is:" << qFromBigEndian<unsigned int>(_threadReader->_dataRead.mid((ii * 29) + 8,4).constData());
+                qDebug() << "ID is:" << qFromBigEndian<unsigned char>(_threadReader->_dataRead.mid((ii * 29) + 12,1).constData());
+                qDebug() << "Counter is:" << qFromBigEndian<unsigned char>(_threadReader->_dataRead.mid((ii * 29) + 13,1).constData());
+                qDebug() << "Channel num is:" << qFromBigEndian<unsigned char>(_threadReader->_dataRead.mid((ii * 29) + 14,1).constData());
+                qDebug() << "Channel size is:" << qFromBigEndian<unsigned char>(_threadReader->_dataRead.mid((ii * 29) + 15,1).constData());
+                qDebug() << "Data1 is:" << qFromLittleEndian<unsigned int>(_threadReader->_dataRead.mid((ii * 29) + 16,4).constData());
+                qDebug() << "Data2 is:" << qFromLittleEndian<unsigned int>(_threadReader->_dataRead.mid((ii * 29) + 20,4).constData());
+                qDebug() << "Data3 is:" << qFromLittleEndian<unsigned int>(_threadReader->_dataRead.mid((ii * 29) + 24,4).constData());
+                qDebug() << "Labvel is:" << qFromLittleEndian<unsigned char>(_threadReader->_dataRead.mid((ii * 29) + 28,1).constData());
+//					dialog->raise();
+//					dialog->show();
+//                	QStringList data = _threadReader->_data[0][_threadReader->_data[0].size() - 1].split(",");
+//                    if (series->count() > 90)
+//                        series->remove(0);
+//                	series->append(data[0].toInt(), data[1].toInt());
             	});
 		
-			QChartView *chartView = new QChartView(chart);
-			chartView->setRenderHint(QPainter::Antialiasing);
+//			QChartView *chartView = new QChartView(chart);
+//			chartView->setRenderHint(QPainter::Antialiasing);
 		
-			dialog->setLayout(new QVBoxLayout);
-			dialog->layout()->addWidget(chartView);
-			dialog->resize(1000, 6000);
-			dialog->raise();
-            dialog->show();
-			dialog->exec();
+//			dialog->setLayout(new QVBoxLayout);
+//			dialog->layout()->addWidget(chartView);
+//			dialog->resize(1000, 6000);
+//			dialog->raise();
+//            dialog->show();
+//			dialog->exec();
 		////////////////////////////////////////////////////////////////////////////
 		});
 }
@@ -568,44 +580,44 @@ int	WindowNext::readExpProtocol(void)
 
 void	WindowNext::saveDataToFile(const QString &subject)
 {
-	QFile  			myFile;
-	QTextStream		out;
+//	QFile  			myFile;
+//	QTextStream		out;
     
-	this->_fullSavingPath = _selectedDirectory + "/";
-    this->_fullSavingPath += _recordingFolder2->text() + "/";
-    this->_fullSavingPath += _recordingFolder2->text() + "_";
-    this->_fullSavingPath += subject + "_";
-    this->_fullSavingPath += _threadReader->getFileCreationDate();
+//	this->_fullSavingPath = _selectedDirectory + "/";
+//    this->_fullSavingPath += _recordingFolder2->text() + "/";
+//    this->_fullSavingPath += _recordingFolder2->text() + "_";
+//    this->_fullSavingPath += subject + "_";
+//    this->_fullSavingPath += _threadReader->getFileCreationDate();
     
-	const QString	fileNamePrefix = _fullSavingPath + _threadReader->getFileNamePrefix();
+//	const QString	fileNamePrefix = _fullSavingPath + _threadReader->getFileNamePrefix();
 	
-	this->createDirectory(_fullSavingPath);
-	if (this->_selectedDirectory == "")
-		return ;
+//	this->createDirectory(_fullSavingPath);
+//	if (this->_selectedDirectory == "")
+//		return ;
     
-    /* ----------------------- Save first file ------------------------------ */
-	myFile.setFileName(fileNamePrefix + "1.csv");
-	if (!myFile.open(QIODevice::WriteOnly | QIODevice::Text))
-	{
-		qDebug() << "Failed to open file for writing:" << myFile.fileName();
-		return ;
-	}
-	out.setDevice(&myFile);
-	for (QList<QString>::iterator it = _threadReader->_data[0].begin(); it != _threadReader->_data[0].end(); ++it)
-		out << *it;
-	myFile.close();
+//    /* ----------------------- Save first file ------------------------------ */
+//	myFile.setFileName(fileNamePrefix + "1.csv");
+//	if (!myFile.open(QIODevice::WriteOnly | QIODevice::Text))
+//	{
+//		qDebug() << "Failed to open file for writing:" << myFile.fileName();
+//		return ;
+//	}
+//	out.setDevice(&myFile);
+//	for (QList<QString>::iterator it = _threadReader->_data[0].begin(); it != _threadReader->_data[0].end(); ++it)
+//		out << *it;
+//	myFile.close();
 	
-    /* ----------------------- Save second file ----------------------------- */
-	myFile.setFileName(fileNamePrefix + "2.csv");
-	if (!myFile.open(QIODevice::WriteOnly | QIODevice::Text))
-	{
-		qDebug() << "Failed to open file for writing:" << myFile.fileName();
-		return ;
-	}
-	out.setDevice(&myFile);
-	for (QList<QString>::iterator it = _threadReader->_data[1].begin(); it != _threadReader->_data[1].end(); ++it)
-		out << *it;
-	myFile.close();
+//    /* ----------------------- Save second file ----------------------------- */
+//	myFile.setFileName(fileNamePrefix + "2.csv");
+//	if (!myFile.open(QIODevice::WriteOnly | QIODevice::Text))
+//	{
+//		qDebug() << "Failed to open file for writing:" << myFile.fileName();
+//		return ;
+//	}
+//	out.setDevice(&myFile);
+//	for (QList<QString>::iterator it = _threadReader->_data[1].begin(); it != _threadReader->_data[1].end(); ++it)
+//		out << *it;
+//	myFile.close();
 }
 
 void   WindowNext::onThreadDisplayTimerFinished(void)

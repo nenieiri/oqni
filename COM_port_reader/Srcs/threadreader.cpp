@@ -1,4 +1,6 @@
 #include "threadreader.hpp"
+//#include <qendian.h>
+#include <QtEndian>
 
 ThreadReader::ThreadReader(ComPort *comPort, ThreadDisplayTimer *threadDisplayTimer)
 			: _comPort(comPort)
@@ -7,6 +9,11 @@ ThreadReader::ThreadReader(ComPort *comPort, ThreadDisplayTimer *threadDisplayTi
     this->_fileCreationTime = QDateTime::currentDateTime().toString("hhmmss");
     this->_fileNamePrefix += "/" + _fileCreationDate + "_" + _fileCreationTime + "_DGT";
     this->_threadDisplayTimer = threadDisplayTimer;
+    this->_bytesPA = 4;  // Preamble bytes
+    this->_bytesID = 1;  // ID bytes
+    this->_bytesCO = 1;  // Counter bytes
+    this->_bytesCH = 1;  // Channels bytes
+    this->_bytesOCH = 1; // One channel bytes
 }
 
 ThreadReader::~ThreadReader()
@@ -31,25 +38,15 @@ const QString	&ThreadReader::getFileCreationTime() const
 void    ThreadReader::run()
 {
     QSerialPort port;
-    QByteArray  dataRead;
-    QString     line;
-
-    qint64      start;
-    qint64      currentTime;
     int			bytesTillData;
     int			bytesTotal;
-    char        bytesPA     = 4; // Preamble bytes
-    char        bytesID     = 1; // ID bytes
-    char        bytesCO     = 1; // Counter bytes
-    char        bytesCH     = 1; // Channels bytes
-    char        bytesOCH    = 1; // One channel bytes
-    int         info[2];
+    qint64      currentTime;
     
-    char            id;
-    unsigned char   counter;
-    unsigned int    data;
+//    char            id;
+//    unsigned char   counter;
+//    unsigned int    data;
     
-    unsigned char   oldCounter[2];
+//    unsigned char   oldCounter[2];
 
     port.setPort(_comPort->getPort());
     port.setBaudRate(_comPort->getBaudRate());
@@ -63,58 +60,25 @@ void    ThreadReader::run()
         qDebug() << "Faild to open serial port!";
         return ;
     }
-    if (requestPortConfig(port, info) == -1)
+    if (requestPortConfig(port) == -1)
         return ;
-    if (requestPortStart(port, &start) == -1)
+    if (requestPortStart(port) == -1)
         return ;
     
-    _data[0].push_back("time_millisec,led11,led12,led13,label\n");
-    _data[1].push_back("time_millisec,led21,led22,led23,label\n");
+//    _data[0].push_back("time_millisec,led11,led12,led13,label\n");
+//    _data[1].push_back("time_millisec,led21,led22,led23,label\n");
     
-    bytesTillData = bytesPA + bytesID + bytesCO + bytesCH + bytesOCH;
-    bytesTotal = bytesTillData + info[0] * info[1];
+    bytesTillData = _bytesPA + _bytesID + _bytesCO + _bytesCH + _bytesOCH;
+    bytesTotal = bytesTillData + _numOfCH * _sizeOfCH;
     
-    for (int i = 0; i < 2; ++i)
-    {
-        if (port.waitForReadyRead(MY_READY_READ_TIME))
-        {
-            currentTime = QDateTime::currentDateTime().toMSecsSinceEpoch() - start;
-            line = QString::number(currentTime) + ",";
-            dataRead = port.read(bytesTotal);
-            id = dataRead.mid(bytesPA, bytesID).toHex().toUInt(nullptr, 16);
-            oldCounter[id -1] = dataRead.mid(bytesPA + bytesID, bytesCO).toHex().toUInt(nullptr, 16);
-            for (int i = 0; i < info[0]; ++i)
-            {
-                data = dataRead.mid(bytesTillData + i * info[1], info[1]).toHex().toUInt(nullptr, 16);
-                line += QString::number(data) + ",";
-            }
-            line += QString::number(this->_threadDisplayTimer->getCurrentImgLabel()) + "\n";
-            _data[id - 1].push_back(line);
-            emit stringAdded();
-        }
-    }
     while (!isInterruptionRequested())
     {
         if (port.waitForReadyRead(MY_READY_READ_TIME))
         {
-            currentTime = QDateTime::currentDateTime().toMSecsSinceEpoch() - start;
-            line = QString::number(currentTime) + ",";
-            dataRead = port.read(bytesTotal);
-            id = dataRead.mid(bytesPA, bytesID).toHex().toUInt(nullptr, 16);
-            counter = dataRead.mid(bytesPA + bytesID, bytesCO).toHex().toUInt(nullptr, 16);
-            if ((counter - oldCounter[id - 1]) != 1)
-            {
-                for (int i = 0; i < (counter - oldCounter[id - 1]) - 1; ++i)
-                    line += "\n";
-            }
-            oldCounter[id -1] = counter;
-            for (int i = 0; i < info[0]; ++i)
-            {
-                data = dataRead.mid(bytesTillData + i * info[1], info[1]).toHex().toUInt(nullptr, 16);
-                line += QString::number(data) + ",";
-            }
-            line += QString::number(this->_threadDisplayTimer->getCurrentImgLabel()) + "\n";
-            _data[id - 1].push_back(line);
+            currentTime = QDateTime::currentDateTime().toMSecsSinceEpoch();
+            _dataRead.append(QByteArray::fromRawData(reinterpret_cast<const char*>(&currentTime), sizeof(qint64)));
+            _dataRead.append(port.read(bytesTotal));
+            _dataRead.append(QString::number(this->_threadDisplayTimer->getCurrentImgLabel()).toUInt());
             emit stringAdded();
         }
         else
@@ -133,7 +97,7 @@ void    ThreadReader::stopAndClosePort(QSerialPort &port)
     port.close();
 }
 
-int    ThreadReader::requestPortConfig(QSerialPort &port, int *info)
+int    ThreadReader::requestPortConfig(QSerialPort &port)
 {
     QByteArray  dataWrite;
     QByteArray  dataRead;
@@ -154,12 +118,12 @@ int    ThreadReader::requestPortConfig(QSerialPort &port, int *info)
 		this->stopAndClosePort(port);
         return -1;
     }
-    info[0] = dataRead.mid(9, 1).toHex().toUInt(nullptr, 16);  // Number of channels following (N)
-    info[1] = dataRead.mid(10, 1).toHex().toUInt(nullptr, 16); // Number of bytes in one channel data (M)
+    this->_numOfCH = dataRead.mid(9, 1).toHex().toUInt(nullptr, 16);  // Number of channels following (N)
+    this->_sizeOfCH = dataRead.mid(10, 1).toHex().toUInt(nullptr, 16); // Number of bytes in one channel data (M)
     return 0;
 }
 
-int    ThreadReader::requestPortStart(QSerialPort &port, qint64 *start)
+int    ThreadReader::requestPortStart(QSerialPort &port)
 {
     QByteArray  dataWrite;
     QByteArray  dataRead;
@@ -172,7 +136,7 @@ int    ThreadReader::requestPortStart(QSerialPort &port, qint64 *start)
     if (port.waitForReadyRead(MY_READY_READ_TIME))
     {
         this->_threadDisplayTimer->start();
-        (*start) = QDateTime::currentDateTime().toMSecsSinceEpoch();
+        this->_startTime = QDateTime::currentDateTime().toMSecsSinceEpoch();
         dataRead = port.read(7);
     }
     else
@@ -188,3 +152,14 @@ int    ThreadReader::requestPortStart(QSerialPort &port, qint64 *start)
     }
     return (0);
 }
+
+//qDebug() << "Time is:" << qFromLittleEndian<qint64>(_dataRead.mid(0,8).constData());
+//qDebug() << "Preamble is:" << qFromBigEndian<unsigned int>(_dataRead.mid(8,4).constData());
+//qDebug() << "ID is:" << qFromBigEndian<unsigned char>(_dataRead.mid(12,1).constData());
+//qDebug() << "Counter is:" << qFromBigEndian<unsigned char>(_dataRead.mid(13,1).constData());
+//qDebug() << "Channel num is:" << qFromBigEndian<unsigned char>(_dataRead.mid(14,1).constData());
+//qDebug() << "Channel size is:" << qFromBigEndian<unsigned char>(_dataRead.mid(15,1).constData());
+//qDebug() << "Data1 is:" << qFromLittleEndian<unsigned int>(_dataRead.mid(16,4).constData());
+//qDebug() << "Data2 is:" << qFromLittleEndian<unsigned int>(_dataRead.mid(20,4).constData());
+//qDebug() << "Data3 is:" << qFromLittleEndian<unsigned int>(_dataRead.mid(24,4).constData());
+//qDebug() << "Labvel is:" << qFromLittleEndian<unsigned char>(_dataRead.mid(28,1).constData());

@@ -32,8 +32,8 @@ class ThreadReader : public QThread
         
     private:
         void				stopAndClosePort(QSerialPort &port);
-        int					requestPortConfig(QSerialPort &port, int *info);
-        int					requestPortStart(QSerialPort &port, qint64 *start);
+        int					requestPortConfig(QSerialPort &port);
+        int					requestPortStart(QSerialPort &port);
     
     private:
 		ComPort             *_comPort;
@@ -41,9 +41,18 @@ class ThreadReader : public QThread
         QString 	        _fileCreationTime;
         QString 	        _fileNamePrefix;
         ThreadDisplayTimer  *_threadDisplayTimer;
+        char                _bytesPA;  // Preamble bytes
+        char                _bytesID;  // ID bytes
+        char                _bytesCO;  // Counter bytes
+        char                _bytesCH;  // Channels bytes
+        char                _bytesOCH; // One channel bytes
+        char                _numOfCH; // Number of channels following (N)
+        char                _sizeOfCH; //Number of bytes in one channel data (M)
     
     public: //tmp
         std::array<QStringList, 2>	_data;
+        QByteArray                  _dataRead;
+        qint64                      _startTime;
 };
 
 #endif
