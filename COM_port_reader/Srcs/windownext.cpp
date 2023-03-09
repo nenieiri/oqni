@@ -584,7 +584,6 @@ void	WindowNext::saveDataToFile(const QString &subject)
 	QTextStream		out[2];
     char            id;
     unsigned char   counter;
-    unsigned int    data;
     unsigned char   oldCounter[2];
     
     const char      bytesPA = _threadReader->getBytesPA();
@@ -598,6 +597,7 @@ void	WindowNext::saveDataToFile(const QString &subject)
     qint64			startTime = _threadReader->getStartTime();
     int				totalBytes = bytesPA + bytesID + bytesCO + bytesCH + bytesOCH + numOfCH * sizeOfCH +
                                 8 + 1; // 8 - sizeof time; 1 - sizeof label;
+    int				linesCount = dataRead.size() / totalBytes;
     
 	this->_fullSavingPath = _selectedDirectory + "/";
     this->_fullSavingPath += _recordingFolder2->text() + "/";
@@ -638,6 +638,24 @@ void	WindowNext::saveDataToFile(const QString &subject)
     
 	id = qFromBigEndian<unsigned char>(dataRead.mid(totalBytes + bytesPA, bytesID).constData());
     oldCounter[id - 1] = qFromBigEndian<unsigned char>(dataRead.mid(totalBytes + bytesPA + bytesID, bytesCO).constData()) - 1;
+    
+    for (int i = 0; i < linesCount; ++i)
+    {
+        id = qFromBigEndian<unsigned char>(dataRead.mid((i * totalBytes) + bytesPA, bytesID).constData());
+		counter = qFromBigEndian<unsigned char>(dataRead.mid((i * totalBytes) + bytesPA + bytesID, bytesCO).constData());
+        for (int k = 0; k < counter - oldCounter[id - 1] - 1; ++k) // in case if data missed
+            out[id - 1] << "-\n";
+        out[id - 1] << qFromLittleEndian<qint64>(dataRead.mid((i * totalBytes) + (totalBytes - 8 - 1), 8).constData()) - startTime;
+        out[id - 1] << ",";
+        for (int j = 0; j < numOfCH; ++j)
+        {
+			out[id - 1] << qFromLittleEndian<unsigned int>(dataRead.mid((i * totalBytes) + bytesPA + bytesID + bytesCO + bytesCH + bytesOCH + j * sizeOfCH, sizeOfCH).constData());
+			out[id - 1] << ",";
+        }
+        out[id - 1] << qFromLittleEndian<unsigned char>(dataRead.mid((i * totalBytes) + (totalBytes - 1), 1).constData());
+        out[id - 1] << "\n";
+        oldCounter[id - 1] = counter;
+    }
     
 	myFile[0].close();
 	myFile[1].close();
