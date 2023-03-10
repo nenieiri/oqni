@@ -16,6 +16,7 @@ WindowNext::WindowNext(MainWindow *parent)
     this->_buttonClose = nullptr;
     
     this->_closeEventFlag = true;
+    this->_chartDialogFlag = true;
     
     this->_selectedComPort = parent->getSelectedComPort();
     
@@ -168,17 +169,17 @@ void    WindowNext::setButtonStart(QPushButton *buttonStart)
 			this->_recordingFolder4->setText(_threadReader->getFileCreationDate());
 			this->_recordingFolder5->setText(_threadReader->getFileCreationTime());
             
-            if (this->_showChart->isChecked() == true)
-            {
-                this->_threadDrawer = new ThreadDrawer(this);
-                this->_threadDrawer->start();
-				connect(this->_threadDrawer, &ThreadDrawer::chartDialogIsRejected, this,
-					[=](void)
-					{
-						qDebug() << "aaa";
-						this->_showChart->setChecked(false);
-					});
-            }
+//            if (this->_showChart->isChecked() == true)
+//            {
+//                this->_threadDrawer = new ThreadDrawer(this);
+//                this->_threadDrawer->start();
+//				connect(this->_threadDrawer, &ThreadDrawer::chartDialogIsRejected, this,
+//					[=](void)
+//					{
+//						qDebug() << "aaa";
+//						this->_showChart->setChecked(false);
+//					});
+//            }
             
             this->_finishMsgLabel->hide();
 			connect(this->_threadDisplayTimer, &ThreadDisplayTimer::finishedSignal, this, &WindowNext::onThreadDisplayTimerFinished);
@@ -496,28 +497,52 @@ void    WindowNext::setParametersDesign(void)
     connect(this->_showChart, &QCheckBox::stateChanged, this,
         [=](void)
         {
-        		if (this->_buttonStart->isEnabled() == true)
+            qDebug() << "mtaaaaavvvvvv";
+            
+            if (this->_buttonStart->isEnabled() == true || this->_chartDialogFlag == false)
                 return ;
             if (this->_showChart->isChecked() == true)
             {
                 this->_threadDrawer = new ThreadDrawer(this);
-                this->_threadDrawer->start();
-                qDebug() << "aaaaaaa";
-//				connect(this->_threadDrawer, &ThreadDrawer::chartDialogIsRejected, this,
-//					[=](void)
-//					{
-//						qDebug() << "aaa";
-//						this->_showChart->setChecked(false);
-//					});
-                qDebug() << "bbbbbbbbbbbbb";
+                this->_chartDialogFlag = true;
+                qDebug() << "set true in line 508";
+                this->_threadDrawer->start(); 
+                
+                connect(this->_threadDrawer, &ThreadDrawer::chartDialogReadyToStart, this,
+                    [=](void)
+                    {
+                        this->_threadDrawer->getChartDialog()->show();
+                        this->_threadDrawer->getChartDialog()->raise();
+                        this->_threadDrawer->getChartDialog()->exec();
+                    });
+                
+				connect(this->_threadDrawer, &ThreadDrawer::chartDialogIsRejected, this,
+					[=](void)
+					{
+						qDebug() << "aaa1111";
+						this->_showChart->setChecked(false);
+                        this->_chartDialogFlag = false;
+                        qDebug() << "set false in line 525";
+//                        this->_threadDrawer->requestInterruption();    
+//                        this->_threadDrawer->wait();    
+//                        delete this->_threadDrawer;
+//                        this->_threadDrawer = nullptr;
+					});
             }
             else
             {
+                qDebug() << "ccccc";
                 this->_threadDrawer->getChartDialog()->close();
-				this->_threadDrawer->requestInterruption();    
-				this->_threadDrawer->wait();    
-				delete this->_threadDrawer;
+                qDebug() << "ccccc2";
+				this->_threadDrawer->requestInterruption();
+                qDebug() << "ccccc3";
+				this->_threadDrawer->wait();
+                qDebug() << "ccccc4";
+                if (this->_chartDialogFlag == true)
+                    delete this->_threadDrawer;
+                qDebug() << "ccccc5";
 				this->_threadDrawer = nullptr;
+                qDebug() << "ccccc6";
             }
         });
 }

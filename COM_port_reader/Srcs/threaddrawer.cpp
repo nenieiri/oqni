@@ -4,7 +4,7 @@ ThreadDrawer::ThreadDrawer(QWidget *parent)
     : QThread{parent}
 {
     this->_chartDialog = new QDialog(parent);
-    this->_chartDialog->setParent(parent);
+//    this->_chartDialog->setParent(parent);
 /*    this->setGeometry((screenWidth - windowWidth) / 2 - 300, \
     						(screenHeight - windowHeight) / 2 - 200, \
                     		windowWidth, windowHeight);
@@ -33,9 +33,7 @@ QDialog	*ThreadDrawer::getChartDialog()
 
 void	ThreadDrawer::run()
 {
-    this->_chartDialog->show();
-    this->_chartDialog->raise();
-    this->_chartDialog->exec();
+    emit    chartDialogReadyToStart();
 }
 
 

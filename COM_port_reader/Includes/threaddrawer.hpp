@@ -16,9 +16,10 @@ class ThreadDrawer : public QThread
     public:
 		void		run() override;
         QDialog		*getChartDialog();
-        
+
     signals:
         void		chartDialogIsRejected();
+        void        chartDialogReadyToStart();
         
     private:
     	QDialog     *_chartDialog;
