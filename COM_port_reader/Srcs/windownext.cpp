@@ -181,7 +181,6 @@ void    WindowNext::setButtonStart(QPushButton *buttonStart)
                     this->_startTime = _threadReader->getStartTime();
                 });
 
-		////////////////////////////////////////////////////////////////////////////
 //			QChart *chart = new QChart();
 //			chart->setTitle("Dynamic Line Chart");
 //			chart->legend()->hide();
@@ -206,21 +205,8 @@ void    WindowNext::setButtonStart(QPushButton *buttonStart)
             
             connect(_threadReader, &ThreadReader::lastRowOfData, dialog,
             	[=](QByteArray data){
-                static int ii = -1;
-                ++ii;
-                qDebug() << "data: "<< data;
-//                qDebug() << "Time is:" << qFromLittleEndian<qint64>(_threadReader->_dataRead.mid((ii * 29) + 0,8).constData());
-//                qDebug() << "Preamble is:" << qFromBigEndian<unsigned int>(_threadReader->_dataRead.mid((ii * 29) + 8,4).constData());
-//                qDebug() << "ID is:" << qFromBigEndian<unsigned char>(_threadReader->_dataRead.mid((ii * 29) + 12,1).constData());
-//                qDebug() << "Counter is:" << qFromBigEndian<unsigned char>(_threadReader->_dataRead.mid((ii * 29) + 13,1).constData());
-//                qDebug() << "Channel num is:" << qFromBigEndian<unsigned char>(_threadReader->_dataRead.mid((ii * 29) + 14,1).constData());
-//                qDebug() << "Channel size is:" << qFromBigEndian<unsigned char>(_threadReader->_dataRead.mid((ii * 29) + 15,1).constData());
-//                qDebug() << "Data1 is:" << qFromLittleEndian<unsigned int>(_threadReader->_dataRead.mid((ii * 29) + 16,4).constData());
-//                qDebug() << "Data2 is:" << qFromLittleEndian<unsigned int>(_threadReader->_dataRead.mid((ii * 29) + 20,4).constData());
-//                qDebug() << "Data3 is:" << qFromLittleEndian<unsigned int>(_threadReader->_dataRead.mid((ii * 29) + 24,4).constData());
-//                qDebug() << "Labvel is:" << qFromLittleEndian<unsigned char>(_threadReader->_dataRead.mid((ii * 29) + 28,1).constData());
-//					dialog->raise();
-//					dialog->show();
+					dialog->raise();
+					dialog->show();
 //                	QStringList data = _threadReader->_data[0][_threadReader->_data[0].size() - 1].split(",");
 //                    if (series->count() > 90)
 //                        series->remove(0);
@@ -235,8 +221,7 @@ void    WindowNext::setButtonStart(QPushButton *buttonStart)
 //			dialog->resize(1000, 6000);
 //			dialog->raise();
 //            dialog->show();
-//			dialog->exec();
-		////////////////////////////////////////////////////////////////////////////
+			dialog->exec();
 		});
 }
 
