@@ -169,7 +169,18 @@ void    WindowNext::setButtonStart(QPushButton *buttonStart)
             
             this->_finishMsgLabel->hide();
 			connect(this->_threadDisplayTimer, &ThreadDisplayTimer::finishedSignal, this, &WindowNext::onThreadDisplayTimerFinished);
-    
+            connect(_threadReader, &ThreadReader::protocolConfigDataIsReady, this,
+            	[=](){
+                    this->_bytesPA = _threadReader->getBytesPA();
+                    this->_bytesID = _threadReader->getBytesID();
+                    this->_bytesCO = _threadReader->getBytesCO();
+                    this->_bytesCH = _threadReader->getBytesCH();
+                    this->_bytesOCH = _threadReader->getBytesOCH();
+                    this->_numOfCH = _threadReader->getNumOfCH();
+                    this->_sizeOfCH = _threadReader->getSizeOfCH();
+                    this->_startTime = _threadReader->getStartTime();
+                });
+
 		////////////////////////////////////////////////////////////////////////////
 //			QChart *chart = new QChart();
 //			chart->setTitle("Dynamic Line Chart");
@@ -193,10 +204,11 @@ void    WindowNext::setButtonStart(QPushButton *buttonStart)
             
 			QDialog *dialog = new QDialog();
             
-            connect(_threadReader, &ThreadReader::stringAdded, dialog,
-            	[=](){
+            connect(_threadReader, &ThreadReader::lastRowOfData, dialog,
+            	[=](QByteArray data){
                 static int ii = -1;
                 ++ii;
+                qDebug() << "data: "<< data;
 //                qDebug() << "Time is:" << qFromLittleEndian<qint64>(_threadReader->_dataRead.mid((ii * 29) + 0,8).constData());
 //                qDebug() << "Preamble is:" << qFromBigEndian<unsigned int>(_threadReader->_dataRead.mid((ii * 29) + 8,4).constData());
 //                qDebug() << "ID is:" << qFromBigEndian<unsigned char>(_threadReader->_dataRead.mid((ii * 29) + 12,1).constData());
@@ -584,19 +596,10 @@ void	WindowNext::saveDataToFile(const QString &subject)
 	QTextStream		out[2];
     char            id;
     unsigned char   counter;
-    unsigned char   oldCounter[2];
-    
-    const char      bytesPA = _threadReader->getBytesPA();
-    const char      bytesID = _threadReader->getBytesID();
-    const char      bytesCO = _threadReader->getBytesCO();
-    const char      bytesCH = _threadReader->getBytesCH();
-    const char      bytesOCH = _threadReader->getBytesOCH();
-    const char      numOfCH = _threadReader->getNumOfCH();
-    const char      sizeOfCH = _threadReader->getSizeOfCH();
+    unsigned char   oldCounter[2];    
     QByteArray		dataRead = _threadReader->getDataRead();
-    qint64			startTime = _threadReader->getStartTime();
-    int				totalBytes = bytesPA + bytesID + bytesCO + bytesCH + bytesOCH + numOfCH * sizeOfCH +
-                                8 + 1; // 8 - sizeof time; 1 - sizeof label;
+    int				totalBytes = _bytesPA + _bytesID + _bytesCO + _bytesCH + _bytesOCH + _numOfCH * _sizeOfCH +
+                                8 + 1; // 8 - sizeof time; 1 - sizeof label
     int				linesCount = dataRead.size() / totalBytes;
     
 	this->_fullSavingPath = _selectedDirectory + "/";
@@ -633,27 +636,24 @@ void	WindowNext::saveDataToFile(const QString &subject)
     out[0] << "time_millisec,led11,led12,led13,label\n";
     out[1] << "time_millisec,led21,led22,led23,label\n";
     
-	id = qFromBigEndian<unsigned char>(dataRead.mid(bytesPA, bytesID).constData());
-    oldCounter[id - 1] = qFromBigEndian<unsigned char>(dataRead.mid(bytesPA + bytesID, bytesCO).constData()) - 1;
+	id = qFromBigEndian<unsigned char>(dataRead.mid(_bytesPA, _bytesID).constData());
+    oldCounter[id - 1] = qFromBigEndian<unsigned char>(dataRead.mid(_bytesPA + _bytesID, _bytesCO).constData()) - 1;
     
-	id = qFromBigEndian<unsigned char>(dataRead.mid(totalBytes + bytesPA, bytesID).constData());
-    oldCounter[id - 1] = qFromBigEndian<unsigned char>(dataRead.mid(totalBytes + bytesPA + bytesID, bytesCO).constData()) - 1;
+	id = qFromBigEndian<unsigned char>(dataRead.mid(totalBytes + _bytesPA, _bytesID).constData());
+    oldCounter[id - 1] = qFromBigEndian<unsigned char>(dataRead.mid(totalBytes + _bytesPA + _bytesID, _bytesCO).constData()) - 1;
     
     for (int i = 0; i < linesCount; ++i)
     {
-        id = qFromBigEndian<unsigned char>(dataRead.mid((i * totalBytes) + bytesPA, bytesID).constData());
-		counter = qFromBigEndian<unsigned char>(dataRead.mid((i * totalBytes) + bytesPA + bytesID, bytesCO).constData());
+        id = qFromBigEndian<unsigned char>(dataRead.mid((i * totalBytes) + _bytesPA, _bytesID).constData());
+		counter = qFromBigEndian<unsigned char>(dataRead.mid((i * totalBytes) + _bytesPA + _bytesID, _bytesCO).constData());
         for (int k = 0; k < counter - oldCounter[id - 1] - 1; ++k) // in case if data missed
             out[id - 1] << "-\n";
-        out[id - 1] << qFromLittleEndian<qint64>(dataRead.mid((i * totalBytes) + (totalBytes - 8 - 1), 8).constData()) - startTime;
+        out[id - 1] << qFromLittleEndian<qint64>(dataRead.mid((i * totalBytes) + (totalBytes - 8 - 1), 8).constData()) - _startTime;
         out[id - 1] << ",";
-        for (int j = 0; j < numOfCH; ++j)
-        {
-			out[id - 1] << qFromLittleEndian<unsigned int>(dataRead.mid((i * totalBytes) + bytesPA + bytesID + bytesCO + bytesCH + bytesOCH + j * sizeOfCH, sizeOfCH).constData());
-			out[id - 1] << ",";
-        }
-        out[id - 1] << qFromLittleEndian<unsigned char>(dataRead.mid((i * totalBytes) + (totalBytes - 1), 1).constData());
-        out[id - 1] << "\n";
+        for (int j = 0; j < _numOfCH; ++j)
+			out[id - 1] << qFromLittleEndian<unsigned int>(dataRead.mid((i * totalBytes) + _bytesPA + _bytesID + _bytesCO + \
+                                                            _bytesCH + _bytesOCH + j * _sizeOfCH, _sizeOfCH).constData()) << ",";
+        out[id - 1] << qFromLittleEndian<unsigned char>(dataRead.mid((i * totalBytes) + (totalBytes - 1), 1).constData()) << "\n";
         oldCounter[id - 1] = counter;
     }
     

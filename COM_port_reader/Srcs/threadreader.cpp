@@ -11,7 +11,7 @@ ThreadReader::ThreadReader(ComPort *comPort, ThreadDisplayTimer *threadDisplayTi
     this->_bytesID = 1;  // ID bytes
     this->_bytesCO = 1;  // Counter bytes
     this->_bytesCH = 1;  // Channels bytes
-    this->_bytesOCH = 1; // Number of bytes in one channel data (M)
+    this->_bytesOCH = 1; // Channels numbers bytes
 }
 
 ThreadReader::~ThreadReader()
@@ -104,6 +104,7 @@ void    ThreadReader::run()
     
     bytesTillData = _bytesPA + _bytesID + _bytesCO + _bytesCH + _bytesOCH;
     bytesTotal = bytesTillData + _numOfCH * _sizeOfCH;
+    emit protocolConfigDataIsReady();
     
     while (!isInterruptionRequested())
     {
@@ -113,7 +114,7 @@ void    ThreadReader::run()
             currentTime = QDateTime::currentDateTime().toMSecsSinceEpoch();
             _dataRead.append(QByteArray::fromRawData(reinterpret_cast<const char*>(&currentTime), sizeof(qint64)));
             _dataRead.append(QString::number(this->_threadDisplayTimer->getCurrentImgLabel()).toUInt());
-            emit stringAdded();
+            emit lastRowOfData(_dataRead.right(bytesTotal + 8 + 1)); // 8 - sizeof time; 1 - sizeof label
         }
         else
             break ;

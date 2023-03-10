@@ -101,6 +101,15 @@ class WindowNext : public QDialog
         int					_durationMax;
         
         bool                _closeEventFlag;
+        
+        char                _bytesPA;  // Preamble bytes
+        char                _bytesID;  // ID bytes
+        char                _bytesCO;  // Counter bytes
+        char                _bytesCH;  // Channels bytes
+        char                _bytesOCH; // Channels numbers bytes
+        char                _numOfCH;  // Number of channels following (N)
+        char                _sizeOfCH; // Number of bytes in one channel data (M)
+        qint64              _startTime;
 };
 
 #endif

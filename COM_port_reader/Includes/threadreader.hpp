@@ -37,7 +37,8 @@ class ThreadReader : public QThread
         qint64				getStartTime() const;
         
     signals:
-        void				stringAdded();
+        void				lastRowOfData(QByteArray data);
+        void				protocolConfigDataIsReady(void);
         
     private:
         void				stopAndClosePort(QSerialPort &port);
@@ -55,8 +56,8 @@ class ThreadReader : public QThread
         char                _bytesCO;  // Counter bytes
         char                _bytesCH;  // Channels bytes
         char                _bytesOCH; // One channel bytes
-        char                _numOfCH; // Number of channels following (N)
-        char                _sizeOfCH; //Number of bytes in one channel data (M)
+        char                _numOfCH;  // Number of channels following (N)
+        char                _sizeOfCH; // Number of bytes in one channel data (M)
         QByteArray          _dataRead;
         qint64              _startTime;
 };
