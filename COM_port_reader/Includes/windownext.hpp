@@ -24,6 +24,7 @@
 # include <QtEndian>
 
 # include "threadreader.hpp"
+# include "threaddrawer.hpp"
 # include "threaddisplaytimer.hpp"
 # include "mainwindow.h"
 
@@ -87,13 +88,13 @@ class WindowNext : public QDialog
 		QLabel				*_timer1;
         QLineEdit			*_lineEdit;
         QLabel				*_finishMsgLabel;
-        
-        QCheckBox           *_showChart;
 
         ComPort				*_selectedComPort;
         
+        QCheckBox           *_showChart;
         ThreadDisplayTimer  *_threadDisplayTimer;
         ThreadReader        *_threadReader;
+        ThreadDrawer        *_threadDrawer;
 		int					_durationTimerValue;
 
         QString				_expProtocolsPath;

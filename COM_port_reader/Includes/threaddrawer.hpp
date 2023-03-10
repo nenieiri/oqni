@@ -3,14 +3,25 @@
 
 # include <QThread>
 # include <QObject>
+# include <QDialog>
 
 class ThreadDrawer : public QThread
 {
 	Q_OBJECT
     
 	public:
-		ThreadDrawer(QObject *parent = nullptr);
+		ThreadDrawer(QWidget *parent = nullptr);
         ~ThreadDrawer();
+
+    public:
+		void		run() override;
+        QDialog		*getChartDialog();
+        
+    signals:
+        void		chartDialogIsRejected();
+        
+    private:
+    	QDialog     *_chartDialog;
 };
 
 #endif

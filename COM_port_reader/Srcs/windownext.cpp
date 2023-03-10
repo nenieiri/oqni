@@ -58,6 +58,7 @@ WindowNext::WindowNext(MainWindow *parent)
     this->_finishMsgLabel = new QLabel("", this);
     
     this->_showChart = new QCheckBox("Display chart:     ", this);
+    this->_threadDrawer = nullptr;
     
     this->setModal(true);
     
@@ -167,6 +168,18 @@ void    WindowNext::setButtonStart(QPushButton *buttonStart)
 			this->_recordingFolder4->setText(_threadReader->getFileCreationDate());
 			this->_recordingFolder5->setText(_threadReader->getFileCreationTime());
             
+            if (this->_showChart->isChecked() == true)
+            {
+                this->_threadDrawer = new ThreadDrawer(this);
+                this->_threadDrawer->start();
+				connect(this->_threadDrawer, &ThreadDrawer::chartDialogIsRejected, this,
+					[=](void)
+					{
+						qDebug() << "aaa";
+						this->_showChart->setChecked(false);
+					});
+            }
+            
             this->_finishMsgLabel->hide();
 			connect(this->_threadDisplayTimer, &ThreadDisplayTimer::finishedSignal, this, &WindowNext::onThreadDisplayTimerFinished);
             connect(_threadReader, &ThreadReader::protocolConfigDataIsReady, this,
@@ -180,48 +193,6 @@ void    WindowNext::setButtonStart(QPushButton *buttonStart)
                     this->_sizeOfCH = _threadReader->getSizeOfCH();
                     this->_startTime = _threadReader->getStartTime();
                 });
-
-//			QChart *chart = new QChart();
-//			chart->setTitle("Dynamic Line Chart");
-//			chart->legend()->hide();
-		
-//			QLineSeries *series = new QLineSeries();
-//			series->setColor(Qt::red);
-//			chart->addSeries(series);
-		
-//			QValueAxis *axisX = new QValueAxis();
-//			axisX->setTitleText("X Axis");
-//			axisX->setRange(0, 10000);
-//			chart->addAxis(axisX, Qt::AlignBottom);
-//			series->attachAxis(axisX);
-		
-//			QValueAxis *axisY = new QValueAxis();
-//			axisY->setTitleText("Y Axis");
-//			axisY->setRange(-2500000000, 2500000000);
-//			chart->addAxis(axisY, Qt::AlignLeft);
-//			series->attachAxis(axisY);
-            
-			QDialog *dialog = new QDialog();
-            
-            connect(_threadReader, &ThreadReader::lastRowOfData, dialog,
-            	[=](QByteArray data){
-					dialog->raise();
-					dialog->show();
-//                	QStringList data = _threadReader->_data[0][_threadReader->_data[0].size() - 1].split(",");
-//                    if (series->count() > 90)
-//                        series->remove(0);
-//                	series->append(data[0].toInt(), data[1].toInt());
-            	});
-		
-//			QChartView *chartView = new QChartView(chart);
-//			chartView->setRenderHint(QPainter::Antialiasing);
-		
-//			dialog->setLayout(new QVBoxLayout);
-//			dialog->layout()->addWidget(chartView);
-//			dialog->resize(1000, 6000);
-//			dialog->raise();
-//            dialog->show();
-			dialog->exec();
 		});
 }
 
@@ -279,6 +250,15 @@ void		WindowNext::setButtonStop(QPushButton *buttonStop)
             this->_finishMsgLabel->setText("Stopped");
             this->_finishMsgLabel->show();
 			this->_finishMsgLabel->setStyleSheet("font-size: 28px; color: #B22222; font-weight: bold;");
+            
+            if (this->_threadDrawer != nullptr)
+            {
+                this->_threadDrawer->getChartDialog()->close();
+				this->_threadDrawer->requestInterruption();    
+				this->_threadDrawer->wait();    
+				delete this->_threadDrawer;
+				this->_threadDrawer = nullptr;
+            }
 		});
 }
 
@@ -516,13 +496,28 @@ void    WindowNext::setParametersDesign(void)
     connect(this->_showChart, &QCheckBox::stateChanged, this,
         [=](void)
         {
-        		if (this->_showChart->isChecked() == true)
+        		if (this->_buttonStart->isEnabled() == true)
+                return ;
+            if (this->_showChart->isChecked() == true)
             {
-                qDebug() << "true";
+                this->_threadDrawer = new ThreadDrawer(this);
+                this->_threadDrawer->start();
+                qDebug() << "aaaaaaa";
+//				connect(this->_threadDrawer, &ThreadDrawer::chartDialogIsRejected, this,
+//					[=](void)
+//					{
+//						qDebug() << "aaa";
+//						this->_showChart->setChecked(false);
+//					});
+                qDebug() << "bbbbbbbbbbbbb";
             }
             else
             {
-                qDebug() << "false";
+                this->_threadDrawer->getChartDialog()->close();
+				this->_threadDrawer->requestInterruption();    
+				this->_threadDrawer->wait();    
+				delete this->_threadDrawer;
+				this->_threadDrawer = nullptr;
             }
         });
 }
@@ -696,4 +691,12 @@ void   WindowNext::onThreadDisplayTimerFinished(void)
     this->_finishMsgLabel->setText("Finished");
     this->_finishMsgLabel->setStyleSheet("font-size: 28px; color: #B22222; font-weight: bold;");
     this->_finishMsgLabel->show();
+    
+	if (this->_threadDrawer != nullptr)
+	{
+		this->_threadDrawer->requestInterruption();    
+		this->_threadDrawer->wait();    
+		delete this->_threadDrawer;
+		this->_threadDrawer = nullptr;
+	}
 }
