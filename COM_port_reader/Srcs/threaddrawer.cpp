@@ -1,14 +1,10 @@
 #include "../Includes/threaddrawer.hpp"
 
-ThreadDrawer::ThreadDrawer(QWidget *parent)
+ThreadDrawer::ThreadDrawer(QWidget *parent, ThreadReader *threadReader)
     : QThread{parent}
 {
+    this->_threadReader = threadReader;
     this->_chartDialog = new QDialog(parent);
-//    this->_chartDialog->setParent(parent);
-/*    this->setGeometry((screenWidth - windowWidth) / 2 - 300, \
-    						(screenHeight - windowHeight) / 2 - 200, \
-                    		windowWidth, windowHeight);
-*/  
     this->_chartDialog->setWindowTitle("OQNI: Chart");
     this->_chartDialog->setWindowIcon(QIcon(":/Imgs/oqni.ico"));
     this->_chartDialog->setWindowFilePath(":/Imgs/oqni.ico");
@@ -34,43 +30,40 @@ QDialog	*ThreadDrawer::getChartDialog()
 
 void	ThreadDrawer::run()
 {
-    emit    chartDialogReadyToStart();
-}
-
-
-//			QChart *chart = new QChart();
-//			chart->setTitle("Dynamic Line Chart");
-//			chart->legend()->hide();
-		
-//			QLineSeries *series = new QLineSeries();
-//			series->setColor(Qt::red);
-//			chart->addSeries(series);
-		
-//			QValueAxis *axisX = new QValueAxis();
-//			axisX->setTitleText("X Axis");
-//			axisX->setRange(0, 10000);
-//			chart->addAxis(axisX, Qt::AlignBottom);
-//			series->attachAxis(axisX);
-		
-//			QValueAxis *axisY = new QValueAxis();
-//			axisY->setTitleText("Y Axis");
-//			axisY->setRange(-2500000000, 2500000000);
-//			chart->addAxis(axisY, Qt::AlignLeft);
-//			series->attachAxis(axisY);
+    connect(_threadReader, &ThreadReader::protocolConfigDataIsReady, this,
+        [&](void)
+        {
+            _bytesPA = this->_threadReader->getBytesPA();
+            _bytesID = this->_threadReader->getBytesID();
+            _bytesCO = this->_threadReader->getBytesCO();
+            _bytesCH = this->_threadReader->getBytesCH();
+            _bytesOCH = this->_threadReader->getBytesOCH();
+            _numOfCH = this->_threadReader->getNumOfCH();
+            _sizeOfCH = this->_threadReader->getSizeOfCH();
+            _startTime = this->_threadReader->getStartTime();
+            _totalBytes = _bytesPA + _bytesID + _bytesCO + _bytesCH + _bytesOCH + _numOfCH * _sizeOfCH + 8 + 1; // 8 - sizeof time; 1 - sizeof label
+        });
+    
+    connect(this->_threadReader, &ThreadReader::lastRowOfData, this,
+        [=](QByteArray data)
+        {
+            char    id = qFromBigEndian<unsigned char>(data.mid(_bytesPA, _bytesID).constData());
+            qint64  time = qFromLittleEndian<qint64>(data.mid(_totalBytes - 8 - 1, 8).constData()) - _startTime;
             
-//            connect(_threadReader, &ThreadReader::lastRowOfData, dialog,
-//            	[=](QByteArray data){
-//					dialog->raise();
-//					dialog->show();
-//                	QStringList data = _threadReader->_data[0][_threadReader->_data[0].size() - 1].split(",");
-//                    if (series->count() > 90)
-//                        series->remove(0);
-//                	series->append(data[0].toInt(), data[1].toInt());
-//            	});
-		
-//			QChartView *chartView = new QChartView(chart);
-//			chartView->setRenderHint(QPainter::Antialiasing);
-		
-//			dialog->setLayout(new QVBoxLayout);
-//			dialog->layout()->addWidget(chartView);
-//			dialog->resize(1000, 6000);
+            unsigned int value;
+            int ledID;            
+            for (int j = 0; j < _numOfCH; ++j)
+            {
+                value = qFromLittleEndian<unsigned int>(data.mid(_bytesPA + _bytesID + _bytesCO + \
+                                                                            _bytesCH + _bytesOCH + j * _sizeOfCH, _sizeOfCH).constData());
+                if (id == 1)
+                    ledID = j;
+                else
+                    ledID = j + 3;                
+                emit currentPointCoordinate(ledID, time, value);
+//                qDebug() << "ledID = " << ledID << "    time = " << time << "    value = " << value;
+            }
+        });
+
+        emit    chartDialogReadyToStart();
+}

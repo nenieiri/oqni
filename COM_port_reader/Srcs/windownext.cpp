@@ -168,10 +168,9 @@ void    WindowNext::setButtonStart(QPushButton *buttonStart)
 			this->_recordingFolder4->setText(_threadReader->getFileCreationDate());
 			this->_recordingFolder5->setText(_threadReader->getFileCreationTime());
             
-
             if (this->_showChart->isChecked() == true) // starting thread for drawing chart
             {
-                this->_threadDrawer = new ThreadDrawer(this);
+                this->_threadDrawer = new ThreadDrawer(this, this->_threadReader);
                 this->_threadDrawer->start(); 
                 connect(this->_threadDrawer, &ThreadDrawer::chartDialogReadyToStart, this, &WindowNext::execChartDialog);
 				connect(this->_threadDrawer, &ThreadDrawer::chartDialogIsRejected, this,
@@ -181,11 +180,11 @@ void    WindowNext::setButtonStart(QPushButton *buttonStart)
 					});
             }
             
-            
             this->_finishMsgLabel->hide();
 			connect(this->_threadDisplayTimer, &ThreadDisplayTimer::finishedSignal, this, &WindowNext::onThreadDisplayTimerFinished);
             connect(_threadReader, &ThreadReader::protocolConfigDataIsReady, this,
-            	[=](){
+            	[=](void)
+                {
                     this->_bytesPA = _threadReader->getBytesPA();
                     this->_bytesID = _threadReader->getBytesID();
                     this->_bytesCO = _threadReader->getBytesCO();
@@ -502,7 +501,7 @@ void    WindowNext::setParametersDesign(void)
                 return ;
             if (this->_showChart->isChecked() == true)
             {
-                this->_threadDrawer = new ThreadDrawer(this);
+                this->_threadDrawer = new ThreadDrawer(this, this->_threadReader);
                 this->_threadDrawer->start(); 
                 connect(this->_threadDrawer, &ThreadDrawer::chartDialogReadyToStart, this, &WindowNext::execChartDialog);
 				connect(this->_threadDrawer, &ThreadDrawer::chartDialogIsRejected, this,
@@ -652,8 +651,59 @@ void    WindowNext::execChartDialog(void)
         this->_threadDrawer->getChartDialog()->setMinimumHeight(windowHeight / 2);
         this->_threadDrawer->getChartDialog()->setMinimumWidth(windowWidth / 2);
         this->_threadDrawer->getChartDialog()->show();
-        this->raise();
-        this->_threadDrawer->getChartDialog()->exec();
+//        this->raise();
+        
+        QChart *chart = new QChart();  //memory leak
+        chart->setTitle("Dynamic Line Chart");
+        chart->legend()->hide();
+    
+        QLineSeries *series[6];
+        for (int i = 0; i < 6; ++i)
+        {
+            series[i] = new  QLineSeries(); //memory leak
+            chart->addSeries(series[i]);
+        }
+        series[0]->setColor(Qt::red);
+        series[1]->setColor(Qt::green);
+        series[2]->setColor(Qt::blue);
+        series[3]->setColor(Qt::red);
+        series[4]->setColor(Qt::green);
+        series[5]->setColor(Qt::blue);
+    
+        QValueAxis *axisX = new QValueAxis(); //memory leak
+        axisX->setTitleText("Time");
+        chart->addAxis(axisX, Qt::AlignBottom);
+        for (int i = 0; i < 6; ++i)
+            series[i]->attachAxis(axisX);
+    
+        QValueAxis *axisY = new QValueAxis(); //memory leak
+        axisY->setTitleText("Values");
+        chart->addAxis(axisY, Qt::AlignLeft);
+        for (int i = 0; i < 6; ++i)
+            series[i]->attachAxis(axisY);
+
+        connect(_threadDrawer, &ThreadDrawer::currentPointCoordinate, this->_threadDrawer->getChartDialog(),
+            [=](int ledID, qint64 time, unsigned int value)
+            {
+//                qDebug() << "ledID = " << ledID << "    time = " << time << "    value = " << value;
+                static unsigned int maxY = 0;
+                static unsigned int timeLine = 3000;
+                if (series[ledID]->count() > 200)
+                        series[ledID]->remove(0);
+                if (value > maxY)
+                    maxY = value;
+                if (time > 3000)
+                    timeLine = time;
+                axisY->setRange(0, maxY);
+                axisX->setRange(timeLine - 3000, timeLine);
+                series[ledID]->append(time, value);
+            });
+
+        QChartView *chartView = new QChartView(chart); //memory leak
+        chartView->setRenderHint(QPainter::Antialiasing);
+
+        this->_threadDrawer->getChartDialog()->setLayout(new QVBoxLayout); //memory leak
+        this->_threadDrawer->getChartDialog()->layout()->addWidget(chartView);
 }
 
 void   WindowNext::onThreadDisplayTimerFinished(void)
