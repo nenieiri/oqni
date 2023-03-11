@@ -16,7 +16,6 @@ WindowNext::WindowNext(MainWindow *parent)
     this->_buttonClose = nullptr;
     
     this->_closeEventFlag = true;
-    this->_chartDialogFlag = true;
     
     this->_selectedComPort = parent->getSelectedComPort();
     
@@ -169,17 +168,19 @@ void    WindowNext::setButtonStart(QPushButton *buttonStart)
 			this->_recordingFolder4->setText(_threadReader->getFileCreationDate());
 			this->_recordingFolder5->setText(_threadReader->getFileCreationTime());
             
-//            if (this->_showChart->isChecked() == true)
-//            {
-//                this->_threadDrawer = new ThreadDrawer(this);
-//                this->_threadDrawer->start();
-//				connect(this->_threadDrawer, &ThreadDrawer::chartDialogIsRejected, this,
-//					[=](void)
-//					{
-//						qDebug() << "aaa";
-//						this->_showChart->setChecked(false);
-//					});
-//            }
+
+            if (this->_showChart->isChecked() == true) // starting thread for drawing chart
+            {
+                this->_threadDrawer = new ThreadDrawer(this);
+                this->_threadDrawer->start(); 
+                connect(this->_threadDrawer, &ThreadDrawer::chartDialogReadyToStart, this, &WindowNext::execChartDialog);
+				connect(this->_threadDrawer, &ThreadDrawer::chartDialogIsRejected, this,
+					[=](void)
+					{
+						this->_showChart->setChecked(false);
+					});
+            }
+            
             
             this->_finishMsgLabel->hide();
 			connect(this->_threadDisplayTimer, &ThreadDisplayTimer::finishedSignal, this, &WindowNext::onThreadDisplayTimerFinished);
@@ -497,53 +498,26 @@ void    WindowNext::setParametersDesign(void)
     connect(this->_showChart, &QCheckBox::stateChanged, this,
         [=](void)
         {
-            qDebug() << "mtaaaaavvvvvv";
-            
-            if (this->_buttonStart->isEnabled() == true || this->_chartDialogFlag == false)
+            if (this->_buttonStart->isEnabled() == true)
                 return ;
             if (this->_showChart->isChecked() == true)
             {
                 this->_threadDrawer = new ThreadDrawer(this);
-                this->_chartDialogFlag = true;
-                qDebug() << "set true in line 508";
                 this->_threadDrawer->start(); 
-                
-                connect(this->_threadDrawer, &ThreadDrawer::chartDialogReadyToStart, this,
-                    [=](void)
-                    {
-                        this->_threadDrawer->getChartDialog()->show();
-                        this->_threadDrawer->getChartDialog()->raise();
-                        this->_threadDrawer->getChartDialog()->exec();
-                    });
-                
+                connect(this->_threadDrawer, &ThreadDrawer::chartDialogReadyToStart, this, &WindowNext::execChartDialog);
 				connect(this->_threadDrawer, &ThreadDrawer::chartDialogIsRejected, this,
 					[=](void)
 					{
-						qDebug() << "aaa1111";
 						this->_showChart->setChecked(false);
-                        this->_chartDialogFlag = false;
-                        qDebug() << "set false in line 525";
-//                        this->_threadDrawer->requestInterruption();    
-//                        this->_threadDrawer->wait();    
-//                        delete this->_threadDrawer;
-//                        this->_threadDrawer = nullptr;
 					});
             }
             else
             {
-                qDebug() << "ccccc";
-                this->_threadDrawer->getChartDialog()->close();
-                qDebug() << "ccccc2";
-				this->_threadDrawer->requestInterruption();
-                qDebug() << "ccccc3";
-				this->_threadDrawer->wait();
-                qDebug() << "ccccc4";
-                if (this->_chartDialogFlag == true)
-                    delete this->_threadDrawer;
-                qDebug() << "ccccc5";
-				this->_threadDrawer = nullptr;
-                qDebug() << "ccccc6";
-            }
+                this->_threadDrawer->requestInterruption();
+                this->_threadDrawer->wait();
+                delete this->_threadDrawer;
+                this->_threadDrawer = nullptr;
+              }
         });
 }
 
@@ -664,6 +638,22 @@ void	WindowNext::saveDataToFile(const QString &subject)
     
 	myFile[0].close();
 	myFile[1].close();
+}
+
+void    WindowNext::execChartDialog(void)
+{
+        int screenWidth = QApplication::primaryScreen()->size().width();
+        int screenHeight = QApplication::primaryScreen()->size().height();
+        int windowWidth = screenWidth - screenWidth / 3;
+        int windowHeight = screenHeight - screenHeight / 3; 
+        this->_threadDrawer->getChartDialog()->setGeometry((screenWidth - windowWidth) / 2, \
+                                                         (screenHeight - windowHeight) / 2, \
+                                                            windowWidth, windowHeight);
+        this->_threadDrawer->getChartDialog()->setMinimumHeight(windowHeight / 2);
+        this->_threadDrawer->getChartDialog()->setMinimumWidth(windowWidth / 2);
+        this->_threadDrawer->getChartDialog()->show();
+//        this->_threadDrawer->getChartDialog()->raise();
+        this->_threadDrawer->getChartDialog()->exec();
 }
 
 void   WindowNext::onThreadDisplayTimerFinished(void)

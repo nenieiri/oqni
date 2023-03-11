@@ -48,6 +48,7 @@ class WindowNext : public QDialog
         QStringList         *findExpProtocols(const QString &path);
         int					readExpProtocol(void);
         void            	saveDataToFile(const QString &subject);
+        void                execChartDialog(void);
         
     private slots:
 		void				onThreadDisplayTimerFinished(void);
@@ -102,7 +103,6 @@ class WindowNext : public QDialog
         int					_durationMax;
         
         bool                _closeEventFlag;
-        bool                _chartDialogFlag;
         
         char                _bytesPA;  // Preamble bytes
         char                _bytesID;  // ID bytes

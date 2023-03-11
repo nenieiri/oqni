@@ -17,6 +17,7 @@ ThreadDrawer::ThreadDrawer(QWidget *parent)
     connect(this->_chartDialog, &QDialog::rejected, this, 
         [=]()
         {
+            this->_chartDialog = nullptr;
             emit chartDialogIsRejected();
         });
 }
