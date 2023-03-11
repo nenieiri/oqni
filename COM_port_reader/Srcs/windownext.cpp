@@ -644,15 +644,15 @@ void    WindowNext::execChartDialog(void)
 {
         int screenWidth = QApplication::primaryScreen()->size().width();
         int screenHeight = QApplication::primaryScreen()->size().height();
-        int windowWidth = screenWidth - screenWidth / 3;
-        int windowHeight = screenHeight - screenHeight / 3; 
+        int windowWidth = screenWidth - screenWidth / 4;
+        int windowHeight = screenHeight - screenHeight / 4; 
         this->_threadDrawer->getChartDialog()->setGeometry((screenWidth - windowWidth) / 2, \
                                                          (screenHeight - windowHeight) / 2, \
                                                             windowWidth, windowHeight);
         this->_threadDrawer->getChartDialog()->setMinimumHeight(windowHeight / 2);
         this->_threadDrawer->getChartDialog()->setMinimumWidth(windowWidth / 2);
         this->_threadDrawer->getChartDialog()->show();
-//        this->_threadDrawer->getChartDialog()->raise();
+        this->raise();
         this->_threadDrawer->getChartDialog()->exec();
 }
 
