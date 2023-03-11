@@ -686,16 +686,19 @@ void    WindowNext::execChartDialog(void)
             [=](int ledID, qint64 time, unsigned int value)
             {
 //                qDebug() << "ledID = " << ledID << "    time = " << time << "    value = " << value;
-                static unsigned int maxY = 0;
-                static unsigned int timeLine = 3000;
-                if (series[ledID]->count() > 200)
+                if (series[ledID]->count() > 300)
                         series[ledID]->remove(0);
+                
+                static unsigned int maxY = 0;
                 if (value > maxY)
                     maxY = value;
+                axisY->setRange(0, maxY);
+                
+                static unsigned int timeLine = 3000;
                 if (time > 3000)
                     timeLine = time;
-                axisY->setRange(0, maxY);
                 axisX->setRange(timeLine - 3000, timeLine);
+                
                 series[ledID]->append(time, value);
             });
 
