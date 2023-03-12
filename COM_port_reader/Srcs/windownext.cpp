@@ -58,7 +58,7 @@ WindowNext::WindowNext(MainWindow *parent)
     this->_finishMsgLabel = new QLabel("", this);
     
     this->_showChart = new QCheckBox("Display chart:     ", this);
-    this->_threadDrawer = nullptr;
+    this->_chartDialog = nullptr;
     
     this->setModal(true);
     
@@ -170,14 +170,14 @@ void    WindowNext::setButtonStart(QPushButton *buttonStart)
             
             if (this->_showChart->isChecked() == true) // starting thread for drawing chart
             {
-                this->_threadDrawer = new ThreadDrawer(this, this->_threadReader);
-                this->_threadDrawer->start(); 
-                connect(this->_threadDrawer, &ThreadDrawer::chartDialogReadyToStart, this, &WindowNext::execChartDialog);
-				connect(this->_threadDrawer, &ThreadDrawer::chartDialogIsRejected, this,
-					[=](void)
-					{
+				this->_chartDialog = new QDialog(this);
+                connect(this->_chartDialog, &QDialog::rejected, this, 
+                    [=]()
+                    {
+                        this->_chartDialog = nullptr;
 						this->_showChart->setChecked(false);
-					});
+                    });
+                this->execChartDialog();
             }
             
             this->_finishMsgLabel->hide();
@@ -193,6 +193,8 @@ void    WindowNext::setButtonStart(QPushButton *buttonStart)
                     this->_numOfCH = _threadReader->getNumOfCH();
                     this->_sizeOfCH = _threadReader->getSizeOfCH();
                     this->_startTime = _threadReader->getStartTime();
+            		this->_totalBytes = _bytesPA + _bytesID + _bytesCO + _bytesCH + _bytesOCH + \
+                        _numOfCH * _sizeOfCH + 8 + 1; // 8 - sizeof time; 1 - sizeof label
                 });
 		});
 }
@@ -208,6 +210,8 @@ void		WindowNext::setButtonStop(QPushButton *buttonStop)
 			saveDataToFile("000");
         
 			this->_closeEventFlag = true;
+            
+			this->_showChart->setChecked(false);
         
             this->setMinimumSize(600, 350);
             this->setMaximumSize(600, 350);
@@ -251,15 +255,6 @@ void		WindowNext::setButtonStop(QPushButton *buttonStop)
             this->_finishMsgLabel->setText("Stopped");
             this->_finishMsgLabel->show();
 			this->_finishMsgLabel->setStyleSheet("font-size: 28px; color: #B22222; font-weight: bold;");
-            
-            if (this->_threadDrawer != nullptr)
-            {
-                this->_threadDrawer->getChartDialog()->close();
-				this->_threadDrawer->requestInterruption();    
-				this->_threadDrawer->wait();    
-				delete this->_threadDrawer;
-				this->_threadDrawer = nullptr;
-            }
 		});
 }
 
@@ -501,21 +496,33 @@ void    WindowNext::setParametersDesign(void)
                 return ;
             if (this->_showChart->isChecked() == true)
             {
-                this->_threadDrawer = new ThreadDrawer(this, this->_threadReader);
-                this->_threadDrawer->start(); 
-                connect(this->_threadDrawer, &ThreadDrawer::chartDialogReadyToStart, this, &WindowNext::execChartDialog);
-				connect(this->_threadDrawer, &ThreadDrawer::chartDialogIsRejected, this,
-					[=](void)
-					{
+                if (_chartDialog == nullptr)
+                    qDebug() << "null61";  
+				this->_chartDialog = new QDialog(this);
+                if (_chartDialog == nullptr)
+                    qDebug() << "null6";  
+                connect(this->_chartDialog, &QDialog::rejected, this, 
+                    [=]()
+                    {
+                        if (_chartDialog == nullptr)
+                            qDebug() << "null7";  
+                        this->_chartDialog = nullptr;
+                        if (_chartDialog == nullptr)
+                            qDebug() << "null8";  
 						this->_showChart->setChecked(false);
-					});
+                    });
+                this->execChartDialog();
             }
             else
             {
-                this->_threadDrawer->requestInterruption();
-                this->_threadDrawer->wait();
-                delete this->_threadDrawer;
-                this->_threadDrawer = nullptr;
+                if (_chartDialog == nullptr)
+                    qDebug() << "null9";
+				delete this->_chartDialog;
+                if (_chartDialog == nullptr)
+                    qDebug() << "null10";  
+                this->_chartDialog = nullptr;
+                if (_chartDialog == nullptr)
+                    qDebug() << "null11";  
               }
         });
 }
@@ -644,69 +651,89 @@ void    WindowNext::execChartDialog(void)
         int screenWidth = QApplication::primaryScreen()->size().width();
         int screenHeight = QApplication::primaryScreen()->size().height();
         int windowWidth = screenWidth - screenWidth / 4;
-        int windowHeight = screenHeight - screenHeight / 4; 
-        this->_threadDrawer->getChartDialog()->setGeometry((screenWidth - windowWidth) / 2, \
-                                                         (screenHeight - windowHeight) / 2, \
-                                                            windowWidth, windowHeight);
-        this->_threadDrawer->getChartDialog()->setMinimumHeight(windowHeight / 2);
-        this->_threadDrawer->getChartDialog()->setMinimumWidth(windowWidth / 2);
-        this->_threadDrawer->getChartDialog()->show();
-//        this->raise();
+        int windowHeight = screenHeight - screenHeight / 4;
+        if (_chartDialog == nullptr)
+            qDebug() << "null1";        
+        this->_chartDialog->setGeometry((screenWidth - windowWidth) / 2, \
+                                        (screenHeight - windowHeight) / 2, \
+                                        windowWidth, windowHeight);
+        if (_chartDialog == nullptr)
+            qDebug() << "null2";  
+        this->_chartDialog->setMinimumHeight(windowHeight / 2);
+        if (_chartDialog == nullptr)
+            qDebug() << "null3";  
+        this->_chartDialog->setMinimumWidth(windowWidth / 2);
+        if (_chartDialog == nullptr)
+            qDebug() << "null4";  
+        this->_chartDialog->show();
+        this->raise();
         
         QChart *chart = new QChart();  //memory leak
         chart->setTitle("Dynamic Line Chart");
         chart->legend()->hide();
     
-        QLineSeries *series[6];
+        QLineSeries *series = new QLineSeries[6];
         for (int i = 0; i < 6; ++i)
-        {
-            series[i] = new  QLineSeries(); //memory leak
-            chart->addSeries(series[i]);
-        }
-        series[0]->setColor(Qt::red);
-        series[1]->setColor(Qt::green);
-        series[2]->setColor(Qt::blue);
-        series[3]->setColor(Qt::red);
-        series[4]->setColor(Qt::green);
-        series[5]->setColor(Qt::blue);
+            chart->addSeries(&series[i]);
+        series[0].setColor(Qt::red);
+        series[1].setColor(Qt::green);
+        series[2].setColor(Qt::blue);
+        series[3].setColor(Qt::red);
+        series[4].setColor(Qt::green);
+        series[5].setColor(Qt::blue);
     
         QValueAxis *axisX = new QValueAxis(); //memory leak
         axisX->setTitleText("Time");
         chart->addAxis(axisX, Qt::AlignBottom);
         for (int i = 0; i < 6; ++i)
-            series[i]->attachAxis(axisX);
+            series[i].attachAxis(axisX);
     
         QValueAxis *axisY = new QValueAxis(); //memory leak
         axisY->setTitleText("Values");
         chart->addAxis(axisY, Qt::AlignLeft);
         for (int i = 0; i < 6; ++i)
-            series[i]->attachAxis(axisY);
-
-        connect(_threadDrawer, &ThreadDrawer::currentPointCoordinate, this->_threadDrawer->getChartDialog(),
-            [=](int ledID, qint64 time, unsigned int value)
-            {
-//                qDebug() << "ledID = " << ledID << "    time = " << time << "    value = " << value;
-                if (series[ledID]->count() > 300)
-                        series[ledID]->remove(0);
-                
-                static unsigned int maxY = 0;
-                if (value > maxY)
-                    maxY = value;
-                axisY->setRange(0, maxY);
-                
-                static unsigned int timeLine = 3000;
-                if (time > 3000)
-                    timeLine = time;
-                axisX->setRange(timeLine - 3000, timeLine);
-                
-                series[ledID]->append(time, value);
-            });
+            series[i].attachAxis(axisY);
+        
+		connect(this->_threadReader, &ThreadReader::lastRowOfData, this,
+			[=](QByteArray data)
+			{
+				char    id = qFromBigEndian<unsigned char>(data.mid(_bytesPA, _bytesID).constData());
+				qint64  time = qFromLittleEndian<qint64>(data.mid(_totalBytes - 8 - 1, 8).constData()) - _startTime;
+				
+				unsigned int value;
+				int ledID;            
+				for (int j = 0; j < _numOfCH; ++j)
+				{
+					value = qFromLittleEndian<unsigned int>(data.mid(_bytesPA + _bytesID + _bytesCO + \
+																				_bytesCH + _bytesOCH + j * _sizeOfCH, _sizeOfCH).constData());
+					if (id == 1)
+						ledID = j;
+					else
+						ledID = j + 3;
+					if (series[ledID].count() > 300)
+							series[ledID].remove(0);
+					
+					static unsigned int maxY = 0;
+					if (value > maxY)
+						maxY = value;
+					axisY->setRange(0, maxY);
+					
+					static unsigned int timeLine = 3000;
+					if (time > 3000)
+						timeLine = time;
+					axisX->setRange(timeLine - 3000, timeLine);
+					
+					series[ledID].append(time, value);
+				}
+			});
 
         QChartView *chartView = new QChartView(chart); //memory leak
         chartView->setRenderHint(QPainter::Antialiasing);
 
-        this->_threadDrawer->getChartDialog()->setLayout(new QVBoxLayout); //memory leak
-        this->_threadDrawer->getChartDialog()->layout()->addWidget(chartView);
+        this->_chartDialog->setLayout(new QVBoxLayout); //memory leak
+        if (_chartDialog == nullptr)
+            qDebug() << "null5";  
+        this->_chartDialog->layout()->addWidget(chartView);
 }
 
 void   WindowNext::onThreadDisplayTimerFinished(void)
@@ -717,6 +744,8 @@ void   WindowNext::onThreadDisplayTimerFinished(void)
         this->saveDataToFile("000");
     
     this->_closeEventFlag = true;
+    
+    this->_showChart->setChecked(false);
     
 	this->setMinimumSize(600, 350);
 	this->setMaximumSize(600, 350);
@@ -759,12 +788,4 @@ void   WindowNext::onThreadDisplayTimerFinished(void)
     this->_finishMsgLabel->setText("Finished");
     this->_finishMsgLabel->setStyleSheet("font-size: 28px; color: #B22222; font-weight: bold;");
     this->_finishMsgLabel->show();
-    
-	if (this->_threadDrawer != nullptr)
-	{
-		this->_threadDrawer->requestInterruption();    
-		this->_threadDrawer->wait();    
-		delete this->_threadDrawer;
-		this->_threadDrawer = nullptr;
-	}
 }

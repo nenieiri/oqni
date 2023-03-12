@@ -24,7 +24,6 @@
 # include <QtEndian>
 
 # include "threadreader.hpp"
-# include "threaddrawer.hpp"
 # include "threaddisplaytimer.hpp"
 # include "mainwindow.h"
 
@@ -95,7 +94,6 @@ class WindowNext : public QDialog
         QCheckBox           *_showChart;
         ThreadDisplayTimer  *_threadDisplayTimer;
         ThreadReader        *_threadReader;
-        ThreadDrawer        *_threadDrawer;
 		int					_durationTimerValue;
 
         QString				_expProtocolsPath;
@@ -112,6 +110,9 @@ class WindowNext : public QDialog
         char                _numOfCH;  // Number of channels following (N)
         char                _sizeOfCH; // Number of bytes in one channel data (M)
         qint64              _startTime;
+        int					_totalBytes;
+        
+        QDialog				*_chartDialog;
 };
 
 #endif
