@@ -59,7 +59,6 @@ WindowNext::WindowNext(MainWindow *parent)
     
     this->_showChart = new QCheckBox("Display chart:     ", this);
     this->_chartDialog = nullptr;
-	this->_chartDialog = nullptr;
 	this->_chart = nullptr;
 	this->_chartView = nullptr;
 	this->_axisX = nullptr;
@@ -218,7 +217,7 @@ void		WindowNext::setButtonStop(QPushButton *buttonStop)
         
 			this->_closeEventFlag = true;
             
-			this->_showChart->setChecked(false);
+            this->_showChart->setChecked(false);
         
             this->setMinimumSize(600, 350);
             this->setMaximumSize(600, 350);
@@ -271,22 +270,9 @@ void		WindowNext::setButtonClose(QPushButton *buttonClose)
     connect(this->_buttonClose, &QPushButton::clicked, this,
         [=](void)
         {
-        	if (this->_chartDialog)
-				qDebug() << __LINE__;
-        	if (this->_chart)
-				qDebug() << __LINE__;
-        	if (this->_chartView)
-				qDebug() << __LINE__;
-        	if (this->_axisX)
-				qDebug() << __LINE__;
-        	if (this->_axisY)
-				qDebug() << __LINE__;
-        	if (this->_series)
-				qDebug() << __LINE__;
-        	if (this->_vBoxLayout)
-				qDebug() << __LINE__;
             this->_closeEventFlag = true;
             this->close();
+            this->_closeEventFlag = true;
         });
 }
 
@@ -529,10 +515,26 @@ void    WindowNext::setParametersDesign(void)
             }
             else
             {
+						qDebug() << __LINE__;
                 if (this->_chartDialog && this->_chartDialog->isVisible())
                     this->_chartDialog->close();
                 delete this->_chartDialog;
                 this->_chartDialog = nullptr;
+				_showChart = nullptr;
+				delete _axisX;
+				_showChart = nullptr;
+				delete _axisY;
+				_showChart = nullptr;
+				delete [] _series;
+				_showChart = nullptr;
+				delete _chartView;
+				_showChart = nullptr;
+				delete _vBoxLayout;
+				_showChart = nullptr;
+						qDebug() << __LINE__;
+                        
+				//delete _chart;
+						qDebug() << __LINE__;
               }
         });
 }
