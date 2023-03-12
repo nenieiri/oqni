@@ -59,6 +59,13 @@ WindowNext::WindowNext(MainWindow *parent)
     
     this->_showChart = new QCheckBox("Display chart:     ", this);
     this->_chartDialog = nullptr;
+	this->_chartDialog = nullptr;
+	this->_chart = nullptr;
+	this->_chartView = nullptr;
+	this->_axisX = nullptr;
+	this->_axisY = nullptr;
+	this->_series = nullptr;
+	this->_vBoxLayout = nullptr;
     
     this->setModal(true);
     
@@ -264,6 +271,20 @@ void		WindowNext::setButtonClose(QPushButton *buttonClose)
     connect(this->_buttonClose, &QPushButton::clicked, this,
         [=](void)
         {
+        	if (this->_chartDialog)
+				qDebug() << __LINE__;
+        	if (this->_chart)
+				qDebug() << __LINE__;
+        	if (this->_chartView)
+				qDebug() << __LINE__;
+        	if (this->_axisX)
+				qDebug() << __LINE__;
+        	if (this->_axisY)
+				qDebug() << __LINE__;
+        	if (this->_series)
+				qDebug() << __LINE__;
+        	if (this->_vBoxLayout)
+				qDebug() << __LINE__;
             this->_closeEventFlag = true;
             this->close();
         });
@@ -650,31 +671,31 @@ void    WindowNext::execChartDialog(void)
         this->_chartDialog->show();
         this->raise();
         
-        QChart *chart = new QChart();  //memory leak
-        chart->setTitle("Dynamic Line Chart");
-        chart->legend()->hide();
+        this->_chart = new QChart();
+        _chart->setTitle("Dynamic Line Chart");
+        _chart->legend()->hide();
     
-        QLineSeries *series = new QLineSeries[6];
+        _series = new QLineSeries[6];
         for (int i = 0; i < 6; ++i)
-            chart->addSeries(&series[i]);
-        series[0].setColor(Qt::red);
-        series[1].setColor(Qt::green);
-        series[2].setColor(Qt::blue);
-        series[3].setColor(Qt::red);
-        series[4].setColor(Qt::green);
-        series[5].setColor(Qt::blue);
+            _chart->addSeries(&_series[i]);
+        _series[0].setColor(Qt::red);
+        _series[1].setColor(Qt::green);
+        _series[2].setColor(Qt::blue);
+        _series[3].setColor(Qt::red);
+        _series[4].setColor(Qt::green);
+        _series[5].setColor(Qt::blue);
     
-        QValueAxis *axisX = new QValueAxis(); //memory leak
-        axisX->setTitleText("Time");
-        chart->addAxis(axisX, Qt::AlignBottom);
+        this->_axisX = new QValueAxis();
+        _axisX->setTitleText("Time");
+        _chart->addAxis(_axisX, Qt::AlignBottom);
         for (int i = 0; i < 6; ++i)
-            series[i].attachAxis(axisX);
+            _series[i].attachAxis(_axisX);
     
-        QValueAxis *axisY = new QValueAxis(); //memory leak
-        axisY->setTitleText("Values");
-        chart->addAxis(axisY, Qt::AlignLeft);
+        this->_axisY = new QValueAxis();
+        _axisY->setTitleText("Values");
+        _chart->addAxis(_axisY, Qt::AlignLeft);
         for (int i = 0; i < 6; ++i)
-            series[i].attachAxis(axisY);
+            _series[i].attachAxis(_axisY);
         
 		connect(this->_threadReader, &ThreadReader::lastRowOfData, this,
 			[=](QByteArray data)
@@ -695,29 +716,31 @@ void    WindowNext::execChartDialog(void)
 						ledID = j;
 					else
 						ledID = j + 3;
-					if (series[ledID].count() > 300)
-							series[ledID].remove(0);
+					if (_series[ledID].count() > 300)
+							_series[ledID].remove(0);
 					
 					static unsigned int maxY = 0;
 					if (value > maxY)
 						maxY = value;
-					axisY->setRange(0, maxY);
+					_axisY->setRange(0, maxY);
 					
 					static unsigned int timeLine = 3000;
 					if (time > 3000)
 						timeLine = time;
-					axisX->setRange(timeLine - 3000, timeLine);
+					_axisX->setRange(timeLine - 3000, timeLine);
 					
-					series[ledID].append(time, value);
+					_series[ledID].append(time, value);
 				}
 			});
         
-        QChartView *chartView = new QChartView(chart); //memory leak
-        chartView->setRenderHint(QPainter::Antialiasing);
+        this->_chartView = new QChartView(_chart);
+        this->_chartView->setRenderHint(QPainter::Antialiasing);
         
-        this->_chartDialog->setLayout(new QVBoxLayout); //memory leak
-/*        if (this->_chartDialog && this->_chartDialog->isVisible())
-            this->_chartDialog->layout()->addWidget(chartView)*/;
+        this->_vBoxLayout = new QVBoxLayout;
+        
+        this->_chartDialog->setLayout(this->_vBoxLayout);
+        if (this->_chartDialog && this->_chartDialog->isVisible())
+            this->_chartDialog->layout()->addWidget(this->_chartView);
 }
 
 void   WindowNext::onThreadDisplayTimerFinished(void)

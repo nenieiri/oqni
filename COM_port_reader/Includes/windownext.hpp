@@ -113,6 +113,12 @@ class WindowNext : public QDialog
         int					_totalBytes;
         
         QDialog				*_chartDialog;
+        QChart				*_chart;
+        QChartView			*_chartView;
+        QValueAxis			*_axisX;
+        QValueAxis			*_axisY;
+        QLineSeries			*_series;
+        QVBoxLayout			*_vBoxLayout;
 };
 
 #endif
