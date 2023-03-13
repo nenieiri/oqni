@@ -119,6 +119,8 @@ class WindowNext : public QDialog
         QValueAxis			*_axisY;
         QLineSeries			*_series;
         QVBoxLayout			*_vBoxLayout;
+        
+        QList<unsigned int> _lastValues; //tmp
 };
 
 #endif

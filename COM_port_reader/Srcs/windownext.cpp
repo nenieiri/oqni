@@ -1,4 +1,5 @@
 #include "windownext.hpp"
+#include <algorithm>
 
 WindowNext::WindowNext(MainWindow *parent)
     : QDialog(parent)
@@ -668,7 +669,7 @@ void    WindowNext::execChartDialog(void)
         this->_chartDialog->setMinimumHeight(windowHeight / 2);
         this->_chartDialog->setMinimumWidth(windowWidth / 2);
         this->_chartDialog->show();
-        this->raise();
+//        this->raise();
         
         this->_chart = new QChart();
         _chart->setTitle("Dynamic Line Chart");
@@ -696,33 +697,36 @@ void    WindowNext::execChartDialog(void)
         for (int i = 0; i < 6; ++i)
             _series[i].attachAxis(_axisY);
         
-		connect(this->_threadReader, &ThreadReader::lastRowOfData, this,
+		this->_lastValues.clear();
+        connect(this->_threadReader, &ThreadReader::lastRowOfData, this,
 			[=](QByteArray data)
 			{
                 if (_chartDialog == nullptr)
                     return;
                 
-                unsigned int value;
-                int ledID;
+                unsigned int        value;
+                int                 ledID;
+                unsigned int        maxY;
                 
                 char    id = qFromBigEndian<unsigned char>(data.mid(_bytesPA, _bytesID).constData());
 				qint64  time = qFromLittleEndian<qint64>(data.mid(_totalBytes - 8 - 1, 8).constData()) - _startTime;
 				for (int j = 0; j < _numOfCH; ++j)
 				{
-                    value = qFromLittleEndian<unsigned int>(data.mid(_bytesPA + _bytesID + _bytesCO + \
-																				_bytesCH + _bytesOCH + j * _sizeOfCH, _sizeOfCH).constData());
-					if (id == 1)
-						ledID = j;
-					else
-						ledID = j + 3;
+                    value = qFromLittleEndian<unsigned int>(data.mid(_bytesPA + _bytesID + _bytesCO + _bytesCH + \
+                                                            _bytesOCH + j * _sizeOfCH, _sizeOfCH).constData());
+                    _lastValues.push_back(value);
+                    ledID = j + id * id - 1;
+                    
 					if (_series[ledID].count() > 300)
-							_series[ledID].remove(0);
-					
-					static unsigned int maxY = 0;
-					if (value > maxY)
-						maxY = value;
+                        _series[ledID].remove(0);
+                    
+                    if (_lastValues.count() > 1800)
+                        _lastValues.removeFirst();
+                    
+                    maxY = *(std::max_element(_lastValues.begin(), _lastValues.end())) + 30000;
 					_axisY->setRange(0, maxY);
-					
+
+                    
 					static unsigned int timeLine = 3000;
 					if (time > 3000)
 						timeLine = time;
