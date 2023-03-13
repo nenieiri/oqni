@@ -10,6 +10,8 @@ WindowNext::WindowNext(MainWindow *parent)
     int         screenHeight = screenSize.height();
     int         windowWidth = 600;
     int         windowHeight = 350;    
+        
+    this->_chartDuration = 3;
 
     this->_buttonBrowse = nullptr;
     this->_buttonStart = nullptr;
@@ -714,25 +716,22 @@ void    WindowNext::execChartDialog(void)
 				{
                     value = qFromLittleEndian<unsigned int>(data.mid(_bytesPA + _bytesID + _bytesCO + _bytesCH + \
                                                             _bytesOCH + j * _sizeOfCH, _sizeOfCH).constData());
-                    _lastValues.push_back(value);
                     ledID = j + id * id - 1;
-                    
-					if (_series[ledID].count() > 300)
-                        _series[ledID].remove(0);
-                    
-                    if (_lastValues.count() > 1800)
+
+                    if (_lastValues.count() > _chartDuration * 600)
                         _lastValues.removeFirst();
-                    
+                    _lastValues.push_back(value);
                     maxY = *(std::max_element(_lastValues.begin(), _lastValues.end())) + 30000;
 					_axisY->setRange(0, maxY);
 
-                    
-					static unsigned int timeLine = 3000;
-					if (time > 3000)
+					static unsigned int timeLine = _chartDuration * 1000;
+					if (time > _chartDuration * 1000)
 						timeLine = time;
-					_axisX->setRange(timeLine - 3000, timeLine);
-					
+					_axisX->setRange(timeLine - _chartDuration * 1000, timeLine);
+                    
 					_series[ledID].append(time, value);
+					if (_series[ledID].count() > _chartDuration * 100)
+                        _series[ledID].remove(0);
 				}
 			});
         
