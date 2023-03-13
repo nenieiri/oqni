@@ -507,7 +507,6 @@ void    WindowNext::setParametersDesign(void)
                 connect(this->_chartDialog, &QDialog::rejected, this, 
                     [=]()
                     {
-                        disconnect(this->_threadReader, &ThreadReader::lastRowOfData, this, nullptr);
                         this->_chartDialog = nullptr;
 						this->_showChart->setChecked(false);
                     });
@@ -515,27 +514,25 @@ void    WindowNext::setParametersDesign(void)
             }
             else
             {
-						qDebug() << __LINE__;
+				delete _axisX;
+				this->_axisX = nullptr;
+				delete _axisY;
+				this->_axisY = nullptr;
+				for (int i = 0; i < 6; ++i)
+					this->_chart->removeSeries(&_series[i]);
+				delete [] _series;
+				this->_series = nullptr;
+				delete this->_chart;
+                this->_chart = nullptr;
+				delete _chartView;
+				this->_chartView = nullptr;
+				delete _vBoxLayout;
+				this->_vBoxLayout = nullptr;
                 if (this->_chartDialog && this->_chartDialog->isVisible())
                     this->_chartDialog->close();
                 delete this->_chartDialog;
                 this->_chartDialog = nullptr;
-				_showChart = nullptr;
-				delete _axisX;
-				_showChart = nullptr;
-				delete _axisY;
-				_showChart = nullptr;
-				delete [] _series;
-				_showChart = nullptr;
-				delete _chartView;
-				_showChart = nullptr;
-				delete _vBoxLayout;
-				_showChart = nullptr;
-						qDebug() << __LINE__;
-                        
-				//delete _chart;
-						qDebug() << __LINE__;
-              }
+            }
         });
 }
 
@@ -686,7 +683,7 @@ void    WindowNext::execChartDialog(void)
         _series[3].setColor(Qt::red);
         _series[4].setColor(Qt::green);
         _series[5].setColor(Qt::blue);
-    
+        
         this->_axisX = new QValueAxis();
         _axisX->setTitleText("Time");
         _chart->addAxis(_axisX, Qt::AlignBottom);
