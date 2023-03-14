@@ -121,7 +121,11 @@ class WindowNext : public QDialog
         QVBoxLayout			*_vBoxLayout;
         
         QList<unsigned int> _lastValues;
+        
         unsigned int		_chartDuration;
+        unsigned int		_timeLineMax;
+        unsigned int        _chartUpdateRatio;
+        qint64				_chartTimeFlag;
 };
 
 #endif

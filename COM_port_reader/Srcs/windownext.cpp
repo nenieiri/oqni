@@ -11,7 +11,10 @@ WindowNext::WindowNext(MainWindow *parent)
     int         windowWidth = 600;
     int         windowHeight = 350;    
         
-    this->_chartDuration = 3;
+    this->_chartDuration = 10 * 1000;
+    this->_chartUpdateRatio = 3;
+    this->_chartTimeFlag = 0;
+    this->_timeLineMax = this->_chartDuration;
 
     this->_buttonBrowse = nullptr;
     this->_buttonStart = nullptr;
@@ -700,15 +703,16 @@ void    WindowNext::execChartDialog(void)
             _series[i].attachAxis(_axisY);
         
 		this->_lastValues.clear();
+        
         connect(this->_threadReader, &ThreadReader::lastRowOfData, this,
 			[=](QByteArray data)
 			{
                 if (_chartDialog == nullptr)
                     return;
                 
-                unsigned int        value;
-                int                 ledID;
-                unsigned int        maxY;
+                std::pair<QList<unsigned int>::iterator, QList<unsigned int>::iterator>	minMaxY;
+                unsigned int    value;
+                int             ledID;
                 
                 char    id = qFromBigEndian<unsigned char>(data.mid(_bytesPA, _bytesID).constData());
 				qint64  time = qFromLittleEndian<qint64>(data.mid(_totalBytes - 8 - 1, 8).constData()) - _startTime;
@@ -718,19 +722,22 @@ void    WindowNext::execChartDialog(void)
                                                             _bytesOCH + j * _sizeOfCH, _sizeOfCH).constData());
                     ledID = j + id * id - 1;
 
-                    if (_lastValues.count() > _chartDuration * 600)
+                    if (_lastValues.count() > _chartDuration / 10 * 6)
                         _lastValues.removeFirst();
                     _lastValues.push_back(value);
-                    maxY = *(std::max_element(_lastValues.begin(), _lastValues.end())) + 30000;
-					_axisY->setRange(0, maxY);
 
-					static unsigned int timeLine = _chartDuration * 1000;
-					if (time > _chartDuration * 1000)
-						timeLine = time;
-					_axisX->setRange(timeLine - _chartDuration * 1000, timeLine);
+					if (time > _chartDuration)
+						_timeLineMax = time;
+                    if (time + _startTime - _chartTimeFlag >= _chartDuration / 1000 * _chartUpdateRatio)
+                    {
+						minMaxY = std::minmax_element(_lastValues.begin(), _lastValues.end());
+						_axisY->setRange(*(minMaxY.first) - 30000, *(minMaxY.second) + 30000);
+						_axisX->setRange(_timeLineMax - _chartDuration, _timeLineMax);
+                        _chartTimeFlag = time + _startTime;
+                    }
                     
 					_series[ledID].append(time, value);
-					if (_series[ledID].count() > _chartDuration * 100)
+					if (_series[ledID].count() > _chartDuration / 10)
                         _series[ledID].remove(0);
 				}
 			});
