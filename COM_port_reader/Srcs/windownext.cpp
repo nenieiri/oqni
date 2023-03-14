@@ -13,7 +13,6 @@ WindowNext::WindowNext(MainWindow *parent)
         
     this->_chartDuration = 10 * 1000;
     this->_chartUpdateRatio = 3;
-    this->_chartTimeFlag = 0;
     this->_timeLineMax = this->_chartDuration;
 
     this->_buttonBrowse = nullptr;
@@ -703,6 +702,7 @@ void    WindowNext::execChartDialog(void)
             _series[i].attachAxis(_axisY);
         
 		this->_lastValues.clear();
+		this->_chartTimeFlag = 0;
         
         connect(this->_threadReader, &ThreadReader::lastRowOfData, this,
 			[=](QByteArray data)
@@ -722,9 +722,9 @@ void    WindowNext::execChartDialog(void)
                                                             _bytesOCH + j * _sizeOfCH, _sizeOfCH).constData());
                     ledID = j + id * id - 1;
 
+                    _lastValues.push_back(value);
                     if (_lastValues.count() > _chartDuration / 10 * 6)
                         _lastValues.removeFirst();
-                    _lastValues.push_back(value);
 
 					if (time > _chartDuration)
 						_timeLineMax = time;
