@@ -110,6 +110,7 @@ class WindowNext : public QDialog
         char                _bytesOCH; // Channels numbers bytes
         char                _numOfCH;  // Number of channels following (N)
         char                _sizeOfCH; // Number of bytes in one channel data (M)
+        char                _numOfOS;  // Number of connected optical sensors
         qint64              _startTime;
         int					_totalBytes;
         

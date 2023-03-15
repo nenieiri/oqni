@@ -203,6 +203,7 @@ void    WindowNext::setButtonStart(QPushButton *buttonStart)
                     this->_bytesOCH = _threadReader->getBytesOCH();
                     this->_numOfCH = _threadReader->getNumOfCH();
                     this->_sizeOfCH = _threadReader->getSizeOfCH();
+                    this->_numOfOS = _threadReader->getNumOfOS();
                     this->_startTime = _threadReader->getStartTime();
             		this->_totalBytes = _bytesPA + _bytesID + _bytesCO + _bytesCH + _bytesOCH + \
                         _numOfCH * _sizeOfCH + 8 + 1; // 8 - sizeof time; 1 - sizeof label
@@ -524,7 +525,7 @@ void    WindowNext::setParametersDesign(void)
 				this->_axisX = nullptr;
 				delete _axisY;
 				this->_axisY = nullptr;
-				for (int i = 0; i < 6; ++i)
+				for (int i = 0; i < _numOfOS * _numOfCH; ++i)
 					this->_chart->removeSeries(&_series[i]);
 				delete [] _series;
 				this->_series = nullptr;
@@ -593,11 +594,11 @@ int	WindowNext::readExpProtocol(void)
 
 void	WindowNext::saveDataToFile(const QString &subject)
 {
-	QFile  			myFile[2];
-	QTextStream		out[2];
+	QFile  			*myFile = new QFile[_numOfOS];
+	QTextStream		*out = new QTextStream[_numOfOS];
     char            id;
     unsigned char   counter;
-    unsigned char   oldCounter[2];    
+    unsigned char   *oldCounter = new unsigned char[_numOfOS];
     QByteArray		dataRead = _threadReader->getDataRead();
     int				totalBytes = _bytesPA + _bytesID + _bytesCO + _bytesCH + _bytesOCH + _numOfCH * _sizeOfCH +
                                 8 + 1; // 8 - sizeof time; 1 - sizeof label
@@ -613,35 +614,39 @@ void	WindowNext::saveDataToFile(const QString &subject)
 	
 	this->createDirectory(_fullSavingPath);
 	if (this->_selectedDirectory == "")
+    {
+		delete [] myFile;
+		delete [] out;
+        delete [] oldCounter;
 		return ;
+    }
 	
-	myFile[0].setFileName(fileNamePrefix + "1.csv");
-	if (!myFile[0].open(QIODevice::WriteOnly | QIODevice::Text))
-	{
-		qDebug() << "Failed to open file for writing:" << myFile[0].fileName();
-		return ;
-	}
-	
-	myFile[1].setFileName(fileNamePrefix + "2.csv");
-	if (!myFile[1].open(QIODevice::WriteOnly | QIODevice::Text))
-	{
-		qDebug() << "Failed to open file for writing:" << myFile[1].fileName();
-		myFile[0].close();
-        myFile[0].remove();
-		return ;
-	}
-    
-	out[0].setDevice(&myFile[0]);
-	out[1].setDevice(&myFile[1]);
-    
-    out[0] << "time_millisec,led11,led12,led13,label\n";
-    out[1] << "time_millisec,led21,led22,led23,label\n";
-    
-	id = qFromBigEndian<unsigned char>(dataRead.mid(_bytesPA, _bytesID).constData());
-    oldCounter[id - 1] = qFromBigEndian<unsigned char>(dataRead.mid(_bytesPA + _bytesID, _bytesCO).constData()) - 1;
-    
-	id = qFromBigEndian<unsigned char>(dataRead.mid(totalBytes + _bytesPA, _bytesID).constData());
-    oldCounter[id - 1] = qFromBigEndian<unsigned char>(dataRead.mid(totalBytes + _bytesPA + _bytesID, _bytesCO).constData()) - 1;
+    for (int i = 0; i < _numOfOS; ++i)
+    {
+		myFile[i].setFileName(fileNamePrefix + QString::number(i + 1) + ".csv");
+		if (!myFile[i].open(QIODevice::WriteOnly | QIODevice::Text))
+		{
+			qDebug() << "Failed to open file for writing:" << myFile[i].fileName();
+            for (int j = 0; j < i; ++j)
+            {
+				myFile[j].close();
+				myFile[j].remove();
+            }
+			delete [] myFile;
+			delete [] out;
+			delete [] oldCounter;
+			return ;
+		}
+		out[i].setDevice(&myFile[i]);
+        
+        out[i] << "time_millisec";
+		for (int j = 0; j < _numOfCH; ++j)
+			out[i] << ",led" + QString::number((i + 1) * 10 + (j + 1));
+        out[i] << ",label\n";
+        
+		id = qFromBigEndian<unsigned char>(dataRead.mid(totalBytes * i + _bytesPA, _bytesID).constData());
+		oldCounter[id - 1] = qFromBigEndian<unsigned char>(dataRead.mid(totalBytes * i + _bytesPA + _bytesID, _bytesCO).constData()) - 1;
+    }
     
     for (int i = 0; i < linesCount; ++i)
     {
@@ -649,17 +654,20 @@ void	WindowNext::saveDataToFile(const QString &subject)
 		counter = qFromBigEndian<unsigned char>(dataRead.mid((i * totalBytes) + _bytesPA + _bytesID, _bytesCO).constData());
         for (int k = 0; k < counter - oldCounter[id - 1] - 1; ++k) // in case if data missed
             out[id - 1] << "-\n";
-        out[id - 1] << qFromLittleEndian<qint64>(dataRead.mid((i * totalBytes) + (totalBytes - 8 - 1), 8).constData()) - _startTime;
+        out[id - 1] << qFromLittleEndian<qint64>(dataRead.mid(totalBytes * i + (totalBytes - 8 - 1), 8).constData()) - _startTime;
         out[id - 1] << ",";
         for (int j = 0; j < _numOfCH; ++j)
-			out[id - 1] << qFromLittleEndian<unsigned int>(dataRead.mid((i * totalBytes) + _bytesPA + _bytesID + _bytesCO + \
+			out[id - 1] << qFromLittleEndian<unsigned int>(dataRead.mid(totalBytes * i + _bytesPA + _bytesID + _bytesCO + \
                                                             _bytesCH + _bytesOCH + j * _sizeOfCH, _sizeOfCH).constData()) << ",";
-        out[id - 1] << qFromLittleEndian<unsigned char>(dataRead.mid((i * totalBytes) + (totalBytes - 1), 1).constData()) << "\n";
+        out[id - 1] << qFromLittleEndian<unsigned char>(dataRead.mid(totalBytes * i + (totalBytes - 1), 1).constData()) << "\n";
         oldCounter[id - 1] = counter;
     }
     
-	myFile[0].close();
-	myFile[1].close();
+    for (int i = 0; i < _numOfOS; ++i)
+		myFile[i].close();
+    delete [] myFile;
+    delete [] out;
+	delete [] oldCounter;
 }
 
 void    WindowNext::execChartDialog(void)
@@ -681,26 +689,30 @@ void    WindowNext::execChartDialog(void)
         _chart->setTitle("Dynamic Line Chart");
         _chart->legend()->hide();
     
-        _series = new QLineSeries[6];
-        for (int i = 0; i < 6; ++i)
+        _series = new QLineSeries[_numOfOS * _numOfCH];
+        for (int i = 0; i < _numOfOS * _numOfCH; ++i)
+        {
             _chart->addSeries(&_series[i]);
-        _series[0].setColor(Qt::red);
-        _series[1].setColor(Qt::green);
-        _series[2].setColor(Qt::blue);
-        _series[3].setColor(Qt::red);
-        _series[4].setColor(Qt::green);
-        _series[5].setColor(Qt::blue);
+            if (i % _numOfCH == 0)
+				_series[i].setColor(Qt::red);
+            else if (i % _numOfCH == 1)
+				_series[i].setColor(Qt::green);
+            else if (i % _numOfCH == 2)
+				_series[i].setColor("#DB7093"); // PaleVioletRed for infraRed
+            else
+				_series[i].setColor(Qt::gray);
+        }
         
         this->_axisX = new QValueAxis();
         _axisX->setTitleText("Time");
         _chart->addAxis(_axisX, Qt::AlignBottom);
-        for (int i = 0; i < 6; ++i)
+        for (int i = 0; i < _numOfOS * _numOfCH; ++i)
             _series[i].attachAxis(_axisX);
     
         this->_axisY = new QValueAxis();
         _axisY->setTitleText("Values");
         _chart->addAxis(_axisY, Qt::AlignLeft);
-        for (int i = 0; i < 6; ++i)
+        for (int i = 0; i < _numOfOS * _numOfCH; ++i)
             _series[i].attachAxis(_axisY);
         
 		this->_lastValues.clear();
@@ -730,7 +742,7 @@ void    WindowNext::execChartDialog(void)
                                                             _bytesOCH + j * _sizeOfCH, _sizeOfCH).constData());
                     ledID = j + id * id - 1;
 
-                    if (_lastValues.count() > _chartDuration / 10 * 6)
+                    if (_lastValues.count() > _chartDuration / 10 * _numOfOS * _numOfCH)
                         _lastValues.removeFirst();
                     _lastValues.push_back(value);
 

@@ -6,6 +6,7 @@
 # include <QMessageBox>
 # include <QList>
 # include <QString>
+# include <QtEndian>
 # include <array>
 
 # include "comport.hpp"
@@ -33,6 +34,7 @@ class ThreadReader : public QThread
         const char          getBytesOCH() const;
         const char          getNumOfCH() const;
         const char          getSizeOfCH() const;
+        const char          getNumOfOS() const;
         QByteArray			&getDataRead();
         qint64				getStartTime() const;
         
@@ -58,6 +60,7 @@ class ThreadReader : public QThread
         char                _bytesOCH; // One channel bytes
         char                _numOfCH;  // Number of channels following (N)
         char                _sizeOfCH; // Number of bytes in one channel data (M)
+        char                _numOfOS;  // Number of connected optical sensors
         QByteArray          _dataRead;
         qint64              _startTime;
 };

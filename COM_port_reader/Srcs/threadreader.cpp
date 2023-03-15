@@ -68,6 +68,11 @@ const char	ThreadReader::getSizeOfCH() const
     return (this->_sizeOfCH);
 }
 
+const char	ThreadReader::getNumOfOS() const
+{
+    return (this->_numOfOS);
+}
+
 QByteArray	&ThreadReader::getDataRead()
 {
     return (this->_dataRead);
@@ -153,8 +158,9 @@ int    ThreadReader::requestPortConfig(QSerialPort &port)
 		this->stopAndClosePort(port);
         return -1;
     }
-    this->_numOfCH = dataRead.mid(9, 1).toHex().toUInt(nullptr, 16);  // Number of channels following (N)
-    this->_sizeOfCH = dataRead.mid(10, 1).toHex().toUInt(nullptr, 16); // Number of bytes in one channel data (M)
+	this->_numOfOS = qFromBigEndian<unsigned char>(dataRead.mid(8, 1).constData());   // 8 and 1 according to the protocol
+	this->_numOfCH = qFromBigEndian<unsigned char>(dataRead.mid(9, 1).constData());   // 9 and 1 according to the protocol
+	this->_sizeOfCH = qFromBigEndian<unsigned char>(dataRead.mid(10, 1).constData()); // 10 and 1 according to the protocol
     return 0;
 }
 
