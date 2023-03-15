@@ -749,7 +749,6 @@ void    WindowNext::execChartDialog(void)
 						_axisX->setRange(_series[ledID].at(0).x(), _series[ledID].at(0).x() + _chartDuration);
                         _chartTimeFlag = time + _startTime;
                     }
-                    _chart->update();
 				}
 			});
         

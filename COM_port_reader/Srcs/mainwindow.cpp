@@ -33,6 +33,7 @@ MainWindow::~MainWindow()
     delete _gifLabel;
     delete _gifMovie;
     delete _liftVertical;
+    delete _groupBox;
     delete ui;
 }
 
