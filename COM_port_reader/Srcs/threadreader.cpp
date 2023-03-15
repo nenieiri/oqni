@@ -149,6 +149,7 @@ int    ThreadReader::requestPortConfig(QSerialPort &port)
         dataRead = port.read(12);
     else
     {
+        qDebug() << "TimeOut while waiting for configs";
 		this->stopAndClosePort(port);
         return -1;
     }

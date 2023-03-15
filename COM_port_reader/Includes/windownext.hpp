@@ -101,7 +101,6 @@ class WindowNext : public QDialog
         int					_durationMax;
         
         bool                _closeEventFlag;
-        bool                _displayChartFlag;
         
         char                _bytesPA;  // Preamble bytes
         char                _bytesID;  // ID bytes
@@ -125,7 +124,6 @@ class WindowNext : public QDialog
         QList<unsigned int> _lastValues;
         
         unsigned int		_chartDuration;
-        unsigned int		_timeLineMax;
         unsigned int        _chartUpdateRatio;
         qint64				_chartTimeFlag;
 };

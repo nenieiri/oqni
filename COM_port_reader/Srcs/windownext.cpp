@@ -20,7 +20,6 @@ WindowNext::WindowNext(MainWindow *parent)
     this->_buttonClose = nullptr;
     
     this->_closeEventFlag = true;
-    this->_displayChartFlag = false;
     
     this->_selectedComPort = parent->getSelectedComPort();
     
@@ -505,7 +504,6 @@ void    WindowNext::setParametersDesign(void)
     connect(this->_showChart, &QCheckBox::stateChanged, this,
         [=](void)
         {
-            this->_displayChartFlag = true;
             if (this->_buttonStart->isEnabled() == true)
                 return ;
             if (this->_showChart->isChecked() == true)
@@ -717,7 +715,6 @@ void    WindowNext::execChartDialog(void)
         
 		this->_lastValues.clear();
 		this->_chartTimeFlag = 0;
-        this->_timeLineMax = this->_chartDuration;
         
         connect(this->_threadReader, &ThreadReader::lastRowOfData, this,
 			[=](QByteArray data)
@@ -731,11 +728,6 @@ void    WindowNext::execChartDialog(void)
                 
                 char    id = qFromBigEndian<unsigned char>(data.mid(_bytesPA, _bytesID).constData());
 				qint64  time = qFromLittleEndian<qint64>(data.mid(_totalBytes - 8 - 1, 8).constData()) - _startTime;
-                if (_displayChartFlag == true)
-                {
-                    this->_timeLineMax = this->_chartDuration + time;
-                    _displayChartFlag = false;
-                }
 				for (int j = 0; j < _numOfCH; ++j)
 				{
                     value = qFromLittleEndian<unsigned int>(data.mid(_bytesPA + _bytesID + _bytesCO + _bytesCH + \
@@ -745,21 +737,19 @@ void    WindowNext::execChartDialog(void)
                     if (_lastValues.count() > _chartDuration / 10 * _numOfOS * _numOfCH)
                         _lastValues.removeFirst();
                     _lastValues.push_back(value);
-
-
-                    if (time + _startTime - _chartTimeFlag >= _chartDuration / 1000 * _chartUpdateRatio)
-                    {
-                        if (time > _timeLineMax)
-                            _timeLineMax = time;
-                        minMaxY = std::minmax_element(_lastValues.begin(), _lastValues.end());
-						_axisY->setRange(*(minMaxY.first) - 30000, *(minMaxY.second) + 30000);
-						_axisX->setRange(_timeLineMax - _chartDuration, _timeLineMax);
-                        _chartTimeFlag = time + _startTime;
-                    }
                     
 					_series[ledID].append(time, value);
 					if (_series[ledID].count() > _chartDuration / 10)
                         _series[ledID].remove(0);
+
+                    if (time + _startTime - _chartTimeFlag >= _chartDuration / 1000 * _chartUpdateRatio)
+                    {
+                        minMaxY = std::minmax_element(_lastValues.begin(), _lastValues.end());
+						_axisY->setRange(*(minMaxY.first) - 30000, *(minMaxY.second) + 30000);
+						_axisX->setRange(_series[ledID].at(0).x(), _series[ledID].at(0).x() + _chartDuration);
+                        _chartTimeFlag = time + _startTime;
+                    }
+                    _chart->update();
 				}
 			});
         
