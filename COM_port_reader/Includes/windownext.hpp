@@ -29,6 +29,7 @@
 # include "mainwindow.h"
 
 class MainWindow;
+class MySlider;
 
 class WindowNext : public QDialog
 {
@@ -121,13 +122,35 @@ class WindowNext : public QDialog
         QValueAxis			*_axisY;
         QLineSeries			*_series;
         QVBoxLayout			*_vBoxLayout;
-        QSlider             *_sliderHorizontal;
+        MySlider             *_sliderHorizontal;
         
         QList<int>			_lastValues;
         
         unsigned int		_chartDuration;
         unsigned int        _chartUpdateRatio;
         qint64				_chartTimeFlag;
+};
+
+class MySlider : public QSlider // this class was created to show slider values (numbers) on the chart dialog
+{
+    public:
+        MySlider(Qt::Orientation orientation, QWidget* parent = nullptr)
+            : QSlider(orientation, parent) {}
+    
+    protected:
+        void paintEvent(QPaintEvent* event) override
+        {
+            QSlider::paintEvent(event);
+    
+            QPainter painter(this);
+            painter.setPen(Qt::black);
+            QFont font("Arial", 12);
+            painter.setFont(font);
+    
+            int tickCount = maximum() / tickInterval() + 1;
+            for (int i = minimum(); i < tickCount; ++i)
+                painter.drawText((i - minimum()) * 35 + 6, height() - 1, QString::number(i * tickInterval()));
+        }
 };
 
 #endif

@@ -11,7 +11,7 @@ WindowNext::WindowNext(MainWindow *parent)
     int         windowWidth = 600;
     int         windowHeight = 350;    
         
-    this->_chartDuration = 2 * 1000;
+    this->_chartDuration = 6 * 1000;
     this->_chartUpdateRatio = 3;
 
     this->_buttonBrowse = nullptr;
@@ -736,12 +736,12 @@ void    WindowNext::execChartDialog(void)
                                                             _bytesOCH + j * _sizeOfCH, _sizeOfCH).constData());
                     ledID = j + id * id - 1;
 
-                    if (_lastValues.count() > _chartDuration / 10 * _numOfOS * _numOfCH)
+                    while (_lastValues.count() > _chartDuration / 10 * _numOfOS * _numOfCH)
                         _lastValues.removeFirst();
                     _lastValues.push_back(value);
                     
 					_series[ledID].append(time, value);
-					if (_series[ledID].count() > _chartDuration / 10)
+					while (_series[ledID].count() > _chartDuration / 10)
                         _series[ledID].remove(0);
 
                     if (time + _startTime - _chartTimeFlag >= _chartDuration / 1000 * _chartUpdateRatio)
@@ -757,14 +757,14 @@ void    WindowNext::execChartDialog(void)
         this->_chartView = new QChartView(_chart);
         this->_chartView->setRenderHint(QPainter::Antialiasing);
         
-        this->_sliderHorizontal = new QSlider(Qt::Horizontal);
+        this->_sliderHorizontal = new MySlider(Qt::Horizontal);
         this->_sliderHorizontal->setRange(2, 10);
         this->_sliderHorizontal->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
         this->_sliderHorizontal->setFixedWidth(300);
-        this->_sliderHorizontal->setTickPosition(QSlider::TicksBelow);
         this->_sliderHorizontal->setTickInterval(1);
         this->_sliderHorizontal->setValue(this->_chartDuration / 1000);
-        
+        this->_sliderHorizontal->setFixedHeight(40);
+                
         connect(this->_sliderHorizontal, &QSlider::valueChanged, this,
             [=]()
         	{
