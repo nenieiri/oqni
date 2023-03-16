@@ -178,18 +178,6 @@ void    WindowNext::setButtonStart(QPushButton *buttonStart)
 			this->_recordingFolder4->setText(_threadReader->getFileCreationDate());
 			this->_recordingFolder5->setText(_threadReader->getFileCreationTime());
             
-            if (this->_showChart->isChecked() == true) // starting thread for drawing chart
-            {
-                this->_chartDialog = new QDialog(this);
-                connect(this->_chartDialog, &QDialog::rejected, this, 
-                    [=]()
-                    {
-                        this->_chartDialog = nullptr;
-						this->_showChart->setChecked(false);
-                    });
-                this->execChartDialog();
-            }
-            
             this->_finishMsgLabel->hide();
 			connect(this->_threadDisplayTimer, &ThreadDisplayTimer::finishedSignal, this, &WindowNext::onThreadDisplayTimerFinished);
             connect(_threadReader, &ThreadReader::protocolConfigDataIsReady, this,
@@ -204,8 +192,20 @@ void    WindowNext::setButtonStart(QPushButton *buttonStart)
                     this->_sizeOfCH = _threadReader->getSizeOfCH();
                     this->_numOfOS = _threadReader->getNumOfOS();
                     this->_startTime = _threadReader->getStartTime();
-            		this->_totalBytes = _bytesPA + _bytesID + _bytesCO + _bytesCH + _bytesOCH + \
+						this->_totalBytes = _bytesPA + _bytesID + _bytesCO + _bytesCH + _bytesOCH + \
                         _numOfCH * _sizeOfCH + 8 + 1; // 8 - sizeof time; 1 - sizeof label
+					
+					if (this->_showChart->isChecked() == true) // starting thread for drawing chart
+					{
+						this->_chartDialog = new QDialog(this);
+						connect(this->_chartDialog, &QDialog::rejected, this, 
+							[=]()
+							{
+								this->_chartDialog = nullptr;
+								this->_showChart->setChecked(false);
+							});
+						this->execChartDialog();
+					}
                 });
 		});
 }
@@ -683,7 +683,7 @@ void    WindowNext::execChartDialog(void)
         this->_chartDialog->setMinimumHeight(windowHeight / 2);
         this->_chartDialog->setMinimumWidth(windowWidth / 2);
         this->_chartDialog->show();
-//        this->raise();
+        this->raise();
         
         this->_chart = new QChart();
         _chart->setTitle("Dynamic Line Chart");
@@ -740,7 +740,7 @@ void    WindowNext::execChartDialog(void)
                         _lastValues.removeFirst();
                     _lastValues.push_back(value);
                     
-					_series[ledID].append(time, value);
+                    _series[ledID].append(time, value);
 					while (_series[ledID].count() > _chartDuration / 10)
                         _series[ledID].remove(0);
 
@@ -757,7 +757,7 @@ void    WindowNext::execChartDialog(void)
         this->_chartView = new QChartView(_chart);
         this->_chartView->setRenderHint(QPainter::Antialiasing);
         
-        this->_sliderHorizontal = new MySlider(Qt::Horizontal);
+        this->_sliderHorizontal = new MySlider(Qt::Horizontal, _chartDialog);
         this->_sliderHorizontal->setRange(2, 10);
         this->_sliderHorizontal->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
         this->_sliderHorizontal->setFixedWidth(300);

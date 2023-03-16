@@ -131,7 +131,8 @@ class WindowNext : public QDialog
         qint64				_chartTimeFlag;
 };
 
-class MySlider : public QSlider // this class was created to show slider values (numbers) on the chart dialog
+/* this class was created to show slider values (numbers) on the chart dialog */
+class MySlider : public QSlider
 {
     public:
         MySlider(Qt::Orientation orientation, QWidget* parent = nullptr)
