@@ -694,11 +694,11 @@ void    WindowNext::execChartDialog(void)
         {
             _chart->addSeries(&_series[i]);
             if (i % _numOfCH == 0)
-				_series[i].setColor(Qt::red);
+				_series[i].setColor(Qt::blue); // infraRed
             else if (i % _numOfCH == 1)
-				_series[i].setColor(Qt::green);
+				_series[i].setColor(Qt::red);
             else if (i % _numOfCH == 2)
-				_series[i].setColor("#DB7093"); // PaleVioletRed for infraRed
+				_series[i].setColor(Qt::green);
             else
 				_series[i].setColor(Qt::gray);
         }
