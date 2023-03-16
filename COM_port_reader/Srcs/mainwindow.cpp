@@ -148,6 +148,8 @@ void    MainWindow::createLiftVertical(int x, int y, int width, int height)
 void    MainWindow::buttonCheckAction(void)
 {
     /* ----------- show animation and update checkboxes' list -------------- */
+    this->_buttonNext->setEnabled(false);
+    this->_buttonNext->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_BUTTON);
 
     this->_previewsCheckBox = nullptr;
     this->_gifLabel->show();
