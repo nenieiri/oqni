@@ -722,7 +722,7 @@ void    WindowNext::execChartDialog(void)
                 if (_chartDialog == nullptr)
                     return;
                 
-                std::pair<QList<unsigned int>::iterator, QList<unsigned int>::iterator>	minMaxY;
+                std::pair<QList<int>::iterator, QList<int>::iterator>	minMaxY;
                 unsigned int    value;
                 int             ledID;
                 
@@ -744,7 +744,7 @@ void    WindowNext::execChartDialog(void)
 
                     if (time + _startTime - _chartTimeFlag >= _chartDuration / 1000 * _chartUpdateRatio)
                     {
-                        minMaxY = std::minmax_element(_lastValues.begin(), _lastValues.end());
+						minMaxY = std::minmax_element(_lastValues.begin(), _lastValues.end());
 						_axisY->setRange(*(minMaxY.first) - 30000, *(minMaxY.second) + 30000);
 						_axisX->setRange(_series[ledID].at(0).x(), _series[ledID].at(0).x() + _chartDuration);
                         _chartTimeFlag = time + _startTime;
