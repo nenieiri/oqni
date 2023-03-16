@@ -22,6 +22,7 @@
 # include <QTextStream>
 # include <QtCharts>
 # include <QtEndian>
+# include <QSlider>
 
 # include "threadreader.hpp"
 # include "threaddisplaytimer.hpp"
@@ -120,6 +121,7 @@ class WindowNext : public QDialog
         QValueAxis			*_axisY;
         QLineSeries			*_series;
         QVBoxLayout			*_vBoxLayout;
+        QSlider             *_sliderHorizontal;
         
         QList<int>			_lastValues;
         

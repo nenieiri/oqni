@@ -11,7 +11,7 @@ WindowNext::WindowNext(MainWindow *parent)
     int         windowWidth = 600;
     int         windowHeight = 350;    
         
-    this->_chartDuration = 10 * 1000;
+    this->_chartDuration = 2 * 1000;
     this->_chartUpdateRatio = 3;
 
     this->_buttonBrowse = nullptr;
@@ -531,6 +531,8 @@ void    WindowNext::setParametersDesign(void)
                 this->_chart = nullptr;
 				delete _chartView;
 				this->_chartView = nullptr;
+				delete _sliderHorizontal;
+				this->_sliderHorizontal = nullptr;
 				delete _vBoxLayout;
 				this->_vBoxLayout = nullptr;
                 if (this->_chartDialog && this->_chartDialog->isVisible())
@@ -702,7 +704,7 @@ void    WindowNext::execChartDialog(void)
         }
         
         this->_axisX = new QValueAxis();
-        _axisX->setTitleText("Time");
+        _axisX->setTitleText("Time (milliseconds)");
         _chart->addAxis(_axisX, Qt::AlignBottom);
         for (int i = 0; i < _numOfOS * _numOfCH; ++i)
             _series[i].attachAxis(_axisX);
@@ -755,11 +757,24 @@ void    WindowNext::execChartDialog(void)
         this->_chartView = new QChartView(_chart);
         this->_chartView->setRenderHint(QPainter::Antialiasing);
         
-        this->_vBoxLayout = new QVBoxLayout;
+        this->_sliderHorizontal = new QSlider(Qt::Horizontal);
+        this->_sliderHorizontal->setRange(2, 10);
+        this->_sliderHorizontal->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
+        this->_sliderHorizontal->setFixedWidth(300);
+        this->_sliderHorizontal->setTickPosition(QSlider::TicksBelow);
+        this->_sliderHorizontal->setTickInterval(1);
+        this->_sliderHorizontal->setValue(this->_chartDuration / 1000);
         
+        connect(this->_sliderHorizontal, &QSlider::valueChanged, this,
+            [=]()
+        	{
+            	this->_chartDuration = this->_sliderHorizontal->value() * 1000;
+        	});
+        
+        this->_vBoxLayout = new QVBoxLayout;
+        this->_vBoxLayout->addWidget(this->_chartView);
+        this->_vBoxLayout->addWidget(this->_sliderHorizontal, 0, Qt::AlignCenter);
         this->_chartDialog->setLayout(this->_vBoxLayout);
-        if (this->_chartDialog && this->_chartDialog->isVisible())
-            this->_chartDialog->layout()->addWidget(this->_chartView);
 }
 
 void   WindowNext::onThreadDisplayTimerFinished(void)
