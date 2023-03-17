@@ -722,46 +722,55 @@ void    WindowNext::execChartDialog(void)
         for (int i = 0; i < _numOfOS * _numOfCH; ++i)
             _series[i].attachAxis(_axisY);
         
-        this->_checkBoxChannelsValue = new bool[_numOfOS * _numOfCH] {true};
-        
+        this->_checkBoxChannelsValue = new bool[_numOfOS * _numOfCH];
+        for (int i = 0; i < _numOfOS * _numOfCH; ++i)
+            this->_checkBoxChannelsValue[i] = true;
+
 		this->_lastValues.clear();
 		this->_chartTimeFlag = 0;
-        
+
         connect(this->_threadReader, &ThreadReader::lastRowOfData, this,
 			[=](QByteArray data)
 			{
                 if (_chartDialog == nullptr)
                     return;
-                
+
                 std::pair<QList<int>::iterator, QList<int>::iterator>	minMaxY;
                 unsigned int    value;
                 int             ledID;
-                        
+
                 char    id = qFromBigEndian<unsigned char>(data.mid(_bytesPA, _bytesID).constData());
 				qint64  time = qFromLittleEndian<qint64>(data.mid(_totalBytes - 8 - 1, 8).constData()) - _startTime;
                 qint64	minX = time;
-                
+
 				for (int j = 0; j < _numOfCH; ++j)
 				{
                     value = qFromLittleEndian<unsigned int>(data.mid(_bytesPA + _bytesID + _bytesCO + _bytesCH + \
                                                             _bytesOCH + j * _sizeOfCH, _sizeOfCH).constData());
                     ledID = j + id * id - 1;
-
-                    if (_checkBoxChannelsValue[0] == true)
+                    
+                    for (int i = 0; i < _numOfOS * _numOfCH; ++i)
                     {
-						while (_lastValues.count() > _chartDuration / 10 * _numOfOS * _numOfCH)
-							_lastValues.removeFirst();
-						_lastValues.push_back(value);
-						
-						_series[ledID].append(time, value);
-						while (_series[ledID].count() > _chartDuration / 10)
-							_series[ledID].remove(0);
+                        if (_checkBoxChannelsValue[i] == false)
+                            _series[i].clear();
                     }
-	
+
+
+                    while (_lastValues.count() > _chartDuration / 10 * _numOfOS * _numOfCH)
+                        _lastValues.removeFirst();
+                    _lastValues.push_back(value);
+                        
+                    if (_checkBoxChannelsValue[ledID] == true)
+                    {
+                        _series[ledID].append(time, value);
+                        while (_series[ledID].count() > _chartDuration / 10)
+                            _series[ledID].remove(0);
+                    }
+
 					if (time + _startTime - _chartTimeFlag >= _chartDuration / 1000 * _chartUpdateRatio)
 					{
 						minMaxY = std::minmax_element(_lastValues.begin(), _lastValues.end());
-						_axisY->setRange(*(minMaxY.first) - 30000, *(minMaxY.second) + 30000);
+						_axisY->setRange(*(minMaxY.first) - 1000, *(minMaxY.second) + 1000);
 						for (int k = 0; k < _numOfOS * _numOfCH; ++k)
 						{
 							if (_series[k].count() == 0)
