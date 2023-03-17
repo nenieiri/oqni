@@ -101,9 +101,9 @@ class WindowNext : public QDialog
         QString				_expProtocolsPath;
         QList<QStringList>	_expProtocol;
         int					_durationMax;
-        
+
         bool                _closeEventFlag;
-        
+
         char                _bytesPA;  // Preamble bytes
         char                _bytesID;  // ID bytes
         char                _bytesCO;  // Counter bytes
@@ -114,7 +114,7 @@ class WindowNext : public QDialog
         char                _numOfOS;  // Number of connected optical sensors
         qint64              _startTime;
         int					_totalBytes;
-        
+
         QDialog				*_chartDialog;
         QChart				*_chart;
         QChartView			*_chartView;
@@ -124,13 +124,11 @@ class WindowNext : public QDialog
         QGridLayout			*_gridLayout;
         QVBoxLayout			*_vBoxLayout;
         QCheckBox			*_checkBoxChannels;
-        bool            		*_checkBoxChannelsValue;
-        MySlider        		*_sliderHorizontal;
-        
-        QList<int>			_lastValues;
-        
-        unsigned int    		_chartDuration;
-        unsigned int    		_chartUpdateRatio;
+        bool                *_checkBoxChannelsValue;
+        MySlider            *_sliderHorizontal;
+
+        unsigned int        _chartDuration;
+        unsigned int        _chartUpdateRatio;
         qint64				_chartTimeFlag;
 };
 

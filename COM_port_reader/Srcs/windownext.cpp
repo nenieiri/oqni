@@ -695,7 +695,7 @@ void    WindowNext::execChartDialog(void)
         this->_chart = new QChart();
         _chart->setTitle("Dynamic Line Chart");
         _chart->legend()->hide();
-    
+        
         _series = new QLineSeries[_numOfOS * _numOfCH];
         for (int i = 0; i < _numOfOS * _numOfCH; ++i)
         {
@@ -726,7 +726,6 @@ void    WindowNext::execChartDialog(void)
         for (int i = 0; i < _numOfOS * _numOfCH; ++i)
             this->_checkBoxChannelsValue[i] = true;
 
-		this->_lastValues.clear();
 		this->_chartTimeFlag = 0;
 
         connect(this->_threadReader, &ThreadReader::lastRowOfData, this,
@@ -735,31 +734,20 @@ void    WindowNext::execChartDialog(void)
                 if (_chartDialog == nullptr)
                     return;
 
-                std::pair<QList<int>::iterator, QList<int>::iterator>	minMaxY;
                 unsigned int    value;
                 int             ledID;
+                unsigned int    minY = -1;
+                unsigned int    maxY = 0;
+                char            id = qFromBigEndian<unsigned char>(data.mid(_bytesPA, _bytesID).constData());
+				qint64          time = qFromLittleEndian<qint64>(data.mid(_totalBytes - 8 - 1, 8).constData()) - _startTime;
+                qint64          minX = time;
 
-                char    id = qFromBigEndian<unsigned char>(data.mid(_bytesPA, _bytesID).constData());
-				qint64  time = qFromLittleEndian<qint64>(data.mid(_totalBytes - 8 - 1, 8).constData()) - _startTime;
-                qint64	minX = time;
-
-				for (int j = 0; j < _numOfCH; ++j)
+                for (int j = 0; j < _numOfCH; ++j)
 				{
                     value = qFromLittleEndian<unsigned int>(data.mid(_bytesPA + _bytesID + _bytesCO + _bytesCH + \
                                                             _bytesOCH + j * _sizeOfCH, _sizeOfCH).constData());
                     ledID = j + id * id - 1;
-                    
-                    for (int i = 0; i < _numOfOS * _numOfCH; ++i)
-                    {
-                        if (_checkBoxChannelsValue[i] == false)
-                            _series[i].clear();
-                    }
 
-
-                    while (_lastValues.count() > _chartDuration / 10 * _numOfOS * _numOfCH)
-                        _lastValues.removeFirst();
-                    _lastValues.push_back(value);
-                        
                     if (_checkBoxChannelsValue[ledID] == true)
                     {
                         _series[ledID].append(time, value);
@@ -767,10 +755,21 @@ void    WindowNext::execChartDialog(void)
                             _series[ledID].remove(0);
                     }
 
-					if (time + _startTime - _chartTimeFlag >= _chartDuration / 1000 * _chartUpdateRatio)
+					// updating axisX and axisY in interval "_chartDuration / 1000 * _chartUpdateRatio"
+                    if (time + _startTime - _chartTimeFlag >= _chartDuration / 1000 * _chartUpdateRatio)
 					{
-						minMaxY = std::minmax_element(_lastValues.begin(), _lastValues.end());
-						_axisY->setRange(*(minMaxY.first) - 1000, *(minMaxY.second) + 1000);
+                        for (int i = 0; i < _numOfOS * _numOfCH; i++)
+                        {
+                            for(int j = 0; j < _series[i].count(); j++)
+                            {
+                                if(_series[i].at(j).y() > maxY)
+                                    maxY = _series[i].at(j).y();
+                                if(_series[i].at(j).y() < minY)
+                                    minY = _series[i].at(j).y();
+                            }
+                        }
+                        _axisY->setRange(minY, maxY);
+
 						for (int k = 0; k < _numOfOS * _numOfCH; ++k)
 						{
 							if (_series[k].count() == 0)
@@ -841,7 +840,10 @@ void    WindowNext::execChartDialog(void)
 					if (this->_checkBoxChannels[i].isChecked() == true)
                         this->_checkBoxChannelsValue[i] = true;
                     else
+                    {
+                        _series[i].clear();
                         this->_checkBoxChannelsValue[i] = false;
+                    }
 				});
 			this->_vBoxLayout->addWidget(&_checkBoxChannels[i]); 
         }
