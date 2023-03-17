@@ -121,13 +121,16 @@ class WindowNext : public QDialog
         QValueAxis			*_axisX;
         QValueAxis			*_axisY;
         QLineSeries			*_series;
+        QGridLayout			*_gridLayout;
         QVBoxLayout			*_vBoxLayout;
-        MySlider             *_sliderHorizontal;
+        QCheckBox			*_checkBoxChannels;
+        bool            		*_checkBoxChannelsValue;
+        MySlider        		*_sliderHorizontal;
         
         QList<int>			_lastValues;
         
-        unsigned int		_chartDuration;
-        unsigned int        _chartUpdateRatio;
+        unsigned int    		_chartDuration;
+        unsigned int    		_chartUpdateRatio;
         qint64				_chartTimeFlag;
 };
 

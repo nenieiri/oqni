@@ -69,6 +69,7 @@ WindowNext::WindowNext(MainWindow *parent)
 	this->_axisY = nullptr;
 	this->_series = nullptr;
 	this->_vBoxLayout = nullptr;
+	this->_gridLayout = nullptr;
     
     this->setModal(true);
     
@@ -533,8 +534,14 @@ void    WindowNext::setParametersDesign(void)
 				this->_chartView = nullptr;
 				delete _sliderHorizontal;
 				this->_sliderHorizontal = nullptr;
+				delete [] _checkBoxChannelsValue;
+				this->_checkBoxChannelsValue = nullptr;
+				delete [] _checkBoxChannels;
+				this->_checkBoxChannels = nullptr;
 				delete _vBoxLayout;
 				this->_vBoxLayout = nullptr;
+				delete _gridLayout;
+				this->_gridLayout = nullptr;
                 if (this->_chartDialog && this->_chartDialog->isVisible())
                     this->_chartDialog->close();
                 delete this->_chartDialog;
@@ -683,7 +690,7 @@ void    WindowNext::execChartDialog(void)
         this->_chartDialog->setMinimumHeight(windowHeight / 2);
         this->_chartDialog->setMinimumWidth(windowWidth / 2);
         this->_chartDialog->show();
-        this->raise();
+//        this->raise();
         
         this->_chart = new QChart();
         _chart->setTitle("Dynamic Line Chart");
@@ -715,6 +722,8 @@ void    WindowNext::execChartDialog(void)
         for (int i = 0; i < _numOfOS * _numOfCH; ++i)
             _series[i].attachAxis(_axisY);
         
+        this->_checkBoxChannelsValue = new bool[_numOfOS * _numOfCH] {true};
+        
 		this->_lastValues.clear();
 		this->_chartTimeFlag = 0;
         
@@ -727,30 +736,42 @@ void    WindowNext::execChartDialog(void)
                 std::pair<QList<int>::iterator, QList<int>::iterator>	minMaxY;
                 unsigned int    value;
                 int             ledID;
-                
+                        
                 char    id = qFromBigEndian<unsigned char>(data.mid(_bytesPA, _bytesID).constData());
 				qint64  time = qFromLittleEndian<qint64>(data.mid(_totalBytes - 8 - 1, 8).constData()) - _startTime;
+                qint64	minX = time;
+                
 				for (int j = 0; j < _numOfCH; ++j)
 				{
                     value = qFromLittleEndian<unsigned int>(data.mid(_bytesPA + _bytesID + _bytesCO + _bytesCH + \
                                                             _bytesOCH + j * _sizeOfCH, _sizeOfCH).constData());
                     ledID = j + id * id - 1;
 
-                    while (_lastValues.count() > _chartDuration / 10 * _numOfOS * _numOfCH)
-                        _lastValues.removeFirst();
-                    _lastValues.push_back(value);
-                    
-                    _series[ledID].append(time, value);
-					while (_series[ledID].count() > _chartDuration / 10)
-                        _series[ledID].remove(0);
-
-                    if (time + _startTime - _chartTimeFlag >= _chartDuration / 1000 * _chartUpdateRatio)
+                    if (_checkBoxChannelsValue[0] == true)
                     {
+						while (_lastValues.count() > _chartDuration / 10 * _numOfOS * _numOfCH)
+							_lastValues.removeFirst();
+						_lastValues.push_back(value);
+						
+						_series[ledID].append(time, value);
+						while (_series[ledID].count() > _chartDuration / 10)
+							_series[ledID].remove(0);
+                    }
+	
+					if (time + _startTime - _chartTimeFlag >= _chartDuration / 1000 * _chartUpdateRatio)
+					{
 						minMaxY = std::minmax_element(_lastValues.begin(), _lastValues.end());
 						_axisY->setRange(*(minMaxY.first) - 30000, *(minMaxY.second) + 30000);
-						_axisX->setRange(_series[ledID].at(0).x(), _series[ledID].at(0).x() + _chartDuration);
-                        _chartTimeFlag = time + _startTime;
-                    }
+						for (int k = 0; k < _numOfOS * _numOfCH; ++k)
+						{
+							if (_series[k].count() == 0)
+								continue ;
+							if (_series[k].at(0).x() < minX)
+								minX = _series[k].at(0).x();
+						}
+						_axisX->setRange(minX, minX + _chartDuration);
+						_chartTimeFlag = time + _startTime;
+					}
 				}
 			});
         
@@ -771,10 +792,55 @@ void    WindowNext::execChartDialog(void)
             	this->_chartDuration = this->_sliderHorizontal->value() * 1000;
         	});
         
+        this->_gridLayout = new QGridLayout;
+        
         this->_vBoxLayout = new QVBoxLayout;
-        this->_vBoxLayout->addWidget(this->_chartView);
-        this->_vBoxLayout->addWidget(this->_sliderHorizontal, 0, Qt::AlignCenter);
-        this->_chartDialog->setLayout(this->_vBoxLayout);
+        this->_checkBoxChannels = new QCheckBox[_numOfOS * _numOfCH];
+        int j = -1;
+        int n = 1;
+        for (int i = 0; i < _numOfOS * _numOfCH; ++i)
+        {
+            if (++j >= _numOfCH)
+            {
+                j = 0;
+                n++;
+            }
+            if (i % _numOfCH == 0)
+            {
+				this->_checkBoxChannels[i].setText("Infrared " + QString::number(n));
+				this->_checkBoxChannels[i].setStyleSheet("color: blue;");
+            }
+            else if (i % _numOfCH == 1)
+            {
+				this->_checkBoxChannels[i].setText("Red " + QString::number(n));
+				this->_checkBoxChannels[i].setStyleSheet("color: red;");
+            }
+            else if (i % _numOfCH == 2)
+            {
+				this->_checkBoxChannels[i].setText("Green " + QString::number(n));
+				this->_checkBoxChannels[i].setStyleSheet("color: green;");
+            }
+            else
+            {
+				this->_checkBoxChannels[i].setText("Other " + QString::number(n));
+				this->_checkBoxChannels[i].setStyleSheet("color: gray;");
+            }
+        		this->_checkBoxChannels[i].setChecked(true);
+			connect(&this->_checkBoxChannels[i], &QCheckBox::clicked, this,
+				[=]()
+				{
+					if (this->_checkBoxChannels[i].isChecked() == true)
+                        this->_checkBoxChannelsValue[i] = true;
+                    else
+                        this->_checkBoxChannelsValue[i] = false;
+				});
+			this->_vBoxLayout->addWidget(&_checkBoxChannels[i]); 
+        }
+        
+        this->_gridLayout->addLayout(_vBoxLayout, 0, 0);
+        this->_gridLayout->addWidget(this->_chartView, 0, 1);
+        this->_gridLayout->addWidget(this->_sliderHorizontal, 1, 0, 1, 2, Qt::AlignCenter);
+        this->_chartDialog->setLayout(this->_gridLayout);
 }
 
 void   WindowNext::onThreadDisplayTimerFinished(void)
