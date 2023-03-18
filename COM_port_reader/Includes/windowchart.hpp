@@ -18,24 +18,27 @@ class WindowChart : public QDialog
     
     private:
         void				execChartDialog(void);
-        void                readFromFile(void);
+        void        		readFromFile(void);
+		void				updateValueLineAxis(void);
     
     private:
-        const QString		_selectedFile;
+        const QString   _selectedFile;
         
         QChart      		*_chart;
-        QChartView			*_chartView;
-        QValueAxis			*_axisX;
-        QValueAxis			*_axisY;
-        QLineSeries			*_series;
-        QGridLayout			*_gridLayout;
-        QVBoxLayout			*_vBoxLayout;
-        QCheckBox			*_checkBoxChannels;
+        QChartView		*_chartView;
+        QValueAxis		*_axisX;
+        QValueAxis		*_axisY;
+        QLineSeries		*_series;
+        QGridLayout		*_gridLayout;
+        QVBoxLayout		*_vBoxLayout;
+        QCheckBox		*_checkBoxChannels;
         bool            	*_checkBoxChannelsValue;
         
         char				_numOfCH;
-        qint64              _timeLineMin = 0;
-        qint64              _timeLineMax = 60000;
+        qint64          _timeLineMin;
+        qint64          _timeLineMax;
+		unsigned int		_valueLineMin;
+		unsigned int		_valueLineMax;
 };
 
 #endif
