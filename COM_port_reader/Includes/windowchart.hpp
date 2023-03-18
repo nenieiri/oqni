@@ -34,8 +34,9 @@ class WindowChart : public QDialog
         QVBoxLayout		*_vBoxLayout;
         QCheckBox		*_checkBoxChannels;
         bool            *_checkBoxChannelsValue;
-        QSlider 		*_sliderHorizontal;
-        
+        QSlider 		*_sliderLower;
+        QSlider 		*_sliderUpper;
+
         char            _numOfCH;
         qint64          _timeLineMin;
         qint64          _timeLineMax;

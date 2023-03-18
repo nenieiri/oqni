@@ -18,9 +18,7 @@ WindowChart::WindowChart(MainWindow *parent, const QString &selectedFile)
     this->setStyleSheet("background: #e6e6e6;");
     this->raise();
 	this->show();
-
     this->_timeLineMin = 0;
-
     this->readFromFile();    
     this->execChartDialog();
 }
@@ -35,7 +33,8 @@ WindowChart::~WindowChart()
 	delete [] _series;
 	delete this->_chart;
 	delete _chartView;
-	delete _sliderHorizontal;
+	delete _sliderLower;
+    delete _sliderUpper;
 	delete [] _checkBoxChannelsValue;
 	delete [] _checkBoxChannels;
 	delete _vBoxLayout;
@@ -101,7 +100,7 @@ void    WindowChart::updateValueLineAxis(void)
 void    WindowChart::execChartDialog(void)
 {
 	this->_chart = new QChart();
-	_chart->setTitle("Static Line Chart");
+	_chart->setTitle("Static Line Chart: " + _selectedFile);
 	_chart->legend()->hide();
 	
 	for (int i = 0; i < _numOfCH; ++i)
@@ -139,20 +138,57 @@ void    WindowChart::execChartDialog(void)
 	this->_chartView = new QChartView(_chart);
 	this->_chartView->setRenderHint(QPainter::Antialiasing);
 
-	this->_sliderHorizontal = new QSlider(Qt::Horizontal, this);
-	this->_sliderHorizontal->setRange(2, 10);
-	this->_sliderHorizontal->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
-	this->_sliderHorizontal->setFixedWidth(300);
-	this->_sliderHorizontal->setTickInterval(1);
-//	this->_sliderHorizontal->setValue(this->_chartDuration / 1000);
-	this->_sliderHorizontal->setFixedHeight(40);
-/*
-	connect(this->_sliderHorizontal, &QSlider::valueChanged, this,
-		[=]()
-		{
-			this->_chartDuration = this->_sliderHorizontal->value() * 1000;
-		});
-*/        
+	this->_sliderLower = new QSlider(Qt::Horizontal, this);
+	this->_sliderLower->setRange(_timeLineMin, _timeLineMax);
+	this->_sliderLower->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+	this->_sliderLower->setTickInterval(1);
+    connect(_sliderLower, &QAbstractSlider::sliderMoved, this, [=](int position) {
+        if (position >= _sliderUpper->value()) {
+            _sliderLower->setValue(_sliderUpper->value());
+        }
+        this->_timeLineMin = _sliderLower->value();
+        _axisX->setRange(_timeLineMin, _timeLineMax);
+        this->updateValueLineAxis();
+    });
+    
+    this->_sliderUpper = new QSlider(Qt::Horizontal, this);
+	this->_sliderUpper->setRange(_timeLineMin, _timeLineMax);
+    this->_sliderUpper->setValue(_timeLineMax);
+	this->_sliderUpper->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+	this->_sliderUpper->setTickInterval(1);
+    connect(_sliderUpper, &QAbstractSlider::sliderMoved, this, [=](int position) {
+        if (position <= _sliderLower->value()) {
+            _sliderUpper->setValue(_sliderUpper->value());
+        }
+        this->_timeLineMax = _sliderUpper->value();
+        _axisX->setRange(_timeLineMin, _timeLineMax);
+        this->updateValueLineAxis();
+    });
+    
+    
+    
+    
+    QString styleSheet =
+        "QSlider::groove:horizontal {"
+        "    background: #c0c0c0;"
+        "    height: 10px;"
+        "}"
+        "QSlider::handle:horizontal {"
+        "    background: #00bfff;"
+        "    width: 20px;"
+        "    height: 20px;"
+        "    margin: -5px 0;"
+        "    border-radius: 10px;"
+        "}";
+    
+    // Set the custom style sheet for the slider
+    _sliderLower->setStyleSheet(styleSheet);
+    _sliderUpper->setStyleSheet(styleSheet);
+    
+    
+    
+    
+
 	this->_gridLayout = new QGridLayout;
 	
 	this->_vBoxLayout = new QVBoxLayout;
@@ -203,6 +239,7 @@ void    WindowChart::execChartDialog(void)
 	
 	this->_gridLayout->addLayout(_vBoxLayout, 0, 0);
 	this->_gridLayout->addWidget(this->_chartView, 0, 1);
-	this->_gridLayout->addWidget(this->_sliderHorizontal, 1, 0, 1, 2, Qt::AlignCenter);
+	this->_gridLayout->addWidget(this->_sliderLower, 1, 1);
+    this->_gridLayout->addWidget(this->_sliderUpper, 2, 1);    
 	this->setLayout(this->_gridLayout);
 }
