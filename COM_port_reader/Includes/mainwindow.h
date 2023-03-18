@@ -5,6 +5,7 @@
 # include "../ui_mainwindow.h"
 # include "comport.hpp"
 # include "windownext.hpp"
+# include "windowchart.hpp"
 
 # define MY_DEFINED_DEFAULT_ACTIVE_BUTTON   "QPushButton {border-radius: 6px; background: #6FD5CA; color: black; border: 1px solid gray;} \
                                        QPushButton:hover {border-radius: 6px; background: #B9E8E2; color: black; border: 1px solid #0078D4;}"
@@ -22,6 +23,7 @@ namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
 
 class WindowNext;
+class WindowChart;
 
 class MainWindow : public QMainWindow
 {
@@ -43,6 +45,7 @@ class MainWindow : public QMainWindow
         void            createLiftVertical(int x, int y, int width, int height);
         void            buttonCheckAction(void);
         void            buttonNextAction(void);
+        void            buttonChartAction(void);
 		void            buttonToolAction(ComPort *comPort);
 
     private:
@@ -50,6 +53,7 @@ class MainWindow : public QMainWindow
         
         QPushButton         *_buttonCheck;
         QPushButton         *_buttonNext;
+        QPushButton         *_buttonChart;
         
         QLabel              *_gifLabel;
         QMovie              *_gifMovie;
@@ -63,7 +67,9 @@ class MainWindow : public QMainWindow
         QStringList         _parityItems;
         QStringList         _stopBitsItems;
         QStringList         _flowControlItems;
+        
         WindowNext          *_windowNext;
+        WindowChart         *_windowChart;
         
         ComPort             *_previewsCheckBox; // temp to delete
         

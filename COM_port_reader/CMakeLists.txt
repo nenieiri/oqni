@@ -23,6 +23,7 @@ set(PROJECT_SOURCES
 		Includes/threaddisplaytimer.hpp
 		Includes/threadreader.hpp
 		Includes/windownext.hpp
+		Includes/windowchart.hpp
 		
         Srcs/comport.cpp
         Srcs/main.cpp
@@ -30,6 +31,7 @@ set(PROJECT_SOURCES
 		Srcs/threaddisplaytimer.cpp
 		Srcs/threadreader.cpp
 		Srcs/windownext.cpp
+		Srcs/windowchart.cpp
 		
         mainwindow.ui
         ResourceFiles.qrc

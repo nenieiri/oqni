@@ -1,5 +1,4 @@
 #include "windownext.hpp"
-#include <algorithm>
 
 WindowNext::WindowNext(MainWindow *parent)
     : QDialog(parent)
@@ -690,7 +689,7 @@ void    WindowNext::execChartDialog(void)
         this->_chartDialog->setMinimumHeight(windowHeight / 2);
         this->_chartDialog->setMinimumWidth(windowWidth / 2);
         this->_chartDialog->show();
-//        this->raise();
+        this->raise();
         
         this->_chart = new QChart();
         _chart->setTitle("Dynamic Line Chart");

@@ -16,6 +16,7 @@ MainWindow::MainWindow(QWidget *parent)
     this->_buttonNext = this->createButton("Next", 560, 555, 100, 30, std::bind(&MainWindow::buttonNextAction, this), this);
     this->_buttonNext->setEnabled(false);
     this->_buttonNext->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_BUTTON);
+    this->_buttonChart = this->createButton("Chart", 560, 500, 100, 30, std::bind(&MainWindow::buttonChartAction, this), this);
     
     _baudRateItems = {"1200", "2400", "4800", "9600", "19200", "38400", "57600", "115200"};
     _dataBitsItems = {"5", "6", "7", "8"};
@@ -30,6 +31,8 @@ MainWindow::~MainWindow()
         delete *it;
     this->_comPorts.clear();
     delete _buttonCheck;
+    delete _buttonNext;
+    delete _buttonChart;
     delete _gifLabel;
     delete _gifMovie;
     delete _liftVertical;
@@ -238,6 +241,43 @@ void    MainWindow::buttonNextAction()
     this->_windowNext->exec();
     this->_buttonNext->setStyleSheet(MY_DEFINED_RELEASED_BUTTON);
     delete this->_windowNext;
+}
+
+void    MainWindow::buttonChartAction()
+{
+	QString		selectedFile;
+    QString		line;
+	
+//  QCoreApplication::applicationDirPath() + "/Recordings";
+    selectedFile = QFileDialog::getOpenFileName(this, "Select a file", \
+                            QStandardPaths::writableLocation(QStandardPaths::DesktopLocation)  + "/oqni/Recordings", \
+                            "All Files (*.csv)");
+	if (selectedFile == "")
+    {
+		this->_buttonChart->setStyleSheet(MY_DEFINED_RELEASED_BUTTON);
+        return ;
+    }
+    QFile file(selectedFile);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        qWarning() << "Failed to open file";
+		this->_buttonChart->setStyleSheet(MY_DEFINED_RELEASED_BUTTON);
+        return ;
+    }
+
+    QTextStream in(&file);
+	line = in.readLine();
+	file.close();
+	if (line.startsWith("time_millisec,led") == false)
+    {
+		this->_buttonChart->setStyleSheet(MY_DEFINED_RELEASED_BUTTON);
+		return ;
+    }
+
+    this->_windowChart = new WindowChart(this, selectedFile);
+    this->_windowChart->exec();
+    this->_buttonChart->setStyleSheet(MY_DEFINED_RELEASED_BUTTON);
+    delete this->_windowChart;
 }
 
 void    MainWindow::buttonToolAction(ComPort *comPort)
