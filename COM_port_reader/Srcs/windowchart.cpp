@@ -150,33 +150,26 @@ void    WindowChart::execChartDialog(void)
         
         this->_vBoxLayout = new QVBoxLayout;
         this->_checkBoxChannels = new QCheckBox[_numOfCH];
-        int j = -1;
-        int n = 1;
         for (int i = 0; i < _numOfCH; ++i)
         {
-            if (++j >= _numOfCH)
-            {
-                j = 0;
-                n++;
-            }
             if (i % _numOfCH == 0)
             {
-				this->_checkBoxChannels[i].setText("Infrared " + QString::number(n));
+				this->_checkBoxChannels[i].setText("Infrared");
 				this->_checkBoxChannels[i].setStyleSheet("color: blue;");
             }
             else if (i % _numOfCH == 1)
             {
-				this->_checkBoxChannels[i].setText("Red " + QString::number(n));
+				this->_checkBoxChannels[i].setText("Red");
 				this->_checkBoxChannels[i].setStyleSheet("color: red;");
             }
             else if (i % _numOfCH == 2)
             {
-				this->_checkBoxChannels[i].setText("Green " + QString::number(n));
+				this->_checkBoxChannels[i].setText("Green");
 				this->_checkBoxChannels[i].setStyleSheet("color: green;");
             }
             else
             {
-				this->_checkBoxChannels[i].setText("Other " + QString::number(n));
+				this->_checkBoxChannels[i].setText("Other");
 				this->_checkBoxChannels[i].setStyleSheet("color: gray;");
             }
             this->_checkBoxChannels[i].setChecked(true);
