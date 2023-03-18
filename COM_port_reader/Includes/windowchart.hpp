@@ -6,6 +6,7 @@
 # include <QtCharts>
 # include <QFile>
 # include <QTextStream>
+# include <QSlider>
 # include "mainwindow.h"
 
 class MainWindow;
@@ -24,7 +25,7 @@ class WindowChart : public QDialog
     private:
         const QString   _selectedFile;
         
-        QChart      		*_chart;
+        QChart          *_chart;
         QChartView		*_chartView;
         QValueAxis		*_axisX;
         QValueAxis		*_axisY;
@@ -32,13 +33,14 @@ class WindowChart : public QDialog
         QGridLayout		*_gridLayout;
         QVBoxLayout		*_vBoxLayout;
         QCheckBox		*_checkBoxChannels;
-        bool            	*_checkBoxChannelsValue;
+        bool            *_checkBoxChannelsValue;
+        QSlider 		*_sliderHorizontal;
         
-        char				_numOfCH;
+        char            _numOfCH;
         qint64          _timeLineMin;
         qint64          _timeLineMax;
-		unsigned int		_valueLineMin;
-		unsigned int		_valueLineMax;
+		unsigned int    _valueLineMin;
+		unsigned int    _valueLineMax;
 };
 
 #endif

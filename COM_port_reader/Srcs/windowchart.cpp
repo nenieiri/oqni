@@ -35,7 +35,7 @@ WindowChart::~WindowChart()
 	delete [] _series;
 	delete this->_chart;
 	delete _chartView;
-//	delete _sliderHorizontal;
+	delete _sliderHorizontal;
 	delete [] _checkBoxChannelsValue;
 	delete [] _checkBoxChannels;
 	delete _vBoxLayout;
@@ -138,15 +138,15 @@ void    WindowChart::execChartDialog(void)
 
 	this->_chartView = new QChartView(_chart);
 	this->_chartView->setRenderHint(QPainter::Antialiasing);
-/*        
-	this->_sliderHorizontal = new MySlider(Qt::Horizontal, _chartDialog);
+
+	this->_sliderHorizontal = new QSlider(Qt::Horizontal, this);
 	this->_sliderHorizontal->setRange(2, 10);
 	this->_sliderHorizontal->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
 	this->_sliderHorizontal->setFixedWidth(300);
 	this->_sliderHorizontal->setTickInterval(1);
-	this->_sliderHorizontal->setValue(this->_chartDuration / 1000);
+//	this->_sliderHorizontal->setValue(this->_chartDuration / 1000);
 	this->_sliderHorizontal->setFixedHeight(40);
-			
+/*
 	connect(this->_sliderHorizontal, &QSlider::valueChanged, this,
 		[=]()
 		{
@@ -203,6 +203,6 @@ void    WindowChart::execChartDialog(void)
 	
 	this->_gridLayout->addLayout(_vBoxLayout, 0, 0);
 	this->_gridLayout->addWidget(this->_chartView, 0, 1);
-//	this->_gridLayout->addWidget(this->_sliderHorizontal, 1, 0, 1, 2, Qt::AlignCenter);
+	this->_gridLayout->addWidget(this->_sliderHorizontal, 1, 0, 1, 2, Qt::AlignCenter);
 	this->setLayout(this->_gridLayout);
 }

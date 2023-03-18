@@ -122,8 +122,8 @@ class WindowNext : public QDialog
         QGridLayout			*_gridLayout;
         QVBoxLayout			*_vBoxLayout;
         QCheckBox			*_checkBoxChannels;
-        bool                *_checkBoxChannelsValue;
-        MySlider            *_sliderHorizontal;
+        bool            		*_checkBoxChannelsValue;
+        MySlider        		*_sliderHorizontal;
 
         unsigned int        _chartDuration;
         unsigned int        _chartUpdateRatio;
