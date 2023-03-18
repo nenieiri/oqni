@@ -19,6 +19,8 @@ WindowChart::WindowChart(MainWindow *parent, const QString &selectedFile)
     this->raise();
 	this->show();
     
+    this->_timeLineMin = 0;
+
     this->readFromFile();    
     this->execChartDialog();
 }
@@ -51,6 +53,7 @@ void    WindowChart::readFromFile(void)
     QTextStream in(&file);
     
     _numOfCH = in.readLine().count("led"); // counting _numofCh and omitting first line
+    
     _series = new QLineSeries[_numOfCH];
     
     while (!in.atEnd())
@@ -61,6 +64,7 @@ void    WindowChart::readFromFile(void)
             _series[i - 1].append(time, splitList[i].toUInt());
     }
 	file.close();
+    _timeLineMax = _series[0].at(_series[0].count() - 1).x();
 }
 
 void    WindowChart::execChartDialog(void)
@@ -102,17 +106,6 @@ void    WindowChart::execChartDialog(void)
 	unsigned int    maxY = 0;
     qint64          minX = 0;
 
-
-//	for (int j = 0; j < _numOfCH; ++j)
-//	{
-
-//		if (_checkBoxChannelsValue[ledID] == true)
-//		{
-//			_series[ledID].append(time, value);
-//			while (_series[ledID].count() > _chartDuration / 10)
-//				_series[ledID].remove(0);
-//		}
-
 		for (int i = 0; i < _numOfCH; i++)
 		{
 			for(int j = 0; j < _series[i].count(); j++)
@@ -125,14 +118,14 @@ void    WindowChart::execChartDialog(void)
 		}
 		_axisY->setRange(minY, maxY);
 
-		for (int k = 0; k < _numOfCH; ++k)
-		{
-			if (_series[k].count() == 0)
-				continue ;
-			if (_series[k].at(0).x() < minX)
-				minX = _series[k].at(0).x();
-		}
-		_axisX->setRange(minX, minX + 60000); //_chartDuration);
+//		for (int k = 0; k < _numOfCH; ++k)
+//		{
+//			if (_series[k].count() == 0)
+//				continue ;
+//			if (_series[k].at(0).x() < minX)
+//				minX = _series[k].at(0).x();
+//		}
+		_axisX->setRange(_timeLineMin, _timeLineMax);
 //	}
 
         
@@ -192,15 +185,13 @@ void    WindowChart::execChartDialog(void)
 				{
 					if (this->_checkBoxChannels[i].isChecked() == true)
                     {
-//                        _series[i].attachAxis(_axisX);
-//                        _series[i].attachAxis(_axisY);
                         _chart->addSeries(&_series[i]);
+                        _series[i].attachAxis(_axisX);
+                        _series[i].attachAxis(_axisY);
                         this->_checkBoxChannelsValue[i] = true;
                     }
                     else
                     {
-//                        _series[i].detachAxis(_axisX);
-//                        _series[i].detachAxis(_axisY);
                         _chart->removeSeries(&_series[i]);
                         this->_checkBoxChannelsValue[i] = false;
                     }

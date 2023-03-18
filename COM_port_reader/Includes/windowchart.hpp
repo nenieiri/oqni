@@ -34,6 +34,8 @@ class WindowChart : public QDialog
         bool            	*_checkBoxChannelsValue;
         
         char				_numOfCH;
+        qint64              _timeLineMin = 0;
+        qint64              _timeLineMax = 60000;
 };
 
 #endif
