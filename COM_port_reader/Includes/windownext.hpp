@@ -18,8 +18,6 @@
 # include <QTextStream>
 # include <QList>
 # include <QCheckBox>
-# include <QFile>
-# include <QTextStream>
 # include <QtCharts>
 # include <QtEndian>
 # include <QSlider>

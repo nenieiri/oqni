@@ -4,6 +4,8 @@
 # include <QDialog>
 # include <QString>
 # include <QtCharts>
+# include <QFile>
+# include <QTextStream>
 # include "mainwindow.h"
 
 class MainWindow;
@@ -16,6 +18,7 @@ class WindowChart : public QDialog
     
     private:
         void				execChartDialog(void);
+        void                readFromFile(void);
     
     private:
         const QString		_selectedFile;
@@ -30,7 +33,7 @@ class WindowChart : public QDialog
         QCheckBox			*_checkBoxChannels;
         bool            	*_checkBoxChannelsValue;
         
-        char				_numOfCH = 3;
+        char				_numOfCH;
 };
 
 #endif

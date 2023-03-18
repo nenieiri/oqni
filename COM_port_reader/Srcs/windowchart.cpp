@@ -19,33 +19,48 @@ WindowChart::WindowChart(MainWindow *parent, const QString &selectedFile)
     this->raise();
 	this->show();
     
+    this->readFromFile();    
     this->execChartDialog();
 }
 
 WindowChart::~WindowChart()
 {
 	delete _axisX;
-	this->_axisX = nullptr;
 	delete _axisY;
-	this->_axisY = nullptr;
 	for (int i = 0; i < _numOfCH; ++i)
-		this->_chart->removeSeries(&_series[i]);
+        if (_chart->series().contains(&_series[i]))
+            this->_chart->removeSeries(&_series[i]);
 	delete [] _series;
-	this->_series = nullptr;
 	delete this->_chart;
-	this->_chart = nullptr;
 	delete _chartView;
-	this->_chartView = nullptr;
 //	delete _sliderHorizontal;
-//	this->_sliderHorizontal = nullptr;
 	delete [] _checkBoxChannelsValue;
-	this->_checkBoxChannelsValue = nullptr;
 	delete [] _checkBoxChannels;
-	this->_checkBoxChannels = nullptr;
 	delete _vBoxLayout;
-	this->_vBoxLayout = nullptr;
 	delete _gridLayout;
-	this->_gridLayout = nullptr;
+}
+
+void    WindowChart::readFromFile(void)
+{
+    QStringList splitList;
+    QFile       file(_selectedFile);
+    qint64      time;
+    
+    file.open(QIODevice::ReadOnly | QIODevice::Text);
+
+    QTextStream in(&file);
+    
+    _numOfCH = in.readLine().count("led"); // counting _numofCh and omitting first line
+    _series = new QLineSeries[_numOfCH];
+    
+    while (!in.atEnd())
+    {
+        splitList = in.readLine().split(',');
+        time = splitList[0].toLongLong();
+        for (int i = 1; i <= _numOfCH; ++i)
+            _series[i - 1].append(time, splitList[i].toUInt());
+    }
+	file.close();
 }
 
 void    WindowChart::execChartDialog(void)
@@ -54,7 +69,6 @@ void    WindowChart::execChartDialog(void)
         _chart->setTitle("Static Line Chart");
         _chart->legend()->hide();
         
-        _series = new QLineSeries[_numOfCH];
         for (int i = 0; i < _numOfCH; ++i)
         {
             _chart->addSeries(&_series[i]);
@@ -67,7 +81,7 @@ void    WindowChart::execChartDialog(void)
             else
 				_series[i].setColor(Qt::gray);
         }
-        
+
         this->_axisX = new QValueAxis();
         _axisX->setTitleText("Time (milliseconds)");
         _chart->addAxis(_axisX, Qt::AlignBottom);
@@ -83,28 +97,21 @@ void    WindowChart::execChartDialog(void)
         this->_checkBoxChannelsValue = new bool[_numOfCH];
         for (int i = 0; i < _numOfCH; ++i)
             this->_checkBoxChannelsValue[i] = true;
-/*
-	unsigned int    value;
-	int             ledID;
+
 	unsigned int    minY = -1;
 	unsigned int    maxY = 0;
-	char            id = qFromBigEndian<unsigned char>(data.mid(_bytesPA, _bytesID).constData());
-	qint64          time = qFromLittleEndian<qint64>(data.mid(_totalBytes - 8 - 1, 8).constData()) - _startTime;
-	qint64          minX = time;
-*/
-/*
-	for (int j = 0; j < _numOfCH; ++j)
-	{
-		value = qFromLittleEndian<unsigned int>(data.mid(_bytesPA + _bytesID + _bytesCO + _bytesCH + \
-												_bytesOCH + j * _sizeOfCH, _sizeOfCH).constData());
-		ledID = j + id * id - 1;
+    qint64          minX = 0;
 
-		if (_checkBoxChannelsValue[ledID] == true)
-		{
-			_series[ledID].append(time, value);
-			while (_series[ledID].count() > _chartDuration / 10)
-				_series[ledID].remove(0);
-		}
+
+//	for (int j = 0; j < _numOfCH; ++j)
+//	{
+
+//		if (_checkBoxChannelsValue[ledID] == true)
+//		{
+//			_series[ledID].append(time, value);
+//			while (_series[ledID].count() > _chartDuration / 10)
+//				_series[ledID].remove(0);
+//		}
 
 		for (int i = 0; i < _numOfCH; i++)
 		{
@@ -125,9 +132,9 @@ void    WindowChart::execChartDialog(void)
 			if (_series[k].at(0).x() < minX)
 				minX = _series[k].at(0).x();
 		}
-		_axisX->setRange(minX, minX + _chartDuration);
-	}
-*/
+		_axisX->setRange(minX, minX + 60000); //_chartDuration);
+//	}
+
         
         this->_chartView = new QChartView(_chart);
         this->_chartView->setRenderHint(QPainter::Antialiasing);
@@ -185,14 +192,19 @@ void    WindowChart::execChartDialog(void)
 				{
 					if (this->_checkBoxChannels[i].isChecked() == true)
                     {
-                        // fill series
+//                        _series[i].attachAxis(_axisX);
+//                        _series[i].attachAxis(_axisY);
+                        _chart->addSeries(&_series[i]);
                         this->_checkBoxChannelsValue[i] = true;
                     }
                     else
                     {
-                        _series[i].clear();
+//                        _series[i].detachAxis(_axisX);
+//                        _series[i].detachAxis(_axisY);
+                        _chart->removeSeries(&_series[i]);
                         this->_checkBoxChannelsValue[i] = false;
                     }
+                    _chart->update();
 				});
 			this->_vBoxLayout->addWidget(&_checkBoxChannels[i]); 
         }
