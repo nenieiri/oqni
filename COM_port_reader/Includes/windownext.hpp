@@ -66,7 +66,7 @@ class WindowNext : public QDialog
         QString				_selectedDirectory;
         QString				_fullSavingPath;
         
-		QLabel				*_showSelectedDir1;
+		QCheckBox			*_showSelectedDir1;
 		QLineEdit			*_showSelectedDir2;
         
 		QLabel				*_recordingFolder1;
@@ -92,6 +92,7 @@ class WindowNext : public QDialog
         ComPort				*_selectedComPort;
         
         QCheckBox           *_showChart;
+
         ThreadDisplayTimer  *_threadDisplayTimer;
         ThreadReader        *_threadReader;
 		int					_durationTimerValue;
@@ -122,8 +123,8 @@ class WindowNext : public QDialog
         QGridLayout			*_gridLayout;
         QVBoxLayout			*_vBoxLayout;
         QCheckBox			*_checkBoxChannels;
-        bool            		*_checkBoxChannelsValue;
-        MySlider        		*_sliderHorizontal;
+        bool                *_checkBoxChannelsValue;
+        MySlider            *_sliderHorizontal;
 
         unsigned int        _chartDuration;
         unsigned int        _chartUpdateRatio;

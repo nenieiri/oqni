@@ -25,7 +25,8 @@ WindowNext::WindowNext(MainWindow *parent)
     this->_showReadingPort1 = new QLabel("Read from:", this);
 	this->_showReadingPort2 = new QLabel(this->_selectedComPort->getPortName(), this);
     
-    this->_showSelectedDir1 = new QLabel("Save to:", this);
+    this->_showSelectedDir1 = new QCheckBox("Save to:   ", this);
+    this->_showSelectedDir1->setChecked(true);
     this->_showSelectedDir2 = new QLineEdit(this);
 //    this->_selectedDirectory = QCoreApplication::applicationDirPath() + "/Recordings";
     this->_selectedDirectory = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation) + "/oqni/Recordings";
@@ -313,6 +314,7 @@ void    WindowNext::setParametersDesign(void)
     
     this->_showSelectedDir1->setGeometry(10, 50, 100, 30);
     this->_showSelectedDir1->setStyleSheet("font-size: 18px;");
+    this->_showSelectedDir1->setLayoutDirection(Qt::RightToLeft);
     this->_showSelectedDir2->setGeometry(120, 50, 360, 30);
     this->_showSelectedDir2->setCursorPosition(0);
     this->_showSelectedDir2->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
@@ -600,7 +602,11 @@ int	WindowNext::readExpProtocol(void)
 
 void	WindowNext::saveDataToFile(const QString &subject)
 {
-	QFile  			*myFile = new QFile[_numOfOS];
+	
+    if (this->_showSelectedDir1->isChecked() == false)
+        return;
+    
+    QFile  			*myFile = new QFile[_numOfOS];
 	QTextStream		*out = new QTextStream[_numOfOS];
     char            id;
     unsigned char   counter;
