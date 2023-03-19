@@ -39,6 +39,8 @@ WindowChart::~WindowChart()
 	delete [] _checkBoxChannels;
 	delete _vBoxLayout;
 	delete _gridLayout;
+    delete _sliderLowerName;
+    delete _sliderUpperName;
 }
 
 void    WindowChart::readFromFile(void)
@@ -165,29 +167,26 @@ void    WindowChart::execChartDialog(void)
         this->updateValueLineAxis();
     });
     
-    
-    
-    
+    // Set the custom style sheet for the slider
     QString styleSheet =
         "QSlider::groove:horizontal {"
         "    background: #c0c0c0;"
-        "    height: 10px;"
+        "    height: 4px;"
         "}"
         "QSlider::handle:horizontal {"
-        "    background: #00bfff;"
-        "    width: 20px;"
-        "    height: 20px;"
-        "    margin: -5px 0;"
-        "    border-radius: 10px;"
+        "    background: white;"
+        "    border: 1px solid black;"
+        "    width: 10px;"
+        "    height: 10px;"
+        "    margin: -8px 0;"
+        "    border-radius: 5px;"
         "}";
-    
-    // Set the custom style sheet for the slider
-    _sliderLower->setStyleSheet(styleSheet);
-    _sliderUpper->setStyleSheet(styleSheet);
-    
-    
-    
-    
+    _sliderLower->setStyleSheet(styleSheet + \
+                                "QSlider::add-page:horizontal {background-color: #00bfff;}" + \
+                                "QSlider::sub-page:horizontal {background-color: white;}");
+    _sliderUpper->setStyleSheet(styleSheet + \
+                                "QSlider::add-page:horizontal {background-color: white;}" + \
+                                "QSlider::sub-page:horizontal {background-color: #00bfff;}");
 
 	this->_gridLayout = new QGridLayout;
 	
@@ -236,10 +235,18 @@ void    WindowChart::execChartDialog(void)
 			});
 		this->_vBoxLayout->addWidget(&_checkBoxChannels[i]); 
 	}
-	
+
 	this->_gridLayout->addLayout(_vBoxLayout, 0, 0);
 	this->_gridLayout->addWidget(this->_chartView, 0, 1);
 	this->_gridLayout->addWidget(this->_sliderLower, 1, 1);
-    this->_gridLayout->addWidget(this->_sliderUpper, 2, 1);    
+    this->_gridLayout->addWidget(this->_sliderUpper, 2, 1);
+    
+    this->_sliderLowerName = new QLabel("Lower time", this);
+    this->_sliderUpperName = new QLabel("Upper time", this);
+    this->_sliderLowerName->setStyleSheet("font-size: 16px; color: grey;");
+    this->_sliderUpperName->setStyleSheet("font-size: 16px; color: grey;");
+    this->_gridLayout->addWidget(_sliderLowerName, 1, 0);
+    this->_gridLayout->addWidget(_sliderUpperName, 2, 0); 
+    
 	this->setLayout(this->_gridLayout);
 }

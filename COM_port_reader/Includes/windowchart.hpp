@@ -36,6 +36,8 @@ class WindowChart : public QDialog
         bool            *_checkBoxChannelsValue;
         QSlider 		*_sliderLower;
         QSlider 		*_sliderUpper;
+        QLabel          *_sliderLowerName;
+        QLabel          *_sliderUpperName;
 
         char            _numOfCH;
         qint64          _timeLineMin;

@@ -604,7 +604,7 @@ void	WindowNext::saveDataToFile(const QString &subject)
 {
 	
     if (this->_showSelectedDir1->isChecked() == false)
-        return;
+        return ;
     
     QFile  			*myFile = new QFile[_numOfOS];
 	QTextStream		*out = new QTextStream[_numOfOS];
