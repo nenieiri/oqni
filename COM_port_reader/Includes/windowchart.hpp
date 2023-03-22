@@ -29,6 +29,7 @@ class WindowChart : public QDialog
         QChartView		*_chartView;
         QValueAxis		*_axisX;
         QValueAxis		*_axisY;
+        QValueAxis		*_axisYLabel;
         QLineSeries		*_series;
         QGridLayout		*_gridLayout;
         QVBoxLayout		*_vBoxLayout;

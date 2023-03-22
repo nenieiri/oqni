@@ -55,13 +55,13 @@ void    WindowChart::readFromFile(void)
     
     _numOfCH = in.readLine().count("led"); // counting _numofCh and omitting first line
     
-    _series = new QLineSeries[_numOfCH];
+    _series = new QLineSeries[_numOfCH + 1];
     
     while (!in.atEnd())
     {
         splitList = in.readLine().split(',');
         time = splitList[0].toLongLong();
-        for (int i = 1; i <= _numOfCH; ++i)
+        for (int i = 1; i <= _numOfCH + 1; ++i)
             _series[i - 1].append(time, splitList[i].toUInt());
     }
 	file.close();
@@ -105,15 +105,17 @@ void    WindowChart::execChartDialog(void)
 	_chart->setTitle("Static Line Chart: " + _selectedFile);
 	_chart->legend()->hide();
 	
-	for (int i = 0; i < _numOfCH; ++i)
+	for (int i = 0; i < _numOfCH + 1; ++i)
 	{
 		_chart->addSeries(&_series[i]);
-		if (i % _numOfCH == 0)
+		if (i % (_numOfCH + 1) == 0)
 			_series[i].setColor(Qt::blue); // infraRed
-		else if (i % _numOfCH == 1)
+		else if (i % (_numOfCH + 1) == 1)
 			_series[i].setColor(Qt::red);
-		else if (i % _numOfCH == 2)
+		else if (i % (_numOfCH + 1) == 2)
 			_series[i].setColor(Qt::green);
+		else if (i % (_numOfCH + 1) == 3)
+			_series[i].setColor(Qt::black);
 		else
 			_series[i].setColor(Qt::gray);
 	}
@@ -121,7 +123,7 @@ void    WindowChart::execChartDialog(void)
 	this->_axisX = new QValueAxis();
 	_axisX->setTitleText("Time (milliseconds)");
 	_chart->addAxis(_axisX, Qt::AlignBottom);
-	for (int i = 0; i < _numOfCH; ++i)
+	for (int i = 0; i < _numOfCH + 1; ++i)
 		_series[i].attachAxis(_axisX);
 
 	this->_axisY = new QValueAxis();
@@ -129,9 +131,19 @@ void    WindowChart::execChartDialog(void)
 	_chart->addAxis(_axisY, Qt::AlignLeft);
 	for (int i = 0; i < _numOfCH; ++i)
 		_series[i].attachAxis(_axisY);
+
+	this->_axisYLabel = new QValueAxis();
+	_axisYLabel->setTitleText("Label");
+	_chart->addAxis(_axisYLabel, Qt::AlignRight);
+    _series[_numOfCH].attachAxis(_axisYLabel);
+    int maxLabel = 0;
+    for (int i = 0; i < _series[_numOfCH].count(); ++i)
+        if (maxLabel < _series[_numOfCH].at(i).y())
+            maxLabel = _series[_numOfCH].at(i).y();
+    _axisYLabel->setRange(0, maxLabel + 1);
 	
-	this->_checkBoxChannelsValue = new bool[_numOfCH];
-	for (int i = 0; i < _numOfCH; ++i)
+	this->_checkBoxChannelsValue = new bool[_numOfCH + 1];
+	for (int i = 0; i < _numOfCH + 1; ++i)
 		this->_checkBoxChannelsValue[i] = true;
     
 	this->updateValueLineAxis();
@@ -191,23 +203,28 @@ void    WindowChart::execChartDialog(void)
 	this->_gridLayout = new QGridLayout;
 	
 	this->_vBoxLayout = new QVBoxLayout;
-	this->_checkBoxChannels = new QCheckBox[_numOfCH];
-	for (int i = 0; i < _numOfCH; ++i)
+	this->_checkBoxChannels = new QCheckBox[_numOfCH + 1];
+	for (int i = 0; i < _numOfCH + 1; ++i)
 	{
-		if (i % _numOfCH == 0)
+		if (i % (_numOfCH + 1) == 0)
 		{
 			this->_checkBoxChannels[i].setText("Infrared");
 			this->_checkBoxChannels[i].setStyleSheet("color: blue;");
 		}
-		else if (i % _numOfCH == 1)
+		else if (i % (_numOfCH + 1) == 1)
 		{
 			this->_checkBoxChannels[i].setText("Red");
 			this->_checkBoxChannels[i].setStyleSheet("color: red;");
 		}
-		else if (i % _numOfCH == 2)
+		else if (i % (_numOfCH + 1) == 2)
 		{
 			this->_checkBoxChannels[i].setText("Green");
 			this->_checkBoxChannels[i].setStyleSheet("color: green;");
+		}
+		else if (i % (_numOfCH + 1) == 3)
+		{
+			this->_checkBoxChannels[i].setText("Label");
+			this->_checkBoxChannels[i].setStyleSheet("color: black;");
 		}
 		else
 		{
@@ -222,7 +239,10 @@ void    WindowChart::execChartDialog(void)
 				{
 					_chart->addSeries(&_series[i]);
 					_series[i].attachAxis(_axisX);
-					_series[i].attachAxis(_axisY);
+                    if (i % _numOfCH == 0)
+						_series[i].attachAxis(_axisYLabel);
+                    else
+						_series[i].attachAxis(_axisY);
 					this->_checkBoxChannelsValue[i] = true;
 				}
 				else
