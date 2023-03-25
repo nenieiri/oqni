@@ -121,7 +121,7 @@ class WindowNext : public QDialog
         QValueAxis			*_axisY;
         QLineSeries			*_series;
         QGridLayout			*_gridLayout;
-        QVBoxLayout			*_vBoxLayout;
+        QHBoxLayout			*_hBoxLayout;
         QCheckBox			*_checkBoxChannels;
         bool                *_checkBoxChannelsValue;
         MySlider            *_sliderHorizontal;

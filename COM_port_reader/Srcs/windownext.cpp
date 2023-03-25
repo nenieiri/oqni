@@ -68,7 +68,7 @@ WindowNext::WindowNext(MainWindow *parent)
 	this->_axisX = nullptr;
 	this->_axisY = nullptr;
 	this->_series = nullptr;
-	this->_vBoxLayout = nullptr;
+	this->_hBoxLayout = nullptr;
 	this->_gridLayout = nullptr;
     
     this->setModal(true);
@@ -539,8 +539,8 @@ void    WindowNext::setParametersDesign(void)
 				this->_checkBoxChannelsValue = nullptr;
 				delete [] _checkBoxChannels;
 				this->_checkBoxChannels = nullptr;
-				delete _vBoxLayout;
-				this->_vBoxLayout = nullptr;
+				delete _hBoxLayout;
+				this->_hBoxLayout = nullptr;
 				delete _gridLayout;
 				this->_gridLayout = nullptr;
                 if (this->_chartDialog && this->_chartDialog->isVisible())
@@ -807,7 +807,7 @@ void    WindowNext::execChartDialog(void)
         
         this->_gridLayout = new QGridLayout;
         
-        this->_vBoxLayout = new QVBoxLayout;
+        this->_hBoxLayout = new QHBoxLayout;
         this->_checkBoxChannels = new QCheckBox[_numOfOS * _numOfCH];
         int j = -1;
         int n = 1;
@@ -820,22 +820,22 @@ void    WindowNext::execChartDialog(void)
             }
             if (i % _numOfCH == 0)
             {
-				this->_checkBoxChannels[i].setText("Infrared " + QString::number(n));
+				this->_checkBoxChannels[i].setText("Infrared " + QString::number(n) + "  ");
 				this->_checkBoxChannels[i].setStyleSheet("color: blue;");
             }
             else if (i % _numOfCH == 1)
             {
-				this->_checkBoxChannels[i].setText("Red " + QString::number(n));
+				this->_checkBoxChannels[i].setText("Red " + QString::number(n) + "  ");
 				this->_checkBoxChannels[i].setStyleSheet("color: red;");
             }
             else if (i % _numOfCH == 2)
             {
-				this->_checkBoxChannels[i].setText("Green " + QString::number(n));
+				this->_checkBoxChannels[i].setText("Green " + QString::number(n) + "                ");
 				this->_checkBoxChannels[i].setStyleSheet("color: green;");
             }
             else
             {
-				this->_checkBoxChannels[i].setText("Other " + QString::number(n));
+				this->_checkBoxChannels[i].setText("Other " + QString::number(n) + "  ");
 				this->_checkBoxChannels[i].setStyleSheet("color: gray;");
             }
         		this->_checkBoxChannels[i].setChecked(true);
@@ -850,12 +850,12 @@ void    WindowNext::execChartDialog(void)
                         this->_checkBoxChannelsValue[i] = false;
                     }
 				});
-			this->_vBoxLayout->addWidget(&_checkBoxChannels[i]); 
+			this->_hBoxLayout->addWidget(&_checkBoxChannels[i]); 
         }
         
-        this->_gridLayout->addLayout(_vBoxLayout, 0, 0);
-        this->_gridLayout->addWidget(this->_chartView, 0, 1);
-        this->_gridLayout->addWidget(this->_sliderHorizontal, 1, 0, 1, 2, Qt::AlignCenter);
+        this->_gridLayout->addWidget(this->_chartView, 0, 0, 1, 4);
+        this->_gridLayout->addLayout(_hBoxLayout, 1, 0, 1, 3, Qt::AlignCenter);
+        this->_gridLayout->addWidget(this->_sliderHorizontal, 1, 3, 1, 1, Qt::AlignCenter);
         this->_chartDialog->setLayout(this->_gridLayout);
 }
 

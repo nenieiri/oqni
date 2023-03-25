@@ -37,10 +37,8 @@ WindowChart::~WindowChart()
     delete _sliderUpper;
 	delete [] _checkBoxChannelsValue;
 	delete [] _checkBoxChannels;
-	delete _vBoxLayout;
+	delete _hBoxLayout;
 	delete _gridLayout;
-    delete _sliderLowerName;
-    delete _sliderUpperName;
 }
 
 void    WindowChart::readFromFile(void)
@@ -149,7 +147,8 @@ void    WindowChart::execChartDialog(void)
 	this->updateValueLineAxis();
 	_axisX->setRange(_timeLineMin, _timeLineMax);
 
-	this->_chartView = new MyChartView(_chart);
+	this->_chartView = new MyChartView(_chart, _timeLineMin, _timeLineMax, _valueLineMin, _valueLineMax, \
+                                       _axisX, _axisY, _axisYLabel);
 	this->_chartView->setRenderHint(QPainter::Antialiasing);
     this->_chartView->setRubberBand(QChartView::RectangleRubberBand);
 
@@ -203,33 +202,33 @@ void    WindowChart::execChartDialog(void)
 
 	this->_gridLayout = new QGridLayout;
 	
-	this->_vBoxLayout = new QVBoxLayout;
+	this->_hBoxLayout = new QHBoxLayout;
 	this->_checkBoxChannels = new QCheckBox[_numOfCH + 1];
 	for (int i = 0; i < _numOfCH + 1; ++i)
 	{
 		if (i % (_numOfCH + 1) == 0)
 		{
-			this->_checkBoxChannels[i].setText("Infrared");
+			this->_checkBoxChannels[i].setText("Infrared  ");
 			this->_checkBoxChannels[i].setStyleSheet("color: blue;");
 		}
 		else if (i % (_numOfCH + 1) == 1)
 		{
-			this->_checkBoxChannels[i].setText("Red");
+			this->_checkBoxChannels[i].setText("Red  ");
 			this->_checkBoxChannels[i].setStyleSheet("color: red;");
 		}
 		else if (i % (_numOfCH + 1) == 2)
 		{
-			this->_checkBoxChannels[i].setText("Green");
+			this->_checkBoxChannels[i].setText("Green  ");
 			this->_checkBoxChannels[i].setStyleSheet("color: green;");
 		}
 		else if (i % (_numOfCH + 1) == 3)
 		{
-			this->_checkBoxChannels[i].setText("Label");
+			this->_checkBoxChannels[i].setText("Label  ");
 			this->_checkBoxChannels[i].setStyleSheet("color: black;");
 		}
 		else
 		{
-			this->_checkBoxChannels[i].setText("Other");
+			this->_checkBoxChannels[i].setText("Other  ");
 			this->_checkBoxChannels[i].setStyleSheet("color: gray;");
 		}
 		this->_checkBoxChannels[i].setChecked(true);
@@ -240,7 +239,7 @@ void    WindowChart::execChartDialog(void)
 				{
 					_chart->addSeries(&_series[i]);
 					_series[i].attachAxis(_axisX);
-                    if (i % _numOfCH == 0)
+                    if (i && i % _numOfCH == 0)
 						_series[i].attachAxis(_axisYLabel);
                     else
 						_series[i].attachAxis(_axisY);
@@ -254,20 +253,13 @@ void    WindowChart::execChartDialog(void)
 				this->updateValueLineAxis();
 				_chart->update();
 			});
-		this->_vBoxLayout->addWidget(&_checkBoxChannels[i]); 
+		this->_hBoxLayout->addWidget(&_checkBoxChannels[i]); 
 	}
 
-	this->_gridLayout->addLayout(_vBoxLayout, 0, 0);
-	this->_gridLayout->addWidget(this->_chartView, 0, 1);
-	this->_gridLayout->addWidget(this->_sliderLower, 1, 1);
-    this->_gridLayout->addWidget(this->_sliderUpper, 2, 1);
-    
-    this->_sliderLowerName = new QLabel("Lower time", this);
-    this->_sliderUpperName = new QLabel("Upper time", this);
-    this->_sliderLowerName->setStyleSheet("font-size: 16px; color: grey;");
-    this->_sliderUpperName->setStyleSheet("font-size: 16px; color: grey;");
-    this->_gridLayout->addWidget(_sliderLowerName, 1, 0);
-    this->_gridLayout->addWidget(_sliderUpperName, 2, 0); 
+	this->_gridLayout->addWidget(this->_chartView, 0, 0);
+    this->_gridLayout->addLayout(_hBoxLayout, 1, 0, 1, 1, Qt::AlignCenter);
+	this->_gridLayout->addWidget(this->_sliderLower, 2, 0);
+    this->_gridLayout->addWidget(this->_sliderUpper, 3, 0); 
     
 	this->setLayout(this->_gridLayout);
 }

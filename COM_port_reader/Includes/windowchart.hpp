@@ -34,13 +34,11 @@ class	WindowChart : public QDialog
         QValueAxis		*_axisYLabel;
         QLineSeries		*_series;
         QGridLayout		*_gridLayout;
-        QVBoxLayout		*_vBoxLayout;
+        QHBoxLayout		*_hBoxLayout;
         QCheckBox		*_checkBoxChannels;
         bool            *_checkBoxChannelsValue;
         QSlider 		*_sliderLower;
         QSlider 		*_sliderUpper;
-        QLabel          *_sliderLowerName;
-        QLabel          *_sliderUpperName;
 
         char            _numOfCH;
         qint64          _timeLineMin;
@@ -52,20 +50,48 @@ class	WindowChart : public QDialog
 class	MyChartView : public QChartView
 {
 	public:
-		MyChartView(QChart *parent = nullptr)
-            : QChartView(parent)
+		MyChartView(QChart *parent, \
+                    qint64 timeLineMin, \
+                    qint64 timeLineMax, \
+                    unsigned int valueLineMin, \
+                    unsigned int valueLineMax, \
+                    QValueAxis *axisX, \
+                    QValueAxis *axisY, \
+                    QValueAxis *axisYLabel)
+            : QChartView(parent) \
+            , _timeLineMin(timeLineMin) \
+            , _timeLineMax(timeLineMax) \
+            , _valueLineMin(valueLineMin) \
+            , _valueLineMax(valueLineMax) \
+            , _axisX(axisX) \
+            , _axisY(axisY) \
+            , _axisYLabel(axisYLabel)
         {}
 	
 	protected:
-        void mousePressEvent(QMouseEvent *event) override
+//        void mousePressEvent(QMouseEvent *event) override
+        void mouseReleaseEvent(QMouseEvent *event) override
         {
             if (event->button() == Qt::RightButton)
             {
-                event->ignore();
+//                event->ignore();
+                _axisX->setRange(_timeLineMin, _timeLineMax);
+                _axisY->setRange(_valueLineMin, _valueLineMax);
                 return;
             }
-            QChartView::mousePressEvent(event);
+            QChartView::mouseReleaseEvent(event);
         }
+    
+    private:
+        QValueAxis		*_axisX;
+        QValueAxis		*_axisY;
+        QValueAxis		*_axisYLabel;
+        
+        qint64          _timeLineMin;
+        qint64          _timeLineMax;
+		unsigned int    _valueLineMin;
+		unsigned int    _valueLineMax;
+        
 };
 
 #endif
