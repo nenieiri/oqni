@@ -175,6 +175,24 @@ void    WindowChart::execChartDialog(void)
                                        _axisX, _axisY, _axisYLabel, _maxLabel, _zoomToHomeButton);
 	this->_chartView->setRenderHint(QPainter::Antialiasing);
     this->_chartView->setRubberBand(QChartView::RectangleRubberBand);
+    
+    
+    
+    _chartView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+//    _chartView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+    _chartView->horizontalScrollBar()->setRange(_timeLineMin, _timeLineMax);
+    _chartView->horizontalScrollBar()->setPageStep(1000);
+    connect(_chartView->horizontalScrollBar(), &QScrollBar::valueChanged, _chart,
+            [=](int value)
+            {
+                _chart->scroll(value, 0.0);
+            });
+    
+    
+    
+    
+    
+    
 
 	this->_sliderLower = new QSlider(Qt::Horizontal, this);
 	this->_sliderLower->setRange(_timeLineMin, _timeLineMax);
@@ -242,7 +260,7 @@ void    WindowChart::execChartDialog(void)
 		}
 		else if (i % (_numOfCH + 1) == 2)
 		{
-			this->_checkBoxChannels[i].setText("Green  ");
+			this->_checkBoxChannels[i].setText("Green         ");
 			this->_checkBoxChannels[i].setStyleSheet("color: green;");
 		}
 		else if (i % (_numOfCH + 1) == 3)
