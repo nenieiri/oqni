@@ -7,11 +7,13 @@
 # include <QFile>
 # include <QTextStream>
 # include <QSlider>
+# include <QChartView>
 # include "mainwindow.h"
 
-class MainWindow;
+class	MainWindow;
+class	MyChartView;
 
-class WindowChart : public QDialog
+class	WindowChart : public QDialog
 {
 	public:
 		WindowChart(MainWindow *parent, const QString &selectedFile);
@@ -26,7 +28,7 @@ class WindowChart : public QDialog
         const QString   _selectedFile;
         
         QChart          *_chart;
-        QChartView		*_chartView;
+        MyChartView   	*_chartView;
         QValueAxis		*_axisX;
         QValueAxis		*_axisY;
         QValueAxis		*_axisYLabel;
@@ -46,5 +48,23 @@ class WindowChart : public QDialog
 		unsigned int    _valueLineMin;
 		unsigned int    _valueLineMax;
 };
+
+//class	MyChartView : public QChartView
+//{
+//	public:
+//		MyChartView(QChart *parent = nullptr)
+//            : QChartView(parent)
+//        {}
+	
+//	protected:
+//        void mousePressEvent(QMouseEvent *event) override
+//        {
+//            {
+//                event->ignore();
+//                return;
+//            }
+//            QChartView::mousePressEvent(event);
+//        }
+//};
 
 #endif

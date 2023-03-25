@@ -149,8 +149,9 @@ void    WindowChart::execChartDialog(void)
 	this->updateValueLineAxis();
 	_axisX->setRange(_timeLineMin, _timeLineMax);
 
-	this->_chartView = new QChartView(_chart);
+	this->_chartView = new MyChartView(_chart);
 	this->_chartView->setRenderHint(QPainter::Antialiasing);
+    this->_chartView->setRubberBand(QChartView::RectangleRubberBand);
 
 	this->_sliderLower = new QSlider(Qt::Horizontal, this);
 	this->_sliderLower->setRange(_timeLineMin, _timeLineMax);
