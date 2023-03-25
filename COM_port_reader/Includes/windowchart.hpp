@@ -49,22 +49,23 @@ class	WindowChart : public QDialog
 		unsigned int    _valueLineMax;
 };
 
-//class	MyChartView : public QChartView
-//{
-//	public:
-//		MyChartView(QChart *parent = nullptr)
-//            : QChartView(parent)
-//        {}
+class	MyChartView : public QChartView
+{
+	public:
+		MyChartView(QChart *parent = nullptr)
+            : QChartView(parent)
+        {}
 	
-//	protected:
-//        void mousePressEvent(QMouseEvent *event) override
-//        {
-//            {
-//                event->ignore();
-//                return;
-//            }
-//            QChartView::mousePressEvent(event);
-//        }
-//};
+	protected:
+        void mousePressEvent(QMouseEvent *event) override
+        {
+            if (event->button() == Qt::RightButton)
+            {
+                event->ignore();
+                return;
+            }
+            QChartView::mousePressEvent(event);
+        }
+};
 
 #endif
