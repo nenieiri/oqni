@@ -15,11 +15,31 @@ WindowChart::WindowChart(MainWindow *parent, const QString &selectedFile)
 	this->setMinimumWidth(windowWidth / 2);
     
     this->_chartView = nullptr;
+    this->_maxLabel = 0;
+    this->_timeLineMin = 0;
+    this->_zoomToHomeButton = new QPushButton;
+    this->_zoomToHomeButton->setEnabled(false);
+    QPixmap pixmap(":/Imgs/iconHome.png");
+    this->_iconHome = new QIcon(pixmap);
+    this->_zoomToHomeButton->setIcon(*_iconHome);
+    this->_zoomToHomeButton->setIconSize(pixmap.size());
+    this->_zoomToHomeButton->setFixedSize(pixmap.size());
+    this->_zoomToHomeButton->setStyleSheet("QPushButton { border: none; }");
+    this->_zoomToHomeButton->setMask(pixmap.mask());
+    connect(this->_zoomToHomeButton, &QPushButton::clicked, this,
+        [=]()
+        {
+			_axisX->setRange(_timeLineMin, _timeLineMax);
+			_axisY->setRange(_valueLineMin, _valueLineMax);
+			_axisYLabel->setRange(0, _maxLabel + 1);
+            this->_chartView->_zoomed = false;
+			this->_zoomToHomeButton->setEnabled(false);
+    	});
+    
     this->setModal(true);
     this->setStyleSheet("background: #e6e6e6;");
     this->raise();
 	this->show();
-    this->_timeLineMin = 0;
     this->readFromFile();    
     this->execChartDialog();
 }
@@ -40,6 +60,7 @@ WindowChart::~WindowChart()
 	delete [] _checkBoxChannels;
 	delete _hBoxLayout;
 	delete _gridLayout;
+	delete _zoomToHomeButton;
 }
 
 void    WindowChart::readFromFile(void)
@@ -138,11 +159,10 @@ void    WindowChart::execChartDialog(void)
 	_axisYLabel->setTitleText("Label");
 	_chart->addAxis(_axisYLabel, Qt::AlignRight);
     _series[_numOfCH].attachAxis(_axisYLabel);
-    int maxLabel = 0;
     for (int i = 0; i < _series[_numOfCH].count(); ++i)
-        if (maxLabel < _series[_numOfCH].at(i).y())
-            maxLabel = _series[_numOfCH].at(i).y();
-    _axisYLabel->setRange(0, maxLabel + 1);
+        if (_maxLabel < _series[_numOfCH].at(i).y())
+            _maxLabel = _series[_numOfCH].at(i).y();
+    _axisYLabel->setRange(0, _maxLabel + 1);
 	
 	this->_checkBoxChannelsValue = new bool[_numOfCH + 1];
 	for (int i = 0; i < _numOfCH + 1; ++i)
@@ -152,7 +172,7 @@ void    WindowChart::execChartDialog(void)
 	_axisX->setRange(_timeLineMin, _timeLineMax);
 
 	this->_chartView = new MyChartView(_chart, _timeLineMin, _timeLineMax, _valueLineMin, _valueLineMax, \
-                                       _axisX, _axisY, _axisYLabel, maxLabel);
+                                       _axisX, _axisY, _axisYLabel, _maxLabel, _zoomToHomeButton);
 	this->_chartView->setRenderHint(QPainter::Antialiasing);
     this->_chartView->setRubberBand(QChartView::RectangleRubberBand);
 
@@ -260,10 +280,11 @@ void    WindowChart::execChartDialog(void)
 		this->_hBoxLayout->addWidget(&_checkBoxChannels[i]); 
 	}
 
-	this->_gridLayout->addWidget(this->_chartView, 0, 0);
-    this->_gridLayout->addLayout(_hBoxLayout, 1, 0, 1, 1, Qt::AlignCenter);
-	this->_gridLayout->addWidget(this->_sliderLower, 2, 0);
-    this->_gridLayout->addWidget(this->_sliderUpper, 3, 0); 
+	this->_gridLayout->addWidget(this->_chartView, 0, 0, 1, 4);
+    this->_gridLayout->addLayout(_hBoxLayout, 1, 0, 1, 3, Qt::AlignCenter);
+    this->_gridLayout->addWidget(this->_zoomToHomeButton, 1, 3, 3, 1, Qt::AlignVCenter); 
+	this->_gridLayout->addWidget(this->_sliderLower, 2, 0, 1, 3);
+    this->_gridLayout->addWidget(this->_sliderUpper, 3, 0, 1, 3); 
     
 	this->setLayout(this->_gridLayout);
 }

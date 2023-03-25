@@ -39,12 +39,15 @@ class	WindowChart : public QDialog
         bool            *_checkBoxChannelsValue;
         QSlider 		*_sliderLower;
         QSlider 		*_sliderUpper;
+        QPushButton		*_zoomToHomeButton;
+		QIcon			*_iconHome;
 
         char            _numOfCH;
         qint64          _timeLineMin;
         qint64          _timeLineMax;
 		unsigned int    _valueLineMin;
 		unsigned int    _valueLineMax;
+		int             _maxLabel;
 };
 
 class	MyChartView : public QChartView
@@ -58,7 +61,8 @@ class	MyChartView : public QChartView
                     QValueAxis *axisX, \
                     QValueAxis *axisY, \
                     QValueAxis *axisYLabel,
-                    int maxLabel)
+                    int maxLabel, \
+                    QPushButton *zoomToHomeButton)
             : QChartView(parent) \
             , _timeLineMin(timeLineMin) \
             , _timeLineMax(timeLineMax) \
@@ -69,6 +73,7 @@ class	MyChartView : public QChartView
             , _axisYLabel(axisYLabel) \
             , _maxLabel(maxLabel) \
             , _zoomed(false)
+            , _zoomToHomeButton(zoomToHomeButton)
         {}
 	
 	protected:
@@ -80,10 +85,12 @@ class	MyChartView : public QChartView
                 _axisY->setRange(_valueLineMin, _valueLineMax);
                 _axisYLabel->setRange(0, _maxLabel + 1);
                 _zoomed = false;
+				_zoomToHomeButton->setEnabled(false);
                 return;
             }
             QChartView::mouseReleaseEvent(event);
 			_zoomed = true;
+            _zoomToHomeButton->setEnabled(true);
         }
     
     private:
@@ -96,6 +103,7 @@ class	MyChartView : public QChartView
 		unsigned int    _valueLineMin;
 		unsigned int    _valueLineMax;
         int				_maxLabel;
+        QPushButton		*_zoomToHomeButton;
         
     public:
         bool			_zoomed;

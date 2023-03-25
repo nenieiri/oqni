@@ -4,5 +4,6 @@
         <file>Imgs/background.png</file>
         <file>Imgs/loading.gif</file>
         <file>Imgs/config.png</file>
+        <file>Imgs/iconHome.png</file>
     </qresource>
 </RCC>
