@@ -5,7 +5,7 @@ ThreadReader::ThreadReader(ComPort *comPort, ThreadDisplayTimer *threadDisplayTi
 {
     this->_fileCreationDate = QDateTime::currentDateTime().toString("yyMMdd");
     this->_fileCreationTime = QDateTime::currentDateTime().toString("hhmmss");
-    this->_fileNamePrefix += "/" + _fileCreationDate + "_" + _fileCreationTime + "_DGT";
+    this->_fileNamePrefix += "/" + _fileCreationDate + "_" + _fileCreationTime + "_OPT";
     this->_threadDisplayTimer = threadDisplayTimer;
     this->_bytesPA = 4;  // Preamble bytes
     this->_bytesID = 1;  // ID bytes

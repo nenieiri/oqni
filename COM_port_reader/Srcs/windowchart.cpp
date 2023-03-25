@@ -14,6 +14,7 @@ WindowChart::WindowChart(MainWindow *parent, const QString &selectedFile)
 	this->setMinimumHeight(windowHeight / 2);
 	this->setMinimumWidth(windowWidth / 2);
     
+    this->_chartView = nullptr;
     this->setModal(true);
     this->setStyleSheet("background: #e6e6e6;");
     this->raise();
@@ -68,6 +69,9 @@ void    WindowChart::readFromFile(void)
 
 void    WindowChart::updateValueLineAxis(void)
 {
+    if (this->_chartView != nullptr && this->_chartView->_zoomed == true)
+        return ;
+    
     bool		flag = false;
     
     this->_valueLineMin = -1;
@@ -148,7 +152,7 @@ void    WindowChart::execChartDialog(void)
 	_axisX->setRange(_timeLineMin, _timeLineMax);
 
 	this->_chartView = new MyChartView(_chart, _timeLineMin, _timeLineMax, _valueLineMin, _valueLineMax, \
-                                       _axisX, _axisY, _axisYLabel);
+                                       _axisX, _axisY, _axisYLabel, maxLabel);
 	this->_chartView->setRenderHint(QPainter::Antialiasing);
     this->_chartView->setRubberBand(QChartView::RectangleRubberBand);
 

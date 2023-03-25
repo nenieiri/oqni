@@ -57,7 +57,8 @@ class	MyChartView : public QChartView
                     unsigned int valueLineMax, \
                     QValueAxis *axisX, \
                     QValueAxis *axisY, \
-                    QValueAxis *axisYLabel)
+                    QValueAxis *axisYLabel,
+                    int maxLabel)
             : QChartView(parent) \
             , _timeLineMin(timeLineMin) \
             , _timeLineMax(timeLineMax) \
@@ -65,21 +66,24 @@ class	MyChartView : public QChartView
             , _valueLineMax(valueLineMax) \
             , _axisX(axisX) \
             , _axisY(axisY) \
-            , _axisYLabel(axisYLabel)
+            , _axisYLabel(axisYLabel) \
+            , _maxLabel(maxLabel) \
+            , _zoomed(false)
         {}
 	
 	protected:
-//        void mousePressEvent(QMouseEvent *event) override
         void mouseReleaseEvent(QMouseEvent *event) override
         {
             if (event->button() == Qt::RightButton)
             {
-//                event->ignore();
                 _axisX->setRange(_timeLineMin, _timeLineMax);
                 _axisY->setRange(_valueLineMin, _valueLineMax);
+                _axisYLabel->setRange(0, _maxLabel + 1);
+                _zoomed = false;
                 return;
             }
             QChartView::mouseReleaseEvent(event);
+			_zoomed = true;
         }
     
     private:
@@ -91,7 +95,10 @@ class	MyChartView : public QChartView
         qint64          _timeLineMax;
 		unsigned int    _valueLineMin;
 		unsigned int    _valueLineMax;
+        int				_maxLabel;
         
+    public:
+        bool			_zoomed;
 };
 
 #endif
