@@ -54,6 +54,7 @@ WindowChart::~WindowChart()
 	delete [] _series;
 	delete this->_chart;
 	delete _chartView;
+	delete _horizontalScrollBar;
 	delete _sliderLower;
     delete _sliderUpper;
 	delete [] _checkBoxChannelsValue;
@@ -177,19 +178,7 @@ void    WindowChart::execChartDialog(void)
     this->_chartView->setRubberBand(QChartView::RectangleRubberBand);
     
     
-    
-    _chartView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
-//    _chartView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
-    _chartView->horizontalScrollBar()->setRange(_timeLineMin, _timeLineMax);
-    _chartView->horizontalScrollBar()->setPageStep(1000);
-    connect(_chartView->horizontalScrollBar(), &QScrollBar::valueChanged, _chart,
-            [=](int value)
-            {
-                _chart->scroll(value, 0.0);
-            });
-    
-    
-    
+    this->_horizontalScrollBar = new QScrollBar(Qt::Horizontal, this);
     
     
     
@@ -303,6 +292,7 @@ void    WindowChart::execChartDialog(void)
     this->_gridLayout->addWidget(this->_zoomToHomeButton, 1, 3, 3, 1, Qt::AlignVCenter); 
 	this->_gridLayout->addWidget(this->_sliderLower, 2, 0, 1, 3);
     this->_gridLayout->addWidget(this->_sliderUpper, 3, 0, 1, 3); 
+    this->_gridLayout->addWidget(this->_horizontalScrollBar, 4, 0, 1, 3); 
     
 	this->setLayout(this->_gridLayout);
 }

@@ -41,6 +41,7 @@ class	WindowChart : public QDialog
         QSlider 		*_sliderUpper;
         QPushButton		*_zoomToHomeButton;
 		QIcon			*_iconHome;
+        QScrollBar		*_horizontalScrollBar;
 
         char            _numOfCH;
         qint64          _timeLineMin;
