@@ -37,6 +37,9 @@ WindowChart::WindowChart(MainWindow *parent, const QString &selectedFile)
             _chartView->_currentAxisXLength = _timeLineMax - _timeLineMin;
 			_horizontalScrollBar->setRange(_timeLineMin, _timeLineMin);
 			_horizontalScrollBar->setValue(_timeLineMin);
+            _chartView->_currentAxisYLength = _valueLineMax - _valueLineMin;
+			_verticalScrollBar->setRange(_valueLineMin, _valueLineMin);
+			_verticalScrollBar->setValue(_valueLineMin);
     	});
     
     this->setModal(true);
@@ -125,11 +128,6 @@ void    WindowChart::updateValueLineAxis(void)
 	_axisY->setRange(_valueLineMin, _valueLineMax);
 }
 
-void	WindowChart::updateChartView(int value)
-{
-	this->_axisX->setRange(value, value + this->_chartView->_currentAxisXLength);
-}
-
 void    WindowChart::execChartDialog(void)
 {
 	this->_chart = new QChart();
@@ -181,17 +179,28 @@ void    WindowChart::execChartDialog(void)
     
     this->_horizontalScrollBar = new QScrollBar(Qt::Horizontal, this);
     this->_horizontalScrollBar->setRange(0, 0);
-    connect(this->_horizontalScrollBar, &QScrollBar::valueChanged, this, &WindowChart::updateChartView);
+    connect(this->_horizontalScrollBar, &QScrollBar::valueChanged, this,
+        [=](int value)
+    	{
+			this->_axisX->setRange(value, value + this->_chartView->_currentAxisXLength);
+		});
     
     this->_verticalScrollBar = new QScrollBar(Qt::Vertical, this);
     this->_verticalScrollBar->setRange(0, 0);
+    connect(this->_verticalScrollBar, &QScrollBar::valueChanged, this,
+        [=](int value)
+    	{
+			this->_axisY->setRange(value, value + this->_chartView->_currentAxisYLength);
+		});
 
 	this->_chartView = new MyChartView(_chart, _timeLineMin, _timeLineMax, _valueLineMin, _valueLineMax, \
                                        _axisX, _axisY, _axisYLabel, _maxLabel, \
-                                       _zoomToHomeButton, _horizontalScrollBar);
+                                       _zoomToHomeButton, _horizontalScrollBar, _verticalScrollBar);
 	this->_chartView->setRenderHint(QPainter::Antialiasing);
     this->_chartView->setRubberBand(QChartView::RectangleRubberBand);
+    
     this->_horizontalScrollBar->setParent(this->_chartView);
+    this->_verticalScrollBar->setParent(this->_chartView);
     
 	this->_gridLayout = new QGridLayout;
 	
@@ -249,8 +258,8 @@ void    WindowChart::execChartDialog(void)
 		this->_hBoxLayout->addWidget(&_checkBoxChannels[i]); 
 	}
 
-    this->_gridLayout->addWidget(this->_verticalScrollBar, 0, 0, 1, 5, Qt::AlignRight); 
 	this->_gridLayout->addWidget(this->_chartView, 0, 0, 1, 5);
+    this->_gridLayout->addWidget(this->_verticalScrollBar, 0, 0, 1, 5, Qt::AlignRight); 
     this->_gridLayout->addWidget(this->_horizontalScrollBar, 0, 0, 1, 5, Qt::AlignBottom); 
     this->_gridLayout->addLayout(_hBoxLayout, 1, 0, 1, 4, Qt::AlignCenter);
     this->_gridLayout->addWidget(this->_zoomToHomeButton, 1, 4, 1, 1, Qt::AlignVCenter); 

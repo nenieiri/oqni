@@ -24,9 +24,6 @@ class	WindowChart : public QDialog
         void    		readFromFile(void);
 		void			updateValueLineAxis(void);
     
-    private slots:
-        void        	updateChartView(int value);
-    
     private:
         const QString   _selectedFile;
         
@@ -66,7 +63,8 @@ class	MyChartView : public QChartView
                     QValueAxis *axisYLabel,
                     int maxLabel, \
                     QPushButton *zoomToHomeButton, \
-                    QScrollBar *horizontalScrollBar)
+                    QScrollBar *horizontalScrollBar, \
+                    QScrollBar *verticalScrollBar)
             : QChartView(parent) \
             , _timeLineMin(timeLineMin) \
             , _timeLineMax(timeLineMax) \
@@ -78,7 +76,8 @@ class	MyChartView : public QChartView
             , _maxLabel(maxLabel) \
             , _zoomed(false) \
             , _zoomToHomeButton(zoomToHomeButton) \
-            , _horizontalScrollBar(horizontalScrollBar)
+            , _horizontalScrollBar(horizontalScrollBar) \
+            , _verticalScrollBar(verticalScrollBar)
         {}
 	
 	protected:
@@ -94,6 +93,9 @@ class	MyChartView : public QChartView
 				_currentAxisXLength = _timeLineMax - _timeLineMin;
     			_horizontalScrollBar->setRange(_timeLineMin, _timeLineMin);
 				_horizontalScrollBar->setValue(_timeLineMin);
+				_currentAxisYLength = _valueLineMax - _valueLineMin;
+				_verticalScrollBar->setRange(_valueLineMin, _valueLineMin);
+				_verticalScrollBar->setValue(_valueLineMin);
                 return;
             }
             QChartView::mouseReleaseEvent(event);
@@ -102,6 +104,9 @@ class	MyChartView : public QChartView
             _currentAxisXLength = _axisX->max() - _axisX->min();
             _horizontalScrollBar->setRange(_timeLineMin, _timeLineMax - _currentAxisXLength);
             _horizontalScrollBar->setValue(_axisX->min());
+            _currentAxisYLength = _axisY->max() - _axisY->min();
+            _verticalScrollBar->setRange(_valueLineMin, _valueLineMax - _currentAxisYLength);
+            _verticalScrollBar->setValue(_axisY->min());
         }
     
     private:
@@ -116,10 +121,12 @@ class	MyChartView : public QChartView
         int				_maxLabel;
         QPushButton		*_zoomToHomeButton;
         QScrollBar		*_horizontalScrollBar;
+        QScrollBar		*_verticalScrollBar;
         
     public:
         bool			_zoomed;
         int				_currentAxisXLength;
+        int				_currentAxisYLength;
 };
 
 #endif
