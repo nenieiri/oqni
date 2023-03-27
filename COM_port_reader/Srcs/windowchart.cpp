@@ -205,6 +205,7 @@ void    WindowChart::execChartDialog(void)
     
     this->_horizontalScrollBar->setParent(this->_chartView);
     this->_verticalScrollBar->setParent(this->_chartView);
+    this->_verticalScrollBar->setInvertedAppearance(true); //
     
 	this->_gridLayout = new QGridLayout;
 	
