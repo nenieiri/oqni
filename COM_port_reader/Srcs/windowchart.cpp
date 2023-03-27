@@ -130,8 +130,12 @@ void    WindowChart::updateValueLineAxis(void)
 
 void    WindowChart::execChartDialog(void)
 {
-	this->_chart = new QChart();
-	_chart->setTitle("Static Line Chart: " + _selectedFile);
+    this->_chart = new QChart();
+    _chart->setTitle(this->staticChartTitle(_selectedFile));
+    QFont font;
+    font.setBold(true);
+    font.setPointSize(14);
+    _chart->setTitleFont(font);
 	_chart->legend()->hide();
 	
 	for (int i = 0; i < _numOfCH + 1; ++i)
@@ -265,4 +269,40 @@ void    WindowChart::execChartDialog(void)
     this->_gridLayout->addWidget(this->_zoomToHomeButton, 1, 4, 1, 1, Qt::AlignVCenter); 
     
 	this->setLayout(this->_gridLayout);
+}
+
+QString WindowChart::staticChartTitle(const QString &selectedFile)
+{
+    QString tmp = "Unknown file";
+    //the Unicode non-breaking space character (\u00A0)
+    QString title = "---\u00A0\u00A0\u00A0\u00A0#---\u00A0\u00A0\u00A0\u00A0";
+
+    int lastDot = selectedFile.lastIndexOf('.');
+    int lastUnderscoreLine = selectedFile.lastIndexOf('_');
+    int lastSlash = selectedFile.lastIndexOf('/');
+    if (lastSlash == -1)
+        lastSlash = selectedFile.lastIndexOf('\\');
+    if (lastDot == -1 || lastUnderscoreLine == -1 || lastSlash == -1)
+        return tmp;
+
+    title += selectedFile.mid(lastSlash + 1, lastUnderscoreLine - lastSlash - 1) + \
+            "\u00A0\u00A0\u00A0\u00A0" + \
+            selectedFile.mid(lastUnderscoreLine + 1, lastDot - lastUnderscoreLine - 1);
+
+    tmp = selectedFile.left(lastSlash);
+    lastSlash = tmp.lastIndexOf('/');
+    if (lastSlash == -1)
+        lastSlash = tmp.lastIndexOf('\\');
+    tmp = tmp.mid(lastSlash + 1);
+
+    lastUnderscoreLine = tmp.lastIndexOf('_');
+    if (lastUnderscoreLine != -1)
+    {
+        tmp = tmp.left(lastUnderscoreLine);
+        lastUnderscoreLine = tmp.lastIndexOf('_');
+        if (lastUnderscoreLine != -1)
+            title = tmp.left(lastUnderscoreLine) + "\u00A0\u00A0\u00A0#\u00A0" + \
+                    tmp.mid(lastUnderscoreLine + 1) + title.mid(11);
+    }
+    return title;
 }

@@ -23,6 +23,7 @@ class	WindowChart : public QDialog
         void			execChartDialog(void);
         void    		readFromFile(void);
 		void			updateValueLineAxis(void);
+        QString         staticChartTitle(const QString &selectedFile);
     
     private:
         const QString   _selectedFile;
