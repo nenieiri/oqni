@@ -301,7 +301,7 @@ QString WindowChart::staticChartTitle(const QString &selectedFile)
         tmp = tmp.left(lastUnderscoreLine);
         lastUnderscoreLine = tmp.lastIndexOf('_');
         if (lastUnderscoreLine != -1)
-            title = tmp.left(lastUnderscoreLine) + "\u00A0\u00A0\u00A0#\u00A0" + \
+            title = tmp.left(lastUnderscoreLine) + "\u00A0\u00A0\u00A0\u00A0#" + \
                     tmp.mid(lastUnderscoreLine + 1) + title.mid(11);
     }
     return title;
