@@ -31,7 +31,7 @@ WindowChart::WindowChart(MainWindow *parent, const QString &selectedFile)
         {
 			_axisX->setRange(_timeLineMin, _timeLineMax);
 			_axisY->setRange(_valueLineMin, _valueLineMax);
-			_axisYLabel->setRange(0, _maxLabel + 1);
+            _axisYLabel->setRange(0, _maxLabel + 1);
             _chartView->_zoomed = false;
 			_zoomToHomeButton->setEnabled(false);
             _chartView->_currentAxisXLength = _timeLineMax - _timeLineMin;

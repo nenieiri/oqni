@@ -123,6 +123,7 @@ class	MyChartView : public QChartView
                 _firstTimeZooming = false;
             }
             _verticalScrollBar->setValue(_axisY->min());
+            _axisYLabel->setRange(0, _maxLabel + 1);
 
         }
         void mousePressEvent(QMouseEvent *event) override
