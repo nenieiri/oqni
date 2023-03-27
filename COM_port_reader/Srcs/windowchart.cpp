@@ -136,8 +136,9 @@ void    WindowChart::execChartDialog(void)
     font.setBold(true);
     font.setPointSize(14);
     _chart->setTitleFont(font);
-	_chart->legend()->hide();
-	
+    _chart->setBackgroundBrush(QBrush(QColor::fromRgb(235, 255, 255)));
+    _chart->legend()->hide();
+
 	for (int i = 0; i < _numOfCH + 1; ++i)
 	{
 		_chart->addSeries(&_series[i]);

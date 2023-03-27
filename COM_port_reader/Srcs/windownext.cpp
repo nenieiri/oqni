@@ -699,6 +699,7 @@ void    WindowNext::execChartDialog(void)
         
         this->_chart = new QChart();
         _chart->setTitle("Dynamic Line Chart");
+        _chart->setBackgroundBrush(QBrush(QColor::fromRgb(235, 255, 255)));
         _chart->legend()->hide();
         
         _series = new QLineSeries[_numOfOS * _numOfCH];
