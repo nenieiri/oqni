@@ -84,15 +84,30 @@ class	MyChartView : public QChartView
         {}
 	
 	protected:
+        void mousePressEvent(QMouseEvent *event) override
+        {
+            if (_firstTimeZooming == true)
+            {
+                _mPx = this->chart()->mapToValue(event->pos()).x();
+                _mPy = this->chart()->mapToValue(event->pos()).y();
+                _mPx = (_mPx < _axisX->min()) ? _axisX->min() : _mPx;
+                _mPx = (_mPx > _axisX->max()) ? _axisX->max() : _mPx;
+                _mPy = (_mPy < _axisY->min()) ? _axisY->min() : _mPy;
+                _mPy = (_mPy > _axisY->max()) ? _axisY->max() : _mPy;
+            }
+            QChartView::mousePressEvent(event);
+        }
         void mouseReleaseEvent(QMouseEvent *event) override
         {
-            _mRx = this->chart()->mapToValue(event->pos()).x();
-            _mRy = this->chart()->mapToValue(event->pos()).y();
-            _mRx = (_mRx < _axisX->min()) ? _axisX->min() : _mRx;
-            _mRx = (_mRx > _axisX->max()) ? _axisX->max() : _mRx;
-            _mRy = (_mRy < _axisY->min()) ? _axisY->min() : _mRy;
-            _mRy = (_mRy > _axisY->max()) ? _axisY->max() : _mRy;
-
+            if (_firstTimeZooming == true)
+            {
+                _mRx = this->chart()->mapToValue(event->pos()).x();
+                _mRy = this->chart()->mapToValue(event->pos()).y();
+                _mRx = (_mRx < _axisX->min()) ? _axisX->min() : _mRx;
+                _mRx = (_mRx > _axisX->max()) ? _axisX->max() : _mRx;
+                _mRy = (_mRy < _axisY->min()) ? _axisY->min() : _mRy;
+                _mRy = (_mRy > _axisY->max()) ? _axisY->max() : _mRy;
+            }
             if (event->button() == Qt::RightButton)
             {
                 _axisX->setRange(_timeLineMin, _timeLineMax);
@@ -126,17 +141,6 @@ class	MyChartView : public QChartView
             _axisYLabel->setRange(0, _maxLabel + 1);
 
         }
-        void mousePressEvent(QMouseEvent *event) override
-        {
-            _mPx = this->chart()->mapToValue(event->pos()).x();
-            _mPy = this->chart()->mapToValue(event->pos()).y();
-            _mPx = (_mPx < _axisX->min()) ? _axisX->min() : _mPx;
-            _mPx = (_mPx > _axisX->max()) ? _axisX->max() : _mPx;
-            _mPy = (_mPy < _axisY->min()) ? _axisY->min() : _mPy;
-            _mPy = (_mPy > _axisY->max()) ? _axisY->max() : _mPy;
-            QChartView::mousePressEvent(event);
-        }
-
 
     private:
         QValueAxis		*_axisX;
