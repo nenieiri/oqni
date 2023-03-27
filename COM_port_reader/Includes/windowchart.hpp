@@ -8,6 +8,7 @@
 # include <QTextStream>
 # include <QSlider>
 # include <QChartView>
+# include <QPointF>
 # include "mainwindow.h"
 
 class	MainWindow;
@@ -84,6 +85,13 @@ class	MyChartView : public QChartView
 	protected:
         void mouseReleaseEvent(QMouseEvent *event) override
         {
+            _mRx = this->chart()->mapToValue(event->pos()).x();
+            _mRy = this->chart()->mapToValue(event->pos()).y();
+            _mRx = (_mRx < _axisX->min()) ? _axisX->min() : _mRx;
+            _mRx = (_mRx > _axisX->max()) ? _axisX->max() : _mRx;
+            _mRy = (_mRy < _axisY->min()) ? _axisY->min() : _mRy;
+            _mRy = (_mRy > _axisY->max()) ? _axisY->max() : _mRy;
+
             if (event->button() == Qt::RightButton)
             {
                 _axisX->setRange(_timeLineMin, _timeLineMax);
@@ -100,21 +108,34 @@ class	MyChartView : public QChartView
                 return;
             }
             QChartView::mouseReleaseEvent(event);
-			_zoomed = true;
+            _zoomed = true;
             _zoomToHomeButton->setEnabled(true);
             _currentAxisXLength = _axisX->max() - _axisX->min();
             _horizontalScrollBar->setRange(_timeLineMin, _timeLineMax - _currentAxisXLength);
             _horizontalScrollBar->setValue(_axisX->min());
             _currentAxisYLength = _axisY->max() - _axisY->min();
             _verticalScrollBar->setRange(_valueLineMin, _valueLineMax - _currentAxisYLength);
+            _axisX->setRange((_mPx < _mRx) ? _mPx : _mRx, (_mPx > _mRx) ? _mPx : _mRx);
+            _axisY->setRange((_mPy < _mRy) ? _mPy : _mRy, (_mPy > _mRy) ? _mPy : _mRy);
             _verticalScrollBar->setValue(_axisY->min());
+
         }
-    
+        void mousePressEvent(QMouseEvent *event) override
+        {
+            _mPx = this->chart()->mapToValue(event->pos()).x();
+            _mPy = this->chart()->mapToValue(event->pos()).y();
+            _mPx = (_mPx < _axisX->min()) ? _axisX->min() : _mPx;
+            _mPx = (_mPx > _axisX->max()) ? _axisX->max() : _mPx;
+            _mPy = (_mPy < _axisY->min()) ? _axisY->min() : _mPy;
+            _mPy = (_mPy > _axisY->max()) ? _axisY->max() : _mPy;
+            QChartView::mousePressEvent(event);
+        }
+
+
     private:
         QValueAxis		*_axisX;
         QValueAxis		*_axisY;
-        QValueAxis		*_axisYLabel;
-        
+        QValueAxis		*_axisYLabel;        
         qint64          _timeLineMin;
         qint64          _timeLineMax;
 		unsigned int    _valueLineMin;
@@ -123,6 +144,10 @@ class	MyChartView : public QChartView
         QPushButton		*_zoomToHomeButton;
         QScrollBar		*_horizontalScrollBar;
         QScrollBar		*_verticalScrollBar;
+        int             _mPx;   // mouse press X
+        int             _mPy;   // mouse press Y
+        int             _mRx;   // mouse release X
+        int             _mRy;   // mouse release Y
         
     public:
         bool			_zoomed;
