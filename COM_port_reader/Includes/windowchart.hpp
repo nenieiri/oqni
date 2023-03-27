@@ -77,6 +77,7 @@ class	MyChartView : public QChartView
             , _axisYLabel(axisYLabel) \
             , _maxLabel(maxLabel) \
             , _zoomed(false) \
+            , _firstTimeZooming(true) \
             , _zoomToHomeButton(zoomToHomeButton) \
             , _horizontalScrollBar(horizontalScrollBar) \
             , _verticalScrollBar(verticalScrollBar)
@@ -115,8 +116,12 @@ class	MyChartView : public QChartView
             _horizontalScrollBar->setValue(_axisX->min());
             _currentAxisYLength = _axisY->max() - _axisY->min();
             _verticalScrollBar->setRange(_valueLineMin, _valueLineMax - _currentAxisYLength);
-            _axisX->setRange((_mPx < _mRx) ? _mPx : _mRx, (_mPx > _mRx) ? _mPx : _mRx);
-            _axisY->setRange((_mPy < _mRy) ? _mPy : _mRy, (_mPy > _mRy) ? _mPy : _mRy);
+            if (_firstTimeZooming == true)
+            {
+                _axisX->setRange((_mPx < _mRx) ? _mPx : _mRx, (_mPx > _mRx) ? _mPx : _mRx);
+                _axisY->setRange((_mPy < _mRy) ? _mPy : _mRy, (_mPy > _mRy) ? _mPy : _mRy);
+                _firstTimeZooming = false;
+            }
             _verticalScrollBar->setValue(_axisY->min());
 
         }
@@ -151,6 +156,7 @@ class	MyChartView : public QChartView
         
     public:
         bool			_zoomed;
+        bool            _firstTimeZooming;
         int				_currentAxisXLength;
         int				_currentAxisYLength;
 };
