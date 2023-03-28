@@ -48,6 +48,8 @@ class WindowNext : public QDialog
         int					readExpProtocol(void);
         void            	saveDataToFile(const QString &subject);
         void                execChartDialog(void);
+        void                execPicDialog(void);
+        void                showImage(int currentSecond, QString imgPath);
         
     private slots:
 		void				onThreadDisplayTimerFinished(void);
@@ -116,12 +118,14 @@ class WindowNext : public QDialog
         qint64              _startTime;
         int					_totalBytes;
 
+        QDialog				*_picDialog;
         QDialog				*_chartDialog;
         QChart				*_chart;
         QChartView			*_chartView;
         QValueAxis			*_axisX;
         QValueAxis			*_axisY;
         QLineSeries			*_series;
+        QGridLayout         *_gridLayoutPic;
         QGridLayout			*_gridLayout;
         QHBoxLayout			*_hBoxLayout;
         QCheckBox			*_checkBoxChannels;
@@ -131,6 +135,10 @@ class WindowNext : public QDialog
         unsigned int        _chartDuration;
         unsigned int        _chartUpdateRatio;
         qint64				_chartTimeFlag;
+        
+        QLabel              *_displayTimerPic;
+        QLabel              *_imageLabel;
+        QLabel              *_imageSecondsLabel;
 };
 
 /* this class was created to show slider values (numbers) on the chart dialog */

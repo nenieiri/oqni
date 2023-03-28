@@ -15,12 +15,12 @@ class ThreadDisplayTimer : public QThread
 	Q_OBJECT
     
 	public:
-		ThreadDisplayTimer(int durationTimerValue, QDialog *windowSaveTo, QString &expProtocolsPath, QList<QStringList>	&expProtocol);
+		ThreadDisplayTimer(int durationTimerValue, QDialog *windowNext, QString &expProtocolsPath, QList<QStringList>	&expProtocol);
 		~ThreadDisplayTimer();
 
     public:
 		void    run() override;
-        void    showImage(int currecntSecond, const QString &imgPath);
+        void    showImage(int currentSecond, const QString &imgPath);
         int     getCurrentImgLabel(void);
         
     private:
@@ -33,7 +33,9 @@ class ThreadDisplayTimer : public QThread
         QList<QStringList>	_expProtocol;
         
     signals:
-        void finishedSignal();
+        void    finishedSignal();
+        void    displayTimerText(QString text);
+        void    currentSecondAndImgPath(int currentSecond, QString imgPath);
 };
 
 #endif

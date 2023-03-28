@@ -1,6 +1,6 @@
 #include "threaddisplaytimer.hpp"
 
-ThreadDisplayTimer::ThreadDisplayTimer(int durationTimerValue, QDialog *windowSaveTo, QString &expProtocolsPath, QList<QStringList>	&expProtocol)
+ThreadDisplayTimer::ThreadDisplayTimer(int durationTimerValue, QDialog *windowNext, QString &expProtocolsPath, QList<QStringList>	&expProtocol)
 			: _durationTimerValue(durationTimerValue)
 {
     QString text;
@@ -21,9 +21,9 @@ ThreadDisplayTimer::ThreadDisplayTimer(int durationTimerValue, QDialog *windowSa
     else
         text += "0" + QString::number(num);
     
-    this->_displayTimerLabel = new QLabel(text, windowSaveTo);
-    this->_imageLabel = new QLabel("", windowSaveTo);
-    this->_imageSecondsLabel = new QLabel("", windowSaveTo);
+    this->_displayTimerLabel = new QLabel(text, windowNext);
+    this->_imageLabel = new QLabel("", windowNext);
+    this->_imageSecondsLabel = new QLabel("", windowNext);
     this->_expProtocolsPath = expProtocolsPath;
     this->_expProtocol = expProtocol;
 }
@@ -44,12 +44,12 @@ void    ThreadDisplayTimer::run()
 
     int         seconds = this->_durationTimerValue;
     int         label;
-    int         currecntSecond;
+    int         currentSecond;
     QString     imgPath;
     
     QList<QStringList>::iterator it = this->_expProtocol.begin();
     
-    currecntSecond = (*it)[2].toInt();
+    currentSecond = (*it)[2].toInt();
     imgPath = (*it)[3];
     imgPath = this->_expProtocolsPath.left(this->_expProtocolsPath.length() - 13) + imgPath;
     label = (*it)[1].toInt();
@@ -64,17 +64,18 @@ void    ThreadDisplayTimer::run()
 			emit finishedSignal();
             break ;
         }        
-        if (currecntSecond == 0)
+        if (currentSecond == 0)
         {
             it++;
-            currecntSecond = (*it)[2].toInt();
+            currentSecond = (*it)[2].toInt();
             imgPath = (*it)[3];
             imgPath = this->_expProtocolsPath.left(this->_expProtocolsPath.length() - 13) + imgPath;
             label = (*it)[1].toInt();
         }
         this->_currentImgLabel = label;
-        this->showImage(currecntSecond, imgPath);
-        currecntSecond--;
+        emit currentSecondAndImgPath(currentSecond, imgPath);
+//        this->showImage(currentSecond, imgPath);
+        currentSecond--;
         
         int minutes = seconds / 60;
         int hours = minutes / 60;
@@ -83,16 +84,17 @@ void    ThreadDisplayTimer::run()
                            .arg(minutes % 60, 2, 10, QLatin1Char('0'))
                            .arg(seconds % 60, 2, 10, QLatin1Char('0'));
         this->_displayTimerLabel->setText(text);
+        emit displayTimerText(text);
         QThread::usleep(1000 * (1000 - (QDateTime::currentDateTime().toMSecsSinceEpoch() - start - 1000 * (this->_durationTimerValue - seconds))));
         seconds--;
     }
 }
 
-void    ThreadDisplayTimer::showImage(int currecntSecond, const QString &imgPath)
+void    ThreadDisplayTimer::showImage(int currentSecond, const QString &imgPath)
 {
     QPixmap pixmap(imgPath);
     QPixmap scaledPixmap = pixmap.scaled(550, 550, Qt::KeepAspectRatio);
-    QString imageSeconds = QString::number(currecntSecond);    
+    QString imageSeconds = QString::number(currentSecond);    
     
     
     this->_imageLabel->setGeometry(620, 20, 550, 550);

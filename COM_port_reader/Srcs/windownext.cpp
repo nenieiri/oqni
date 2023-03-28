@@ -73,11 +73,14 @@ WindowNext::WindowNext(MainWindow *parent)
 	this->_series = nullptr;
 	this->_hBoxLayout = nullptr;
 	this->_gridLayout = nullptr;
+    this->_gridLayoutPic = nullptr;
+    this->_displayTimerPic = nullptr;
+    this->_imageLabel = nullptr;
+    this->_imageSecondsLabel = nullptr;
     
     this->setModal(true);
     
-    this->setGeometry((screenWidth - windowWidth) / 2 - 300, \
-    						(screenHeight - windowHeight) / 2 - 200, \
+    this->setGeometry((screenWidth - windowWidth) / 2, (screenHeight - windowHeight) / 2, \
                     		windowWidth, windowHeight);
     this->setMinimumSize(windowWidth, windowHeight);
     this->setMaximumSize(windowWidth, windowHeight);
@@ -145,8 +148,8 @@ void    WindowNext::setButtonStart(QPushButton *buttonStart)
             if (this->_durationTimerValue == 0)
                 return ;
             
-			this->setMinimumSize(1200, 700);
-			this->setMaximumSize(1200, 700);
+//			this->setMinimumSize(1200, 700);
+//			this->setMaximumSize(1200, 700);
 			this->_buttonClose->setEnabled(false);
             this->_buttonClose->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_BUTTON);
 			this->_buttonStart->setEnabled(false);
@@ -212,6 +215,17 @@ void    WindowNext::setButtonStart(QPushButton *buttonStart)
 							});
 						this->execChartDialog();
 					}
+                    if (this->_showPic->isChecked() == true)
+					{
+						this->_picDialog = new QDialog(this);
+						connect(this->_picDialog, &QDialog::rejected, this, 
+							[=]()
+							{
+								this->_picDialog = nullptr;
+								this->_showPic->setChecked(false);
+							});
+						this->execPicDialog();
+					}
                 });
 		});
 }
@@ -229,9 +243,10 @@ void		WindowNext::setButtonStop(QPushButton *buttonStop)
 			this->_closeEventFlag = true;
             
             this->_showChart->setChecked(false);
+            this->_showPic->setChecked(false);
         
-            this->setMinimumSize(600, 350);
-            this->setMaximumSize(600, 350);
+//            this->setMinimumSize(600, 350);
+//            this->setMaximumSize(600, 350);
             this->_buttonClose->setEnabled(true);
             this->_buttonClose->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_BUTTON);
             this->_buttonStart->setEnabled(true);
@@ -561,6 +576,40 @@ void    WindowNext::setParametersDesign(void)
                 disconnect(this->_threadReader, &ThreadReader::lastRowOfData, this, nullptr);
             }
         });
+    connect(this->_showPic, &QCheckBox::stateChanged, this,
+        [=](void)
+        {
+            if (this->_buttonStart->isEnabled() == true)
+                return ;
+            if (this->_showPic->isChecked() == true)
+            {
+                this->_picDialog = new QDialog(this);
+                connect(this->_picDialog, &QDialog::rejected, this, 
+                    [=]()
+                    {
+                        this->_picDialog = nullptr;
+						this->_showPic->setChecked(false);
+                    });
+                this->execPicDialog();
+            }
+            else
+            {
+                delete this->_displayTimerPic;
+                this->_displayTimerPic = nullptr;
+                delete this->_imageLabel;
+                this->_imageLabel = nullptr;
+                delete this->_imageSecondsLabel;
+                this->_imageSecondsLabel = nullptr;
+                delete this->_gridLayoutPic;
+				this->_gridLayoutPic = nullptr;
+                if (this->_picDialog && this->_picDialog->isVisible())
+                    this->_picDialog->close();
+                delete this->_picDialog;
+                this->_picDialog = nullptr;
+                disconnect(this->_threadDisplayTimer, &ThreadDisplayTimer::displayTimerText, this, nullptr);
+                disconnect(this->_threadDisplayTimer, &ThreadDisplayTimer::currentSecondAndImgPath, this, nullptr);
+            }
+        });
 }
 
 void    WindowNext::createDirectory(const QString &path)
@@ -697,12 +746,11 @@ void    WindowNext::execChartDialog(void)
 {
         int screenWidth = QApplication::primaryScreen()->size().width();
         int screenHeight = QApplication::primaryScreen()->size().height();
-        int windowWidth = screenWidth * 3 / 4;
+        int windowWidth = screenWidth * 7 / 10;
         int windowHeight = screenHeight * 19 / 20;
         
-        this->_chartDialog->setGeometry((screenHeight - windowHeight) / 8, \
-                                        (screenHeight - windowHeight) / 2, \
-                                        windowWidth, windowHeight);
+        this->_chartDialog->setGeometry(10, (screenHeight - windowHeight) / 2, \
+                                            windowWidth, windowHeight);
         this->_chartDialog->setMinimumHeight(windowHeight / 2);
         this->_chartDialog->setMinimumWidth(windowWidth / 2);
         this->_chartDialog->show();
@@ -871,6 +919,61 @@ void    WindowNext::execChartDialog(void)
         this->_chartDialog->setLayout(this->_gridLayout);
 }
 
+void    WindowNext::execPicDialog(void)
+{
+    int screenWidth = QApplication::primaryScreen()->size().width();
+    int screenHeight = QApplication::primaryScreen()->size().height();
+    int windowWidth = screenWidth * 3 / 10 - 25;
+    int windowHeight = screenHeight * 19 / 20;
+    
+    this->_picDialog->setGeometry(10 + screenWidth * 7 / 10 + 5, \
+                                    (screenHeight - windowHeight) / 2, \
+                                    windowWidth, windowHeight);
+    this->_picDialog->setMinimumHeight(windowHeight / 2);
+    this->_picDialog->setMinimumWidth(windowWidth / 2);
+    this->_picDialog->show();
+    this->raise();
+    
+    _gridLayoutPic = new QGridLayout(_picDialog);
+    _picDialog->setLayout(_gridLayoutPic);  
+    
+    _displayTimerPic = new QLabel("", this->_picDialog);
+    _displayTimerPic->setStyleSheet("font-size: 50px; color: #B22222; font-weight: bold;");
+    _gridLayoutPic ->addWidget(_displayTimerPic, 0, 0, Qt::AlignCenter);
+    
+    connect(this->_threadDisplayTimer, &ThreadDisplayTimer::displayTimerText, this,
+        [=](QString text)
+        {
+            _displayTimerPic->setText(text);
+        });
+    
+    this->_imageLabel = new QLabel("", this->_picDialog);
+    _gridLayoutPic ->addWidget(_imageLabel, 1, 0, Qt::AlignCenter);
+    
+    this->_imageSecondsLabel = new QLabel("", this->_picDialog);
+    this->_imageSecondsLabel->setStyleSheet("font-size: 200px; font-weight: bold;");
+    _gridLayoutPic ->addWidget(_imageSecondsLabel, 2, 0, Qt::AlignCenter);
+    connect(this->_threadDisplayTimer, &ThreadDisplayTimer::currentSecondAndImgPath, this,
+        [=](int currentSecond, QString imgPath)
+        {
+            this->showImage(currentSecond, imgPath);
+        });
+    
+    // continue code here
+}
+
+void    WindowNext::showImage(int currentSecond, QString imgPath)
+{
+    QPixmap pixmap(imgPath);
+    QPixmap scaledPixmap = pixmap.scaled(550, 550, Qt::KeepAspectRatio);
+    QString imageSeconds = QString::number(currentSecond);    
+    
+//    qDebug() << imgPath << currentSecond;
+    
+    this->_imageLabel->setPixmap(scaledPixmap);
+    this->_imageSecondsLabel->setText(imageSeconds);
+}
+
 void   WindowNext::onThreadDisplayTimerFinished(void)
 {
     if (_durationMax == _durationTimerValue)
@@ -881,6 +984,7 @@ void   WindowNext::onThreadDisplayTimerFinished(void)
     this->_closeEventFlag = true;
     
     this->_showChart->setChecked(false);
+    this->_showPic->setChecked(false);
     
 	this->setMinimumSize(600, 350);
 	this->setMaximumSize(600, 350);
