@@ -61,7 +61,10 @@ WindowNext::WindowNext(MainWindow *parent)
     this->_lineEdit = new QLineEdit(this);
     this->_finishMsgLabel = new QLabel("", this);
     
-    this->_showChart = new QCheckBox("Display chart:     ", this);
+    this->_display = new QLabel("Display:", this);
+    this->_showChart = new QCheckBox("chart", this);
+    this->_showPic = new QCheckBox("pic", this);
+    
     this->_chartDialog = nullptr;
 	this->_chart = nullptr;
 	this->_chartView = nullptr;
@@ -113,7 +116,9 @@ WindowNext::~WindowNext()
     delete _timer1;
     delete _lineEdit;
     delete _finishMsgLabel;
+    delete _display;
     delete _showChart;
+    delete _showPic;
 }
 
 void    WindowNext::closeEvent(QCloseEvent *event)
@@ -375,10 +380,16 @@ void    WindowNext::setParametersDesign(void)
     this->_finishMsgLabel->setGeometry(220, 248, 160, 40);
     this->_finishMsgLabel->setAlignment(Qt::AlignCenter);
     
-    this->_showChart->setGeometry(288, 210, 166, 30);
+    this->_display->setGeometry(300, 210, 160, 30);
+    this->_display->setStyleSheet("font-size: 18px;");
+    
+    this->_showChart->setGeometry(438, 210, 160, 30);
     this->_showChart->setStyleSheet("font-size: 18px;");
-    this->_showChart->setLayoutDirection(Qt::RightToLeft);
     this->_showChart->setChecked(false);
+    
+    this->_showPic->setGeometry(518, 210, 160, 30);
+    this->_showPic->setStyleSheet("font-size: 18px;");
+    this->_showPic->setChecked(true);
     
     /* --- If the text contains a non-numeric character, show warrnig msg --- */
     this->_lineEdit->setText(QString::number(this->_durationMax));
@@ -686,10 +697,10 @@ void    WindowNext::execChartDialog(void)
 {
         int screenWidth = QApplication::primaryScreen()->size().width();
         int screenHeight = QApplication::primaryScreen()->size().height();
-        int windowWidth = screenWidth - screenWidth / 4;
-        int windowHeight = screenHeight - screenHeight / 4;
+        int windowWidth = screenWidth * 3 / 4;
+        int windowHeight = screenHeight * 19 / 20;
         
-        this->_chartDialog->setGeometry((screenWidth - windowWidth) / 2, \
+        this->_chartDialog->setGeometry((screenHeight - windowHeight) / 8, \
                                         (screenHeight - windowHeight) / 2, \
                                         windowWidth, windowHeight);
         this->_chartDialog->setMinimumHeight(windowHeight / 2);

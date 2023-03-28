@@ -91,7 +91,9 @@ class WindowNext : public QDialog
 
         ComPort				*_selectedComPort;
         
+        QLabel				*_display;
         QCheckBox           *_showChart;
+        QCheckBox           *_showPic;
 
         ThreadDisplayTimer  *_threadDisplayTimer;
         ThreadReader        *_threadReader;
