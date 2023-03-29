@@ -747,10 +747,9 @@ void    WindowNext::execChartDialog(void)
         int screenWidth = QApplication::primaryScreen()->size().width();
         int screenHeight = QApplication::primaryScreen()->size().height();
         int windowWidth = screenWidth * 7 / 10;
-        int windowHeight = screenHeight * 19 / 20;
+        int windowHeight = screenHeight * 9 / 10;
         
-        this->_chartDialog->setGeometry(10, (screenHeight - windowHeight) / 2, \
-                                            windowWidth, windowHeight);
+        this->_chartDialog->setGeometry(10, 30, windowWidth, windowHeight);
         this->_chartDialog->setMinimumHeight(windowHeight / 2);
         this->_chartDialog->setMinimumWidth(windowWidth / 2);
         this->_chartDialog->show();
@@ -924,11 +923,9 @@ void    WindowNext::execPicDialog(void)
     int screenWidth = QApplication::primaryScreen()->size().width();
     int screenHeight = QApplication::primaryScreen()->size().height();
     int windowWidth = screenWidth * 3 / 10 - 25;
-    int windowHeight = screenHeight * 19 / 20;
+    int windowHeight = screenHeight * 9 / 10;
     
-    this->_picDialog->setGeometry(10 + screenWidth * 7 / 10 + 5, \
-                                    (screenHeight - windowHeight) / 2, \
-                                    windowWidth, windowHeight);
+    this->_picDialog->setGeometry(10 + screenWidth * 7 / 10 + 5, 30, windowWidth, windowHeight);
     this->_picDialog->setMinimumHeight(windowHeight / 2);
     this->_picDialog->setMinimumWidth(windowWidth / 2);
     this->_picDialog->show();
@@ -948,27 +945,23 @@ void    WindowNext::execPicDialog(void)
         });
     
     this->_imageLabel = new QLabel("", this->_picDialog);
-    _gridLayoutPic ->addWidget(_imageLabel, 1, 0, Qt::AlignCenter);
+    _gridLayoutPic ->addWidget(_imageLabel, 1, 0, 3, 1, Qt::AlignCenter);
     
     this->_imageSecondsLabel = new QLabel("", this->_picDialog);
     this->_imageSecondsLabel->setStyleSheet("font-size: 200px; font-weight: bold;");
-    _gridLayoutPic ->addWidget(_imageSecondsLabel, 2, 0, Qt::AlignCenter);
+    _gridLayoutPic ->addWidget(_imageSecondsLabel, 4, 0, Qt::AlignCenter);
     connect(this->_threadDisplayTimer, &ThreadDisplayTimer::currentSecondAndImgPath, this,
         [=](int currentSecond, QString imgPath)
         {
             this->showImage(currentSecond, imgPath);
         });
-    
-    // continue code here
 }
 
 void    WindowNext::showImage(int currentSecond, QString imgPath)
 {
     QPixmap pixmap(imgPath);
     QPixmap scaledPixmap = pixmap.scaled(550, 550, Qt::KeepAspectRatio);
-    QString imageSeconds = QString::number(currentSecond);    
-    
-//    qDebug() << imgPath << currentSecond;
+    QString imageSeconds = QString::number(currentSecond);
     
     this->_imageLabel->setPixmap(scaledPixmap);
     this->_imageSecondsLabel->setText(imageSeconds);
@@ -986,8 +979,8 @@ void   WindowNext::onThreadDisplayTimerFinished(void)
     this->_showChart->setChecked(false);
     this->_showPic->setChecked(false);
     
-	this->setMinimumSize(600, 350);
-	this->setMaximumSize(600, 350);
+//	this->setMinimumSize(600, 350);
+//	this->setMaximumSize(600, 350);
 	this->_buttonClose->setEnabled(true);
     this->_buttonClose->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_BUTTON);
 	this->_buttonStart->setEnabled(true);
