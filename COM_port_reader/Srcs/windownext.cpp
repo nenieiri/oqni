@@ -926,8 +926,8 @@ void    WindowNext::execPicDialog(void)
     int windowHeight = screenHeight * 9 / 10;
     
     this->_picDialog->setGeometry(10 + screenWidth * 7 / 10 + 5, 30, windowWidth, windowHeight);
-    this->_picDialog->setMinimumHeight(windowHeight / 2);
-    this->_picDialog->setMinimumWidth(windowWidth / 2);
+    this->_picDialog->setMinimumHeight(windowHeight * 3 / 5);
+    this->_picDialog->setMinimumWidth(windowWidth * 3 / 5);
     this->_picDialog->show();
     this->raise();
     
@@ -945,11 +945,10 @@ void    WindowNext::execPicDialog(void)
         });
     
     this->_imageLabel = new QLabel("", this->_picDialog);
-    _gridLayoutPic ->addWidget(_imageLabel, 1, 0, 3, 1, Qt::AlignCenter);
+    _gridLayoutPic ->addWidget(_imageLabel, 1, 0, 6, 1, Qt::AlignCenter);
     
     this->_imageSecondsLabel = new QLabel("", this->_picDialog);
-    this->_imageSecondsLabel->setStyleSheet("font-size: 200px; font-weight: bold;");
-    _gridLayoutPic ->addWidget(_imageSecondsLabel, 4, 0, Qt::AlignCenter);
+    _gridLayoutPic ->addWidget(_imageSecondsLabel, 7, 0, 2, 1, Qt::AlignCenter);
     connect(this->_threadDisplayTimer, &ThreadDisplayTimer::currentSecondAndImgPath, this,
         [=](int currentSecond, QString imgPath)
         {
@@ -960,8 +959,23 @@ void    WindowNext::execPicDialog(void)
 void    WindowNext::showImage(int currentSecond, QString imgPath)
 {
     QPixmap pixmap(imgPath);
-    QPixmap scaledPixmap = pixmap.scaled(550, 550, Qt::KeepAspectRatio);
+
+    int width = _picDialog->size().width();
+    int height = width * pixmap.height() / pixmap.width(); // to keep image size ratio
+
+    // check if "height" is greater than 6 rows of gridLayout (total rows = 9), in which the image is placed
+    if (height > _picDialog->size().height() * 6 / 9)
+     {
+        height = _picDialog->size().height() * 6 / 9;
+        width = height * pixmap.width() / pixmap.height();
+     }
+
+    QPixmap scaledPixmap = pixmap.scaled(height, width * 11 / 10, Qt::KeepAspectRatio); // increase "width" by 10%
     QString imageSeconds = QString::number(currentSecond);
+
+    this->_imageSecondsLabel->setStyleSheet("font-size: " + \
+                                            QString::number(_picDialog->size().height() * 2 / 9) + \
+                                            "px; font-weight: bold;"); // 2/9 = rows of ImageSeconds
     
     this->_imageLabel->setPixmap(scaledPixmap);
     this->_imageSecondsLabel->setText(imageSeconds);
