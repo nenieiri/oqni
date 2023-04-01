@@ -14,8 +14,7 @@ ComPort::ComPort(const QSerialPortInfo &port, QGroupBox *groupbox) : \
                 _stopBitsIndex(0), \
                 _flowControlIndex(0) \
 {
-    //this->_checkBox = new QCheckBox(this->_portName, groupbox);
-    this->_checkBox = new QRadioButton(this->_portName, groupbox); //delete
+    this->_radioButton = new QRadioButton(this->_portName, groupbox); //delete
 
     this->_toolButton = new QToolButton(groupbox);
     this->_toolButton->setIcon(QIcon(":/Imgs/config.png"));
@@ -29,7 +28,7 @@ ComPort::ComPort(const QSerialPortInfo &port, QGroupBox *groupbox) : \
 
 ComPort::~ComPort()
 {
-    delete this->_checkBox;
+    delete this->_radioButton;
     delete this->_toolButton;
 }
 

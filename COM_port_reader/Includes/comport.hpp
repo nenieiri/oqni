@@ -40,8 +40,7 @@ class	ComPort
         unsigned int                getStopBitsIndex(void) const {return _stopBitsIndex;}
         unsigned int                getFlowControlIndex(void) const {return _flowControlIndex;}
         
-        //QCheckBox                 *getCheckBox(void) const {return _checkBox;}
-        QRadioButton                *getCheckBox(void) const {return _checkBox;}  //delete
+        QRadioButton                *getCheckBox(void) const {return _radioButton;}
         QToolButton                 *getToolButton(void) const {return _toolButton;}
 
     private:
@@ -59,9 +58,7 @@ class	ComPort
         unsigned int                _stopBitsIndex;
         unsigned int                _flowControlIndex;
 
-        
-        //QCheckBox       			*_checkBox;
-        QRadioButton    			*_checkBox; //delete
+        QRadioButton    			*_radioButton;
 
         QToolButton                 *_toolButton;
         

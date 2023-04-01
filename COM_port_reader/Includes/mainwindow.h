@@ -71,9 +71,9 @@ class MainWindow : public QMainWindow
         WindowNext          *_windowNext;
         WindowChart         *_windowChart;
         
-        ComPort             *_previewsCheckBox; // temp to delete
-        
+        ComPort             *_previewsRadioButton;
         int                 _portCount;
+        bool				_isRejected;
 };
 
 #endif

@@ -150,11 +150,11 @@ void    MainWindow::createLiftVertical(int x, int y, int width, int height)
 
 void    MainWindow::buttonCheckAction(void)
 {
-    /* ----------- show animation and update checkboxes' list -------------- */
+    /* ----------- show animation and update radiobuttons' list ------------- */
     this->_buttonNext->setEnabled(false);
     this->_buttonNext->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_BUTTON);
 
-    this->_previewsCheckBox = nullptr;
+    this->_previewsRadioButton = nullptr;
     this->_gifLabel->show();
     this->_gifMovie->start();
     this->_liftVertical->hide();
@@ -199,9 +199,9 @@ void    MainWindow::buttonCheckAction(void)
                         this->_buttonNext->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_BUTTON);
                         (*it)->getToolButton()->raise();
                         (*it)->getToolButton()->show();
-                        if (this->_previewsCheckBox && this->_previewsCheckBox != *it)
-                            this->_previewsCheckBox->getToolButton()->hide();
-                        this->_previewsCheckBox = *it;
+                        if (this->_previewsRadioButton && this->_previewsRadioButton != *it)
+                            this->_previewsRadioButton->getToolButton()->hide();
+                        this->_previewsRadioButton = *it;
                     });
                 if ((*it)->getCheckBox()->isChecked() == false)
                     (*it)->getToolButton()->hide();
@@ -265,6 +265,33 @@ void    MainWindow::buttonChartAction()
         return ;
     }
 
+    QDialog	choosingFiles = QDialog(this);
+    QPushButton	*buttonOk = createButton("OK", 130, 260, 100, 30, nullptr, &choosingFiles);
+    _isRejected = true;
+    
+    choosingFiles.setMinimumSize(360, 300);
+    choosingFiles.setMaximumSize(360, 300);
+    choosingFiles.setWindowTitle("Please select files");
+    choosingFiles.setWindowIcon(QIcon(":/Imgs/oqni.ico"));
+    choosingFiles.setWindowFilePath(":/Imgs/oqni.ico");
+    choosingFiles.setStyleSheet("background: #e6e6e6;");
+    
+    connect(buttonOk, &QPushButton::clicked, &choosingFiles,
+		[&](void)
+		{
+            choosingFiles.close();
+        	_isRejected = false;
+		});
+    
+    choosingFiles.exec();
+    disconnect(buttonOk, &QPushButton::clicked, &choosingFiles, nullptr);
+    delete buttonOk;
+    if (_isRejected == true)
+    {
+		this->_buttonChart->setStyleSheet(MY_DEFINED_RELEASED_BUTTON);
+        return ;
+    }
+
     QTextStream in(&file);
 	line = in.readLine();
 	file.close();
@@ -274,7 +301,7 @@ void    MainWindow::buttonChartAction()
 		return ;
     }
 
-    this->_windowChart = new WindowChart(this, selectedFile);
+	this->_windowChart = new WindowChart(this, selectedFile);
     this->_windowChart->exec();
     this->_buttonChart->setStyleSheet(MY_DEFINED_RELEASED_BUTTON);
     delete this->_windowChart;
