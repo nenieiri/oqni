@@ -17,6 +17,7 @@ MainWindow::MainWindow(QWidget *parent)
     this->_buttonNext->setEnabled(false);
     this->_buttonNext->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_BUTTON);
     this->_buttonChart = this->createButton("Chart", 560, 500, 100, 30, std::bind(&MainWindow::buttonChartAction, this), this);
+    this->_filesList = nullptr;
     
     _baudRateItems = {"1200", "2400", "4800", "9600", "19200", "38400", "57600", "115200"};
     _dataBitsItems = {"5", "6", "7", "8"};
@@ -264,18 +265,35 @@ void    MainWindow::buttonChartAction()
 		this->_buttonChart->setStyleSheet(MY_DEFINED_RELEASED_BUTTON);
         return ;
     }
-
-    QDialog	choosingFiles = QDialog(this);
-    QPushButton	*buttonOk = createButton("OK", 130, 260, 100, 30, nullptr, &choosingFiles);
-    _isRejected = true;
     
-    choosingFiles.setMinimumSize(360, 300);
-    choosingFiles.setMaximumSize(360, 300);
+    int		lastSlashIndex = selectedFile.lastIndexOf('/');
+    QString	pathToFiles = selectedFile.left(lastSlashIndex);
+    QString	fileNamePrefix = selectedFile.mid(lastSlashIndex + 1, 13) + "*.csv";
+    
+    QDir	directory(pathToFiles);
+    QStringList files = directory.entryList(QStringList() << fileNamePrefix, QDir::Files);
+    _filesList = new QCheckBox[files.count()];
+    
+    QDialog	choosingFiles = QDialog(this);
+    choosingFiles.setMinimumSize(300, 10 + (files.count() + 1) * 40);
+    choosingFiles.setMaximumSize(300, 10 + (files.count() + 1) * 40);
     choosingFiles.setWindowTitle("Please select files");
     choosingFiles.setWindowIcon(QIcon(":/Imgs/oqni.ico"));
     choosingFiles.setWindowFilePath(":/Imgs/oqni.ico");
     choosingFiles.setStyleSheet("background: #e6e6e6;");
+
+    QPushButton	*buttonOk = createButton("OK", 100, 10 + files.count() * 40, 100, 30, nullptr, &choosingFiles);
     
+    for (int i = 0; i < files.count(); ++i)
+    {
+		_filesList[i].setParent(&choosingFiles);
+		_filesList[i].setGeometry(20, 10 + i * 40, 260, 30);
+		_filesList[i].setChecked(true);
+		_filesList[i].setText(files[i]);
+		_filesList[i].setStyleSheet("font-size: 18px;");
+    }
+    
+    _isRejected = true;
     connect(buttonOk, &QPushButton::clicked, &choosingFiles,
 		[&](void)
 		{
@@ -288,6 +306,8 @@ void    MainWindow::buttonChartAction()
     delete buttonOk;
     if (_isRejected == true)
     {
+		delete [] _filesList;
+		_filesList = nullptr;
 		this->_buttonChart->setStyleSheet(MY_DEFINED_RELEASED_BUTTON);
         return ;
     }
@@ -297,6 +317,8 @@ void    MainWindow::buttonChartAction()
 	file.close();
 	if (line.startsWith("time_millisec,led") == false)
     {
+		delete [] _filesList;
+		_filesList = nullptr;
 		this->_buttonChart->setStyleSheet(MY_DEFINED_RELEASED_BUTTON);
 		return ;
     }
@@ -305,6 +327,8 @@ void    MainWindow::buttonChartAction()
     this->_windowChart->exec();
     this->_buttonChart->setStyleSheet(MY_DEFINED_RELEASED_BUTTON);
     delete this->_windowChart;
+    delete [] _filesList;
+    _filesList = nullptr;
 }
 
 void    MainWindow::buttonToolAction(ComPort *comPort)

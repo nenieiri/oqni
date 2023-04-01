@@ -74,6 +74,7 @@ class MainWindow : public QMainWindow
         ComPort             *_previewsRadioButton;
         int                 _portCount;
         bool				_isRejected;
+        QCheckBox			*_filesList;
 };
 
 #endif
