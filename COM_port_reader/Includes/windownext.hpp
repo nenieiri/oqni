@@ -68,7 +68,7 @@ class WindowNext : public QDialog
         QString				_selectedDirectory;
         QString				_fullSavingPath;
         
-		QCheckBox			*_showSelectedDir1;
+        QLabel				*_showSelectedDir1;
 		QLineEdit			*_showSelectedDir2;
         
 		QLabel				*_recordingFolder1;
@@ -96,6 +96,7 @@ class WindowNext : public QDialog
         QLabel				*_display;
         QCheckBox           *_showChart;
         QCheckBox           *_showPic;
+		QCheckBox			*_saveCheckBox;
 
         ThreadDisplayTimer  *_threadDisplayTimer;
         ThreadReader        *_threadReader;

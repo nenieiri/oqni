@@ -20,7 +20,6 @@ class ThreadDisplayTimer : public QThread
 
     public:
 		void    run() override;
-        void    showImage(int currentSecond, const QString &imgPath);
         int     getCurrentImgLabel(void);
         
     private:

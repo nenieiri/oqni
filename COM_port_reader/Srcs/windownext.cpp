@@ -25,8 +25,7 @@ WindowNext::WindowNext(MainWindow *parent)
     this->_showReadingPort1 = new QLabel("Read from:", this);
 	this->_showReadingPort2 = new QLabel(this->_selectedComPort->getPortName(), this);
     
-    this->_showSelectedDir1 = new QCheckBox("Save to:   ", this);
-    this->_showSelectedDir1->setChecked(true);
+    this->_showSelectedDir1 = new QLabel("DB path:", this);
     this->_showSelectedDir2 = new QLineEdit(this);
 //    this->_selectedDirectory = QCoreApplication::applicationDirPath() + "/Recordings";
     this->_selectedDirectory = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation) + "/oqni/Recordings";
@@ -64,6 +63,8 @@ WindowNext::WindowNext(MainWindow *parent)
     this->_display = new QLabel("Display:", this);
     this->_showChart = new QCheckBox("chart", this);
     this->_showPic = new QCheckBox("pic", this);
+    this->_saveCheckBox = new QCheckBox("save", this);
+    this->_saveCheckBox->setChecked(true);
     
     this->_chartDialog = nullptr;
 	this->_chart = nullptr;
@@ -122,6 +123,7 @@ WindowNext::~WindowNext()
     delete _display;
     delete _showChart;
     delete _showPic;
+    delete _saveCheckBox;
 }
 
 void    WindowNext::closeEvent(QCloseEvent *event)
@@ -148,8 +150,6 @@ void    WindowNext::setButtonStart(QPushButton *buttonStart)
             if (this->_durationTimerValue == 0)
                 return ;
             
-//			this->setMinimumSize(1200, 700);
-//			this->setMaximumSize(1200, 700);
 			this->_buttonClose->setEnabled(false);
             this->_buttonClose->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_BUTTON);
 			this->_buttonStart->setEnabled(false);
@@ -245,8 +245,6 @@ void		WindowNext::setButtonStop(QPushButton *buttonStop)
             this->_showChart->setChecked(false);
             this->_showPic->setChecked(false);
         
-//            this->setMinimumSize(600, 350);
-//            this->setMaximumSize(600, 350);
             this->_buttonClose->setEnabled(true);
             this->_buttonClose->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_BUTTON);
             this->_buttonStart->setEnabled(true);
@@ -334,7 +332,6 @@ void    WindowNext::setParametersDesign(void)
     
     this->_showSelectedDir1->setGeometry(10, 50, 100, 30);
     this->_showSelectedDir1->setStyleSheet("font-size: 18px;");
-    this->_showSelectedDir1->setLayoutDirection(Qt::RightToLeft);
     this->_showSelectedDir2->setGeometry(120, 50, 360, 30);
     this->_showSelectedDir2->setCursorPosition(0);
     this->_showSelectedDir2->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
@@ -405,6 +402,9 @@ void    WindowNext::setParametersDesign(void)
     this->_showPic->setGeometry(518, 210, 160, 30);
     this->_showPic->setStyleSheet("font-size: 18px;");
     this->_showPic->setChecked(true);
+    
+    this->_saveCheckBox->setGeometry(438, 240, 160, 30);
+    this->_saveCheckBox->setStyleSheet("font-size: 18px;");
     
     /* --- If the text contains a non-numeric character, show warrnig msg --- */
     this->_lineEdit->setText(QString::number(this->_durationMax));
@@ -663,7 +663,7 @@ int	WindowNext::readExpProtocol(void)
 void	WindowNext::saveDataToFile(const QString &subject)
 {
 	
-    if (this->_showSelectedDir1->isChecked() == false)
+    if (this->_saveCheckBox->isChecked() == false)
         return ;
     
     QFile  			*myFile = new QFile[_numOfOS];
@@ -993,8 +993,6 @@ void   WindowNext::onThreadDisplayTimerFinished(void)
     this->_showChart->setChecked(false);
     this->_showPic->setChecked(false);
     
-//	this->setMinimumSize(600, 350);
-//	this->setMaximumSize(600, 350);
 	this->_buttonClose->setEnabled(true);
     this->_buttonClose->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_BUTTON);
 	this->_buttonStart->setEnabled(true);
@@ -1035,4 +1033,3 @@ void   WindowNext::onThreadDisplayTimerFinished(void)
     this->_finishMsgLabel->setStyleSheet("font-size: 28px; color: #B22222; font-weight: bold;");
     this->_finishMsgLabel->show();
 }
-

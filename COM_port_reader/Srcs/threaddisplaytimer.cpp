@@ -74,7 +74,6 @@ void    ThreadDisplayTimer::run()
         }
         this->_currentImgLabel = label;
         emit currentSecondAndImgPath(currentSecond, imgPath);
-//        this->showImage(currentSecond, imgPath);
         currentSecond--;
         
         int minutes = seconds / 60;
@@ -88,23 +87,6 @@ void    ThreadDisplayTimer::run()
         QThread::usleep(1000 * (1000 - (QDateTime::currentDateTime().toMSecsSinceEpoch() - start - 1000 * (this->_durationTimerValue - seconds))));
         seconds--;
     }
-}
-
-void    ThreadDisplayTimer::showImage(int currentSecond, const QString &imgPath)
-{
-    QPixmap pixmap(imgPath);
-    QPixmap scaledPixmap = pixmap.scaled(550, 550, Qt::KeepAspectRatio);
-    QString imageSeconds = QString::number(currentSecond);    
-    
-    
-    this->_imageLabel->setGeometry(620, 20, 550, 550);
-    this->_imageLabel->setPixmap(scaledPixmap);
-    this->_imageLabel->show();
-
-    this->_imageSecondsLabel->setText(imageSeconds);
-    this->_imageSecondsLabel->setGeometry(850, 550, 280, 150);
-    this->_imageSecondsLabel->setStyleSheet("font-size: 150px; font-weight: bold;");
-    this->_imageSecondsLabel->show();
 }
 
 int ThreadDisplayTimer::getCurrentImgLabel(void)
