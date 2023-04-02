@@ -163,7 +163,13 @@ void    WindowChart::updateValueLineAxis(void)
 void    WindowChart::execChartDialog(void)
 {
     this->_chart = new QChart();
-    _chart->setTitle(this->staticChartTitle(_pathToFiles + _filesList[0].text()));
+    
+    int i = 0;
+    for (; i < _filesCount; ++i)
+        if (_filesList[i].isChecked() == true)
+            break ;
+    _chart->setTitle(this->staticChartTitle(_pathToFiles + _filesList[i].text()));
+    
     QFont font;
     font.setBold(true);
     font.setPointSize(14);
@@ -314,19 +320,28 @@ QString WindowChart::staticChartTitle(const QString &selectedFile)
     int lastDot = selectedFile.lastIndexOf('.');
     int lastUnderscoreLine = selectedFile.lastIndexOf('_');
     int lastSlash = selectedFile.lastIndexOf('/');
-    if (lastSlash == -1)
-        lastSlash = selectedFile.lastIndexOf('\\');
+//    if (lastSlash == -1)
+//        lastSlash = selectedFile.lastIndexOf('\\');
     if (lastDot == -1 || lastUnderscoreLine == -1 || lastSlash == -1)
         return tmp;
 
     title += selectedFile.mid(lastSlash + 1, lastUnderscoreLine - lastSlash - 1) + \
-            "\u00A0\u00A0\u00A0\u00A0" + \
-            selectedFile.mid(lastUnderscoreLine + 1, lastDot - lastUnderscoreLine - 1);
+            "\u00A0\u00A0\u00A0\u00A0";
+    for (int i = 0; i < _filesCount; ++i)
+    {
+        if (_filesList[i].isChecked() == true)
+        {
+			int lastDot_tmp = _filesList[i].text().lastIndexOf('.');
+			int lastUnderscoreLine_tmp = _filesList[i].text().lastIndexOf('_');
+			title += _filesList[i].text().mid(lastUnderscoreLine_tmp + 1, lastDot_tmp - lastUnderscoreLine_tmp - 1);
+            title += "\u00A0\u00A0\u00A0";
+        }
+    }
 
     tmp = selectedFile.left(lastSlash);
     lastSlash = tmp.lastIndexOf('/');
-    if (lastSlash == -1)
-        lastSlash = tmp.lastIndexOf('\\');
+//    if (lastSlash == -1)
+//        lastSlash = tmp.lastIndexOf('\\');
     tmp = tmp.mid(lastSlash + 1);
 
     lastUnderscoreLine = tmp.lastIndexOf('_');
