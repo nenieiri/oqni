@@ -256,35 +256,35 @@ void    WindowChart::execChartDialog(void)
         if (_filesList[k].isChecked() == false)
             continue ;
         ++j;        
-        for (int i = 0; i < (_numOfCH / _filesCount); ++i)
+        for (int i = 0; i < (_numOfCH / _checkedFilesCount); ++i)
         {
-            if (i % (_numOfCH / _filesCount) == 0)
+            if (i % (_numOfCH / _checkedFilesCount) == 0)
             {
                 text = "Infrared" + QString::number(k + 1) + "  ";
-                this->_checkBoxChannels[i + j * (_numOfCH / _filesCount)].setText(text);
-                this->_checkBoxChannels[i + j * (_numOfCH / _filesCount)].setStyleSheet("color: blue;");
+                this->_checkBoxChannels[i + j * (_numOfCH / _checkedFilesCount)].setText(text);
+                this->_checkBoxChannels[i + j * (_numOfCH / _checkedFilesCount)].setStyleSheet("color: blue;");
             }
-            else if (i % (_numOfCH / _filesCount) == 1)
+            else if (i % (_numOfCH / _checkedFilesCount) == 1)
             {
                 text = "Red" + QString::number(k + 1) + "  ";
-                this->_checkBoxChannels[i + j * (_numOfCH / _filesCount)].setText(text);
-                this->_checkBoxChannels[i + j * (_numOfCH / _filesCount)].setStyleSheet("color: red;");
+                this->_checkBoxChannels[i + j * (_numOfCH / _checkedFilesCount)].setText(text);
+                this->_checkBoxChannels[i + j * (_numOfCH / _checkedFilesCount)].setStyleSheet("color: red;");
             }
-            else if (i % (_numOfCH / _filesCount) == 2)
+            else if (i % (_numOfCH / _checkedFilesCount) == 2)
             {
                 text = "Green" + QString::number(k + 1) + "                ";
-                this->_checkBoxChannels[i + j * (_numOfCH / _filesCount)].setText(text);
-                this->_checkBoxChannels[i + j * (_numOfCH / _filesCount)].setStyleSheet("color: green;");
+                this->_checkBoxChannels[i + j * (_numOfCH / _checkedFilesCount)].setText(text);
+                this->_checkBoxChannels[i + j * (_numOfCH / _checkedFilesCount)].setStyleSheet("color: green;");
             }
             else
             {
                 text = "Other" + QString::number(k + 1) + "  ";
-                this->_checkBoxChannels[i + j * (_numOfCH / _filesCount)].setText(text);
-                this->_checkBoxChannels[i + j * (_numOfCH / _filesCount)].setStyleSheet("color: gray;");
+                this->_checkBoxChannels[i + j * (_numOfCH / _checkedFilesCount)].setText(text);
+                this->_checkBoxChannels[i + j * (_numOfCH / _checkedFilesCount)].setStyleSheet("color: gray;");
             }
-            this->_checkBoxChannels[i + j * (_numOfCH / _filesCount)].setChecked(true);
-            this->connectStaticChatCheckBox(i + j * (_numOfCH / _filesCount));
-            this->_hBoxLayout->addWidget(&_checkBoxChannels[i + j * (_numOfCH / _filesCount)]); 
+            this->_checkBoxChannels[i + j * (_numOfCH / _checkedFilesCount)].setChecked(true);
+            this->connectStaticChatCheckBox(i + j * (_numOfCH / _checkedFilesCount));
+            this->_hBoxLayout->addWidget(&_checkBoxChannels[i + j * (_numOfCH / _checkedFilesCount)]); 
         }
         if (j + 1 == _checkedFilesCount)
         {
