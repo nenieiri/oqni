@@ -267,7 +267,7 @@ void    MainWindow::buttonChartAction()
     }
     
     int		lastSlashIndex = selectedFile.lastIndexOf('/');
-    QString	pathToFiles = selectedFile.left(lastSlashIndex);
+    QString	pathToFiles = selectedFile.left(lastSlashIndex + 1);
     QString	fileNamePrefix = selectedFile.mid(lastSlashIndex + 1, 13) + "*.csv";
     
     QDir	directory(pathToFiles);
@@ -323,7 +323,7 @@ void    MainWindow::buttonChartAction()
 		return ;
     }
 
-	this->_windowChart = new WindowChart(this, pathToFiles, _filesList);
+	this->_windowChart = new WindowChart(this, pathToFiles, _filesList, files.count());
     this->_windowChart->exec();
     this->_buttonChart->setStyleSheet(MY_DEFINED_RELEASED_BUTTON);
     delete this->_windowChart;

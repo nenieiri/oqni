@@ -1,9 +1,11 @@
 #include "windowchart.hpp"
 
-WindowChart::WindowChart(MainWindow *parent, const QString &pathToFiles, QCheckBox *filesList)
+WindowChart::WindowChart(MainWindow *parent, const QString &pathToFiles, \
+                        QCheckBox *filesList, int filesCount)
     : QDialog(parent)
     , _pathToFiles(pathToFiles) \
-    , _filesList(filesList)
+    , _filesList(filesList) \
+    , _filesCount(filesCount)
 {
 	int screenWidth = QApplication::primaryScreen()->size().width();
 	int screenHeight = QApplication::primaryScreen()->size().height();
@@ -47,7 +49,13 @@ WindowChart::WindowChart(MainWindow *parent, const QString &pathToFiles, QCheckB
     this->setStyleSheet("background: #e6e6e6;");
     this->raise();
 	this->show();
-    this->readFromFile();    
+    
+    _checkedFilesCount = 0;
+    for	(int i = 0; i < _filesCount; ++i)
+        if (_filesList[i].isChecked() == true)
+            ++_checkedFilesCount;
+    
+    this->readFromFile();
     this->execChartDialog();
 }
 
@@ -73,12 +81,21 @@ WindowChart::~WindowChart()
 void    WindowChart::readFromFile(void)
 {
     QStringList splitList;
-    QFile       file(_selectedFile);
     qint64      time;
     
-    file.open(QIODevice::ReadOnly | QIODevice::Text);
+    QFile		*files = new QFile[_checkedFilesCount];
+    QTextStream *ins = new QTextStream[_checkedFilesCount];
+    for (int i = 0, j = -1; i < _filesCount; ++i)
+    {
+        if (_filesList[i].isChecked() == true)
+        {
+			files[++j].setFileName(_pathToFiles + _filesList[i].text());
+			files[j].open(QIODevice::ReadOnly | QIODevice::Text);
+			ins[j].setDevice(&(files[j]));
+        }
+    }
+    
 
-    QTextStream in(&file);
     
     _numOfCH = in.readLine().count("led"); // counting _numofCh and omitting first line
     
@@ -132,7 +149,7 @@ void    WindowChart::updateValueLineAxis(void)
 void    WindowChart::execChartDialog(void)
 {
     this->_chart = new QChart();
-    _chart->setTitle(this->staticChartTitle(_selectedFile));
+    _chart->setTitle(this->staticChartTitle(_pathToFiles + _filesList[0].text()));
     QFont font;
     font.setBold(true);
     font.setPointSize(14);

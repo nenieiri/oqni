@@ -17,7 +17,7 @@ class	MyChartView;
 class	WindowChart : public QDialog
 {
 	public:
-		WindowChart(MainWindow *parent, const QString &pathToFiles, QCheckBox *filesList);
+		WindowChart(MainWindow *parent, const QString &pathToFiles, QCheckBox *filesList, int filesCount);
 		~WindowChart();
     
     private:
@@ -29,6 +29,8 @@ class	WindowChart : public QDialog
     private:
         const QString   _pathToFiles;
         QCheckBox       *_filesList;
+        int             _filesCount;
+        int				_checkedFilesCount;
         
         QChart          *_chart;
         MyChartView   	*_chartView;
