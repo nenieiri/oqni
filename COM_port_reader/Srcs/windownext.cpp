@@ -181,7 +181,7 @@ void    WindowNext::setButtonStart(QPushButton *buttonStart)
 			this->_closeEventFlag = false;
             
             this->_threadDisplayTimer = new ThreadDisplayTimer(this->_durationTimerValue, this, this->_expProtocolsPath, this->_expProtocol); // this thread starts in TreadReader thread
-            this->_threadReader = new ThreadReader(_selectedComPort, _threadDisplayTimer);
+            this->_threadReader = new ThreadReader(_selectedComPort, _threadDisplayTimer, _showPic);
             this->_threadReader->start();
             
 			this->_recordingFolder4->setText(_threadReader->getFileCreationDate());

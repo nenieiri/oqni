@@ -1,7 +1,8 @@
 #include "threadreader.hpp"
 
-ThreadReader::ThreadReader(ComPort *comPort, ThreadDisplayTimer *threadDisplayTimer)
-			: _comPort(comPort)
+ThreadReader::ThreadReader(ComPort *comPort, ThreadDisplayTimer *threadDisplayTimer, QCheckBox *showPic)
+			: _comPort(comPort) \
+            , _showPic(showPic)
 {
     this->_fileCreationDate = QDateTime::currentDateTime().toString("yyMMdd");
     this->_fileCreationTime = QDateTime::currentDateTime().toString("hhmmss");
@@ -111,6 +112,7 @@ void    ThreadReader::run()
     bytesTotal = bytesTillData + _numOfCH * _sizeOfCH;
     emit protocolConfigDataIsReady();
     
+    int currentImgLabel;
     while (!isInterruptionRequested())
     {
         if (port.waitForReadyRead(MY_READY_READ_TIME))
@@ -118,7 +120,8 @@ void    ThreadReader::run()
             _dataRead.append(port.read(bytesTotal));
             currentTime = QDateTime::currentDateTime().toMSecsSinceEpoch();
             _dataRead.append(QByteArray::fromRawData(reinterpret_cast<const char*>(&currentTime), sizeof(qint64)));
-            _dataRead.append(QString::number(this->_threadDisplayTimer->getCurrentImgLabel()).toUInt());
+            currentImgLabel = _showPic->isChecked() ? this->_threadDisplayTimer->getCurrentImgLabel() : 0;
+            _dataRead.append(QString::number(currentImgLabel).toUInt());
             emit lastRowOfData(_dataRead.right(bytesTotal + 8 + 1)); // 8 - sizeof time; 1 - sizeof label
         }
         else

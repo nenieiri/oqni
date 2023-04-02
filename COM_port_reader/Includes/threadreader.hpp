@@ -19,7 +19,7 @@ class ThreadReader : public QThread
 	Q_OBJECT
     
 	public:
-        ThreadReader(ComPort *comPort, ThreadDisplayTimer *threadDisplayTimer);
+        ThreadReader(ComPort *comPort, ThreadDisplayTimer *threadDisplayTimer, QCheckBox *showPic);
 		~ThreadReader();
 
     public:
@@ -63,6 +63,7 @@ class ThreadReader : public QThread
         char                _numOfOS;  // Number of connected optical sensors
         QByteArray          _dataRead;
         qint64              _startTime;
+        QCheckBox           *_showPic;
 };
 
 #endif
