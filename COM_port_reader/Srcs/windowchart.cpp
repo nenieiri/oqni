@@ -250,58 +250,52 @@ void    WindowChart::execChartDialog(void)
 	
 	this->_hBoxLayout = new QHBoxLayout;
 	this->_checkBoxChannels = new QCheckBox[_numOfCH + 1];
-	for (int i = 0; i < _numOfCH + 1; ++i)
-	{
-		if (i % (_numOfCH + 1) == 0)
-		{
-			this->_checkBoxChannels[i].setText("Infrared  ");
-			this->_checkBoxChannels[i].setStyleSheet("color: blue;");
-		}
-		else if (i % (_numOfCH + 1) == 1)
-		{
-			this->_checkBoxChannels[i].setText("Red  ");
-			this->_checkBoxChannels[i].setStyleSheet("color: red;");
-		}
-		else if (i % (_numOfCH + 1) == 2)
-		{
-			this->_checkBoxChannels[i].setText("Green         ");
-			this->_checkBoxChannels[i].setStyleSheet("color: green;");
-		}
-		else if (i == _numOfCH)
-		{
-			this->_checkBoxChannels[i].setText("Label  ");
-			this->_checkBoxChannels[i].setStyleSheet("color: black;");
-		}
-		else
-		{
-			this->_checkBoxChannels[i].setText("Other  ");
-			this->_checkBoxChannels[i].setStyleSheet("color: gray;");
-		}
-		this->_checkBoxChannels[i].setChecked(true);
-		connect(&this->_checkBoxChannels[i], &QCheckBox::clicked, this,
-			[=]()
-			{
-				if (this->_checkBoxChannels[i].isChecked() == true)
-				{
-					_chart->addSeries(&_series[i]);
-					_series[i].attachAxis(_axisX);
-                    if (i && i % _numOfCH == 0)
-						_series[i].attachAxis(_axisYLabel);
-                    else
-						_series[i].attachAxis(_axisY);
-					this->_checkBoxChannelsValue[i] = true;
-				}
-				else
-				{
-					_chart->removeSeries(&_series[i]);
-					this->_checkBoxChannelsValue[i] = false;
-				}
-				this->updateValueLineAxis();
-				_chart->update();
-			});
-		this->_hBoxLayout->addWidget(&_checkBoxChannels[i]); 
-	}
-
+    QString text;
+    for (int k = 0, j = -1; k < _filesCount; ++k)
+    {
+        if (_filesList[k].isChecked() == false)
+            continue ;
+        ++j;        
+        for (int i = 0; i < (_numOfCH / _filesCount); ++i)
+        {
+            if (i % (_numOfCH / _filesCount) == 0)
+            {
+                text = "Infrared" + QString::number(k + 1) + "  ";
+                this->_checkBoxChannels[i + j * (_numOfCH / _filesCount)].setText(text);
+                this->_checkBoxChannels[i + j * (_numOfCH / _filesCount)].setStyleSheet("color: blue;");
+            }
+            else if (i % (_numOfCH / _filesCount) == 1)
+            {
+                text = "Red" + QString::number(k + 1) + "  ";
+                this->_checkBoxChannels[i + j * (_numOfCH / _filesCount)].setText(text);
+                this->_checkBoxChannels[i + j * (_numOfCH / _filesCount)].setStyleSheet("color: red;");
+            }
+            else if (i % (_numOfCH / _filesCount) == 2)
+            {
+                text = "Green" + QString::number(k + 1) + "                ";
+                this->_checkBoxChannels[i + j * (_numOfCH / _filesCount)].setText(text);
+                this->_checkBoxChannels[i + j * (_numOfCH / _filesCount)].setStyleSheet("color: green;");
+            }
+            else
+            {
+                text = "Other" + QString::number(k + 1) + "  ";
+                this->_checkBoxChannels[i + j * (_numOfCH / _filesCount)].setText(text);
+                this->_checkBoxChannels[i + j * (_numOfCH / _filesCount)].setStyleSheet("color: gray;");
+            }
+            this->_checkBoxChannels[i + j * (_numOfCH / _filesCount)].setChecked(true);
+            this->connectStaticChatCheckBox(i + j * (_numOfCH / _filesCount));
+            this->_hBoxLayout->addWidget(&_checkBoxChannels[i + j * (_numOfCH / _filesCount)]); 
+        }
+        if (j + 1 == _checkedFilesCount)
+        {
+            this->_checkBoxChannels[_numOfCH].setText("Label");
+            this->_checkBoxChannels[_numOfCH].setStyleSheet("color: black;");
+            this->_checkBoxChannels[_numOfCH].setChecked(true);
+            this->connectStaticChatCheckBox(_numOfCH);
+            this->_hBoxLayout->addWidget(&_checkBoxChannels[_numOfCH]);
+        }
+    }
+    
 	this->_gridLayout->addWidget(this->_chartView, 0, 0, 1, 5);
     this->_gridLayout->addWidget(this->_verticalScrollBar, 0, 0, 1, 5, Qt::AlignRight); 
     this->_gridLayout->addWidget(this->_horizontalScrollBar, 0, 0, 1, 5, Qt::AlignBottom); 
@@ -354,4 +348,29 @@ QString WindowChart::staticChartTitle(const QString &selectedFile)
                     tmp.mid(lastUnderscoreLine + 1) + title.mid(11);
     }
     return title;
+}
+
+void WindowChart::connectStaticChatCheckBox(int i)
+{
+    connect(&this->_checkBoxChannels[i], &QCheckBox::clicked, this,
+        [=]()
+        {
+            if (this->_checkBoxChannels[i].isChecked() == true)
+            {
+                _chart->addSeries(&_series[i]);
+                _series[i].attachAxis(_axisX);
+                if (i && i % _numOfCH == 0)
+                    _series[i].attachAxis(_axisYLabel);
+                else
+                    _series[i].attachAxis(_axisY);
+                this->_checkBoxChannelsValue[i] = true;
+            }
+            else
+            {
+                _chart->removeSeries(&_series[i]);
+                this->_checkBoxChannelsValue[i] = false;
+            }
+            this->updateValueLineAxis();
+            _chart->update();
+        });
 }

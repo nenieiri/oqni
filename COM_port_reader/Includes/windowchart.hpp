@@ -25,6 +25,7 @@ class	WindowChart : public QDialog
         void    		readFromFile(void);
 		void			updateValueLineAxis(void);
         QString         staticChartTitle(const QString &selectedFile);
+        void            connectStaticChatCheckBox(int i);
     
     private:
         const QString   _pathToFiles;
