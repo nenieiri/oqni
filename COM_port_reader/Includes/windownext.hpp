@@ -107,6 +107,7 @@ class WindowNext : public QDialog
         int					_durationMax;
 
         bool                _closeEventFlag;
+        bool                _labelIsOk;
 
         char                _bytesPA;  // Preamble bytes
         char                _bytesID;  // ID bytes

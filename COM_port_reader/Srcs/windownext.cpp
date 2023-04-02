@@ -187,6 +187,8 @@ void    WindowNext::setButtonStart(QPushButton *buttonStart)
 			this->_recordingFolder4->setText(_threadReader->getFileCreationDate());
 			this->_recordingFolder5->setText(_threadReader->getFileCreationTime());
             
+            this->_labelIsOk = _showPic->isChecked() ? true : false; 
+            
             this->_finishMsgLabel->hide();
 			connect(this->_threadDisplayTimer, &ThreadDisplayTimer::finishedSignal, this, &WindowNext::onThreadDisplayTimerFinished);
             connect(_threadReader, &ThreadReader::protocolConfigDataIsReady, this,
@@ -608,7 +610,7 @@ void    WindowNext::setParametersDesign(void)
                 this->_picDialog = nullptr;
                 disconnect(this->_threadDisplayTimer, &ThreadDisplayTimer::displayTimerText, this, nullptr);
                 disconnect(this->_threadDisplayTimer, &ThreadDisplayTimer::currentSecondAndImgPath, this, nullptr);
-                this->_saveCheckBox->setChecked(false);
+                this->_labelIsOk = false; // save the file in "000" directory because it will have "labes" with a 0 value
             }
         });
 }
@@ -994,7 +996,7 @@ void    WindowNext::showImage(int currentSecond, QString imgPath)
 
 void   WindowNext::onThreadDisplayTimerFinished(void)
 {
-    if (_durationMax == _durationTimerValue)
+    if (_durationMax == _durationTimerValue && this->_labelIsOk == true)
         this->saveDataToFile(_recordingFolder3->text());
     else
         this->saveDataToFile("000");
