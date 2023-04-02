@@ -323,7 +323,7 @@ void    MainWindow::buttonChartAction()
 		return ;
     }
 
-	this->_windowChart = new WindowChart(this, selectedFile);
+	this->_windowChart = new WindowChart(this, pathToFiles, _filesList);
     this->_windowChart->exec();
     this->_buttonChart->setStyleSheet(MY_DEFINED_RELEASED_BUTTON);
     delete this->_windowChart;

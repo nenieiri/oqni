@@ -1,8 +1,9 @@
 #include "windowchart.hpp"
 
-WindowChart::WindowChart(MainWindow *parent, const QString &selectedFile)
+WindowChart::WindowChart(MainWindow *parent, const QString &pathToFiles, QCheckBox *filesList)
     : QDialog(parent)
-    , _selectedFile(selectedFile)
+    , _pathToFiles(pathToFiles) \
+    , _filesList(filesList)
 {
 	int screenWidth = QApplication::primaryScreen()->size().width();
 	int screenHeight = QApplication::primaryScreen()->size().height();
