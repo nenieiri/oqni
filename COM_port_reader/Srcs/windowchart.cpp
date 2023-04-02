@@ -50,10 +50,14 @@ WindowChart::WindowChart(MainWindow *parent, const QString &pathToFiles, \
     this->raise();
 	this->show();
     
+    _numOfCH = 0;
+    
     _checkedFilesCount = 0;
     for	(int i = 0; i < _filesCount; ++i)
         if (_filesList[i].isChecked() == true)
             ++_checkedFilesCount;
+    if (_checkedFilesCount == 0) // for prevent warning in line 114
+        _checkedFilesCount = 1;
     
     this->readFromFile();
     this->execChartDialog();
@@ -92,24 +96,34 @@ void    WindowChart::readFromFile(void)
 			files[++j].setFileName(_pathToFiles + _filesList[i].text());
 			files[j].open(QIODevice::ReadOnly | QIODevice::Text);
 			ins[j].setDevice(&(files[j]));
+			_numOfCH += ins[j].readLine().count("led"); // counting sum of _numofCh and omitting first line
         }
     }
-    
 
-    
-    _numOfCH = in.readLine().count("led"); // counting _numofCh and omitting first line
-    
     _series = new QLineSeries[_numOfCH + 1];
     
-    while (!in.atEnd())
+    for (int i = 0, j = -1; i < _filesCount; ++i)
     {
-        splitList = in.readLine().split(',');
-        time = splitList[0].toLongLong();
-        for (int i = 0; i < _numOfCH + 1; ++i)
-            _series[i].append(time, splitList[i + 1].toUInt());
+        if (_filesList[i].isChecked() == true)
+        {
+            ++j;
+			while (!ins[j].atEnd())
+			{
+				splitList = ins[j].readLine().split(',');
+				time = splitList[0].toLongLong();
+                int k = 0;
+				for (; k < _numOfCH / _checkedFilesCount; ++k)
+					_series[k + j * _numOfCH / _checkedFilesCount].append(time, splitList[k + 1].toUInt());
+                if (j == 0)
+					_series[_numOfCH].append(time, splitList[k + 1].toUInt());
+			}
+			files[j].close();
+        }
     }
-	file.close();
+
     _timeLineMax = _series[0].at(_series[0].count() - 1).x();
+    delete [] files;
+    delete [] ins;
 }
 
 void    WindowChart::updateValueLineAxis(void)
@@ -166,7 +180,7 @@ void    WindowChart::execChartDialog(void)
 			_series[i].setColor(Qt::red);
 		else if (i % (_numOfCH + 1) == 2)
 			_series[i].setColor(Qt::green);
-		else if (i % (_numOfCH + 1) == 3)
+		else if (i == _numOfCH)
 			_series[i].setColor(Qt::black);
 		else
 			_series[i].setColor(Qt::gray);
@@ -247,7 +261,7 @@ void    WindowChart::execChartDialog(void)
 			this->_checkBoxChannels[i].setText("Green         ");
 			this->_checkBoxChannels[i].setStyleSheet("color: green;");
 		}
-		else if (i % (_numOfCH + 1) == 3)
+		else if (i == _numOfCH)
 		{
 			this->_checkBoxChannels[i].setText("Label  ");
 			this->_checkBoxChannels[i].setStyleSheet("color: black;");
