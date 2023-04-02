@@ -861,7 +861,6 @@ void    WindowNext::execChartDialog(void)
         this->_sliderHorizontal->setValue(this->_chartDuration / 1000);
         this->_sliderHorizontal->setFixedHeight(25);
         
-        
         QString styleSheet  ="QSlider::handle:horizontal {"
                             "    background: white;"
                             "    border: 1px solid black;"
@@ -892,23 +891,23 @@ void    WindowNext::execChartDialog(void)
             }
             if (i % _numOfCH == 0)
             {
-				this->_checkBoxChannels[i].setText("Infrared " + QString::number(n) + "  ");
-				this->_checkBoxChannels[i].setStyleSheet("color: blue;");
+                this->_checkBoxChannels[i].setText("Infrared " + QString::number(n) + "  ");
+                this->_checkBoxChannels[i].setStyleSheet("color: blue; font-size: 16px;");
             }
             else if (i % _numOfCH == 1)
             {
 				this->_checkBoxChannels[i].setText("Red " + QString::number(n) + "  ");
-				this->_checkBoxChannels[i].setStyleSheet("color: red;");
+                this->_checkBoxChannels[i].setStyleSheet("color: red; font-size: 16px;");
             }
             else if (i % _numOfCH == 2)
             {
-				this->_checkBoxChannels[i].setText("Green " + QString::number(n) + "                ");
-				this->_checkBoxChannels[i].setStyleSheet("color: green;");
+                this->_checkBoxChannels[i].setText("Green " + QString::number(n) + "        ");
+                this->_checkBoxChannels[i].setStyleSheet("color: green; font-size: 16px;");
             }
             else
             {
 				this->_checkBoxChannels[i].setText("Other " + QString::number(n) + "  ");
-				this->_checkBoxChannels[i].setStyleSheet("color: gray;");
+                this->_checkBoxChannels[i].setStyleSheet("color: gray; font-size: 16px;");
             }
         		this->_checkBoxChannels[i].setChecked(true);
 			connect(&this->_checkBoxChannels[i], &QCheckBox::clicked, this,

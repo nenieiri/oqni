@@ -9,8 +9,8 @@ WindowChart::WindowChart(MainWindow *parent, const QString &pathToFiles, \
 {
 	int screenWidth = QApplication::primaryScreen()->size().width();
 	int screenHeight = QApplication::primaryScreen()->size().height();
-	int windowWidth = screenWidth - screenWidth / 4;
-	int windowHeight = screenHeight - screenHeight / 4;
+    int windowWidth = screenWidth * 9 / 10;
+    int windowHeight = screenHeight * 9 / 10;
     
 	this->setGeometry((screenWidth - windowWidth) / 2, \
                       (screenHeight - windowHeight) / 2, windowWidth, windowHeight);
@@ -262,25 +262,25 @@ void    WindowChart::execChartDialog(void)
             {
                 text = "Infrared" + QString::number(k + 1) + "  ";
                 this->_checkBoxChannels[i + j * (_numOfCH / _checkedFilesCount)].setText(text);
-                this->_checkBoxChannels[i + j * (_numOfCH / _checkedFilesCount)].setStyleSheet("color: blue;");
+                this->_checkBoxChannels[i + j * (_numOfCH / _checkedFilesCount)].setStyleSheet("color: blue; font-size: 16px;");
             }
             else if (i % (_numOfCH / _checkedFilesCount) == 1)
             {
                 text = "Red" + QString::number(k + 1) + "  ";
                 this->_checkBoxChannels[i + j * (_numOfCH / _checkedFilesCount)].setText(text);
-                this->_checkBoxChannels[i + j * (_numOfCH / _checkedFilesCount)].setStyleSheet("color: red;");
+                this->_checkBoxChannels[i + j * (_numOfCH / _checkedFilesCount)].setStyleSheet("color: red; font-size: 16px;");
             }
             else if (i % (_numOfCH / _checkedFilesCount) == 2)
             {
                 text = "Green" + QString::number(k + 1) + "                ";
                 this->_checkBoxChannels[i + j * (_numOfCH / _checkedFilesCount)].setText(text);
-                this->_checkBoxChannels[i + j * (_numOfCH / _checkedFilesCount)].setStyleSheet("color: green;");
+                this->_checkBoxChannels[i + j * (_numOfCH / _checkedFilesCount)].setStyleSheet("color: green; font-size: 16px;");
             }
             else
             {
                 text = "Other" + QString::number(k + 1) + "  ";
                 this->_checkBoxChannels[i + j * (_numOfCH / _checkedFilesCount)].setText(text);
-                this->_checkBoxChannels[i + j * (_numOfCH / _checkedFilesCount)].setStyleSheet("color: gray;");
+                this->_checkBoxChannels[i + j * (_numOfCH / _checkedFilesCount)].setStyleSheet("color: gray; font-size: 16px;");
             }
             this->_checkBoxChannels[i + j * (_numOfCH / _checkedFilesCount)].setChecked(true);
             this->connectStaticChatCheckBox(i + j * (_numOfCH / _checkedFilesCount));
@@ -289,7 +289,7 @@ void    WindowChart::execChartDialog(void)
         if (j + 1 == _checkedFilesCount)
         {
             this->_checkBoxChannels[_numOfCH].setText("Label");
-            this->_checkBoxChannels[_numOfCH].setStyleSheet("color: black;");
+            this->_checkBoxChannels[_numOfCH].setStyleSheet("color: black; font-size: 16px;");
             this->_checkBoxChannels[_numOfCH].setChecked(true);
             this->connectStaticChatCheckBox(_numOfCH);
             this->_hBoxLayout->addWidget(&_checkBoxChannels[_numOfCH]);
