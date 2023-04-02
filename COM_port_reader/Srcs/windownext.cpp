@@ -563,6 +563,8 @@ void    WindowNext::setParametersDesign(void)
 				this->_chartView = nullptr;
 				delete _sliderHorizontal;
 				this->_sliderHorizontal = nullptr;
+                delete _sliderHorizontalValues;
+                this->_sliderHorizontalValues = nullptr;
 				delete [] _checkBoxChannelsValue;
 				this->_checkBoxChannelsValue = nullptr;
 				delete [] _checkBoxChannels;
@@ -852,23 +854,25 @@ void    WindowNext::execChartDialog(void)
         
         this->_chartView = new QChartView(_chart);
         this->_chartView->setRenderHint(QPainter::Antialiasing);
-        
-        this->_sliderHorizontal = new MySlider(Qt::Horizontal, _chartDialog);
+
+        this->_sliderHorizontal = new QSlider(Qt::Horizontal, _chartDialog);
         this->_sliderHorizontal->setRange(2, 10);
         this->_sliderHorizontal->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
-        this->_sliderHorizontal->setFixedWidth(300);
+        this->_sliderHorizontal->setFixedWidth(270);
         this->_sliderHorizontal->setTickInterval(1);
         this->_sliderHorizontal->setValue(this->_chartDuration / 1000);
-        this->_sliderHorizontal->setFixedHeight(25);
-        
-        QString styleSheet  ="QSlider::handle:horizontal {"
-                            "    background: white;"
-                            "    border: 1px solid black;"
-                            "    margin: -10px 0;"
-                            "    border-radius: 10px;"
-                            "}";
-        this->_sliderHorizontal->setStyleSheet(styleSheet);
-        
+        this->_sliderHorizontal->setFixedHeight(15);
+
+        this->_sliderHorizontal->setStyleSheet("QSlider::handle:horizontal {"
+                                                "background: white;"
+                                                "border: 1px solid black;"
+                                                "width: 10px;"
+                                                "height: 10px;"
+                                                "margin: -8px 0;"
+                                                "border-radius: 5px; }"
+                                                "QSlider::handle:horizontal:hover {"
+                                                "background-color: yellow;"
+                                                "border: 1px solid black; }");
                 
         connect(this->_sliderHorizontal, &QSlider::valueChanged, this,
             [=]()
@@ -923,10 +927,15 @@ void    WindowNext::execChartDialog(void)
 				});
 			this->_hBoxLayout->addWidget(&_checkBoxChannels[i]); 
         }
+
+        this->_sliderHorizontalValues = new QLabel("2        3        4        5        6        7        8        9      10", this);
+        _sliderHorizontalValues->setStyleSheet("font-size: 12px;");
+        _sliderHorizontalValues->setFixedWidth(_sliderHorizontal->width());
         
         this->_gridLayout->addWidget(this->_chartView, 0, 0, 1, 4);
-        this->_gridLayout->addLayout(_hBoxLayout, 1, 0, 1, 3, Qt::AlignCenter);
-        this->_gridLayout->addWidget(this->_sliderHorizontal, 1, 3, 1, 1, Qt::AlignCenter);
+        this->_gridLayout->addLayout(_hBoxLayout, 1, 0, 2, 3, Qt::AlignCenter);
+        this->_gridLayout->addWidget(_sliderHorizontalValues, 1, 3, 1, 1, Qt::AlignCenter);
+        this->_gridLayout->addWidget(this->_sliderHorizontal, 2, 3, 1, 1, Qt::AlignCenter);
         this->_chartDialog->setLayout(this->_gridLayout);
 }
 

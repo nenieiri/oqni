@@ -132,7 +132,8 @@ class WindowNext : public QDialog
         QHBoxLayout			*_hBoxLayout;
         QCheckBox			*_checkBoxChannels;
         bool                *_checkBoxChannelsValue;
-        MySlider            *_sliderHorizontal;
+        QSlider             *_sliderHorizontal;
+        QLabel              *_sliderHorizontalValues;
 
         unsigned int        _chartDuration;
         unsigned int        _chartUpdateRatio;
@@ -141,29 +142,6 @@ class WindowNext : public QDialog
         QLabel              *_displayTimerPic;
         QLabel              *_imageLabel;
         QLabel              *_imageSecondsLabel;
-};
-
-/* this class was created to show slider values (numbers) on the chart dialog */
-class MySlider : public QSlider
-{
-    public:
-        MySlider(Qt::Orientation orientation, QWidget* parent = nullptr)
-            : QSlider(orientation, parent) {}
-    
-    protected:
-        void paintEvent(QPaintEvent* event) override
-        {
-            QSlider::paintEvent(event);
-    
-            QPainter painter(this);
-            painter.setPen(Qt::black);
-            QFont font("Arial", 12);
-            painter.setFont(font);
-    
-            int tickCount = maximum() / tickInterval() + 1;
-            for (int i = minimum(); i < tickCount; ++i)
-                painter.drawText((i - minimum()) * 35 + 6, height() - 1, QString::number(i * tickInterval()));
-        }
 };
 
 #endif
