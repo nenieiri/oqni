@@ -180,14 +180,14 @@ void    WindowChart::execChartDialog(void)
 	for (int i = 0; i < _numOfCH + 1; ++i)
 	{
 		_chart->addSeries(&_series[i]);
-		if (i % (_numOfCH + 1) == 0)
-			_series[i].setColor(Qt::blue); // infraRed
-		else if (i % (_numOfCH + 1) == 1)
-			_series[i].setColor(Qt::red);
-		else if (i % (_numOfCH + 1) == 2)
-			_series[i].setColor(Qt::green);
-		else if (i == _numOfCH)
+		if (i == _numOfCH)
 			_series[i].setColor(Qt::black);
+		else if (i % (_numOfCH / _checkedFilesCount) == 0)
+			_series[i].setColor(Qt::blue); // infraRed
+		else if (i % (_numOfCH / _checkedFilesCount) == 1)
+			_series[i].setColor(Qt::red);
+		else if (i % (_numOfCH / _checkedFilesCount) == 2)
+			_series[i].setColor(Qt::green);
 		else
 			_series[i].setColor(Qt::gray);
 	}
