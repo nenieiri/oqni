@@ -608,6 +608,7 @@ void    WindowNext::setParametersDesign(void)
                 this->_picDialog = nullptr;
                 disconnect(this->_threadDisplayTimer, &ThreadDisplayTimer::displayTimerText, this, nullptr);
                 disconnect(this->_threadDisplayTimer, &ThreadDisplayTimer::currentSecondAndImgPath, this, nullptr);
+                this->_saveCheckBox->setChecked(false);
             }
         });
 }

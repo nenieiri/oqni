@@ -111,8 +111,7 @@ void    ThreadReader::run()
     bytesTillData = _bytesPA + _bytesID + _bytesCO + _bytesCH + _bytesOCH;
     bytesTotal = bytesTillData + _numOfCH * _sizeOfCH;
     emit protocolConfigDataIsReady();
-    
-    int currentImgLabel;
+
     while (!isInterruptionRequested())
     {
         if (port.waitForReadyRead(MY_READY_READ_TIME))
@@ -120,8 +119,7 @@ void    ThreadReader::run()
             _dataRead.append(port.read(bytesTotal));
             currentTime = QDateTime::currentDateTime().toMSecsSinceEpoch();
             _dataRead.append(QByteArray::fromRawData(reinterpret_cast<const char*>(&currentTime), sizeof(qint64)));
-            currentImgLabel = _showPic->isChecked() ? this->_threadDisplayTimer->getCurrentImgLabel() : 0;
-            _dataRead.append(QString::number(currentImgLabel).toUInt());
+            _dataRead.append(_showPic->isChecked() ? this->_threadDisplayTimer->getCurrentImgLabel() : 0); // when _showPic checkbox is not checked, label = 0
             emit lastRowOfData(_dataRead.right(bytesTotal + 8 + 1)); // 8 - sizeof time; 1 - sizeof label
         }
         else
