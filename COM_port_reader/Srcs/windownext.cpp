@@ -856,7 +856,17 @@ void    WindowNext::execChartDialog(void)
         this->_sliderHorizontal->setFixedWidth(300);
         this->_sliderHorizontal->setTickInterval(1);
         this->_sliderHorizontal->setValue(this->_chartDuration / 1000);
-        this->_sliderHorizontal->setFixedHeight(40);
+        this->_sliderHorizontal->setFixedHeight(25);
+        
+        
+        QString styleSheet  ="QSlider::handle:horizontal {"
+                            "    background: white;"
+                            "    border: 1px solid black;"
+                            "    margin: -10px 0;"
+                            "    border-radius: 10px;"
+                            "}";
+        this->_sliderHorizontal->setStyleSheet(styleSheet);
+        
                 
         connect(this->_sliderHorizontal, &QSlider::valueChanged, this,
             [=]()
