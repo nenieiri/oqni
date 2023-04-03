@@ -873,7 +873,7 @@ void    WindowNext::execChartDialog(void)
                                                 "QSlider::handle:horizontal:hover {"
                                                 "background-color: yellow;"
                                                 "border: 1px solid black; }");
-                
+
         connect(this->_sliderHorizontal, &QSlider::valueChanged, this,
             [=]()
         	{
@@ -1008,13 +1008,16 @@ void   WindowNext::onThreadDisplayTimerFinished(void)
         this->saveDataToFile(_recordingFolder3->text());
     else
         this->saveDataToFile("000");
+
+    bool showChartWasChecked = this->_showChart->isChecked();
+    this->_showChart->setChecked(false);
+
+    bool showPicWasChecked = this->_showPic->isChecked();
+    this->_showPic->setChecked(false);
     
     this->_closeEventFlag = true;
     
-    this->_showChart->setChecked(false);
-    this->_showPic->setChecked(false);
-    
-	this->_buttonClose->setEnabled(true);
+    this->_buttonClose->setEnabled(true);
     this->_buttonClose->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_BUTTON);
 	this->_buttonStart->setEnabled(true);
     this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_BUTTON);
@@ -1040,6 +1043,11 @@ void   WindowNext::onThreadDisplayTimerFinished(void)
     this->_protocol2->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
     this->_protocol4->setEnabled(true);
     this->_protocol4->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
+
+    if (showChartWasChecked)
+        this->_showChart->setChecked(true);
+    if (showPicWasChecked)
+        this->_showPic->setChecked(true);
 
     this->_threadDisplayTimer->wait();
 	delete this->_threadDisplayTimer;
