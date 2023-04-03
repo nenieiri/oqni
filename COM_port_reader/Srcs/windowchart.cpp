@@ -272,16 +272,17 @@ void    WindowChart::execChartDialog(void)
             }
             else if (i % (_numOfCH / _checkedFilesCount) == 2)
             {
-                text = "Green" + QString::number(k + 1) + "                ";
+                text = "Green" + QString::number(k + 1) + ((i == (_numOfCH / _checkedFilesCount) - 1) ? "                " : "  ");
                 this->_checkBoxChannels[i + j * (_numOfCH / _checkedFilesCount)].setText(text);
                 this->_checkBoxChannels[i + j * (_numOfCH / _checkedFilesCount)].setStyleSheet("color: green; font-size: 16px;");
             }
             else
             {
-                text = "Other" + QString::number(k + 1) + "  ";
+                text = "Other" + QString::number(k + 1) + ((i == (_numOfCH / _checkedFilesCount) - 1) ? "                " : "  ");
                 this->_checkBoxChannels[i + j * (_numOfCH / _checkedFilesCount)].setText(text);
                 this->_checkBoxChannels[i + j * (_numOfCH / _checkedFilesCount)].setStyleSheet("color: gray; font-size: 16px;");
             }
+            
             this->_checkBoxChannels[i + j * (_numOfCH / _checkedFilesCount)].setChecked(true);
             this->connectStaticChatCheckBox(i + j * (_numOfCH / _checkedFilesCount));
             this->_hBoxLayout->addWidget(&_checkBoxChannels[i + j * (_numOfCH / _checkedFilesCount)]); 
