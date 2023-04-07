@@ -208,7 +208,7 @@ void    WindowNext::setButtonStart(QPushButton *buttonStart)
 					
 					if (this->_showChart->isChecked() == true) // starting thread for drawing chart
 					{
-						this->_chartDialog = new QDialog(this);
+                        this->_chartDialog = new QDialog(this);
 						connect(this->_chartDialog, &QDialog::rejected, this, 
 							[=]()
 							{

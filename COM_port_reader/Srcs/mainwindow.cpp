@@ -18,6 +18,7 @@ MainWindow::MainWindow(QWidget *parent)
     this->_buttonNext->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_BUTTON);
     this->_buttonChart = this->createButton("Chart", 560, 500, 100, 30, std::bind(&MainWindow::buttonChartAction, this), this);
     this->_filesList = nullptr;
+    this->_windowChart = nullptr;
     
     _baudRateItems = {"1200", "2400", "4800", "9600", "19200", "38400", "57600", "115200"};
     _dataBitsItems = {"5", "6", "7", "8"};
@@ -323,10 +324,24 @@ void    MainWindow::buttonChartAction()
 		return ;
     }
 
-	this->_windowChart = new WindowChart(this, pathToFiles, _filesList, files.count());
-    this->_windowChart->exec();
+    bool atLeastOneChecked = false;
+    for (int i = 0; i < files.count(); i++)
+    {
+        if (_filesList[i].isChecked())
+        {
+            atLeastOneChecked = true;
+            break;
+        }
+    }
+
+    if (atLeastOneChecked == true)
+    {
+        this->_windowChart = new WindowChart(this, pathToFiles, _filesList, files.count());
+        this->_windowChart->exec();
+    }
     this->_buttonChart->setStyleSheet(MY_DEFINED_RELEASED_BUTTON);
-    delete this->_windowChart;
+    delete _windowChart;
+    _windowChart = nullptr;
     delete [] _filesList;
     _filesList = nullptr;
 }
