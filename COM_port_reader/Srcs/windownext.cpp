@@ -1002,8 +1002,6 @@ void    WindowNext::showImage(int currentSecond, QString imgPath)
     this->_imageSecondsLabel->setText(imageSeconds);
 }
 
-#include <QAxObject>
-
 void   WindowNext::onThreadDisplayTimerFinished(void)
 {
     if (_durationMax == _durationTimerValue && this->_labelIsOk == true)

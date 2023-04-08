@@ -61,7 +61,7 @@ endif()
 target_link_libraries(COM_port_reader PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 target_link_libraries(COM_port_reader PRIVATE Qt6::Core Qt6::SerialPort)
 target_link_libraries(COM_port_reader PRIVATE Qt6::Charts)
-target_link_libraries(COM_port_reader PRIVATE Qt6::Gui Qt6::AxContainer)
+#target_link_libraries(COM_port_reader PRIVATE Qt6::Gui Qt6::AxContainer)
 target_link_libraries(COM_port_reader PRIVATE QXlsx::QXlsx)
 
 set_target_properties(COM_port_reader PROPERTIES
