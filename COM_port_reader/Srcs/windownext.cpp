@@ -859,6 +859,7 @@ void    WindowNext::execChartDialog(void)
         this->_sliderHorizontal->setRange(2, 10);
         this->_sliderHorizontal->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
         this->_sliderHorizontal->setFixedWidth(300);
+        this->_sliderHorizontal->setTickPosition(QSlider::TicksAbove);
         this->_sliderHorizontal->setTickInterval(1);
         this->_sliderHorizontal->setValue(this->_chartDuration / 1000);
         this->_sliderHorizontal->setFixedHeight(15);
@@ -928,7 +929,7 @@ void    WindowNext::execChartDialog(void)
 			this->_hBoxLayout->addWidget(&_checkBoxChannels[i]); 
         }
 
-        this->_sliderHorizontalValues = new QLabel("2          3         4         5         6         7         8         9       10", this);
+        this->_sliderHorizontalValues = new QLabel("  2        3        4        5        6         7        8        9       10", this);
         _sliderHorizontalValues->setStyleSheet("font-size: 12px;");
         _sliderHorizontalValues->setFixedWidth(_sliderHorizontal->width());
         
