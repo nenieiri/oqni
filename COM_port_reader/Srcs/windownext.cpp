@@ -859,7 +859,6 @@ void    WindowNext::execChartDialog(void)
         this->_sliderHorizontal->setRange(2, 10);
         this->_sliderHorizontal->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
         this->_sliderHorizontal->setFixedWidth(300);
-        this->_sliderHorizontal->setTickPosition(QSlider::TicksAbove);
         this->_sliderHorizontal->setTickInterval(1);
         this->_sliderHorizontal->setValue(this->_chartDuration / 1000);
         this->_sliderHorizontal->setFixedHeight(15);
@@ -1003,10 +1002,14 @@ void    WindowNext::showImage(int currentSecond, QString imgPath)
     this->_imageSecondsLabel->setText(imageSeconds);
 }
 
+#include <QAxObject>
+
 void   WindowNext::onThreadDisplayTimerFinished(void)
 {
     if (_durationMax == _durationTimerValue && this->_labelIsOk == true)
+    {
         this->saveDataToFile(_recordingFolder3->text());
+    }
     else
         this->saveDataToFile("000");
 
