@@ -13,9 +13,8 @@ find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 find_package(Qt6 COMPONENTS SerialPort REQUIRED)
 find_package(Qt6 COMPONENTS Charts REQUIRED)
-find_package(Qt6 COMPONENTS Core Gui REQUIRED)
-find_package(Qt6 COMPONENTS ActiveQt REQUIRED)
 
+find_package(Qt6 COMPONENTS Core Gui REQUIRED)
 add_subdirectory(${PROJECT_SOURCE_DIR}/QXlsx/QXlsx)
 
 include_directories(Includes/)
@@ -61,7 +60,6 @@ endif()
 target_link_libraries(COM_port_reader PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 target_link_libraries(COM_port_reader PRIVATE Qt6::Core Qt6::SerialPort)
 target_link_libraries(COM_port_reader PRIVATE Qt6::Charts)
-#target_link_libraries(COM_port_reader PRIVATE Qt6::Gui Qt6::AxContainer)
 target_link_libraries(COM_port_reader PRIVATE QXlsx::QXlsx)
 
 set_target_properties(COM_port_reader PROPERTIES
