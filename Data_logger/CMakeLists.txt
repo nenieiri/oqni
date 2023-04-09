@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(COM_port_reader VERSION 0.1 LANGUAGES CXX)
+project(Data_logger VERSION 0.1 LANGUAGES CXX)
 
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
@@ -41,28 +41,28 @@ set(PROJECT_SOURCES
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
-    qt_add_executable(COM_port_reader
+	qt_add_executable(Data_logger
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
     )
 else()
     if(ANDROID)
-        add_library(COM_port_reader SHARED
+		add_library(Data_logger SHARED
             ${PROJECT_SOURCES}
         )
     else()
-        add_executable(COM_port_reader
+		add_executable(Data_logger
             ${PROJECT_SOURCES}
         )
     endif()
 endif()
 
-target_link_libraries(COM_port_reader PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
-target_link_libraries(COM_port_reader PRIVATE Qt6::Core Qt6::SerialPort)
-target_link_libraries(COM_port_reader PRIVATE Qt6::Charts)
-target_link_libraries(COM_port_reader PRIVATE QXlsx::QXlsx)
+target_link_libraries(Data_logger PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
+target_link_libraries(Data_logger PRIVATE Qt6::Core Qt6::SerialPort)
+target_link_libraries(Data_logger PRIVATE Qt6::Charts)
+target_link_libraries(Data_logger PRIVATE QXlsx::QXlsx)
 
-set_target_properties(COM_port_reader PROPERTIES
+set_target_properties(Data_logger PROPERTIES
     MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com
     MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
     MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
@@ -70,10 +70,10 @@ set_target_properties(COM_port_reader PROPERTIES
     WIN32_EXECUTABLE TRUE
 )
 
-install(TARGETS COM_port_reader
+install(TARGETS Data_logger
     BUNDLE DESTINATION .
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 if(QT_VERSION_MAJOR EQUAL 6)
-    qt_finalize_executable(COM_port_reader)
+	qt_finalize_executable(Data_logger)
 endif()

@@ -56,7 +56,7 @@ void    MainWindow::putWindowOnScreen(int windowWidth, int windowHeight)
     this->setMaximumSize(windowWidth, windowHeight);
 
     /* ------------- background, icon, and title ---------- */
-    this->setWindowTitle("OQNI: COM port reader");
+    this->setWindowTitle("OQNI: Data logger");
     this->setWindowIcon(QIcon(":/Imgs/oqni.ico"));
     this->setWindowFilePath(":/Imgs/oqni.ico");
     this->setStyleSheet("background-image: url(:/Imgs/background.png); font-size: 20px");
