@@ -31,10 +31,22 @@ WindowNext::WindowNext(MainWindow *parent)
     this->_selectedDirectory = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation) + "/oqni/Recordings";
     this->_showSelectedDir2->setText(_selectedDirectory);
     
-    this->_metaDataFilePath = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation) + "/oqni/Recordings/metadata.xlsx";
+    this->_metaDataFilePath = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation) + "/oqni/Recordings/metadata1.xlsx";
     QFile metaDataFile(_metaDataFilePath);
     if(!metaDataFile.exists())
+    {
         this->_metaDataFilePath = "";
+        QMessageBox msgBox;
+        msgBox.setWindowTitle(tr("Warning"));
+        msgBox.setText("metadata.xlsx not found.<br>Continue?");
+        msgBox.setIcon(QMessageBox::Question);
+        msgBox.addButton(QMessageBox::Ok);
+        msgBox.addButton(QMessageBox::Cancel);
+        
+        int ret = msgBox.exec();
+		if (ret == QMessageBox::Cancel)
+			throw	-1;
+    }
     
     this->_recordingFolder1 = new QLabel("Recording Folder:", this);
     this->_recordingFolder2 = new QLineEdit(this);
@@ -419,16 +431,22 @@ void    WindowNext::setParametersDesign(void)
                 this->_lineEdit->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
                 return ;
 			}
-            QString text = this->_lineEdit->text();
-            bool hasOnlyDigits = true;
+            QString		text = this->_lineEdit->text();
+            bool		hasOnlyDigits = true;
+			QMessageBox	msgBox;
+            
+			msgBox.setWindowTitle(tr("Invalid Input"));
+            msgBox.setIcon(QMessageBox::Warning);
+			msgBox.addButton(QMessageBox::Ok);
+			
             for (int i = 0; i < text.length(); i++)
             {
                 if (text[i].isDigit() == false)
                 {
                     hasOnlyDigits = false;
                     this->_lineEdit->setStyleSheet("background-color: red; padding: 0 5px; color: blue;");
-                    QMessageBox::warning(this, tr("Invalid Input"),
-                                        tr("Please enter a numeric value."), QMessageBox::Ok);
+					msgBox.setText(tr("Please enter a numeric value."));
+					msgBox.exec();
                     break ;
                 }
             }
@@ -439,7 +457,8 @@ void    WindowNext::setParametersDesign(void)
                     this->_lineEdit->setStyleSheet("background-color: red; padding: 0 5px; color: blue;");
                     QString msg = "Duration can't be greater<br>than protocol time (";
                     msg += QString::number(this->_durationMax) + " sec).";
-                    QMessageBox::warning(this, tr("Invalid Input"), msg, QMessageBox::Ok);
+					msgBox.setText(msg);
+					msgBox.exec();
                 }
                 else
                 {
@@ -751,7 +770,7 @@ void	WindowNext::saveMetaData(const QString &subject)
     int     	row;
     QStringList	data;
     
-    if (this->_saveCheckBox->isChecked() == false)
+    if (_saveCheckBox->isChecked() == false || _metaDataFilePath == "")
         return ;
     
     QXlsx::Document	xlsx(_metaDataFilePath);

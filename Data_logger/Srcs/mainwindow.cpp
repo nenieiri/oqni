@@ -19,6 +19,7 @@ MainWindow::MainWindow(QWidget *parent)
     this->_buttonChart = this->createButton("Chart", 560, 500, 100, 30, std::bind(&MainWindow::buttonChartAction, this), this);
     this->_filesList = nullptr;
     this->_windowChart = nullptr;
+    this->_windowNext = nullptr;
     
     _baudRateItems = {"1200", "2400", "4800", "9600", "19200", "38400", "57600", "115200"};
     _dataBitsItems = {"5", "6", "7", "8"};
@@ -233,15 +234,20 @@ void    MainWindow::buttonNextAction()
         return ;
     }
     
-    this->_windowNext = new WindowNext(this);
-    
-    this->_windowNext->setButtonBrowse(createButton("Browse", 490, 50, 100, 30, nullptr, this->_windowNext));
-    this->_windowNext->setButtonStart(createButton("Start", 140, 300, 100, 30, nullptr, this->_windowNext));
-    this->_windowNext->setButtonStop(createButton("Stop", 250, 300, 100, 30, nullptr, this->_windowNext));
-    this->_windowNext->setButtonClose(createButton("Close", 360, 300, 100, 30, nullptr, this->_windowNext));
-    
-    this->_windowNext->exec();
-    this->_buttonNext->setStyleSheet(MY_DEFINED_RELEASED_BUTTON);
+    try
+    {
+		this->_windowNext = new WindowNext(this);
+		this->_windowNext->setButtonBrowse(createButton("Browse", 490, 50, 100, 30, nullptr, this->_windowNext));
+		this->_windowNext->setButtonStart(createButton("Start", 140, 300, 100, 30, nullptr, this->_windowNext));
+		this->_windowNext->setButtonStop(createButton("Stop", 250, 300, 100, 30, nullptr, this->_windowNext));
+		this->_windowNext->setButtonClose(createButton("Close", 360, 300, 100, 30, nullptr, this->_windowNext));
+		
+		this->_windowNext->exec();
+    }
+    catch (int ret)
+    {
+    }
+	this->_buttonNext->setStyleSheet(MY_DEFINED_RELEASED_BUTTON);
     delete this->_windowNext;
 }
 
