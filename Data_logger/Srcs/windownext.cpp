@@ -40,7 +40,6 @@ WindowNext::WindowNext(MainWindow *parent)
     this->_recordingFolder2 = new QLineEdit(this);
     this->_recordingFolder3 = new QLineEdit(this);
     this->_recordingFolder4 = new QLineEdit(this);
-    this->_recordingFolder5 = new QLineEdit(this);
 
     this->_placement1 = new QLabel("OPT Placement:", this);
     this->_placement2 = new QComboBox(this);
@@ -113,7 +112,6 @@ WindowNext::~WindowNext()
     delete _recordingFolder2;
     delete _recordingFolder3;
     delete _recordingFolder4;
-    delete _recordingFolder5;
     delete _placement1;
     delete _placement2;
     delete _placement3;
@@ -188,8 +186,6 @@ void    WindowNext::setButtonStart(QPushButton *buttonStart)
             this->_threadDisplayTimer = new ThreadDisplayTimer(this->_durationTimerValue, this, this->_expProtocolsPath, this->_expProtocol); // this thread starts in TreadReader thread
             this->_threadReader = new ThreadReader(_selectedComPort, _threadDisplayTimer, _showPic);
             this->_threadReader->start();
-            
-            this->_recordingFolder5->setText(_threadReader->getFileCreationTime());
             
             this->_labelIsOk = _showPic->isChecked() ? true : false; 
             
@@ -353,24 +349,17 @@ void    WindowNext::setParametersDesign(void)
     this->_recordingFolder2->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);    
     this->_recordingFolder2->setText("BL-003");
     
-    this->_recordingFolder3->setGeometry(300, 90, 50, 30);
+    this->_recordingFolder3->setGeometry(300, 90, 123, 30);
     this->_recordingFolder3->setMaxLength(3);
     this->_recordingFolder3->setAlignment(Qt::AlignCenter);
     this->_recordingFolder3->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
     this->_recordingFolder3->setText("000");
     
-    this->_recordingFolder4->setGeometry(360, 90, 150, 30);
+    this->_recordingFolder4->setGeometry(438, 90, 150, 30);
     this->_recordingFolder4->setMaxLength(6);
     this->_recordingFolder4->setAlignment(Qt::AlignCenter);
     this->_recordingFolder4->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
     this->_recordingFolder4->setText(this->findSubjectInMetadata(_recordingFolder3->text()));
-    
-    this->_recordingFolder5->setGeometry(520, 90, 70, 30);
-    this->_recordingFolder5->setEnabled(false);
-    this->_recordingFolder5->setMaxLength(6);
-    this->_recordingFolder5->setAlignment(Qt::AlignCenter);
-    this->_recordingFolder5->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_TEXT2);
-    this->_recordingFolder5->setText(QTime::currentTime().toString("hhmmss"));
 
     this->_placement1->setGeometry(10, 130, 160, 30);
     this->_placement1->setStyleSheet("font-size: 18px;");
@@ -798,7 +787,6 @@ QString	WindowNext::findSubjectInMetadata(QString subject)
         if (xlsx.read(row, 1).toString() == subject)
             return xlsx.read(row, 2).toString();
     return unknown;
-
 }
 
 void    WindowNext::execChartDialog(void)

@@ -79,7 +79,6 @@ class WindowNext : public QDialog
 		QLineEdit			*_recordingFolder2;
 		QLineEdit			*_recordingFolder3;
 		QLineEdit			*_recordingFolder4;
-		QLineEdit			*_recordingFolder5;
         
 		QLabel				*_placement1;
 		QComboBox			*_placement2;
