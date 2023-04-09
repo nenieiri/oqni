@@ -42,6 +42,7 @@ WindowNext::WindowNext(MainWindow *parent)
         msgBox.setIcon(QMessageBox::Question);
         msgBox.addButton(QMessageBox::Ok);
         msgBox.addButton(QMessageBox::Cancel);
+        msgBox.setWindowIcon(QIcon(":/Imgs/oqni.ico"));
         
         int ret = msgBox.exec();
 		if (ret == QMessageBox::Cancel)
@@ -438,6 +439,7 @@ void    WindowNext::setParametersDesign(void)
 			msgBox.setWindowTitle(tr("Invalid Input"));
             msgBox.setIcon(QMessageBox::Warning);
 			msgBox.addButton(QMessageBox::Ok);
+            msgBox.setWindowIcon(QIcon(":/Imgs/oqni.ico"));
 			
             for (int i = 0; i < text.length(); i++)
             {
