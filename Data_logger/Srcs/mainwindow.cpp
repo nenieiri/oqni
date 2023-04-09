@@ -13,10 +13,12 @@ MainWindow::MainWindow(QWidget *parent)
     this->addLoadingAnimation(this->_buttonCheck, 21, 150, 370, 370);
     this->createGroupBox(20, 70, 380, 515);
     this->createLiftVertical(379, 71, 20, 513);
-    this->_buttonNext = this->createButton("Next", 560, 555, 100, 30, std::bind(&MainWindow::buttonNextAction, this), this);
+    this->_buttonAbout = this->createButton("i", 418, 555, 30, 30, std::bind(&MainWindow::buttonAboutAction, this), this);
+    this->_buttonChart = this->createButton("Chart", 465, 555, 100, 30, std::bind(&MainWindow::buttonChartAction, this), this);
+    this->_buttonNext = this->createButton("Next", 582, 555, 100, 30, std::bind(&MainWindow::buttonNextAction, this), this);
     this->_buttonNext->setEnabled(false);
     this->_buttonNext->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_BUTTON);
-    this->_buttonChart = this->createButton("Chart", 560, 500, 100, 30, std::bind(&MainWindow::buttonChartAction, this), this);
+
     this->_filesList = nullptr;
     this->_windowChart = nullptr;
     this->_windowNext = nullptr;
@@ -36,6 +38,7 @@ MainWindow::~MainWindow()
     delete _buttonCheck;
     delete _buttonNext;
     delete _buttonChart;
+    delete _buttonAbout;
     delete _gifLabel;
     delete _gifMovie;
     delete _liftVertical;
@@ -447,3 +450,26 @@ void    MainWindow::buttonToolAction(ComPort *comPort)
     delete comPort->_windowProperty;
 }
 
+void    MainWindow::buttonAboutAction()
+{
+    QString about = "Data logger 1.0.0 \
+                    <br> <br> This program was created in collaboration \
+                    <br> between «Tumo Labs» and «OQNI». \
+                    <br> <br>Authors: \u00A0\u00A0\u00A0\u00A0Volodya Ismailyan \
+                    <br> \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0 \
+                         \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0Vladimir Khlghatyan \
+                    <br> <br> ©2023. All rights reserved.";
+
+    QMessageBox msgBox;
+    msgBox.setWindowTitle(tr("Information"));
+    msgBox.setText(about);
+    msgBox.setIcon(QMessageBox::Information);
+    msgBox.addButton(QMessageBox::Ok);
+    msgBox.setWindowIcon(QIcon(":/Imgs/oqni.ico"));
+
+    QPalette palette = msgBox.palette();
+    palette.setColor(QPalette::Window, Qt::red);
+    msgBox.setPalette(palette);
+
+    msgBox.exec();
+}

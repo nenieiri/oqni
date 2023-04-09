@@ -47,6 +47,7 @@ class MainWindow : public QMainWindow
         void            buttonNextAction(void);
         void            buttonChartAction(void);
 		void            buttonToolAction(ComPort *comPort);
+        void            buttonAboutAction(void);
 
     private:
         Ui::MainWindow      *ui;
@@ -54,6 +55,7 @@ class MainWindow : public QMainWindow
         QPushButton         *_buttonCheck;
         QPushButton         *_buttonNext;
         QPushButton         *_buttonChart;
+        QPushButton         *_buttonAbout;
         
         QLabel              *_gifLabel;
         QMovie              *_gifMovie;
