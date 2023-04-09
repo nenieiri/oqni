@@ -240,7 +240,8 @@ void		WindowNext::setButtonStop(QPushButton *buttonStop)
     connect(this->_buttonStop, &QPushButton::clicked, this,
 		[=](void)
 		{
-			saveDataToFile("000");
+			this->saveDataToFile("000");
+        	this->saveMetaData("000");
         
 			this->_closeEventFlag = true;
             
@@ -667,7 +668,6 @@ int	WindowNext::readExpProtocol(void)
 
 void	WindowNext::saveDataToFile(const QString &subject)
 {
-	
     if (this->_saveCheckBox->isChecked() == false)
         return ;
     
@@ -745,6 +745,35 @@ void	WindowNext::saveDataToFile(const QString &subject)
     delete [] myFile;
     delete [] out;
 	delete [] oldCounter;
+}
+
+void	WindowNext::saveMetaData(const QString &subject)
+{
+    QString		cell;
+    int     	row;
+    QString		MetaDataFile;
+    QStringList	data;
+    
+    MetaDataFile = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation) + "/oqni/Recordings/metadata.xlsx";
+    QXlsx::Document	xlsx(MetaDataFile);
+    xlsx.selectSheet("DB");
+    row = xlsx.dimension().lastRow() + 1;
+    
+    data.append(subject);
+    data.append(_recordingFolder2->text());
+    data.append(_recordingFolder2->text() + "_" +subject + "_" + _threadReader->getFileCreationDate());
+    data.append(_threadReader->getFileCreationDate() + "_" + _threadReader->getFileCreationTime());
+    data.append(_placement2->currentText());
+    data.append(_placement4->currentText());
+    data.append(_protocol2->currentText());
+    data.append(_protocol4->currentText());
+    
+    for(int col = 1; col <= data.size(); ++col)
+    {
+		cell = QXlsx::CellReference(row, col).toString();
+		xlsx.write(cell, data[col - 1]);
+    }
+    xlsx.save();
 }
 
 void    WindowNext::execChartDialog(void)
@@ -1007,9 +1036,13 @@ void   WindowNext::onThreadDisplayTimerFinished(void)
     if (_durationMax == _durationTimerValue && this->_labelIsOk == true)
     {
         this->saveDataToFile(_recordingFolder3->text());
+        this->saveMetaData(_recordingFolder3->text());
     }
     else
+    {
         this->saveDataToFile("000");
+        this->saveMetaData("000");
+    }
 
     bool showChartWasChecked = this->_showChart->isChecked();
     this->_showChart->setChecked(false);

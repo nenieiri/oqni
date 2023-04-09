@@ -22,6 +22,8 @@
 # include <QtEndian>
 # include <QSlider>
 
+# include <xlsxdocument.h>
+
 # include "threadreader.hpp"
 # include "threaddisplaytimer.hpp"
 # include "mainwindow.h"
@@ -47,6 +49,7 @@ class WindowNext : public QDialog
         QStringList         *findExpProtocols(const QString &path);
         int					readExpProtocol(void);
         void            	saveDataToFile(const QString &subject);
+        void            	saveMetaData(const QString &subject);
         void                execChartDialog(void);
         void                execPicDialog(void);
         void                showImage(int currentSecond, QString imgPath);
