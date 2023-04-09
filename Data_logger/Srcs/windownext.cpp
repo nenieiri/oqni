@@ -63,7 +63,7 @@ WindowNext::WindowNext(MainWindow *parent)
     this->_display = new QLabel("Display:", this);
     this->_showChart = new QCheckBox("chart", this);
     this->_showPic = new QCheckBox("pic", this);
-    this->_saveCheckBox = new QCheckBox("save", this);
+    this->_saveCheckBox = new QCheckBox("save and update MD", this);
     this->_saveCheckBox->setChecked(true);
     
     this->_chartDialog = nullptr;
@@ -241,7 +241,6 @@ void		WindowNext::setButtonStop(QPushButton *buttonStop)
 		[=](void)
 		{
 			this->saveDataToFile("000");
-        	this->saveMetaData("000");
         
 			this->_closeEventFlag = true;
             
@@ -407,7 +406,7 @@ void    WindowNext::setParametersDesign(void)
     this->_showPic->setChecked(true);
     
     this->_saveCheckBox->setGeometry(438, 240, 160, 30);
-    this->_saveCheckBox->setStyleSheet("font-size: 18px;");
+    this->_saveCheckBox->setStyleSheet("font-size: 14px;");
     
     /* --- If the text contains a non-numeric character, show warrnig msg --- */
     this->_lineEdit->setText(QString::number(this->_durationMax));
@@ -1042,11 +1041,8 @@ void   WindowNext::onThreadDisplayTimerFinished(void)
         this->saveMetaData(_recordingFolder3->text());
     }
     else
-    {
         this->saveDataToFile("000");
-        this->saveMetaData("000");
-    }
-
+    
     bool showChartWasChecked = this->_showChart->isChecked();
     this->_showChart->setChecked(false);
 
