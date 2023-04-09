@@ -145,6 +145,8 @@ class WindowNext : public QDialog
         QLabel              *_displayTimerPic;
         QLabel              *_imageLabel;
         QLabel              *_imageSecondsLabel;
+        
+        QString             _metaDataFilePath;
 };
 
 #endif

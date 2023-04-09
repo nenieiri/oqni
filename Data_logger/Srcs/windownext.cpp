@@ -31,6 +31,11 @@ WindowNext::WindowNext(MainWindow *parent)
     this->_selectedDirectory = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation) + "/oqni/Recordings";
     this->_showSelectedDir2->setText(_selectedDirectory);
     
+    this->_metaDataFilePath = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation) + "/oqni/Recordings/metadata.xlsx";
+    QFile metaDataFile(_metaDataFilePath);
+    if(!metaDataFile.exists())
+        this->_metaDataFilePath = "";
+    
     this->_recordingFolder1 = new QLabel("Recording Folder:", this);
     this->_recordingFolder2 = new QLineEdit(this);
     this->_recordingFolder3 = new QLineEdit(this);
@@ -750,14 +755,12 @@ void	WindowNext::saveMetaData(const QString &subject)
 {
     QString		cell;
     int     	row;
-    QString		MetaDataFile;
     QStringList	data;
     
     if (this->_saveCheckBox->isChecked() == false)
         return ;
     
-    MetaDataFile = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation) + "/oqni/Recordings/metadata.xlsx";
-    QXlsx::Document	xlsx(MetaDataFile);
+    QXlsx::Document	xlsx(_metaDataFilePath);
     xlsx.selectSheet("DB");
     row = xlsx.dimension().lastRow() + 1;
     
