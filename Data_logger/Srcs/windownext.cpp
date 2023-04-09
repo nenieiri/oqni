@@ -189,8 +189,7 @@ void    WindowNext::setButtonStart(QPushButton *buttonStart)
             this->_threadReader = new ThreadReader(_selectedComPort, _threadDisplayTimer, _showPic);
             this->_threadReader->start();
             
-			this->_recordingFolder4->setText(_threadReader->getFileCreationDate());
-			this->_recordingFolder5->setText(_threadReader->getFileCreationTime());
+            this->_recordingFolder5->setText(_threadReader->getFileCreationTime());
             
             this->_labelIsOk = _showPic->isChecked() ? true : false; 
             
@@ -334,11 +333,13 @@ void    WindowNext::setParametersDesign(void)
 {
     this->_showReadingPort1->setGeometry(10, 10, 100, 30);
     this->_showReadingPort1->setStyleSheet("font-size: 18px;");
+    
     this->_showReadingPort2->setGeometry(120, 10, 480, 30);
     this->_showReadingPort2->setStyleSheet("font-size: 14px; color: blue;");
     
     this->_showSelectedDir1->setGeometry(10, 50, 100, 30);
     this->_showSelectedDir1->setStyleSheet("font-size: 18px;");
+    
     this->_showSelectedDir2->setGeometry(120, 50, 360, 30);
     this->_showSelectedDir2->setCursorPosition(0);
     this->_showSelectedDir2->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
@@ -346,22 +347,25 @@ void    WindowNext::setParametersDesign(void)
     
     this->_recordingFolder1->setGeometry(10, 90, 160, 30);
     this->_recordingFolder1->setStyleSheet("font-size: 18px;");
+    
     this->_recordingFolder2->setGeometry(180, 90, 105, 30);
     this->_recordingFolder2->setAlignment(Qt::AlignCenter);
-    this->_recordingFolder2->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
+    this->_recordingFolder2->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);    
     this->_recordingFolder2->setText("BL-003");
-    this->_recordingFolder3->setGeometry(300, 90, 128, 30);
+    
+    this->_recordingFolder3->setGeometry(300, 90, 50, 30);
     this->_recordingFolder3->setMaxLength(3);
     this->_recordingFolder3->setAlignment(Qt::AlignCenter);
     this->_recordingFolder3->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
     this->_recordingFolder3->setText("000");
-    this->_recordingFolder4->setGeometry(438, 90, 70, 30);
-    this->_recordingFolder4->setEnabled(false);
+    
+    this->_recordingFolder4->setGeometry(360, 90, 150, 30);
     this->_recordingFolder4->setMaxLength(6);
     this->_recordingFolder4->setAlignment(Qt::AlignCenter);
-    this->_recordingFolder4->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_TEXT2);
-    this->_recordingFolder4->setText(QDate::currentDate().toString("yyMMdd"));
-    this->_recordingFolder5->setGeometry(518, 90, 70, 30);
+    this->_recordingFolder4->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
+    this->_recordingFolder4->setText(this->findSubjectInMetadata(_recordingFolder3->text()));
+    
+    this->_recordingFolder5->setGeometry(520, 90, 70, 30);
     this->_recordingFolder5->setEnabled(false);
     this->_recordingFolder5->setMaxLength(6);
     this->_recordingFolder5->setAlignment(Qt::AlignCenter);
@@ -504,6 +508,7 @@ void    WindowNext::setParametersDesign(void)
             {
                 this->_buttonStart->setEnabled(true);
                 this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_BUTTON);
+                this->_recordingFolder4->setText(this->findSubjectInMetadata(_recordingFolder3->text()));
             }
     	});
     
@@ -779,6 +784,21 @@ void	WindowNext::saveMetaData(const QString &subject)
 		xlsx.write(cell, data[col - 1]);
     }
     xlsx.save();
+}
+
+QString	WindowNext::findSubjectInMetadata(QString subject)
+{
+    QString unknown = "unknown";
+    
+    if (_metaDataFilePath == "")
+        return unknown;
+    QXlsx::Document xlsx(_metaDataFilePath);
+    xlsx.selectSheet("subjects");
+    for(int row = 2; row <= xlsx.dimension().lastRow(); ++row)
+        if (xlsx.read(row, 1).toString() == subject)
+            return xlsx.read(row, 2).toString();
+    return unknown;
+
 }
 
 void    WindowNext::execChartDialog(void)

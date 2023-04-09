@@ -53,6 +53,7 @@ class WindowNext : public QDialog
         void                execChartDialog(void);
         void                execPicDialog(void);
         void                showImage(int currentSecond, QString imgPath);
+        QString             findSubjectInMetadata(QString subject);
         
     private slots:
 		void				onThreadDisplayTimerFinished(void);

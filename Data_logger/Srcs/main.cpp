@@ -6,15 +6,15 @@ void    readMetaData(QHash<QString, QString> &metadata);
 
 int main(int argc, char *argv[])
 {
-    QHash<QString, QString> metadata;
-    readMetaData(metadata);
+//    QHash<QString, QString> metadata;
+//    readMetaData(metadata);
 
-    QHashIterator<QString, QString> it(metadata);
-    while (it.hasNext())
-    {
-        it.next();
-        qDebug() << it.key() << ":" << it.value();
-    }
+//    QHashIterator<QString, QString> it(metadata);
+//    while (it.hasNext())
+//    {
+//        it.next();
+//        qDebug() << it.key() << ":" << it.value();
+//    }
 
     QApplication a(argc, argv);
     MainWindow w;
