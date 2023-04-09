@@ -15,7 +15,7 @@ find_package(Qt6 COMPONENTS SerialPort REQUIRED)
 find_package(Qt6 COMPONENTS Charts REQUIRED)
 
 find_package(Qt6 COMPONENTS Core Gui REQUIRED)
-add_subdirectory(${PROJECT_SOURCE_DIR}/QXlsx/QXlsx)
+add_subdirectory(${PROJECT_SOURCE_DIR}/Libs/QXlsx/QXlsx)
 
 include_directories(Includes/)
 

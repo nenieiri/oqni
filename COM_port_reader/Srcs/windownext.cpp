@@ -754,6 +754,9 @@ void	WindowNext::saveMetaData(const QString &subject)
     QString		MetaDataFile;
     QStringList	data;
     
+    if (this->_saveCheckBox->isChecked() == false)
+        return ;
+    
     MetaDataFile = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation) + "/oqni/Recordings/metadata.xlsx";
     QXlsx::Document	xlsx(MetaDataFile);
     xlsx.selectSheet("DB");
