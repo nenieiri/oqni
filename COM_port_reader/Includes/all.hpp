@@ -27,6 +27,7 @@
 # include <QLineEdit>
 # include <QMessageBox>
 # include <QStandardPaths>
+# include <QMap>
 
 # include <functional>
 
