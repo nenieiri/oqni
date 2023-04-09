@@ -31,7 +31,7 @@ WindowNext::WindowNext(MainWindow *parent)
     this->_selectedDirectory = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation) + "/oqni/Recordings";
     this->_showSelectedDir2->setText(_selectedDirectory);
     
-    this->_metaDataFilePath = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation) + "/oqni/Recordings/metadata1.xlsx";
+    this->_metaDataFilePath = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation) + "/oqni/Recordings/metadata.xlsx";
     QFile metaDataFile(_metaDataFilePath);
     if(!metaDataFile.exists())
     {
