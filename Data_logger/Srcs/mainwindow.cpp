@@ -467,4 +467,5 @@ void    MainWindow::buttonAboutAction()
     msgBox.addButton(QMessageBox::Ok);
     msgBox.setWindowIcon(QIcon(":/Imgs/oqni.ico"));
     msgBox.exec();
+    this->_buttonAbout->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_BUTTON);
 }
