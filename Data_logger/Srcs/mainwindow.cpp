@@ -466,10 +466,5 @@ void    MainWindow::buttonAboutAction()
     msgBox.setIcon(QMessageBox::Information);
     msgBox.addButton(QMessageBox::Ok);
     msgBox.setWindowIcon(QIcon(":/Imgs/oqni.ico"));
-
-    QPalette palette = msgBox.palette();
-    palette.setColor(QPalette::Window, Qt::red);
-    msgBox.setPalette(palette);
-
     msgBox.exec();
 }

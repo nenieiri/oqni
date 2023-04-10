@@ -42,13 +42,14 @@ class WindowNext : public QDialog
         void				setButtonStop(QPushButton *buttonStop);
         void				setButtonClose(QPushButton *buttonClose);
         void				setButtonBrowse(QPushButton *buttonBrowse);
+        void                infoMessageBox(const QString &msg);
         
     private:
 		void				setParametersDesign(void);
         void				createDirectory(const QString &path);
         QStringList         *findExpProtocols(const QString &path);
         int					readExpProtocol(void);
-        void            	saveDataToFile(const QString &subject);
+        QString            	saveDataToFile(const QString &subject);
         void            	saveMetaData(const QString &subject);
         void                execChartDialog(void);
         void                execPicDialog(void);

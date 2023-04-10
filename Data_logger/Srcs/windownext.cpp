@@ -253,7 +253,8 @@ void		WindowNext::setButtonStop(QPushButton *buttonStop)
     connect(this->_buttonStop, &QPushButton::clicked, this,
 		[=](void)
 		{
-			this->saveDataToFile("000");
+            QString msg;
+            msg = this->saveDataToFile("000");
         
 			this->_closeEventFlag = true;
             
@@ -300,6 +301,7 @@ void		WindowNext::setButtonStop(QPushButton *buttonStop)
             this->_finishMsgLabel->setText("Stopped");
             this->_finishMsgLabel->show();
 			this->_finishMsgLabel->setStyleSheet("font-size: 28px; color: #B22222; font-weight: bold;");
+            this->infoMessageBox(msg);
 		});
 }
 
@@ -685,10 +687,11 @@ int	WindowNext::readExpProtocol(void)
     return (0);
 }
 
-void	WindowNext::saveDataToFile(const QString &subject)
+QString	WindowNext::saveDataToFile(const QString &subject)
 {
+    QString msg = "Recording has not been saved.";
     if (this->_saveCheckBox->isChecked() == false)
-        return ;
+        return msg;
     
     QFile  			*myFile = new QFile[_numOfOS];
 	QTextStream		*out = new QTextStream[_numOfOS];
@@ -714,7 +717,7 @@ void	WindowNext::saveDataToFile(const QString &subject)
 		delete [] myFile;
 		delete [] out;
         delete [] oldCounter;
-		return ;
+        return msg;
     }
 	
     for (int i = 0; i < _numOfOS; ++i)
@@ -722,7 +725,8 @@ void	WindowNext::saveDataToFile(const QString &subject)
 		myFile[i].setFileName(fileNamePrefix + QString::number(i + 1) + ".csv");
 		if (!myFile[i].open(QIODevice::WriteOnly | QIODevice::Text))
 		{
-			qDebug() << "Failed to open file for writing:" << myFile[i].fileName();
+            msg = "Failed to open file for writing: " + myFile[i].fileName() + "<br>" + msg;
+            qDebug() << msg;
             for (int j = 0; j < i; ++j)
             {
 				myFile[j].close();
@@ -731,7 +735,7 @@ void	WindowNext::saveDataToFile(const QString &subject)
 			delete [] myFile;
 			delete [] out;
 			delete [] oldCounter;
-			return ;
+            return msg;
 		}
 		out[i].setDevice(&myFile[i]);
         
@@ -764,6 +768,11 @@ void	WindowNext::saveDataToFile(const QString &subject)
     delete [] myFile;
     delete [] out;
 	delete [] oldCounter;
+
+    msg = "Recording has been saved to: <br>\u00A0\u00A0\u00A0\u00A0" + \
+        fileNamePrefix.right(fileNamePrefix.length() - fileNamePrefix.indexOf("/Recordings")) + "[*].csv";
+
+    return msg;
 }
 
 void	WindowNext::saveMetaData(const QString &subject)
@@ -1065,15 +1074,27 @@ void    WindowNext::showImage(int currentSecond, QString imgPath)
     this->_imageSecondsLabel->setText(imageSeconds);
 }
 
+void    WindowNext::infoMessageBox(const QString &msg)
+{
+    QMessageBox msgBox;
+    msgBox.setWindowTitle(tr("Information"));
+    msgBox.setText(msg);
+    msgBox.setIcon(QMessageBox::Information);
+    msgBox.addButton(QMessageBox::Ok);
+    msgBox.setWindowIcon(QIcon(":/Imgs/oqni.ico"));
+    msgBox.exec();
+}
+
 void   WindowNext::onThreadDisplayTimerFinished(void)
 {
+    QString msg;
     if (_durationMax == _durationTimerValue && this->_labelIsOk == true)
     {
-        this->saveDataToFile(_recordingFolder3->text());
+        msg = this->saveDataToFile(_recordingFolder3->text());
         this->saveMetaData(_recordingFolder3->text());
     }
     else
-        this->saveDataToFile("000");
+        msg = this->saveDataToFile("000");
     
     bool showChartWasChecked = this->_showChart->isChecked();
     this->_showChart->setChecked(false);
@@ -1127,4 +1148,5 @@ void   WindowNext::onThreadDisplayTimerFinished(void)
     this->_finishMsgLabel->setText("Finished");
     this->_finishMsgLabel->setStyleSheet("font-size: 28px; color: #B22222; font-weight: bold;");
     this->_finishMsgLabel->show();
+    this->infoMessageBox(msg);
 }

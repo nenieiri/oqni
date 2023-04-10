@@ -1,0 +1,4 @@
+labels,label_index,time_interval,path_image
+relax,1,2,exp_protocols/pics/relax.png
+tiptoe,2,2,exp_protocols/pics/tiptoe.png
+heels,3,2,exp_protocols/pics/heels.png
