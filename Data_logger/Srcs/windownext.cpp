@@ -166,7 +166,9 @@ void    WindowNext::setButtonStart(QPushButton *buttonStart)
             if (this->_durationTimerValue == 0)
                 return ;
             
-			this->_buttonClose->setEnabled(false);
+            this->saveMetaData("subjects", this->_recordingFolder3->text());
+
+            this->_buttonClose->setEnabled(false);
             this->_buttonClose->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_BUTTON);
 			this->_buttonStart->setEnabled(false);
             this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_BUTTON);
@@ -183,6 +185,8 @@ void    WindowNext::setButtonStart(QPushButton *buttonStart)
             this->_recordingFolder2->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_TEXT);
             this->_recordingFolder3->setEnabled(false);
             this->_recordingFolder3->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_TEXT);
+            this->_recordingFolder4->setEnabled(false);
+            this->_recordingFolder4->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_TEXT);
             
             this->_placement2->setEnabled(false);
             this->_placement2->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_TEXT);
@@ -277,6 +281,8 @@ void		WindowNext::setButtonStop(QPushButton *buttonStop)
             this->_recordingFolder2->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
             this->_recordingFolder3->setEnabled(true);
             this->_recordingFolder3->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
+            this->_recordingFolder4->setEnabled(true);
+            this->_recordingFolder4->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
         
             this->_placement2->setEnabled(true);
             this->_placement2->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
@@ -371,10 +377,11 @@ void    WindowNext::setParametersDesign(void)
     this->_recordingFolder3->setText("000");
     
     this->_recordingFolder4->setGeometry(438, 90, 150, 30);
-    this->_recordingFolder4->setMaxLength(6);
     this->_recordingFolder4->setAlignment(Qt::AlignCenter);
     this->_recordingFolder4->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
-    this->_recordingFolder4->setText(this->findSubjectInMetadata(_recordingFolder3->text()));
+    this->_recordingFolder4->setText(this->findSubjectInMetadata(_recordingFolder3->text(), nullptr));
+    this->_recordingFolder4->setCursorPosition(0);
+    this->_recordingFolder4->setToolTip(_recordingFolder4->text());
 
     this->_placement1->setGeometry(10, 130, 160, 30);
     this->_placement1->setStyleSheet("font-size: 18px;");
@@ -520,9 +527,28 @@ void    WindowNext::setParametersDesign(void)
             {
                 this->_buttonStart->setEnabled(true);
                 this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_BUTTON);
-                this->_recordingFolder4->setText(this->findSubjectInMetadata(_recordingFolder3->text()));
+                this->_recordingFolder4->setText(this->findSubjectInMetadata(_recordingFolder3->text(), nullptr));
+                this->_recordingFolder4->setCursorPosition(0);
+                this->_recordingFolder4->setToolTip(_recordingFolder4->text());
             }
     	});
+
+    /* --- When recordingFolder4 text changed --- */
+    connect(this->_recordingFolder4, &QLineEdit::textChanged, this,
+        [=](void)
+        {
+            if (this->_recordingFolder4->text().length() == 0)
+            {
+                this->_buttonStart->setEnabled(false);
+                this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_BUTTON);
+            }
+            else
+            {
+                this->_buttonStart->setEnabled(true);
+                this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_BUTTON);
+                this->_recordingFolder4->setToolTip(_recordingFolder4->text());
+            }
+        });
     
     /* --- When _placement2 value changed --- */
     connect(this->_placement2, &QComboBox::currentTextChanged, this,
@@ -769,13 +795,18 @@ QString	WindowNext::saveDataToFile(const QString &subject)
     delete [] out;
 	delete [] oldCounter;
 
-    msg = "Recording has been saved to: <br>\u00A0\u00A0\u00A0\u00A0" + \
+    if (subject == "000")
+        msg = "<b>Temporary</b> file created.<br>";
+    else
+        msg = "<b>Regular</b> file created.<br>";
+
+    msg += "Recording has been saved to: <br>\u00A0\u00A0\u00A0\u00A0" + \
         fileNamePrefix.right(fileNamePrefix.length() - fileNamePrefix.indexOf("/Recordings")) + "[*].csv";
 
     return msg;
 }
 
-void	WindowNext::saveMetaData(const QString &subject)
+void	WindowNext::saveMetaData(const QString &excelSheet, const QString &subject)
 {
     QString		cell;
     int     	row;
@@ -784,38 +815,97 @@ void	WindowNext::saveMetaData(const QString &subject)
     if (_saveCheckBox->isChecked() == false || _metaDataFilePath == "")
         return ;
     
-    QXlsx::Document	xlsx(_metaDataFilePath);
-    xlsx.selectSheet("DB");
-    row = xlsx.dimension().lastRow() + 1;
-    
-    data.append(subject);
-    data.append(_recordingFolder2->text());
-    data.append(_recordingFolder2->text() + "_" +subject + "_" + _threadReader->getFileCreationDate());
-    data.append(_threadReader->getFileCreationDate() + "_" + _threadReader->getFileCreationTime());
-    data.append(_placement2->currentText());
-    data.append(_placement4->currentText());
-    data.append(_protocol2->currentText());
-    data.append(_protocol4->currentText());
-    
-    for(int col = 1; col <= data.size(); ++col)
+    if (excelSheet == "DB")
     {
-		cell = QXlsx::CellReference(row, col).toString();
-		xlsx.write(cell, data[col - 1]);
+        QXlsx::Document	xlsx(_metaDataFilePath);
+        xlsx.selectSheet(excelSheet);
+        row = xlsx.dimension().lastRow() + 1;
+
+        data.append(subject);
+        data.append(_recordingFolder2->text());
+        data.append(_recordingFolder2->text() + "_" +subject + "_" + _threadReader->getFileCreationDate());
+        data.append(_threadReader->getFileCreationDate() + "_" + _threadReader->getFileCreationTime());
+        data.append(_placement2->currentText());
+        data.append(_placement4->currentText());
+        data.append(_protocol2->currentText());
+        data.append(_protocol4->currentText());
+
+        for(int col = 1; col <= data.size(); ++col)
+        {
+            cell = QXlsx::CellReference(row, col).toString();
+            xlsx.write(cell, data[col - 1]);
+        }
+        xlsx.save();
     }
-    xlsx.save();
+    else if (excelSheet == "subjects")
+    {
+        int     subjectRow;
+        QString subjectName = findSubjectInMetadata(subject, &subjectRow);
+
+        if (subject == "000" || (subjectName != "unknown" && subjectName == _recordingFolder4->text()))
+            return ;
+        if (subjectName == "unknown" || !subjectRow)
+        {
+            QXlsx::Document	xlsx(_metaDataFilePath);
+            xlsx.selectSheet(excelSheet);
+            subjectRow = subjectRow ? subjectRow : xlsx.dimension().lastRow() + 1;
+
+            cell = QXlsx::CellReference(subjectRow, 1).toString();
+            xlsx.write(cell, subject);
+            cell = QXlsx::CellReference(subjectRow, 2).toString();
+            xlsx.write(cell, _recordingFolder4->text());
+
+            xlsx.save();
+        }
+        else
+        {
+            QString msg = "Subject <b>" + subject + "</b> exists in metadata.xlsx with name: <b>" +\
+                        subjectName + "</b>. <br>Do you want to change the name to: <b>" +\
+                        _recordingFolder4->text() + "</b>?";
+
+            QMessageBox msgBox;
+            msgBox.setWindowTitle(tr("Update Request"));
+            msgBox.setText(msg);
+            msgBox.setIcon(QMessageBox::Question);
+            msgBox.addButton(QMessageBox::Yes);
+            msgBox.addButton(QMessageBox::No);
+            msgBox.setWindowIcon(QIcon(":/Imgs/oqni.ico"));
+            int ret = msgBox.exec();
+            if (ret == QMessageBox::Yes)
+            {
+                QXlsx::Document	xlsx(_metaDataFilePath);
+                xlsx.selectSheet(excelSheet);
+
+                cell = QXlsx::CellReference(subjectRow, 1).toString();
+                xlsx.write(cell, subject);
+                cell = QXlsx::CellReference(subjectRow, 2).toString();
+                xlsx.write(cell, _recordingFolder4->text());
+
+                xlsx.save();
+            }
+        }
+    }
 }
 
-QString	WindowNext::findSubjectInMetadata(QString subject)
+QString	WindowNext::findSubjectInMetadata(QString subject, int *subjectRow)
 {
     QString unknown = "unknown";
     
+    if (subjectRow)
+        (*subjectRow) = 0;
     if (_metaDataFilePath == "")
         return unknown;
     QXlsx::Document xlsx(_metaDataFilePath);
     xlsx.selectSheet("subjects");
     for(int row = 2; row <= xlsx.dimension().lastRow(); ++row)
+    {
         if (xlsx.read(row, 1).toString() == subject)
+        {
+            if (subjectRow)
+                (*subjectRow) = row;
             return xlsx.read(row, 2).toString();
+        }
+    }
     return unknown;
 }
 
@@ -1091,7 +1181,7 @@ void   WindowNext::onThreadDisplayTimerFinished(void)
     if (_durationMax == _durationTimerValue && this->_labelIsOk == true)
     {
         msg = this->saveDataToFile(_recordingFolder3->text());
-        this->saveMetaData(_recordingFolder3->text());
+        this->saveMetaData("DB",_recordingFolder3->text());
     }
     else
         msg = this->saveDataToFile("000");
@@ -1120,6 +1210,8 @@ void   WindowNext::onThreadDisplayTimerFinished(void)
     this->_recordingFolder2->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
     this->_recordingFolder3->setEnabled(true);
     this->_recordingFolder3->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
+    this->_recordingFolder4->setEnabled(true);
+    this->_recordingFolder4->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
     
     this->_placement2->setEnabled(true);
     this->_placement2->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);

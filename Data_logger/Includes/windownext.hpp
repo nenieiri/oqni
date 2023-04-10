@@ -50,11 +50,11 @@ class WindowNext : public QDialog
         QStringList         *findExpProtocols(const QString &path);
         int					readExpProtocol(void);
         QString            	saveDataToFile(const QString &subject);
-        void            	saveMetaData(const QString &subject);
+        void            	saveMetaData(const QString &excelSheet, const QString &subject);
         void                execChartDialog(void);
         void                execPicDialog(void);
         void                showImage(int currentSecond, QString imgPath);
-        QString             findSubjectInMetadata(QString subject);
+        QString             findSubjectInMetadata(QString subject, int *subjectRow);
         
     private slots:
 		void				onThreadDisplayTimerFinished(void);
