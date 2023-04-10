@@ -725,7 +725,7 @@ QString	WindowNext::saveDataToFile(const QString &subject)
 		myFile[i].setFileName(fileNamePrefix + QString::number(i + 1) + ".csv");
 		if (!myFile[i].open(QIODevice::WriteOnly | QIODevice::Text))
 		{
-            msg = "Failed to open file for writing: " + myFile[i].fileName() + "<br>" + msg;
+            msg = "Permission denied: failed to open file for writing.<br>" + msg;
             qDebug() << msg;
             for (int j = 0; j < i; ++j)
             {
