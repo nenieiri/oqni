@@ -807,7 +807,7 @@ QString	WindowNext::saveDataToFile(const QString &subject)
     if (subject == "000")
         msg += "<br><br>metadata.xlsx <b> has not been updated </b>.<br>";
     else
-        msg += "<br><br>metadata.xlsx <b> has been updated </b> (see sheet \"DB\").<br>";;
+        msg += "<br><br>metadata.xlsx <b> has been updated </b> (see sheet \"DB\").<br>";
 
     return msg;
 }
