@@ -910,7 +910,7 @@ void WindowNext::retryToSaveMetaData(QXlsx::Document &xlsx)
                 <br> <br> <b> Please fix and try again! </br>";
 
     QMessageBox msgBox;
-    msgBox.setWindowTitle(tr("Can not sate the file."));
+    msgBox.setWindowTitle(tr("Cannot save the file."));
     msgBox.setText(msg);
     msgBox.setIcon(QMessageBox::Warning);
     msgBox.addButton(QMessageBox::Retry);
