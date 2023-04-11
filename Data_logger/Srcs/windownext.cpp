@@ -841,7 +841,8 @@ bool	WindowNext::saveMetaData(const QString &excelSheet, const QString &subject)
             cell = QXlsx::CellReference(row, col).toString();
             xlsx.write(cell, data[col - 1]);
         }
-        xlsx.save();
+        if (xlsx.save() == false)
+            this->retryToSaveMetaData(xlsx);
         return true;
     }
 
