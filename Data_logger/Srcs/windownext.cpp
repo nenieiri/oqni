@@ -903,11 +903,11 @@ bool	WindowNext::saveMetaData(const QString &excelSheet, const QString &subject)
 
 void WindowNext::retryToSaveMetaData(QXlsx::Document &xlsx)
 {
-    QString msg = "Can not save <b> metadata.xlsx </b> \
+    QString msg = "Cannot save <b> metadata.xlsx </b> \
                 <br><br> This may be the result of: \
-                <br> \u00A0\u00A0\u00A0\u00A0 - File does not exist or is open. \
-                <br> \u00A0\u00A0\u00A0\u00A0 - File has incorrect path or name. \
-                <br> <br> Fix and retry! ";
+                <br> \u00A0\u00A0\u00A0\u00A0 - The file does not exist or is open. \
+                <br> \u00A0\u00A0\u00A0\u00A0 - The file has an invalid path or name. \
+                <br> <br> <b> Please fix and try again! </br>";
 
     QMessageBox msgBox;
     msgBox.setWindowTitle(tr("Can not sate the file."));
