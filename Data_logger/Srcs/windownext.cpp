@@ -863,7 +863,8 @@ bool	WindowNext::saveMetaData(const QString &excelSheet, const QString &subject)
             cell = QXlsx::CellReference(subjectRow, 2).toString();
             xlsx.write(cell, _recordingFolder4->text());
 
-            xlsx.save();
+            if (xlsx.save() == false)
+                this->retryToSaveMetaData(xlsx);
             return true;
         }
 
@@ -890,13 +891,38 @@ bool	WindowNext::saveMetaData(const QString &excelSheet, const QString &subject)
             cell = QXlsx::CellReference(subjectRow, 2).toString();
             xlsx.write(cell, _recordingFolder4->text());
 
-            xlsx.save();
+            if (xlsx.save() == false)
+                this->retryToSaveMetaData(xlsx);
             return true;
         }
         if (ret == QMessageBox::Cancel)
             return false;
     }
     return true;
+}
+
+void WindowNext::retryToSaveMetaData(QXlsx::Document &xlsx)
+{
+    QString msg = "Can not save <b> metadata.xlsx </b> \
+                <br><br> This may be the result of: \
+                <br> \u00A0\u00A0\u00A0\u00A0 - File does not exist or is open. \
+                <br> \u00A0\u00A0\u00A0\u00A0 - File has incorrect path or name. \
+                <br> <br> Fix and retry! ";
+
+    QMessageBox msgBox;
+    msgBox.setWindowTitle(tr("Can not sate the file."));
+    msgBox.setText(msg);
+    msgBox.setIcon(QMessageBox::Warning);
+    msgBox.addButton(QMessageBox::Retry);
+    msgBox.addButton(QMessageBox::Ignore);
+    msgBox.setWindowIcon(QIcon(":/Imgs/oqni.ico"));
+    
+    while (xlsx.save() == false)
+    {
+        int ret = msgBox.exec();
+        if (ret == QMessageBox::Ignore)
+            break ;
+    }
 }
 
 QString	WindowNext::findSubjectInMetadata(QString subject, int *subjectRow)
