@@ -50,7 +50,7 @@ class WindowNext : public QDialog
         QStringList         *findExpProtocols(const QString &path);
         int					readExpProtocol(void);
         QString            	saveDataToFile(const QString &subject);
-        void            	saveMetaData(const QString &excelSheet, const QString &subject);
+        bool            	saveMetaData(const QString &excelSheet, const QString &subject);
         void                execChartDialog(void);
         void                execPicDialog(void);
         void                showImage(int currentSecond, QString imgPath);

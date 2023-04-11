@@ -166,7 +166,8 @@ void    WindowNext::setButtonStart(QPushButton *buttonStart)
             if (this->_durationTimerValue == 0)
                 return ;
             
-            this->saveMetaData("subjects", this->_recordingFolder3->text());
+            if (this->saveMetaData("subjects", this->_recordingFolder3->text()) == false)
+                return ;
 
             this->_buttonClose->setEnabled(false);
             this->_buttonClose->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_BUTTON);
@@ -803,17 +804,22 @@ QString	WindowNext::saveDataToFile(const QString &subject)
     msg += "Recording has been saved to: <br>\u00A0\u00A0\u00A0\u00A0" + \
         fileNamePrefix.right(fileNamePrefix.length() - fileNamePrefix.indexOf("/Recordings")) + "[*].csv";
 
+    if (subject == "000")
+        msg += "<br><br>metadata.xlsx <b> has not been updated </b>.<br>";
+    else
+        msg += "<br><br>metadata.xlsx <b> has been updated </b> (see sheet \"DB\").<br>";;
+
     return msg;
 }
 
-void	WindowNext::saveMetaData(const QString &excelSheet, const QString &subject)
+bool	WindowNext::saveMetaData(const QString &excelSheet, const QString &subject)
 {
     QString		cell;
     int     	row;
     QStringList	data;
     
-    if (_saveCheckBox->isChecked() == false || _metaDataFilePath == "")
-        return ;
+    if (_saveCheckBox->isChecked() == false || _metaDataFilePath == "" || subject == "000")
+        return true;
     
     if (excelSheet == "DB")
     {
@@ -836,14 +842,16 @@ void	WindowNext::saveMetaData(const QString &excelSheet, const QString &subject)
             xlsx.write(cell, data[col - 1]);
         }
         xlsx.save();
+        return true;
     }
-    else if (excelSheet == "subjects")
+
+    if (excelSheet == "subjects")
     {
         int     subjectRow;
         QString subjectName = findSubjectInMetadata(subject, &subjectRow);
 
         if (subject == "000" || (subjectName != "unknown" && subjectName == _recordingFolder4->text()))
-            return ;
+            return true;
         if (subjectName == "unknown" || !subjectRow)
         {
             QXlsx::Document	xlsx(_metaDataFilePath);
@@ -856,35 +864,39 @@ void	WindowNext::saveMetaData(const QString &excelSheet, const QString &subject)
             xlsx.write(cell, _recordingFolder4->text());
 
             xlsx.save();
+            return true;
         }
-        else
+
+        QString msg = "Subject <b>" + subject + "</b> exists in metadata.xlsx with name: <b>" +\
+                    subjectName + "</b>. <br>Do you want to change the name to: <b>" +\
+                    _recordingFolder4->text() + "</b>?";
+
+        QMessageBox msgBox;
+        msgBox.setWindowTitle(tr("Update Request"));
+        msgBox.setText(msg);
+        msgBox.setIcon(QMessageBox::Question);
+        msgBox.addButton(QMessageBox::Yes);
+        msgBox.addButton(QMessageBox::No);
+        msgBox.addButton(QMessageBox::Cancel);
+        msgBox.setWindowIcon(QIcon(":/Imgs/oqni.ico"));
+        int ret = msgBox.exec();
+        if (ret == QMessageBox::Yes)
         {
-            QString msg = "Subject <b>" + subject + "</b> exists in metadata.xlsx with name: <b>" +\
-                        subjectName + "</b>. <br>Do you want to change the name to: <b>" +\
-                        _recordingFolder4->text() + "</b>?";
+            QXlsx::Document	xlsx(_metaDataFilePath);
+            xlsx.selectSheet(excelSheet);
 
-            QMessageBox msgBox;
-            msgBox.setWindowTitle(tr("Update Request"));
-            msgBox.setText(msg);
-            msgBox.setIcon(QMessageBox::Question);
-            msgBox.addButton(QMessageBox::Yes);
-            msgBox.addButton(QMessageBox::No);
-            msgBox.setWindowIcon(QIcon(":/Imgs/oqni.ico"));
-            int ret = msgBox.exec();
-            if (ret == QMessageBox::Yes)
-            {
-                QXlsx::Document	xlsx(_metaDataFilePath);
-                xlsx.selectSheet(excelSheet);
+            cell = QXlsx::CellReference(subjectRow, 1).toString();
+            xlsx.write(cell, subject);
+            cell = QXlsx::CellReference(subjectRow, 2).toString();
+            xlsx.write(cell, _recordingFolder4->text());
 
-                cell = QXlsx::CellReference(subjectRow, 1).toString();
-                xlsx.write(cell, subject);
-                cell = QXlsx::CellReference(subjectRow, 2).toString();
-                xlsx.write(cell, _recordingFolder4->text());
-
-                xlsx.save();
-            }
+            xlsx.save();
+            return true;
         }
+        if (ret == QMessageBox::Cancel)
+            return false;
     }
+    return true;
 }
 
 QString	WindowNext::findSubjectInMetadata(QString subject, int *subjectRow)
