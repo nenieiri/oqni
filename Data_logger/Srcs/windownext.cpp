@@ -31,6 +31,7 @@ WindowNext::WindowNext(MainWindow *parent)
     this->_selectedDirectory = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation) + "/oqni/Recordings";
     this->_showSelectedDir2->setText(_selectedDirectory);
     
+//    When editing the line below, don't forget to do the same in the "retryToSaveMetaData()" function.
     this->_metaDataFilePath = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation) + "/oqni/Recordings/metadata.xlsx";
     QFile metaDataFile(_metaDataFilePath);
     if(!metaDataFile.exists())
@@ -167,7 +168,13 @@ void    WindowNext::setButtonStart(QPushButton *buttonStart)
                 return ;
             
             while (this->saveMetaData("subjects", this->_recordingFolder3->text()) == false)
-                ;
+            {
+                if (_metaDataSavingFailMsg == "cancel")
+                {
+                    _metaDataSavingFailMsg = "";
+                    return;
+                };
+            }
 
             this->_buttonClose->setEnabled(false);
             this->_buttonClose->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_BUTTON);
@@ -918,7 +925,10 @@ bool	WindowNext::saveMetaData(const QString &excelSheet, const QString &subject)
             return true;
         }
         if (ret == QMessageBox::Cancel)
+        {
+            _metaDataSavingFailMsg = "cancel";
             return false;
+        }
     }
 
     return true;
