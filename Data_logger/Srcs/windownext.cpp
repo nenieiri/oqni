@@ -166,8 +166,8 @@ void    WindowNext::setButtonStart(QPushButton *buttonStart)
             if (this->_durationTimerValue == 0)
                 return ;
             
-            if (this->saveMetaData("subjects", this->_recordingFolder3->text()) == false)
-                return ;
+            while (this->saveMetaData("subjects", this->_recordingFolder3->text()) == false)
+                ;
 
             this->_buttonClose->setEnabled(false);
             this->_buttonClose->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_BUTTON);
@@ -259,7 +259,8 @@ void		WindowNext::setButtonStop(QPushButton *buttonStop)
 		[=](void)
 		{
             QString msg;
-            msg = this->saveDataToFile("000");
+            _metaDataSavingFailMsg = "<br><b>REASON:</b> the session was terminated (stopped).";
+            msg = this->saveDataToFile("000") + _metaDataSavingFailMsg;
         
 			this->_closeEventFlag = true;
             
@@ -309,6 +310,7 @@ void		WindowNext::setButtonStop(QPushButton *buttonStop)
             this->_finishMsgLabel->show();
 			this->_finishMsgLabel->setStyleSheet("font-size: 28px; color: #B22222; font-weight: bold;");
             this->infoMessageBox(msg);
+            this->_metaDataSavingFailMsg = "";
 		});
 }
 
@@ -753,7 +755,7 @@ QString	WindowNext::saveDataToFile(const QString &subject)
 		if (!myFile[i].open(QIODevice::WriteOnly | QIODevice::Text))
 		{
             msg = "Permission denied: failed to open file for writing.<br>" + msg;
-            qDebug() << msg;
+//            qDebug() << msg;
             for (int j = 0; j < i; ++j)
             {
 				myFile[j].close();
@@ -805,7 +807,7 @@ QString	WindowNext::saveDataToFile(const QString &subject)
         fileNamePrefix.right(fileNamePrefix.length() - fileNamePrefix.indexOf("/Recordings")) + "[*].csv";
 
     if (subject == "000")
-        msg += "<br><br>metadata.xlsx <b> has not been updated </b>.<br>";
+        msg += "<br><br>metadata.xlsx <b> has not been updated</b>.<br>";
     else
         msg += "<br><br>metadata.xlsx <b> has been updated </b> (see sheet \"DB\").<br>";
 
@@ -818,8 +820,26 @@ bool	WindowNext::saveMetaData(const QString &excelSheet, const QString &subject)
     int     	row;
     QStringList	data;
     
-    if (_saveCheckBox->isChecked() == false || _metaDataFilePath == "" || subject == "000")
+    if (_saveCheckBox->isChecked() == false)
+    {
+        _metaDataSavingFailMsg = "<br><b>REASON:</b> the save checkbox was not checked.";
         return true;
+    }
+    if (_metaDataFilePath == "")
+    {
+        QXlsx::Document	fakeXlsx("");
+        this->retryToSaveMetaData(fakeXlsx, excelSheet);
+        if (_metaDataFilePath == "")
+            _metaDataSavingFailMsg = "<br><b>REASON:</b> metadata.xlsx not found.";
+        else
+            _metaDataSavingFailMsg = "";
+        return true;
+    }
+    if (subject == "000")
+    {
+        _metaDataSavingFailMsg = "<br><b>REASON:</b> the subject was 000.";
+        return true;
+    }
     
     if (excelSheet == "DB")
     {
@@ -841,8 +861,9 @@ bool	WindowNext::saveMetaData(const QString &excelSheet, const QString &subject)
             cell = QXlsx::CellReference(row, col).toString();
             xlsx.write(cell, data[col - 1]);
         }
+
         if (xlsx.save() == false)
-            this->retryToSaveMetaData(xlsx);
+            this->retryToSaveMetaData(xlsx, excelSheet);
         return true;
     }
 
@@ -865,7 +886,7 @@ bool	WindowNext::saveMetaData(const QString &excelSheet, const QString &subject)
             xlsx.write(cell, _recordingFolder4->text());
 
             if (xlsx.save() == false)
-                this->retryToSaveMetaData(xlsx);
+                this->retryToSaveMetaData(xlsx, excelSheet);
             return true;
         }
 
@@ -893,36 +914,61 @@ bool	WindowNext::saveMetaData(const QString &excelSheet, const QString &subject)
             xlsx.write(cell, _recordingFolder4->text());
 
             if (xlsx.save() == false)
-                this->retryToSaveMetaData(xlsx);
+                this->retryToSaveMetaData(xlsx, excelSheet);
             return true;
         }
         if (ret == QMessageBox::Cancel)
             return false;
     }
+
     return true;
 }
 
-void WindowNext::retryToSaveMetaData(QXlsx::Document &xlsx)
+void WindowNext::retryToSaveMetaData(QXlsx::Document &xlsx, const QString &excelSheet)
 {
-    QString msg = "Cannot save <b> metadata.xlsx </b> \
-                <br><br> This may be the result of: \
+    QString msg = "<br><br> This may be the result of: \
                 <br> \u00A0\u00A0\u00A0\u00A0 - The file does not exist or is open. \
                 <br> \u00A0\u00A0\u00A0\u00A0 - The file has an invalid path or name. \
                 <br> <br> <b> Please fix and try again! </br>";
-
     QMessageBox msgBox;
     msgBox.setWindowTitle(tr("Cannot save the file."));
-    msgBox.setText(msg);
     msgBox.setIcon(QMessageBox::Warning);
     msgBox.addButton(QMessageBox::Retry);
     msgBox.addButton(QMessageBox::Ignore);
     msgBox.setWindowIcon(QIcon(":/Imgs/oqni.ico"));
-    
-    while (xlsx.save() == false)
+
+    if (_metaDataFilePath == "")
     {
-        int ret = msgBox.exec();
-        if (ret == QMessageBox::Ignore)
-            break ;
+        if (excelSheet == "subjects")
+            msgBox.setText("<b>Cannot</b> add new subject to <b>metadata.xlsx.</b>" + msg);
+        else
+            msgBox.setText("<b>Cannot</b> save <b>metadata.xlsx.</b>" + msg);
+
+        while (_metaDataFilePath == "")
+        {
+            int ret = msgBox.exec();
+            if (ret == QMessageBox::Ignore)
+                break ;
+            _metaDataFilePath = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation) + "/oqni/Recordings/metadata.xlsx";
+            QFile metaDataFile(_metaDataFilePath);
+            if(!metaDataFile.exists())
+                _metaDataFilePath = "";
+        }
+    }
+    else
+    {
+        msgBox.setText("<b>Cannot</b> save <b>metadata.xlsx.</b>" + msg);
+
+        while (xlsx.save() == false)
+        {
+            int ret = msgBox.exec();
+            if (ret == QMessageBox::Ignore)
+            {
+                _metaDataSavingFailMsg = "<br><b>REASON:</b> metadata.xlsx is open or unavailable.";
+                break ;
+            }
+            _metaDataSavingFailMsg = "";
+        }
     }
 }
 
@@ -1219,11 +1265,18 @@ void   WindowNext::onThreadDisplayTimerFinished(void)
     QString msg;
     if (_durationMax == _durationTimerValue && this->_labelIsOk == true)
     {
-        msg = this->saveDataToFile(_recordingFolder3->text());
         this->saveMetaData("DB",_recordingFolder3->text());
+        if (_metaDataSavingFailMsg == "")
+            msg = this->saveDataToFile(_recordingFolder3->text());
+        else
+            msg = this->saveDataToFile("000") + _metaDataSavingFailMsg;
     }
     else
-        msg = this->saveDataToFile("000");
+    {
+        if (_metaDataSavingFailMsg == "" && this->_labelIsOk == false)
+            _metaDataSavingFailMsg = "<br><b>REASON:</b> the pic checkbox (label) was not checked during the session.";
+        msg = this->saveDataToFile("000") + _metaDataSavingFailMsg;
+    }
     
     bool showChartWasChecked = this->_showChart->isChecked();
     this->_showChart->setChecked(false);
@@ -1280,4 +1333,5 @@ void   WindowNext::onThreadDisplayTimerFinished(void)
     this->_finishMsgLabel->setStyleSheet("font-size: 28px; color: #B22222; font-weight: bold;");
     this->_finishMsgLabel->show();
     this->infoMessageBox(msg);
+    this->_metaDataSavingFailMsg = "";
 }

@@ -51,7 +51,7 @@ class WindowNext : public QDialog
         int					readExpProtocol(void);
         QString            	saveDataToFile(const QString &subject);
         bool            	saveMetaData(const QString &excelSheet, const QString &subject);
-        void                retryToSaveMetaData(QXlsx::Document &xlsx);
+        void                retryToSaveMetaData(QXlsx::Document &xlsx, const QString &excelSheet);
         void                execChartDialog(void);
         void                execPicDialog(void);
         void                showImage(int currentSecond, QString imgPath);
@@ -149,6 +149,7 @@ class WindowNext : public QDialog
         QLabel              *_imageSecondsLabel;
         
         QString             _metaDataFilePath;
+        QString             _metaDataSavingFailMsg;
 };
 
 #endif
