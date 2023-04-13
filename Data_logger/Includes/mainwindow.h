@@ -55,7 +55,7 @@ class MainWindow : public QMainWindow
         QPushButton         *_buttonCheck;
         QPushButton         *_buttonNext;
         QPushButton         *_buttonChart;
-        QPushButton         *_buttonAbout;
+        QToolButton         *_buttonAbout;
         
         QLabel              *_gifLabel;
         QMovie              *_gifMovie;

@@ -13,9 +13,8 @@ MainWindow::MainWindow(QWidget *parent)
     this->addLoadingAnimation(this->_buttonCheck, 21, 150, 370, 370);
     this->createGroupBox(20, 70, 380, 515);
     this->createLiftVertical(379, 71, 20, 513);
-    this->_buttonAbout = this->createButton("i", 418, 555, 30, 30, std::bind(&MainWindow::buttonAboutAction, this), this);
-    this->_buttonChart = this->createButton("Chart", 465, 555, 100, 30, std::bind(&MainWindow::buttonChartAction, this), this);
-    this->_buttonNext = this->createButton("Next", 582, 555, 100, 30, std::bind(&MainWindow::buttonNextAction, this), this);
+    this->_buttonChart = this->createButton("Chart", 433, 555, 100, 30, std::bind(&MainWindow::buttonChartAction, this), this);
+    this->_buttonNext = this->createButton("Next", 566, 555, 100, 30, std::bind(&MainWindow::buttonNextAction, this), this);
     this->_buttonNext->setEnabled(false);
     this->_buttonNext->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_BUTTON);
 
@@ -28,6 +27,17 @@ MainWindow::MainWindow(QWidget *parent)
     _parityItems = {"None", "Even", "Odd", "Space", "Mark"};
     _stopBitsItems = {"1", "1.5", "2"};
     _flowControlItems = {"None", "Hardware", "Xon / Xoff"};
+
+    this->_buttonAbout = new QToolButton(this);
+    this->_buttonAbout->setIcon(QIcon(":/Imgs/about.png"));
+    this->_buttonAbout->setIconSize(QSize(25, 25));
+    this->_buttonAbout->setCursor(Qt::PointingHandCursor);
+    this->_buttonAbout->setToolTip("About the program.");
+    this->_buttonAbout->setStyleSheet("QToolButton { border-radius: 20px; border: 2px solid #006699; background: #B9E8E2;} \
+                                      QToolButton:hover { border-radius: 20px; border: 3px solid #006699; background: white;}");
+    this->_buttonAbout->setGeometry(626, 25, 40, 40);
+    this->_buttonAbout->show();
+    connect(this->_buttonAbout, &QToolButton::clicked, this, [=](void) { this->buttonAboutAction(); });
 }
 
 MainWindow::~MainWindow()
@@ -467,5 +477,4 @@ void    MainWindow::buttonAboutAction()
     msgBox.addButton(QMessageBox::Ok);
     msgBox.setWindowIcon(QIcon(":/Imgs/oqni.ico"));
     msgBox.exec();
-    this->_buttonAbout->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_BUTTON);
 }
