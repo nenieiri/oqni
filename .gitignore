@@ -6,4 +6,3 @@ a.out
 .vscode/
 build*
 /Recordings/*
-# !/Recordings/metadata.xlsx
