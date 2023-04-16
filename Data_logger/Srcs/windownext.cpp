@@ -89,7 +89,8 @@ WindowNext::WindowNext(MainWindow *parent)
 	this->_chartView = nullptr;
 	this->_axisX = nullptr;
 	this->_axisY = nullptr;
-	this->_series = nullptr;
+	this->_series[0] = nullptr;
+	this->_series[1] = nullptr;
 	this->_hBoxLayout = nullptr;
 	this->_gridLayout = nullptr;
     this->_gridLayoutPic = nullptr;
@@ -612,9 +613,14 @@ void    WindowNext::setParametersDesign(void)
 				delete _axisY;
 				this->_axisY = nullptr;
 				for (int i = 0; i < _numOfOS * _numOfCH; ++i)
-					this->_chart->removeSeries(&_series[i]);
-				delete [] _series;
-				this->_series = nullptr;
+                {
+					this->_chart->removeSeries(&_series[0][i]);
+					this->_chart->removeSeries(&_series[1][i]);
+                }
+				delete [] _series[0];
+				this->_series[0] = nullptr;
+				delete [] _series[1];
+				this->_series[1] = nullptr;
 				delete this->_chart;
                 this->_chart = nullptr;
 				delete _chartView;
@@ -1048,31 +1054,50 @@ void    WindowNext::execChartDialog(void)
         _chart->setBackgroundBrush(QBrush(QColor::fromRgb(235, 255, 255)));
         _chart->legend()->hide();
         
-        _series = new QLineSeries[_numOfOS * _numOfCH];
+        _series[0] = new QLineSeries[_numOfOS * _numOfCH];
+        _series[1] = new QLineSeries[_numOfOS * _numOfCH];
         for (int i = 0; i < _numOfOS * _numOfCH; ++i)
         {
-            _chart->addSeries(&_series[i]);
+            _chart->addSeries(&_series[0][i]);
             if (i % _numOfCH == 0)
-				_series[i].setColor(Qt::blue); // infraRed
+            {
+				_series[0][i].setColor(Qt::blue); // infraRed
+				_series[1][i].setColor(Qt::blue); // infraRed
+            }
             else if (i % _numOfCH == 1)
-				_series[i].setColor(Qt::red);
+            {
+				_series[0][i].setColor(Qt::red);
+				_series[1][i].setColor(Qt::red);
+            }
             else if (i % _numOfCH == 2)
-				_series[i].setColor(Qt::green);
+            {
+				_series[0][i].setColor(Qt::green);
+				_series[1][i].setColor(Qt::green);
+            }
             else
-				_series[i].setColor(Qt::gray);
+            {
+				_series[0][i].setColor(Qt::gray);
+				_series[1][i].setColor(Qt::gray);
+            }
         }
         
         this->_axisX = new QValueAxis();
         _axisX->setTitleText("Time (milliseconds)");
         _chart->addAxis(_axisX, Qt::AlignBottom);
         for (int i = 0; i < _numOfOS * _numOfCH; ++i)
-            _series[i].attachAxis(_axisX);
+        {
+            _series[0][i].attachAxis(_axisX);
+            _series[1][i].attachAxis(_axisX);
+        }
     
         this->_axisY = new QValueAxis();
         _axisY->setTitleText("Values");
         _chart->addAxis(_axisY, Qt::AlignLeft);
         for (int i = 0; i < _numOfOS * _numOfCH; ++i)
-            _series[i].attachAxis(_axisY);
+        {
+            _series[0][i].attachAxis(_axisY);
+            _series[1][i].attachAxis(_axisY);
+        }
         
         this->_checkBoxChannelsValue = new bool[_numOfOS * _numOfCH];
         for (int i = 0; i < _numOfOS * _numOfCH; ++i)
@@ -1100,11 +1125,12 @@ void    WindowNext::execChartDialog(void)
                                                             _bytesOCH + j * _sizeOfCH, _sizeOfCH).constData());
                     ledID = j + id * id - 1;
 
+                    _series[1][ledID].append(time, value);
                     if (_checkBoxChannelsValue[ledID] == true)
                     {
-                        _series[ledID].append(time, value);
-                        while (_series[ledID].count() > _chartDuration / 10)
-                            _series[ledID].remove(0);
+                        _series[0][ledID].append(time, value);
+                        while (_series[0][ledID].count() > _chartDuration / 10)
+                            _series[0][ledID].remove(0);
                     }
 
 					// updating axisX and axisY in interval "_chartDuration / 1000 * _chartUpdateRatio"
@@ -1112,24 +1138,27 @@ void    WindowNext::execChartDialog(void)
 					{
                         for (int i = 0; i < _numOfOS * _numOfCH; i++)
                         {
-                            for(int j = 0; j < _series[i].count(); j++)
+                            for(int j = 0; j < _series[!(_autoScale->isChecked())][i].count(); j++)
                             {
-                                if(_series[i].at(j).y() > maxY)
-                                    maxY = _series[i].at(j).y();
-                                if(_series[i].at(j).y() < minY)
-                                    minY = _series[i].at(j).y();
+                                if(_series[!(_autoScale->isChecked())][i].at(j).y() > maxY)
+                                    maxY = _series[!(_autoScale->isChecked())][i].at(j).y();
+                                if(_series[!(_autoScale->isChecked())][i].at(j).y() < minY)
+                                    minY = _series[!(_autoScale->isChecked())][i].at(j).y();
                             }
                         }
                         _axisY->setRange(minY, maxY);
 
 						for (int k = 0; k < _numOfOS * _numOfCH; ++k)
 						{
-							if (_series[k].count() == 0)
+							if (_series[!(_autoScale->isChecked())][k].count() == 0)
 								continue ;
-							if (_series[k].at(0).x() < minX)
-								minX = _series[k].at(0).x();
+							if (_series[!(_autoScale->isChecked())][k].at(0).x() < minX)
+								minX = _series[!(_autoScale->isChecked())][k].at(0).x();
 						}
-						_axisX->setRange(minX, minX + _chartDuration);
+                        if (_autoScale->isChecked() == true)
+							_axisX->setRange(minX, minX + _chartDuration);
+                        else
+							_axisX->setRange(0, _durationMax * 1000);
 						_chartTimeFlag = time + _startTime;
 					}
 				}
@@ -1201,10 +1230,16 @@ void    WindowNext::execChartDialog(void)
 				[=]()
 				{
 					if (this->_checkBoxChannels[i].isChecked() == true)
+                    {
                         this->_checkBoxChannelsValue[i] = true;
+						_chart->addSeries(&_series[1][i]);
+						_series[1][i].attachAxis(_axisX);
+						_series[1][i].attachAxis(_axisY);
+                    }
                     else
                     {
-                        _series[i].clear();
+                        _series[0][i].clear();
+						_chart->removeSeries(&_series[1][i]);
                         this->_checkBoxChannelsValue[i] = false;
                     }
 				});
@@ -1220,7 +1255,34 @@ void    WindowNext::execChartDialog(void)
         _sliderHorizontalValues->setFixedWidth(_sliderHorizontal->width());
         
         this->_autoScale = new QCheckBox("Autoscale");
+        this->_autoScale->setChecked(true);
         this->_autoScale->setStyleSheet("font-size: 16px;");
+		connect(this->_autoScale, &QCheckBox::clicked, this,
+			[=]()
+			{
+				if (_autoScale->isChecked() == true)
+				{
+					for (int i = 0; i < _numOfOS * _numOfCH; ++i)
+                    {
+						_chart->removeSeries(&_series[1][i]);
+						_chart->addSeries(&_series[0][i]);
+						_series[0][i].attachAxis(_axisX);
+						_series[0][i].attachAxis(_axisY);
+                        _sliderHorizontal->setEnabled(true);
+                    }
+                }
+				else
+                {
+					for (int i = 0; i < _numOfOS * _numOfCH; ++i)
+                    {
+						_chart->removeSeries(&_series[0][i]);
+						_chart->addSeries(&_series[1][i]);
+						_series[1][i].attachAxis(_axisX);
+						_series[1][i].attachAxis(_axisY);
+                        _sliderHorizontal->setEnabled(false);
+                    }
+                }
+			});
         
         this->_gridLayout->addWidget(_chartView, 0, 0, 1, 5);
         this->_gridLayout->addWidget(_autoScale, 1, 0, 1, 1, Qt::AlignLeft);

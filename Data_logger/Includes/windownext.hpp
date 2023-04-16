@@ -132,7 +132,7 @@ class WindowNext : public QDialog
         QChartView			*_chartView;
         QValueAxis			*_axisX;
         QValueAxis			*_axisY;
-        QLineSeries			*_series;
+        QLineSeries			*_series[2];
         QGridLayout         *_gridLayoutPic;
         QGridLayout			*_gridLayout;
         QHBoxLayout			*_hBoxLayout;
