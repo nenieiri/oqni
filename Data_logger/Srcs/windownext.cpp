@@ -1107,6 +1107,11 @@ void    WindowNext::execChartDialog(void)
             this->_checkBoxChannelsValue[i] = true;
 
 		this->_chartTimeFlag = 0;
+        
+        _seriesMinY.resize(_numOfOS * _numOfCH);
+        _seriesMaxY.resize(_numOfOS * _numOfCH);
+        _seriesMinY.fill(-1);
+        _seriesMaxY.fill(0);
 
         connect(this->_threadReader, &ThreadReader::lastRowOfData, this,
 			[=](QByteArray data)
@@ -1128,6 +1133,9 @@ void    WindowNext::execChartDialog(void)
                                                             _bytesOCH + j * _sizeOfCH, _sizeOfCH).constData());
                     ledID = j + id * id - 1;
 
+                    _seriesMinY[ledID] = (value < _seriesMinY[ledID]) ? value : _seriesMinY[ledID];
+                    _seriesMaxY[ledID] = (value > _seriesMaxY[ledID]) ? value : _seriesMaxY[ledID];
+                    
                     _series[1][ledID].append(time, value);
                     if (_checkBoxChannelsValue[ledID] == true)
                     {
@@ -1139,16 +1147,22 @@ void    WindowNext::execChartDialog(void)
 					// updating axisX and axisY in interval "_chartDuration / 1000 * _chartUpdateRatio"
                     if (time + _startTime - _chartTimeFlag >= _chartDuration / 1000 * _chartUpdateRatio)
 					{
-                        for (int i = 0; i < _numOfOS * _numOfCH; i++)
+                        if (_autoScale->isChecked() == true)
                         {
-                            for(int j = 0; j < _series[!(_autoScale->isChecked())][i].count(); j++)
+                            for (int i = 0; i < _numOfOS * _numOfCH; i++)
                             {
-                                if(_series[!(_autoScale->isChecked())][i].at(j).y() > maxY)
-                                    maxY = _series[!(_autoScale->isChecked())][i].at(j).y();
-                                if(_series[!(_autoScale->isChecked())][i].at(j).y() < minY)
-                                    minY = _series[!(_autoScale->isChecked())][i].at(j).y();
+                                for(int j = 0; j < _series[!(_autoScale->isChecked())][i].count(); j++)
+                                {
+                                    if(_series[!(_autoScale->isChecked())][i].at(j).y() > maxY)
+                                        maxY = _series[!(_autoScale->isChecked())][i].at(j).y();
+                                    if(_series[!(_autoScale->isChecked())][i].at(j).y() < minY)
+                                        minY = _series[!(_autoScale->isChecked())][i].at(j).y();
+                                }
                             }
                         }
+                        else
+                            getSeriesMinMaxY(&minY, &maxY);
+
                         _axisY->setRange(minY, maxY);
 
 						for (int k = 0; k < _numOfOS * _numOfCH; ++k)
@@ -1379,6 +1393,23 @@ void    WindowNext::infoMessageBox(const QString &msg)
     msgBox.addButton(QMessageBox::Ok);
     msgBox.setWindowIcon(QIcon(":/Imgs/oqni.ico"));
     msgBox.exec();
+}
+
+void    WindowNext::getSeriesMinMaxY(unsigned int *minY, unsigned int *maxY)
+{
+    (*minY) = -1;
+    (*maxY) = 0;
+
+    for (int i = 0; i < _seriesMinY.size(); ++i)
+    {
+        if (_checkBoxChannels[i].isChecked())
+        {
+            if (_seriesMinY[i] < (*minY))
+                (*minY) = _seriesMinY[i];
+            if (_seriesMaxY[i] > (*maxY))
+                (*maxY) = _seriesMaxY[i];
+        }
+    }
 }
 
 void   WindowNext::onThreadDisplayTimerFinished(void)

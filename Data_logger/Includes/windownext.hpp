@@ -57,6 +57,7 @@ class WindowNext : public QDialog
         void                showImage(int currentSecond, QString imgPath);
         QString            	findMaxSubjectInMetadata(void);
         QString             findSubjectInMetadata(QString subject, int *subjectRow);
+        void                getSeriesMinMaxY(unsigned int *minY, unsigned int *maxY);
         
     private slots:
 		void				onThreadDisplayTimerFinished(void);
@@ -133,6 +134,8 @@ class WindowNext : public QDialog
         QValueAxis			*_axisX;
         QValueAxis			*_axisY;
         QLineSeries			*_series[2];
+        QVector<unsigned int> _seriesMinY;
+        QVector<unsigned int> _seriesMaxY;
         QGridLayout         *_gridLayoutPic;
         QGridLayout			*_gridLayout;
         QHBoxLayout			*_hBoxLayout;
