@@ -55,6 +55,7 @@ class WindowNext : public QDialog
         void                execChartDialog(void);
         void                execPicDialog(void);
         void                showImage(int currentSecond, QString imgPath);
+        QString            	findMaxSubjectInMetadata(void);
         QString             findSubjectInMetadata(QString subject, int *subjectRow);
         
     private slots:

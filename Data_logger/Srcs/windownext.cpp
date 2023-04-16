@@ -384,7 +384,7 @@ void    WindowNext::setParametersDesign(void)
     this->_recordingFolder3->setMaxLength(3);
     this->_recordingFolder3->setAlignment(Qt::AlignCenter);
     this->_recordingFolder3->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
-    this->_recordingFolder3->setText("000");
+    this->_recordingFolder3->setText(findMaxSubjectInMetadata());
     
     this->_recordingFolder4->setGeometry(438, 90, 150, 30);
     this->_recordingFolder4->setAlignment(Qt::AlignCenter);
@@ -980,6 +980,30 @@ void WindowNext::retryToSaveMetaData(QXlsx::Document &xlsx, const QString &excel
             _metaDataSavingFailMsg = "";
         }
     }
+}
+
+QString	WindowNext::findMaxSubjectInMetadata(void)
+{
+    int	max;
+    
+    max = 0;
+    if (_metaDataFilePath == "")
+        return (QString("000"));
+    QXlsx::Document xlsx(_metaDataFilePath);
+    xlsx.selectSheet("subjects");
+    int	row;
+    for(row = 2; row <= xlsx.dimension().lastRow(); ++row)
+        if (xlsx.read(row, 1).toInt() > max)
+			max = xlsx.read(row, 1).toInt();
+    if (max == 999)
+        return (QString("000"));
+    if (xlsx.read(row - 1, 2) != "unknown")
+		++max;
+    if (max < 10)
+        return ("00" + QString::number(max));
+    if (max < 100)
+        return ("0" + QString::number(max));
+	return (QString::number(max));
 }
 
 QString	WindowNext::findSubjectInMetadata(QString subject, int *subjectRow)
