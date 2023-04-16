@@ -61,6 +61,9 @@ class ThreadReader : public QThread
         char                _numOfCH;  // Number of channels following (N)
         char                _sizeOfCH; // Number of bytes in one channel data (M)
         char                _numOfOS;  // Number of connected optical sensors
+        char                _numOfAdcCH;  // Number of ADC channels following (N)
+        char                _sizeOfAdcCH; // Number of bytes in one ADC channel data (M)
+        char                _typeOfSensor; // 02 - OPT, 03 - ADC
         QByteArray          _dataRead;
         qint64              _startTime;
         QCheckBox           *_showPic;

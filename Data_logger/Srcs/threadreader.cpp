@@ -160,10 +160,13 @@ int    ThreadReader::requestPortConfig(QSerialPort &port)
 		this->stopAndClosePort(port);
         return -1;
     }
+	this->_typeOfSensor = qFromBigEndian<unsigned char>(dataRead.mid(5, 1).constData());   // 5 and 1 according to the protocol
+	this->_numOfAdcCH = qFromBigEndian<unsigned char>(dataRead.mid(6, 1).constData());   // 6 and 1 according to the protocol
+	this->_sizeOfAdcCH = qFromBigEndian<unsigned char>(dataRead.mid(7, 1).constData());   // 7 and 1 according to the protocol
 	this->_numOfOS = qFromBigEndian<unsigned char>(dataRead.mid(8, 1).constData());   // 8 and 1 according to the protocol
 	this->_numOfCH = qFromBigEndian<unsigned char>(dataRead.mid(9, 1).constData());   // 9 and 1 according to the protocol
 	this->_sizeOfCH = qFromBigEndian<unsigned char>(dataRead.mid(10, 1).constData()); // 10 and 1 according to the protocol
-    return 0;
+    return (0);
 }
 
 int    ThreadReader::requestPortStart(QSerialPort &port)
