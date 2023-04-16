@@ -614,8 +614,10 @@ void    WindowNext::setParametersDesign(void)
 				this->_axisY = nullptr;
 				for (int i = 0; i < _numOfOS * _numOfCH; ++i)
                 {
-					this->_chart->removeSeries(&_series[0][i]);
-					this->_chart->removeSeries(&_series[1][i]);
+					if (_autoScale->isChecked())
+                        this->_chart->removeSeries(&_series[0][i]);
+                    else
+                        this->_chart->removeSeries(&_series[1][i]);
                 }
 				delete [] _series[0];
 				this->_series[0] = nullptr;
