@@ -1061,6 +1061,7 @@ void    WindowNext::execChartDialog(void)
         for (int i = 0; i < _numOfOS * _numOfCH; ++i)
         {
             _chart->addSeries(&_series[0][i]);
+            _chart->addSeries(&_series[1][i]);
             if (i % _numOfCH == 0)
             {
 				_series[0][i].setColor(Qt::blue); // infraRed
@@ -1234,14 +1235,18 @@ void    WindowNext::execChartDialog(void)
 					if (this->_checkBoxChannels[i].isChecked() == true)
                     {
                         this->_checkBoxChannelsValue[i] = true;
-						_chart->addSeries(&_series[1][i]);
-						_series[1][i].attachAxis(_axisX);
-						_series[1][i].attachAxis(_axisY);
+                        if(!_chart->series().contains(&_series[1][i]))
+                        {
+                            _chart->addSeries(&_series[1][i]);
+                            _series[1][i].attachAxis(_axisX);
+                            _series[1][i].attachAxis(_axisY);
+                        }
                     }
                     else
                     {
                         _series[0][i].clear();
-						_chart->removeSeries(&_series[1][i]);
+                        if(_chart->series().contains(&_series[1][i]))
+                            _chart->removeSeries(&_series[1][i]);
                         this->_checkBoxChannelsValue[i] = false;
                     }
 				});
@@ -1266,10 +1271,14 @@ void    WindowNext::execChartDialog(void)
 				{
 					for (int i = 0; i < _numOfOS * _numOfCH; ++i)
                     {
-						_chart->removeSeries(&_series[1][i]);
-						_chart->addSeries(&_series[0][i]);
-						_series[0][i].attachAxis(_axisX);
-						_series[0][i].attachAxis(_axisY);
+                        if(_chart->series().contains(&_series[1][i]))
+                            _chart->removeSeries(&_series[1][i]);
+						if(!_chart->series().contains(&_series[0][i]))
+                        {
+                            _chart->addSeries(&_series[0][i]);
+                            _series[0][i].attachAxis(_axisX);
+                            _series[0][i].attachAxis(_axisY);
+                        }
                         _sliderHorizontal->setEnabled(true);
                     }
                 }
@@ -1277,10 +1286,14 @@ void    WindowNext::execChartDialog(void)
                 {
 					for (int i = 0; i < _numOfOS * _numOfCH; ++i)
                     {
-						_chart->removeSeries(&_series[0][i]);
-						_chart->addSeries(&_series[1][i]);
-						_series[1][i].attachAxis(_axisX);
-						_series[1][i].attachAxis(_axisY);
+						if(_chart->series().contains(&_series[0][i]))
+                            _chart->removeSeries(&_series[0][i]);
+                        if(!_chart->series().contains(&_series[1][i]))
+                        {
+                            _chart->addSeries(&_series[1][i]);
+                            _series[1][i].attachAxis(_axisX);
+                            _series[1][i].attachAxis(_axisY);
+                        }
                         _sliderHorizontal->setEnabled(false);
                     }
                 }
