@@ -619,6 +619,8 @@ void    WindowNext::setParametersDesign(void)
                 this->_chart = nullptr;
 				delete _chartView;
 				this->_chartView = nullptr;
+				delete _autoScale;
+				this->_autoScale = nullptr;
 				delete _sliderHorizontal;
 				this->_sliderHorizontal = nullptr;
                 delete _sliderHorizontalValues;
@@ -1208,16 +1210,24 @@ void    WindowNext::execChartDialog(void)
 				});
 			this->_hBoxLayout->addWidget(&_checkBoxChannels[i]); 
         }
-
-        this->_sliderHorizontalValues = new QLabel("  2        3        4        5        6         7        8        9       10", this);
+        
+#  ifdef Q_OS_MAC
+			_sliderHorizontalValues = new QLabel("  2        3        4        5        6         7        8        9       10", this);
+#  else
+			_sliderHorizontalValues = new QLabel("  2        3        4        5        6         7        8        9       10", this);
+#  endif
         _sliderHorizontalValues->setStyleSheet("font-size: 12px;");
         _sliderHorizontalValues->setFixedWidth(_sliderHorizontal->width());
         
-        this->_gridLayout->addWidget(this->_chartView, 0, 0, 1, 4);
-        this->_gridLayout->addLayout(_hBoxLayout, 1, 0, 2, 3, Qt::AlignCenter);
-        this->_gridLayout->addWidget(_sliderHorizontalValues, 1, 3, 1, 1, Qt::AlignCenter);
-        this->_gridLayout->addWidget(this->_sliderHorizontal, 2, 3, 1, 1, Qt::AlignCenter);
-        this->_chartDialog->setLayout(this->_gridLayout);
+        this->_autoScale = new QCheckBox("Autoscale");
+        this->_autoScale->setStyleSheet("font-size: 16px;");
+        
+        this->_gridLayout->addWidget(_chartView, 0, 0, 1, 5);
+        this->_gridLayout->addWidget(_autoScale, 1, 0, 1, 1, Qt::AlignLeft);
+        this->_gridLayout->addLayout(_hBoxLayout, 2, 0, 1, 3, Qt::AlignCenter);
+        this->_gridLayout->addWidget(_sliderHorizontalValues, 1, 4, 1, 1, Qt::AlignCenter);
+        this->_gridLayout->addWidget(_sliderHorizontal, 2, 4, 1, 1, Qt::AlignCenter);
+        this->_chartDialog->setLayout(_gridLayout);
 }
 
 void    WindowNext::execPicDialog(void)

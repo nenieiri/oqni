@@ -138,6 +138,7 @@ class WindowNext : public QDialog
         QHBoxLayout			*_hBoxLayout;
         QCheckBox			*_checkBoxChannels;
         bool                *_checkBoxChannelsValue;
+        QCheckBox           *_autoScale;
         QSlider             *_sliderHorizontal;
         QLabel              *_sliderHorizontalValues;
 
