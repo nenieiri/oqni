@@ -89,8 +89,7 @@ WindowNext::WindowNext(MainWindow *parent)
 	this->_chartView = nullptr;
 	this->_axisX = nullptr;
 	this->_axisY = nullptr;
-	this->_series[0] = nullptr;
-	this->_series[1] = nullptr;
+	this->_series = nullptr;
 	this->_hBoxLayout = nullptr;
 	this->_gridLayout = nullptr;
     this->_gridLayoutPic = nullptr;
@@ -613,16 +612,9 @@ void    WindowNext::setParametersDesign(void)
 				delete _axisY;
 				this->_axisY = nullptr;
 				for (int i = 0; i < _numOfOS * _numOfCH; ++i)
-                {
-					if (_autoScale->isChecked())
-                        this->_chart->removeSeries(&_series[0][i]);
-                    else
-                        this->_chart->removeSeries(&_series[1][i]);
-                }
-				delete [] _series[0];
-				this->_series[0] = nullptr;
-				delete [] _series[1];
-				this->_series[1] = nullptr;
+                    this->_chart->removeSeries(&_series[i]);
+				delete [] _series;
+				this->_series = nullptr;
 				delete this->_chart;
                 this->_chart = nullptr;
 				delete _chartView;
@@ -1056,51 +1048,31 @@ void    WindowNext::execChartDialog(void)
         _chart->setBackgroundBrush(QBrush(QColor::fromRgb(235, 255, 255)));
         _chart->legend()->hide();
         
-        _series[0] = new QLineSeries[_numOfOS * _numOfCH];
-        _series[1] = new QLineSeries[_numOfOS * _numOfCH];
+        _series = new QLineSeries[_numOfOS * _numOfCH];
         for (int i = 0; i < _numOfOS * _numOfCH; ++i)
         {
-            _chart->addSeries(&_series[0][i]);
-            _chart->addSeries(&_series[1][i]);
+            _chart->addSeries(&_series[i]);
             if (i % _numOfCH == 0)
-            {
-				_series[0][i].setColor(Qt::blue); // infraRed
-				_series[1][i].setColor(Qt::blue); // infraRed
-            }
+				_series[i].setColor(Qt::blue); // infraRed
             else if (i % _numOfCH == 1)
-            {
-				_series[0][i].setColor(Qt::red);
-				_series[1][i].setColor(Qt::red);
-            }
+				_series[i].setColor(Qt::red);
             else if (i % _numOfCH == 2)
-            {
-				_series[0][i].setColor(Qt::green);
-				_series[1][i].setColor(Qt::green);
-            }
+				_series[i].setColor(Qt::green);
             else
-            {
-				_series[0][i].setColor(Qt::gray);
-				_series[1][i].setColor(Qt::gray);
-            }
+				_series[i].setColor(Qt::gray);
         }
         
         this->_axisX = new QValueAxis();
         _axisX->setTitleText("Time (milliseconds)");
         _chart->addAxis(_axisX, Qt::AlignBottom);
         for (int i = 0; i < _numOfOS * _numOfCH; ++i)
-        {
-            _series[0][i].attachAxis(_axisX);
-            _series[1][i].attachAxis(_axisX);
-        }
+            _series[i].attachAxis(_axisX);
     
         this->_axisY = new QValueAxis();
         _axisY->setTitleText("Values");
         _chart->addAxis(_axisY, Qt::AlignLeft);
         for (int i = 0; i < _numOfOS * _numOfCH; ++i)
-        {
-            _series[0][i].attachAxis(_axisY);
-            _series[1][i].attachAxis(_axisY);
-        }
+            _series[i].attachAxis(_axisY);
         
         this->_checkBoxChannelsValue = new bool[_numOfOS * _numOfCH];
         for (int i = 0; i < _numOfOS * _numOfCH; ++i)
@@ -1136,12 +1108,11 @@ void    WindowNext::execChartDialog(void)
                     _seriesMinY[ledID] = (value < _seriesMinY[ledID]) ? value : _seriesMinY[ledID];
                     _seriesMaxY[ledID] = (value > _seriesMaxY[ledID]) ? value : _seriesMaxY[ledID];
                     
-                    _series[1][ledID].append(time, value);
                     if (_checkBoxChannelsValue[ledID] == true)
                     {
-                        _series[0][ledID].append(time, value);
-                        while (_series[0][ledID].count() > _chartDuration / 10)
-                            _series[0][ledID].remove(0);
+                        _series[ledID].append(time, value);
+                        while (_series[ledID].count() > _chartDuration / 10)
+                            _series[ledID].remove(0);
                     }
 
 					// updating axisX and axisY in interval "_chartDuration / 1000 * _chartUpdateRatio"
@@ -1151,12 +1122,12 @@ void    WindowNext::execChartDialog(void)
                         {
                             for (int i = 0; i < _numOfOS * _numOfCH; i++)
                             {
-                                for(int j = 0; j < _series[!(_autoScale->isChecked())][i].count(); j++)
+                                for(int j = 0; j < _series[i].count(); j++)
                                 {
-                                    if(_series[!(_autoScale->isChecked())][i].at(j).y() > maxY)
-                                        maxY = _series[!(_autoScale->isChecked())][i].at(j).y();
-                                    if(_series[!(_autoScale->isChecked())][i].at(j).y() < minY)
-                                        minY = _series[!(_autoScale->isChecked())][i].at(j).y();
+                                    if(_series[i].at(j).y() > maxY)
+                                        maxY = _series[i].at(j).y();
+                                    if(_series[i].at(j).y() < minY)
+                                        minY = _series[i].at(j).y();
                                 }
                             }
                         }
@@ -1167,15 +1138,12 @@ void    WindowNext::execChartDialog(void)
 
 						for (int k = 0; k < _numOfOS * _numOfCH; ++k)
 						{
-							if (_series[!(_autoScale->isChecked())][k].count() == 0)
+							if (_series[k].count() == 0)
 								continue ;
-							if (_series[!(_autoScale->isChecked())][k].at(0).x() < minX)
-								minX = _series[!(_autoScale->isChecked())][k].at(0).x();
+							if (_series[k].at(0).x() < minX)
+								minX = _series[k].at(0).x();
 						}
-                        if (_autoScale->isChecked() == true)
-							_axisX->setRange(minX, minX + _chartDuration);
-                        else
-							_axisX->setRange(0, _durationMax * 1000);
+						_axisX->setRange(minX, minX + _chartDuration);
 						_chartTimeFlag = time + _startTime;
 					}
 				}
@@ -1247,20 +1215,10 @@ void    WindowNext::execChartDialog(void)
 				[=]()
 				{
 					if (this->_checkBoxChannels[i].isChecked() == true)
-                    {
                         this->_checkBoxChannelsValue[i] = true;
-                        if(!_chart->series().contains(&_series[1][i]))
-                        {
-                            _chart->addSeries(&_series[1][i]);
-                            _series[1][i].attachAxis(_axisX);
-                            _series[1][i].attachAxis(_axisY);
-                        }
-                    }
                     else
                     {
-                        _series[0][i].clear();
-                        if(_chart->series().contains(&_series[1][i]))
-                            _chart->removeSeries(&_series[1][i]);
+                        _series[i].clear();
                         this->_checkBoxChannelsValue[i] = false;
                     }
 				});
@@ -1283,33 +1241,16 @@ void    WindowNext::execChartDialog(void)
 			{
 				if (_autoScale->isChecked() == true)
 				{
-					for (int i = 0; i < _numOfOS * _numOfCH; ++i)
-                    {
-                        if(_chart->series().contains(&_series[1][i]))
-                            _chart->removeSeries(&_series[1][i]);
-						if(!_chart->series().contains(&_series[0][i]))
-                        {
-                            _chart->addSeries(&_series[0][i]);
-                            _series[0][i].attachAxis(_axisX);
-                            _series[0][i].attachAxis(_axisY);
-                        }
-                        _sliderHorizontal->setEnabled(true);
-                    }
+                    this->_autoScale->setStyleSheet("color: black; font-size: 16px;");
+                    _sliderHorizontal->setValue(_sliderHorizontalLastValue);
+                    _sliderHorizontal->setEnabled(true);
                 }
 				else
                 {
-					for (int i = 0; i < _numOfOS * _numOfCH; ++i)
-                    {
-						if(_chart->series().contains(&_series[0][i]))
-                            _chart->removeSeries(&_series[0][i]);
-                        if(!_chart->series().contains(&_series[1][i]))
-                        {
-                            _chart->addSeries(&_series[1][i]);
-                            _series[1][i].attachAxis(_axisX);
-                            _series[1][i].attachAxis(_axisY);
-                        }
-                        _sliderHorizontal->setEnabled(false);
-                    }
+                    this->_autoScale->setStyleSheet("color: gray; font-size: 16px;");
+                    _sliderHorizontalLastValue = _sliderHorizontal->value();
+                    _sliderHorizontal->setValue(10);
+                    _sliderHorizontal->setEnabled(false);
                 }
 			});
         

@@ -133,7 +133,7 @@ class WindowNext : public QDialog
         QChartView			*_chartView;
         QValueAxis			*_axisX;
         QValueAxis			*_axisY;
-        QLineSeries			*_series[2];
+        QLineSeries			*_series;
         QVector<unsigned int> _seriesMinY;
         QVector<unsigned int> _seriesMaxY;
         QGridLayout         *_gridLayoutPic;
@@ -144,6 +144,7 @@ class WindowNext : public QDialog
         QCheckBox           *_autoScale;
         QSlider             *_sliderHorizontal;
         QLabel              *_sliderHorizontalValues;
+        int                 _sliderHorizontalLastValue;
 
         unsigned int        _chartDuration;
         unsigned int        _chartUpdateRatio;
