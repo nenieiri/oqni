@@ -27,6 +27,7 @@
 # include "threadreader.hpp"
 # include "threaddisplaytimer.hpp"
 # include "mainwindow.h"
+# include "errorlogger.hpp"
 
 class MainWindow;
 class MySlider;
