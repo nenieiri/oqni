@@ -3,6 +3,8 @@
 ThreadDisplayTimer::ThreadDisplayTimer(int durationTimerValue, QDialog *windowNext, QString &expProtocolsPath, QList<QStringList>	&expProtocol)
 			: _durationTimerValue(durationTimerValue)
 {
+    ERROR_LOGGER();
+    
     QString text;
     int     num;
     
@@ -26,17 +28,25 @@ ThreadDisplayTimer::ThreadDisplayTimer(int durationTimerValue, QDialog *windowNe
     this->_imageSecondsLabel = new QLabel("", windowNext);
     this->_expProtocolsPath = expProtocolsPath;
     this->_expProtocol = expProtocol;
+    
+    ERROR_LOGGER();
 }
 
 ThreadDisplayTimer::~ThreadDisplayTimer()
 {
+    ERROR_LOGGER();
+    
     delete _displayTimerLabel;
     delete _imageLabel;
     delete _imageSecondsLabel;
+    
+    ERROR_LOGGER();
 }
 
 void    ThreadDisplayTimer::run()
 {
+    ERROR_LOGGER();
+    
     this->_displayTimerLabel->setGeometry(220, 248, 160, 40);
     this->_displayTimerLabel->setAlignment(Qt::AlignCenter);
     this->_displayTimerLabel->setStyleSheet("font-size: 34px; color: #B22222; font-weight: bold;");
@@ -87,9 +97,12 @@ void    ThreadDisplayTimer::run()
         QThread::usleep(1000 * (1000 - (QDateTime::currentDateTime().toMSecsSinceEpoch() - start - 1000 * (this->_durationTimerValue - seconds))));
         seconds--;
     }
+    
+    ERROR_LOGGER();
 }
 
 int ThreadDisplayTimer::getCurrentImgLabel(void)
 {
+    ERROR_LOGGER();
     return this->_currentImgLabel;
 }

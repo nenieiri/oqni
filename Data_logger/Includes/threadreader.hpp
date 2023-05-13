@@ -8,6 +8,7 @@
 # include <QString>
 # include <QtEndian>
 # include <array>
+# include "errorlogger.hpp"
 
 # include "comport.hpp"
 # include "threaddisplaytimer.hpp"

@@ -7,7 +7,9 @@ WindowChart::WindowChart(MainWindow *parent, const QString &pathToFiles, \
     , _filesList(filesList) \
     , _filesCount(filesCount)
 {
-	int screenWidth = QApplication::primaryScreen()->size().width();
+	ERROR_LOGGER();
+    
+    int screenWidth = QApplication::primaryScreen()->size().width();
 	int screenHeight = QApplication::primaryScreen()->size().height();
     int windowWidth = screenWidth * 9 / 10;
     int windowHeight = screenHeight * 9 / 10;
@@ -32,7 +34,9 @@ WindowChart::WindowChart(MainWindow *parent, const QString &pathToFiles, \
     connect(this->_zoomToHomeButton, &QPushButton::clicked, this,
         [=]()
         {
-			_axisX->setRange(_timeLineMin, _timeLineMax);
+			ERROR_LOGGER();
+            
+            _axisX->setRange(_timeLineMin, _timeLineMax);
 			_axisY->setRange(_valueLineMin, _valueLineMax);
             _axisYLabel->setRange(0, _maxLabel + 1);
             _chartView->_zoomed = false;
@@ -43,6 +47,8 @@ WindowChart::WindowChart(MainWindow *parent, const QString &pathToFiles, \
             _chartView->_currentAxisYLength = _valueLineMax - _valueLineMin;
 			_verticalScrollBar->setRange(_valueLineMin, _valueLineMin);
 			_verticalScrollBar->setValue(_valueLineMin);
+            
+            ERROR_LOGGER();
     	});
     
     this->setModal(true);
@@ -61,11 +67,15 @@ WindowChart::WindowChart(MainWindow *parent, const QString &pathToFiles, \
     
     this->readFromFile();
     this->execChartDialog();
+    
+    ERROR_LOGGER();
 }
 
 WindowChart::~WindowChart()
 {
-	delete _axisX;
+	ERROR_LOGGER();
+    
+    delete _axisX;
 	delete _axisY;
 	for (int i = 0; i < _numOfCH; ++i)
         if (_chart->series().contains(&_series[i]))
@@ -80,10 +90,14 @@ WindowChart::~WindowChart()
 	delete _hBoxLayout;
 	delete _gridLayout;
 	delete _zoomToHomeButton;
+    
+    ERROR_LOGGER();
 }
 
 void    WindowChart::readFromFile(void)
 {
+    ERROR_LOGGER();
+    
     QStringList splitList;
     qint64      time;
     
@@ -124,10 +138,14 @@ void    WindowChart::readFromFile(void)
     _timeLineMax = _series[0].at(_series[0].count() - 1).x();
     delete [] files;
     delete [] ins;
+    
+    ERROR_LOGGER();
 }
 
 void    WindowChart::updateValueLineAxis(void)
 {
+    ERROR_LOGGER();
+    
     if (this->_chartView != nullptr && this->_chartView->_zoomed == true)
         return ;
     
@@ -158,10 +176,14 @@ void    WindowChart::updateValueLineAxis(void)
         this->_valueLineMax = 1;
     }
 	_axisY->setRange(_valueLineMin, _valueLineMax);
+    
+    ERROR_LOGGER();
 }
 
 void    WindowChart::execChartDialog(void)
 {
+    ERROR_LOGGER();
+    
     this->_chart = new QChart();
     
     int i = 0;
@@ -225,7 +247,9 @@ void    WindowChart::execChartDialog(void)
     connect(this->_horizontalScrollBar, &QScrollBar::valueChanged, this,
         [=](int value)
     	{
-			this->_axisX->setRange(value, value + this->_chartView->_currentAxisXLength);
+			ERROR_LOGGER();
+            this->_axisX->setRange(value, value + this->_chartView->_currentAxisXLength);
+            ERROR_LOGGER();
 		});
     
     this->_verticalScrollBar = new QScrollBar(Qt::Vertical, this);
@@ -233,7 +257,9 @@ void    WindowChart::execChartDialog(void)
     connect(this->_verticalScrollBar, &QScrollBar::valueChanged, this,
         [=](int value)
     	{
-			this->_axisY->setRange(value, value + this->_chartView->_currentAxisYLength);
+            ERROR_LOGGER();	
+            this->_axisY->setRange(value, value + this->_chartView->_currentAxisYLength);
+            ERROR_LOGGER();
 		});
 
 	this->_chartView = new MyChartView(_chart, _timeLineMin, _timeLineMax, _valueLineMin, _valueLineMax, \
@@ -304,10 +330,14 @@ void    WindowChart::execChartDialog(void)
     this->_gridLayout->addWidget(this->_zoomToHomeButton, 1, 4, 1, 1, Qt::AlignVCenter); 
     
 	this->setLayout(this->_gridLayout);
+    
+    ERROR_LOGGER();
 }
 
 QString WindowChart::staticChartTitle(const QString &selectedFile)
 {
+    ERROR_LOGGER();
+    
     QString tmp = "Unknown file";
     //the Unicode non-breaking space character (\u00A0)
     QString title = "---\u00A0\u00A0\u00A0\u00A0#---\u00A0\u00A0\u00A0\u00A0";
@@ -318,7 +348,10 @@ QString WindowChart::staticChartTitle(const QString &selectedFile)
 //    if (lastSlash == -1)
 //        lastSlash = selectedFile.lastIndexOf('\\');
     if (lastDot == -1 || lastUnderscoreLine == -1 || lastSlash == -1)
+    {
+        ERROR_LOGGER();
         return tmp;
+    }
 
     title += selectedFile.mid(lastSlash + 1, lastUnderscoreLine - lastSlash - 1) + \
             "\u00A0\u00A0\u00A0\u00A0";
@@ -348,14 +381,19 @@ QString WindowChart::staticChartTitle(const QString &selectedFile)
             title = tmp.left(lastUnderscoreLine) + "\u00A0\u00A0\u00A0\u00A0#" + \
                     tmp.mid(lastUnderscoreLine + 1) + title.mid(11);
     }
+    ERROR_LOGGER();
     return title;
 }
 
 void WindowChart::connectStaticChatCheckBox(int i)
 {
+    ERROR_LOGGER();
+    
     connect(&this->_checkBoxChannels[i], &QCheckBox::clicked, this,
         [=]()
         {
+            ERROR_LOGGER();
+            
             if (this->_checkBoxChannels[i].isChecked() == true)
             {
                 _chart->addSeries(&_series[i]);
@@ -374,4 +412,6 @@ void WindowChart::connectStaticChatCheckBox(int i)
             this->updateValueLineAxis();
             _chart->update();
         });
+    
+    ERROR_LOGGER();
 }

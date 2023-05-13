@@ -9,6 +9,8 @@
 # include <QScreen>
 # include <QDateTime>
 # include <QList>
+# include "errorlogger.hpp"
+
 
 class ThreadDisplayTimer : public QThread
 {
