@@ -536,7 +536,7 @@ void    MainWindow::buttonAboutAction()
 {
     ERROR_LOGGER();
     
-    QString about = "Data logger 1.0.0 \
+    QString about = "Data logger 2.1 \
                     <br> <br> This program was created in collaboration \
                     <br> between «Tumo Labs» and «OQNI». \
                     <br> <br>Authors: \u00A0\u00A0\u00A0\u00A0Volodya Ismailyan \
