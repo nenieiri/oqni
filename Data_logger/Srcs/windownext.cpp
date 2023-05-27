@@ -851,7 +851,6 @@ int	WindowNext::readExpProtocol(void)
 QString	WindowNext::saveDataToFile(const QString &subject)
 {
     DEBUGGER();
-    return ""; //tmp
 
     QString msg = "Recording has not been saved.";
     if (this->_saveCheckBox->isChecked() == false)
@@ -860,22 +859,23 @@ QString	WindowNext::saveDataToFile(const QString &subject)
         return msg;
     }
     
-    QFile  			*myFile = new QFile[_numOfS_OPT]; // +1 for IMU sensor
-    QTextStream		*out = new QTextStream[_numOfS_OPT]; // +1 for IMU sensor
-    char            id;
-    unsigned char   counter;
-    unsigned char   *oldCounter = new unsigned char[_numOfS_OPT];
-    QByteArray		dataRead = ""; //_threadReader->getDataRead();
-    int				totalBytes = _totalBytes_OPT;
-    int				linesCount = dataRead.size() / totalBytes;
+    const int           maxIdPlusOne = 5; // max sensor ID + 1
+    QFile               *myFile = new QFile[maxIdPlusOne];
+    QTextStream         *out = new QTextStream[maxIdPlusOne];
+    char                id;
+    unsigned char       counter;
+    unsigned char       *oldCounter = new unsigned char[maxIdPlusOne];
+    QVector<QByteArray> dataRead =_threadReader->getDataRead();
+    int                 totalBytes[maxIdPlusOne] = {0, _totalBytes_OPT, _totalBytes_OPT, 0, _totalBytes_IMU};
+    int                 numOfCH[maxIdPlusOne] = {0, _numOfCH_OPT, _numOfCH_OPT, 0, _numOfCH_IMU * 3};
+    int                 sizeOfCH[maxIdPlusOne] = {0, _sizeOfCH_OPT, _sizeOfCH_OPT, 0, _sizeOfCH_IMU};
+    bool                firstCounter[maxIdPlusOne] = {true, true, true, true, true};
     
 	this->_fullSavingPath = _selectedDirectory + "/";
     this->_fullSavingPath += _recordingFolder2->text() + "/";
     this->_fullSavingPath += _recordingFolder2->text() + "_";
     this->_fullSavingPath += subject + "_";
     this->_fullSavingPath += _threadReader->getFileCreationDate();
-	
-	const QString	fileNamePrefix = _fullSavingPath + _threadReader->getFileNamePrefix();
 	
 	this->createDirectory(_fullSavingPath);
 	if (this->_selectedDirectory == "")
@@ -887,57 +887,69 @@ QString	WindowNext::saveDataToFile(const QString &subject)
         DEBUGGER();
         return msg;
     }
-	
-    for (int i = 0; i < _numOfS_OPT; ++i)
+
+    for (int i = 1; i < maxIdPlusOne; ++i)
     {
         DEBUGGER();
-        myFile[i].setFileName(fileNamePrefix + QString::number(i + 1) + ".csv");
-		if (!myFile[i].open(QIODevice::WriteOnly | QIODevice::Text))
-		{
+        if (i == 3)
+            continue ;
+        QString	fileNamePrefix = _fullSavingPath + _threadReader->getFileNamePrefix(i);
+
+        myFile[i].setFileName(fileNamePrefix + ((i == 4) ? "" : QString::number(i)) + ".csv");
+        if (!myFile[i].open(QIODevice::WriteOnly | QIODevice::Text))
+        {
             msg = "Permission denied: failed to open file for writing.<br>" + msg;
             qDebug() << msg;
-            for (int j = 0; j < i; ++j)
+            for (int j = 1; j < i; ++j)
             {
-				myFile[j].close();
-				myFile[j].remove();
+                if (j == 3)
+                    continue ;
+                myFile[j].close();
+                myFile[j].remove();
             }
-			delete [] myFile;
-			delete [] out;
-			delete [] oldCounter;
+            delete [] myFile;
+            delete [] out;
+            delete [] oldCounter;
 
-            DEBUGGER();
             return msg;
-		}
-		out[i].setDevice(&myFile[i]);
+        }
+        out[i].setDevice(&myFile[i]);
         
         out[i] << "time_millisec";
-        for (int j = 0; j < _numOfCH_OPT; ++j)
-			out[i] << ",led" + QString::number((i + 1) * 10 + (j + 1));
+        for (int j = 1; j <= _numOfCH_OPT && (i != 4); ++j)
+            out[i] << ",led" + QString::number(i * 10 + j);
+        for (int j = 1; j <= (_numOfCH_IMU * 3) && (i == 4); ++j)
+            out[i] << ",led" + QString::number(i * 10 + j);
         out[i] << ",label\n";
-        
-        id = qFromBigEndian<unsigned char>(dataRead.mid(totalBytes * i + _bytesPA, _bytesID).constData());
-        oldCounter[id - 1] = qFromBigEndian<unsigned char>(dataRead.mid(totalBytes * i + _bytesPA + _bytesID, _bytesCO).constData()) - 1;
     }
-    DEBUGGER();
-    for (int i = 0; i < linesCount; ++i)
+
+    for (auto &data : dataRead)
     {
-        DEBUGGER();
-        id = qFromBigEndian<unsigned char>(dataRead.mid((i * totalBytes) + _bytesPA, _bytesID).constData());
-        counter = qFromBigEndian<unsigned char>(dataRead.mid((i * totalBytes) + _bytesPA + _bytesID, _bytesCO).constData());
-        for (int k = 0; k < counter - oldCounter[id - 1] - 1; ++k) // in case if data missed
-            out[id - 1] << "-\n";
-        DEBUGGER();
-        out[id - 1] << qFromLittleEndian<qint64>(dataRead.mid(totalBytes * i + (totalBytes - 8 - 1), 8).constData()) - _startTime;
-        out[id - 1] << ",";
-        DEBUGGER();
-        for (int j = 0; j < _numOfCH_OPT; ++j)
-            out[id - 1] << qFromLittleEndian<unsigned int>(dataRead.mid(totalBytes * i + _bytesPA + _bytesID + _bytesCO + j * _sizeOfCH_OPT, _sizeOfCH_OPT).constData()) << ",";
-        DEBUGGER();
-        out[id - 1] << qFromLittleEndian<unsigned char>(dataRead.mid(totalBytes * i + (totalBytes - 1), 1).constData()) << "\n";
-        oldCounter[id - 1] = counter;
+        id = qFromBigEndian<unsigned char>(data.mid(_bytesPA, _bytesID).constData());
+
+        counter = qFromBigEndian<unsigned char>(data.mid(_bytesPA + _bytesID, _bytesCO).constData());
+        if (firstCounter[id] == false)
+        {
+            for (int k = 0; k < counter - oldCounter[id] - 1; ++k) // in case if data missed
+               out[id] << "-\n";
+        }
+        else
+            firstCounter[id] = true;
+        oldCounter[id] = counter;
+
+        out[id] << qFromLittleEndian<qint64>(data.mid(totalBytes[id], 8).constData()) - _startTime;
+        out[id] << ",";
+        for (int j = 0; j < numOfCH[id]; ++j)
+        {
+            if (id != 4)
+                out[id] << qFromLittleEndian<unsigned int>(data.mid(_bytesPA + _bytesID + _bytesCO + j * sizeOfCH[id], sizeOfCH[id]).constData()) << ",";
+            else
+                out[id] << qFromLittleEndian<int>(data.mid(_bytesPA + _bytesID + _bytesCO + j * sizeOfCH[id], sizeOfCH[id]).constData()) << ",";
+        }
+        out[id] << qFromLittleEndian<unsigned char>(data.mid((totalBytes[id] + 8), 1).constData()) << "\n";
     }
-    DEBUGGER();
-    for (int i = 0; i < _numOfS_OPT; ++i)
+
+    for (int i = 0; i < maxIdPlusOne; ++i)
 		myFile[i].close();
     delete [] myFile;
     delete [] out;
@@ -948,8 +960,10 @@ QString	WindowNext::saveDataToFile(const QString &subject)
     else
         msg = "<b>Regular</b> file created.<br>";
 
+    QString	fileNamePrefix = _fullSavingPath + _threadReader->getFileNamePrefix(1);
+    int tmpLength = fileNamePrefix.length() - fileNamePrefix.indexOf("/Recordings");
     msg += "Recording has been saved to: <br>\u00A0\u00A0\u00A0\u00A0" + \
-        fileNamePrefix.right(fileNamePrefix.length() - fileNamePrefix.indexOf("/Recordings")) + "[*].csv";
+        fileNamePrefix.right(tmpLength).left(tmpLength - 3) + "[*].csv";
 
     if (subject == "000")
         msg += "<br><br>metadata.xlsx <b> has not been updated</b>.<br>";
@@ -1415,7 +1429,7 @@ void    WindowNext::execChartDialog(void)
 #  ifdef Q_OS_MAC
 			_sliderHorizontalValues = new QLabel("  2        3        4        5        6         7        8        9       10", this);
 #  else
-    _sliderHorizontalValues = new QLabel(" 2         3        4        5        6         7        8        9       10", this);
+    _sliderHorizontalValues = new QLabel(" 2         3         4        5          6         7        8        9       10", this);
 #  endif
     _sliderHorizontalValues->setStyleSheet("font-size: 12px;");
     _sliderHorizontalValues->setFixedWidth(_sliderHorizontal->width());

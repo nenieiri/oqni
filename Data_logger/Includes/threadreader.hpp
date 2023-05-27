@@ -24,7 +24,7 @@ class ThreadReader : public QThread
 
     public:
 		void				run() override;
-        const QString		&getFileNamePrefix() const;
+        const QString		getFileNamePrefix(int id) const;
         const QString		&getFileCreationDate() const;
         const QString		&getFileCreationTime() const;
         const char          getBytesPA() const;

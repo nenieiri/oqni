@@ -10,7 +10,7 @@ ThreadReader::ThreadReader(int durationTimerValue, ComPort *comPort, ThreadDispl
     
     this->_fileCreationDate = QDateTime::currentDateTime().toString("yyMMdd");
     this->_fileCreationTime = QDateTime::currentDateTime().toString("hhmmss");
-    this->_fileNamePrefix += "/" + _fileCreationDate + "_" + _fileCreationTime + "_OPT";
+    this->_fileNamePrefix += "/" + _fileCreationDate + "_" + _fileCreationTime;
     this->_threadDisplayTimer = threadDisplayTimer;
     this->_bytesPA = 4;  // Preamble bytes
     this->_bytesID = 1;  // ID bytes
@@ -26,10 +26,10 @@ ThreadReader::~ThreadReader()
     DEBUGGER();
 }
 
-const QString	&ThreadReader::getFileNamePrefix() const
+const QString	ThreadReader::getFileNamePrefix(int id) const
 {
     DEBUGGER();
-    return (this->_fileNamePrefix);
+    return (id == 4 ? _fileNamePrefix + "_IMU" : _fileNamePrefix + "_OPT");
 }
 
 const QString	&ThreadReader::getFileCreationDate() const
