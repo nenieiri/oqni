@@ -865,7 +865,7 @@ QString	WindowNext::saveDataToFile(const QString &subject)
     char            id;
     unsigned char   counter;
     unsigned char   *oldCounter = new unsigned char[_numOfS_OPT];
-    QByteArray		dataRead = _threadReader->getDataRead();
+    QByteArray		dataRead = ""; //_threadReader->getDataRead();
     int				totalBytes = _totalBytes_OPT;
     int				linesCount = dataRead.size() / totalBytes;
     

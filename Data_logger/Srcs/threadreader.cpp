@@ -110,7 +110,7 @@ const char	ThreadReader::getSizeOfCH_IMU() const
     return (this->_sizeOfCH_IMU);
 }
 
-QByteArray	&ThreadReader::getDataRead()
+QVector<QByteArray>	&ThreadReader::getDataRead()
 {
     DEBUGGER();
     return (this->_dataRead);
@@ -160,7 +160,8 @@ void    ThreadReader::run()
     bytesTotal_IMU = bytesTillData + _numOfS_IMU * _numOfCH_IMU * _sizeOfCH_IMU;
     emit protocolConfigDataIsReady();
 
-//    _dataRead.reserve()
+    // reserve capacity for 2 OPT and 1 IMU sensors by sample rate, +10% - for security reason
+    _dataRead.reserve(_durationTimerValue * (_sampleRate_OPT * 2 + _sampleRate_IMU * 1) * 1.1);
 
     while (!isInterruptionRequested())
     {
@@ -198,7 +199,10 @@ void    ThreadReader::run()
         {
             if (port.size() >= bytesTotal)
             {
-                _dataRead += prefixData + port.read(restOfBytes);
+                currentTime = QDateTime::currentDateTime().toMSecsSinceEpoch();
+                QByteArray currentTimeBytes = QByteArray::fromRawData(reinterpret_cast<const char*>(&currentTime), sizeof(qint64));
+                QByteArray labelBytes = QByteArray::number(_showPic->isChecked() ? this->_threadDisplayTimer->getCurrentImgLabel() : 0); // when _showPic checkbox is not checked, label = 0
+                _dataRead.push_back(prefixData + port.read(restOfBytes) + currentTimeBytes + labelBytes);
                 break ;
             }
         }
@@ -207,11 +211,7 @@ void    ThreadReader::run()
             qDebug() << "TimeOut while reading data.";
             break ;
         }
-
-        currentTime = QDateTime::currentDateTime().toMSecsSinceEpoch();
-        _dataRead.append(QByteArray::fromRawData(reinterpret_cast<const char*>(&currentTime), sizeof(qint64)));
-        _dataRead.append(_showPic->isChecked() ? this->_threadDisplayTimer->getCurrentImgLabel() : 0); // when _showPic checkbox is not checked, label = 0
-        emit lastRowOfData(_dataRead.right(bytesTotal + 8 + 1)); // 8 - sizeof time; 1 - sizeof label
+        emit lastRowOfData(_dataRead.back());
     }
     this->stopAndClosePort(port);
     

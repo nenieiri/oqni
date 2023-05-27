@@ -40,8 +40,8 @@ class ThreadReader : public QThread
         const char          getNumOfS_OPT() const;
         const char          getNumOfS_IMU() const;
 
-        QByteArray			&getDataRead();
-        qint64				getStartTime() const;
+        QVector<QByteArray>		&getDataRead();
+        qint64                  getStartTime() const;
         
     signals:
         void				lastRowOfData(QByteArray data);
@@ -72,8 +72,7 @@ class ThreadReader : public QThread
         char                _sizeOfCH_OPT; // Number of bytes in one OPT channel data (M)
         char                _sizeOfCH_IMU; // Number of bytes in one IMU channel data (M)
 
-//        QVector<QByteArray> _dataRead;
-        QByteArray          _dataRead;
+        QVector<QByteArray> _dataRead;
         qint64              _startTime;
         QCheckBox           *_showPic;
 };

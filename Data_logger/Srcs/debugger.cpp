@@ -2,5 +2,5 @@
 
 void errorLogger(const char* fileName, int lineNumber, const char* functionName)
 {
-    qDebug() << "File: " << fileName << " | Line: " << lineNumber << " | Functiin: " << functionName;
+//    qDebug() << "File: " << fileName << " | Line: " << lineNumber << " | Functiin: " << functionName;
 }
