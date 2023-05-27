@@ -1,9 +1,10 @@
 #include "windownext.hpp"
+#include "debugger.hpp"
 
 WindowNext::WindowNext(MainWindow *parent)
     : QDialog(parent)
 {
-    ERROR_LOGGER();
+    DEBUGGER();
 
     QScreen     *screen = QApplication::primaryScreen();
     QSize       screenSize = screen->size();
@@ -50,7 +51,7 @@ WindowNext::WindowNext(MainWindow *parent)
         int ret = msgBox.exec();
         if (ret == QMessageBox::Cancel)
         {
-            ERROR_LOGGER();
+            DEBUGGER();
             throw	-1;
         }
     }
@@ -116,12 +117,12 @@ WindowNext::WindowNext(MainWindow *parent)
 
     this->setParametersDesign();
 
-    ERROR_LOGGER();
+    DEBUGGER();
 }
 
 WindowNext::~WindowNext()
 {
-    ERROR_LOGGER();
+    DEBUGGER();
 
     delete _buttonBrowse;
     delete _buttonClose;
@@ -151,26 +152,26 @@ WindowNext::~WindowNext()
     delete _showPic;
     delete _saveCheckBox;
 
-    ERROR_LOGGER();
+    DEBUGGER();
 }
 
 void    WindowNext::closeEvent(QCloseEvent *event)
 {
-    ERROR_LOGGER();
+    DEBUGGER();
 
     if (_closeEventFlag == true)
         event->accept();
     else
         event->ignore();
 
-    ERROR_LOGGER();
+    DEBUGGER();
 }
 
 /* -------------------------------- Setters --------------------------------- */
 
 void    WindowNext::setButtonStart(QPushButton *buttonStart)
 {
-    ERROR_LOGGER();
+    DEBUGGER();
 
     this->_buttonStart = buttonStart;
     if (this->_durationTimerValue == 0)
@@ -181,11 +182,11 @@ void    WindowNext::setButtonStart(QPushButton *buttonStart)
     connect(this->_buttonStart, &QPushButton::clicked, this,
 		[=](void)
         {
-            ERROR_LOGGER();
+            DEBUGGER();
 
             if (this->_durationTimerValue == 0)
             {
-                ERROR_LOGGER();
+                DEBUGGER();
                 return ;
             }
             
@@ -194,7 +195,7 @@ void    WindowNext::setButtonStart(QPushButton *buttonStart)
                 if (_metaDataSavingFailMsg == "cancel")
                 {
                     _metaDataSavingFailMsg = "";
-                    ERROR_LOGGER();
+                    DEBUGGER();
                     return;
                 };
             }
@@ -232,7 +233,7 @@ void    WindowNext::setButtonStart(QPushButton *buttonStart)
 			this->_closeEventFlag = false;
             
             this->_threadDisplayTimer = new ThreadDisplayTimer(this->_durationTimerValue, this, this->_expProtocolsPath, this->_expProtocol); // this thread starts in TreadReader thread
-            this->_threadReader = new ThreadReader(_selectedComPort, _threadDisplayTimer, _showPic);
+            this->_threadReader = new ThreadReader(_durationTimerValue, _selectedComPort, _threadDisplayTimer, _showPic);
             this->_threadReader->start();
             
             this->_labelIsOk = _showPic->isChecked() ? true : false; 
@@ -242,19 +243,24 @@ void    WindowNext::setButtonStart(QPushButton *buttonStart)
             connect(_threadReader, &ThreadReader::protocolConfigDataIsReady, this,
             	[=](void)
                 {
-                    ERROR_LOGGER();
+                    DEBUGGER();
 
-                    this->_bytesPA = _threadReader->getBytesPA();
-                    this->_bytesID = _threadReader->getBytesID();
-                    this->_bytesCO = _threadReader->getBytesCO();
-                    this->_bytesCH = _threadReader->getBytesCH();
-                    this->_bytesOCH = _threadReader->getBytesOCH();
-                    this->_numOfCH = _threadReader->getNumOfCH();
-                    this->_sizeOfCH = _threadReader->getSizeOfCH();
-                    this->_numOfOS = _threadReader->getNumOfOS();
+                    this->_bytesPA = _threadReader->getBytesPA(); // ok
+                    this->_bytesID = _threadReader->getBytesID(); // ok
+                    this->_bytesCO = _threadReader->getBytesCO(); // ok
+                    this->_numOfS_OPT = _threadReader->getNumOfS_OPT(); // ok
+                    this->_numOfS_OPT = _threadReader->getNumOfS_IMU(); // ok
+
+                    this->_sampleRate_OPT = _threadReader->getSampleRate_OPT(); // ok
+                    this->_sampleRate_IMU = _threadReader->getSampleRate_IMU(); // ok
+                    this->_numOfCH_OPT = _threadReader->getNumOfCH_OPT(); // ok
+                    this->_numOfCH_IMU = _threadReader->getNumOfCH_IMU(); // ok
+                    this->_sizeOfCH_OPT = _threadReader->getSizeOfCH_OPT(); //ok
+                    this->_sizeOfCH_IMU = _threadReader->getSizeOfCH_IMU(); //ok
+
                     this->_startTime = _threadReader->getStartTime();
-                    this->_totalBytes = _bytesPA + _bytesID + _bytesCO + _bytesCH + _bytesOCH + \
-                        _numOfCH * _sizeOfCH + 8 + 1; // 8 - sizeof time; 1 - sizeof label
+                    this->_totalBytes_OPT = _bytesPA + _bytesID + _bytesCO + _numOfCH_OPT * _sizeOfCH_OPT + 8 + 1; // 8 - sizeof time; 1 - sizeof label
+                    this->_totalBytes_IMU = _bytesPA + _bytesID + _bytesCO + _numOfCH_IMU * _sizeOfCH_IMU + 8 + 1; // 8 - sizeof time; 1 - sizeof label
 					
 					if (this->_showChart->isChecked() == true) // starting thread for drawing chart
 					{
@@ -262,12 +268,12 @@ void    WindowNext::setButtonStart(QPushButton *buttonStart)
 						connect(this->_chartDialog, &QDialog::rejected, this, 
 							[=]()
                             {
-                                ERROR_LOGGER();
+                                DEBUGGER();
 
                                 this->_chartDialog = nullptr;
 								this->_showChart->setChecked(false);
 
-                                ERROR_LOGGER();
+                                DEBUGGER();
 							});
 						this->execChartDialog();
 					}
@@ -277,12 +283,12 @@ void    WindowNext::setButtonStart(QPushButton *buttonStart)
 						connect(this->_picDialog, &QDialog::rejected, this, 
 							[=]()
                             {
-                                ERROR_LOGGER();
+                                DEBUGGER();
 
                                 this->_picDialog = nullptr;
 								this->_showPic->setChecked(false);
 
-                                ERROR_LOGGER();
+                                DEBUGGER();
 							});
 						this->execPicDialog();
 					}
@@ -292,7 +298,7 @@ void    WindowNext::setButtonStart(QPushButton *buttonStart)
 
 void		WindowNext::setButtonStop(QPushButton *buttonStop)
 {
-    ERROR_LOGGER();
+    DEBUGGER();
 
     this->_buttonStop = buttonStop;
     this->_buttonStop->setEnabled(false);
@@ -300,7 +306,7 @@ void		WindowNext::setButtonStop(QPushButton *buttonStop)
     connect(this->_buttonStop, &QPushButton::clicked, this,
 		[=](void)
         {
-            ERROR_LOGGER();
+            DEBUGGER();
 
             QString msg;
             _metaDataSavingFailMsg = "<br><b>REASON:</b> the session was terminated (stopped).";
@@ -356,41 +362,41 @@ void		WindowNext::setButtonStop(QPushButton *buttonStop)
             this->infoMessageBox(msg);
             this->_metaDataSavingFailMsg = "";
 
-            ERROR_LOGGER();
+            DEBUGGER();
 		});
 
-    ERROR_LOGGER();
+    DEBUGGER();
 }
 
 void		WindowNext::setButtonClose(QPushButton *buttonClose)
 {
-    ERROR_LOGGER();
+    DEBUGGER();
 
     this->_buttonClose = buttonClose;
     connect(this->_buttonClose, &QPushButton::clicked, this,
         [=](void)
         {
-            ERROR_LOGGER();
+            DEBUGGER();
 
             this->_closeEventFlag = true;
             this->close();
             this->_closeEventFlag = true;
 
-            ERROR_LOGGER();
+            DEBUGGER();
         });
 
-    ERROR_LOGGER();
+    DEBUGGER();
 }
 
 void		WindowNext::setButtonBrowse(QPushButton *buttonBrowse)
 {
-    ERROR_LOGGER();
+    DEBUGGER();
 
     this->_buttonBrowse = buttonBrowse;
     connect(this->_buttonBrowse, &QPushButton::clicked, this,
         [=](void)
         {
-            ERROR_LOGGER();
+            DEBUGGER();
 
             QFileDialog dialog;
 			QString     selectedDirectoryTmp;
@@ -405,17 +411,17 @@ void		WindowNext::setButtonBrowse(QPushButton *buttonBrowse)
                 this->_showSelectedDir2->setToolTip(selectedDirectoryTmp);
             }
 
-            ERROR_LOGGER();
+            DEBUGGER();
         });
 
-    ERROR_LOGGER();
+    DEBUGGER();
 }
 
 /* ---------------------------- Member functions ---------------------------- */
 
 void    WindowNext::setParametersDesign(void)
 {
-    ERROR_LOGGER();
+    DEBUGGER();
 
     this->_showReadingPort1->setGeometry(10, 10, 100, 30);
     this->_showReadingPort1->setStyleSheet("font-size: 18px;");
@@ -502,7 +508,7 @@ void    WindowNext::setParametersDesign(void)
     connect(this->_lineEdit, &QLineEdit::textChanged, this,
         [=](void)
         {
-            ERROR_LOGGER();
+            DEBUGGER();
 
             this->_durationTimerValue = 0;
 			this->_buttonStart->setEnabled(false);
@@ -551,14 +557,14 @@ void    WindowNext::setParametersDesign(void)
                 }
             }
 
-            ERROR_LOGGER();
+            DEBUGGER();
         });
     
     /* --- If the SaveTo (Browse) lineEdit text changed --- */
     connect(this->_showSelectedDir2, &QLineEdit::textChanged, this,
         [=](void)
         {
-            ERROR_LOGGER();
+            DEBUGGER();
 
             if (this->_showSelectedDir2->text().length() == 0)
             {
@@ -572,14 +578,14 @@ void    WindowNext::setParametersDesign(void)
             }
             this->_selectedDirectory = this->_showSelectedDir2->text();
 
-            ERROR_LOGGER();
+            DEBUGGER();
         });
 
     /* --- When recordingFolder2 text changed --- */
     connect(this->_recordingFolder2, &QLineEdit::textChanged, this,
         [=](void)
         {
-            ERROR_LOGGER();
+            DEBUGGER();
 
             if (this->_recordingFolder2->text().length() == 0)
             {
@@ -592,14 +598,14 @@ void    WindowNext::setParametersDesign(void)
                 this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_BUTTON);
             }
 
-            ERROR_LOGGER();
+            DEBUGGER();
     	});
 
     /* --- When recordingFolder3 text changed --- */
     connect(this->_recordingFolder3, &QLineEdit::textChanged, this,
         [=](void)
         {
-            ERROR_LOGGER();
+            DEBUGGER();
 
             if (this->_recordingFolder3->text().length() == 0)
             {
@@ -615,14 +621,14 @@ void    WindowNext::setParametersDesign(void)
                 this->_recordingFolder4->setToolTip(_recordingFolder4->text());
             }
 
-            ERROR_LOGGER();
+            DEBUGGER();
     	});
 
     /* --- When recordingFolder4 text changed --- */
     connect(this->_recordingFolder4, &QLineEdit::textChanged, this,
         [=](void)
         {
-            ERROR_LOGGER();
+            DEBUGGER();
 
             if (this->_recordingFolder4->text().length() == 0)
             {
@@ -636,14 +642,14 @@ void    WindowNext::setParametersDesign(void)
                 this->_recordingFolder4->setToolTip(_recordingFolder4->text());
             }
 
-            ERROR_LOGGER();
+            DEBUGGER();
         });
     
     /* --- When _placement2 value changed --- */
     connect(this->_placement2, &QComboBox::currentTextChanged, this,
         [=](void)
         {
-            ERROR_LOGGER();
+            DEBUGGER();
             this->_placement2->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT2);
         });
 
@@ -651,7 +657,7 @@ void    WindowNext::setParametersDesign(void)
     connect(this->_placement4, &QComboBox::currentTextChanged, this,
         [=](void)
         {
-            ERROR_LOGGER();
+            DEBUGGER();
             this->_placement4->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT2);
         });
 
@@ -659,30 +665,30 @@ void    WindowNext::setParametersDesign(void)
     connect(this->_protocol2, &QComboBox::currentTextChanged, this,
         [=](void)
         {
-            ERROR_LOGGER();
+            DEBUGGER();
 
             this->readExpProtocol();
 			this->_lineEdit->setText(QString::number(this->_durationMax));
             this->_protocol2->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT2);
 
-            ERROR_LOGGER();
+            DEBUGGER();
     	});
 
     /* --- When _protocol4 value changed --- */
     connect(this->_protocol4, &QComboBox::currentTextChanged, this,
         [=](void)
         {
-            ERROR_LOGGER();
+            DEBUGGER();
             this->_protocol4->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT2);
         });
     connect(this->_showChart, &QCheckBox::stateChanged, this,
         [=](void)
         {
-            ERROR_LOGGER();
+            DEBUGGER();
 
             if (this->_buttonStart->isEnabled() == true)
             {
-                ERROR_LOGGER();
+                DEBUGGER();
                 return ;
             }
             if (this->_showChart->isChecked() == true)
@@ -702,7 +708,7 @@ void    WindowNext::setParametersDesign(void)
 				this->_axisX = nullptr;
 				delete _axisY;
 				this->_axisY = nullptr;
-				for (int i = 0; i < _numOfOS * _numOfCH; ++i)
+                for (int i = 0; i < _numOfS_OPT * _numOfCH_OPT; ++i)
                     this->_chart->removeSeries(&_series[i]);
 				delete [] _series;
 				this->_series = nullptr;
@@ -731,18 +737,19 @@ void    WindowNext::setParametersDesign(void)
                 disconnect(this->_threadReader, &ThreadReader::lastRowOfData, this, nullptr);
             }
 
-            ERROR_LOGGER();
+            DEBUGGER();
         });
     connect(this->_showPic, &QCheckBox::stateChanged, this,
         [=](void)
         {
-            ERROR_LOGGER();
+            DEBUGGER();
 
             if (this->_buttonStart->isEnabled() == true)
             {
-                ERROR_LOGGER();
+                DEBUGGER();
                 return ;
             }
+            DEBUGGER();
             if (this->_showPic->isChecked() == true)
             {
                 this->_picDialog = new QDialog(this);
@@ -756,6 +763,7 @@ void    WindowNext::setParametersDesign(void)
             }
             else
             {
+                DEBUGGER();
                 delete this->_displayTimerPic;
                 this->_displayTimerPic = nullptr;
                 delete this->_imageLabel;
@@ -773,13 +781,13 @@ void    WindowNext::setParametersDesign(void)
                 this->_labelIsOk = false; // save the file in "000" directory because it will have "labes" with a 0 value
             }
 
-            ERROR_LOGGER();
+            DEBUGGER();
         });
 }
 
 void    WindowNext::createDirectory(const QString &path)
 {
-    ERROR_LOGGER();
+    DEBUGGER();
 
     QDir dir(path);
     
@@ -787,12 +795,12 @@ void    WindowNext::createDirectory(const QString &path)
         if(!dir.mkpath(path))
             this->_selectedDirectory = "";
 
-    ERROR_LOGGER();
+    DEBUGGER();
 }
 
 QStringList *WindowNext::findExpProtocols(const QString &path)
 {
-    ERROR_LOGGER();
+    DEBUGGER();
 
     QStringList     *items = new QStringList();
     QDir            directory(path);
@@ -804,13 +812,13 @@ QStringList *WindowNext::findExpProtocols(const QString &path)
         if (fileInfo.isFile())
             items->append(fileInfo.fileName().left(fileInfo.fileName().length() - 4));
 
-    ERROR_LOGGER();
+    DEBUGGER();
     return items;
 }
 
 int	WindowNext::readExpProtocol(void)
 {
-    ERROR_LOGGER();
+    DEBUGGER();
 
     QString	protocol = this->_expProtocolsPath + "/";
     protocol += this->_protocol2->currentText() + ".csv";
@@ -819,7 +827,7 @@ int	WindowNext::readExpProtocol(void)
     QFile file(protocol);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
     {
-        ERROR_LOGGER();
+        DEBUGGER();
         return 1;
     }
     QTextStream in(&file);
@@ -836,29 +844,29 @@ int	WindowNext::readExpProtocol(void)
     this->_expProtocol.pop_front();
     this->_durationTimerValue = this->_durationMax;
 
-    ERROR_LOGGER();
+    DEBUGGER();
     return 0;
 }
 
 QString	WindowNext::saveDataToFile(const QString &subject)
 {
-    ERROR_LOGGER();
+    DEBUGGER();
+    return ""; //tmp
 
     QString msg = "Recording has not been saved.";
     if (this->_saveCheckBox->isChecked() == false)
     {
-        ERROR_LOGGER();
+        DEBUGGER();
         return msg;
     }
     
-    QFile  			*myFile = new QFile[_numOfOS];
-	QTextStream		*out = new QTextStream[_numOfOS];
+    QFile  			*myFile = new QFile[_numOfS_OPT]; // +1 for IMU sensor
+    QTextStream		*out = new QTextStream[_numOfS_OPT]; // +1 for IMU sensor
     char            id;
     unsigned char   counter;
-    unsigned char   *oldCounter = new unsigned char[_numOfOS];
+    unsigned char   *oldCounter = new unsigned char[_numOfS_OPT];
     QByteArray		dataRead = _threadReader->getDataRead();
-    int				totalBytes = _bytesPA + _bytesID + _bytesCO + _bytesCH + _bytesOCH + _numOfCH * _sizeOfCH +
-                                8 + 1; // 8 - sizeof time; 1 - sizeof label
+    int				totalBytes = _totalBytes_OPT;
     int				linesCount = dataRead.size() / totalBytes;
     
 	this->_fullSavingPath = _selectedDirectory + "/";
@@ -876,17 +884,18 @@ QString	WindowNext::saveDataToFile(const QString &subject)
 		delete [] out;
         delete [] oldCounter;
 
-        ERROR_LOGGER();
+        DEBUGGER();
         return msg;
     }
 	
-    for (int i = 0; i < _numOfOS; ++i)
+    for (int i = 0; i < _numOfS_OPT; ++i)
     {
-		myFile[i].setFileName(fileNamePrefix + QString::number(i + 1) + ".csv");
+        DEBUGGER();
+        myFile[i].setFileName(fileNamePrefix + QString::number(i + 1) + ".csv");
 		if (!myFile[i].open(QIODevice::WriteOnly | QIODevice::Text))
 		{
             msg = "Permission denied: failed to open file for writing.<br>" + msg;
-//            qDebug() << msg;
+            qDebug() << msg;
             for (int j = 0; j < i; ++j)
             {
 				myFile[j].close();
@@ -896,36 +905,39 @@ QString	WindowNext::saveDataToFile(const QString &subject)
 			delete [] out;
 			delete [] oldCounter;
 
-            ERROR_LOGGER();
+            DEBUGGER();
             return msg;
 		}
 		out[i].setDevice(&myFile[i]);
         
         out[i] << "time_millisec";
-		for (int j = 0; j < _numOfCH; ++j)
+        for (int j = 0; j < _numOfCH_OPT; ++j)
 			out[i] << ",led" + QString::number((i + 1) * 10 + (j + 1));
         out[i] << ",label\n";
         
-		id = qFromBigEndian<unsigned char>(dataRead.mid(totalBytes * i + _bytesPA, _bytesID).constData());
-		oldCounter[id - 1] = qFromBigEndian<unsigned char>(dataRead.mid(totalBytes * i + _bytesPA + _bytesID, _bytesCO).constData()) - 1;
+        id = qFromBigEndian<unsigned char>(dataRead.mid(totalBytes * i + _bytesPA, _bytesID).constData());
+        oldCounter[id - 1] = qFromBigEndian<unsigned char>(dataRead.mid(totalBytes * i + _bytesPA + _bytesID, _bytesCO).constData()) - 1;
     }
-    
+    DEBUGGER();
     for (int i = 0; i < linesCount; ++i)
     {
+        DEBUGGER();
         id = qFromBigEndian<unsigned char>(dataRead.mid((i * totalBytes) + _bytesPA, _bytesID).constData());
-		counter = qFromBigEndian<unsigned char>(dataRead.mid((i * totalBytes) + _bytesPA + _bytesID, _bytesCO).constData());
+        counter = qFromBigEndian<unsigned char>(dataRead.mid((i * totalBytes) + _bytesPA + _bytesID, _bytesCO).constData());
         for (int k = 0; k < counter - oldCounter[id - 1] - 1; ++k) // in case if data missed
             out[id - 1] << "-\n";
+        DEBUGGER();
         out[id - 1] << qFromLittleEndian<qint64>(dataRead.mid(totalBytes * i + (totalBytes - 8 - 1), 8).constData()) - _startTime;
         out[id - 1] << ",";
-        for (int j = 0; j < _numOfCH; ++j)
-			out[id - 1] << qFromLittleEndian<unsigned int>(dataRead.mid(totalBytes * i + _bytesPA + _bytesID + _bytesCO + \
-                                                            _bytesCH + _bytesOCH + j * _sizeOfCH, _sizeOfCH).constData()) << ",";
+        DEBUGGER();
+        for (int j = 0; j < _numOfCH_OPT; ++j)
+            out[id - 1] << qFromLittleEndian<unsigned int>(dataRead.mid(totalBytes * i + _bytesPA + _bytesID + _bytesCO + j * _sizeOfCH_OPT, _sizeOfCH_OPT).constData()) << ",";
+        DEBUGGER();
         out[id - 1] << qFromLittleEndian<unsigned char>(dataRead.mid(totalBytes * i + (totalBytes - 1), 1).constData()) << "\n";
         oldCounter[id - 1] = counter;
     }
-    
-    for (int i = 0; i < _numOfOS; ++i)
+    DEBUGGER();
+    for (int i = 0; i < _numOfS_OPT; ++i)
 		myFile[i].close();
     delete [] myFile;
     delete [] out;
@@ -944,13 +956,13 @@ QString	WindowNext::saveDataToFile(const QString &subject)
     else
         msg += "<br><br>metadata.xlsx <b> has been updated </b> (see sheet \"DB\").<br>";
 
-    ERROR_LOGGER();
+    DEBUGGER();
     return msg;
 }
 
 bool	WindowNext::saveMetaData(const QString &excelSheet, const QString &subject)
 {
-    ERROR_LOGGER();
+    DEBUGGER();
 
     QString		cell;
     int     	row;
@@ -959,7 +971,7 @@ bool	WindowNext::saveMetaData(const QString &excelSheet, const QString &subject)
     if (_saveCheckBox->isChecked() == false)
     {
         _metaDataSavingFailMsg = "<br><b>REASON:</b> the save checkbox was not checked.";
-        ERROR_LOGGER();
+        DEBUGGER();
         return true;
     }
     if (_metaDataFilePath == "")
@@ -971,13 +983,13 @@ bool	WindowNext::saveMetaData(const QString &excelSheet, const QString &subject)
         else
             _metaDataSavingFailMsg = "";
 
-        ERROR_LOGGER();
+        DEBUGGER();
         return true;
     }
     if (subject == "000")
     {
         _metaDataSavingFailMsg = "<br><b>REASON:</b> the subject was 000.";
-        ERROR_LOGGER();
+        DEBUGGER();
         return true;
     }
     
@@ -1005,7 +1017,7 @@ bool	WindowNext::saveMetaData(const QString &excelSheet, const QString &subject)
         if (xlsx.save() == false)
             this->retryToSaveMetaData(xlsx, excelSheet);
 
-        ERROR_LOGGER();
+        DEBUGGER();
         return true;
     }
 
@@ -1016,7 +1028,7 @@ bool	WindowNext::saveMetaData(const QString &excelSheet, const QString &subject)
 
         if (subject == "000" || (subjectName != "unknown" && subjectName == _recordingFolder4->text()))
         {
-            ERROR_LOGGER();
+            DEBUGGER();
             return true;
         }
         if (subjectName == "unknown" || !subjectRow)
@@ -1033,7 +1045,7 @@ bool	WindowNext::saveMetaData(const QString &excelSheet, const QString &subject)
             if (xlsx.save() == false)
                 this->retryToSaveMetaData(xlsx, excelSheet);
 
-            ERROR_LOGGER();
+            DEBUGGER();
             return true;
         }
 
@@ -1063,24 +1075,24 @@ bool	WindowNext::saveMetaData(const QString &excelSheet, const QString &subject)
             if (xlsx.save() == false)
                 this->retryToSaveMetaData(xlsx, excelSheet);
 
-            ERROR_LOGGER();
+            DEBUGGER();
             return true;
         }
         if (ret == QMessageBox::Cancel)
         {
             _metaDataSavingFailMsg = "cancel";
-            ERROR_LOGGER();
+            DEBUGGER();
             return false;
         }
     }
 
-    ERROR_LOGGER();
+    DEBUGGER();
     return true;
 }
 
 void WindowNext::retryToSaveMetaData(QXlsx::Document &xlsx, const QString &excelSheet)
 {
-    ERROR_LOGGER();
+    DEBUGGER();
 
     QString msg = "<br><br> This may be the result of: \
                 <br> \u00A0\u00A0\u00A0\u00A0 - The file does not exist or is open. \
@@ -1127,12 +1139,12 @@ void WindowNext::retryToSaveMetaData(QXlsx::Document &xlsx, const QString &excel
         }
     }
 
-    ERROR_LOGGER();
+    DEBUGGER();
 }
 
 QString	WindowNext::findMaxSubjectInMetadata(void)
 {
-    ERROR_LOGGER();
+    DEBUGGER();
 
     int	max = 0;
     if (_metaDataFilePath == "")
@@ -1145,29 +1157,29 @@ QString	WindowNext::findMaxSubjectInMetadata(void)
 			max = xlsx.read(row, 1).toInt();
     if (max == 999)
     {
-        ERROR_LOGGER();
+        DEBUGGER();
         return (QString("000"));
     }
     if (xlsx.read(row - 1, 2) != "unknown")
 		++max;
     if (max < 10)
     {
-        ERROR_LOGGER();
+        DEBUGGER();
         return ("00" + QString::number(max));
     }
     if (max < 100)
     {
-        ERROR_LOGGER();
+        DEBUGGER();
         return ("0" + QString::number(max));
     }
 
-    ERROR_LOGGER();
+    DEBUGGER();
 	return (QString::number(max));
 }
 
 QString	WindowNext::findSubjectInMetadata(QString subject, int *subjectRow)
 {
-    ERROR_LOGGER();
+    DEBUGGER();
 
     QString unknown = "unknown";
     
@@ -1175,7 +1187,7 @@ QString	WindowNext::findSubjectInMetadata(QString subject, int *subjectRow)
         (*subjectRow) = 0;
     if (_metaDataFilePath == "")
     {
-        ERROR_LOGGER();
+        DEBUGGER();
         return unknown;
     }
     QXlsx::Document xlsx(_metaDataFilePath);
@@ -1187,18 +1199,18 @@ QString	WindowNext::findSubjectInMetadata(QString subject, int *subjectRow)
             if (subjectRow)
                 (*subjectRow) = row;
 
-            ERROR_LOGGER();
+            DEBUGGER();
             return xlsx.read(row, 2).toString();
         }
     }
 
-    ERROR_LOGGER();
+    DEBUGGER();
     return unknown;
 }
 
 void    WindowNext::execChartDialog(void)
 {
-    ERROR_LOGGER();
+    DEBUGGER();
 
     int screenWidth = QApplication::primaryScreen()->size().width();
     int screenHeight = QApplication::primaryScreen()->size().height();
@@ -1216,51 +1228,51 @@ void    WindowNext::execChartDialog(void)
     _chart->setBackgroundBrush(QBrush(QColor::fromRgb(235, 255, 255)));
     _chart->legend()->hide();
 
-    _series = new QLineSeries[_numOfOS * _numOfCH];
-    for (int i = 0; i < _numOfOS * _numOfCH; ++i)
+    _series = new QLineSeries[_numOfS_OPT * _numOfCH_OPT];
+    for (int i = 0; i < _numOfS_OPT * _numOfCH_OPT; ++i)
     {
         _chart->addSeries(&_series[i]);
-        if (i % _numOfCH == 0)
+        if (i % _numOfCH_OPT == 0)
             _series[i].setColor(Qt::blue); // infraRed
-        else if (i % _numOfCH == 1)
+        else if (i % _numOfCH_OPT == 1)
             _series[i].setColor(Qt::red);
-        else if (i % _numOfCH == 2)
+        else if (i % _numOfCH_OPT == 2)
             _series[i].setColor(Qt::green);
-        else
-            _series[i].setColor(Qt::gray);
     }
 
     this->_axisX = new QValueAxis();
     _axisX->setTitleText("Time (milliseconds)");
     _chart->addAxis(_axisX, Qt::AlignBottom);
-    for (int i = 0; i < _numOfOS * _numOfCH; ++i)
+    for (int i = 0; i < _numOfS_OPT * _numOfCH_OPT; ++i)
         _series[i].attachAxis(_axisX);
 
     this->_axisY = new QValueAxis();
     _axisY->setTitleText("Values");
     _chart->addAxis(_axisY, Qt::AlignLeft);
-    for (int i = 0; i < _numOfOS * _numOfCH; ++i)
+    for (int i = 0; i < _numOfS_OPT * _numOfCH_OPT; ++i)
         _series[i].attachAxis(_axisY);
 
-    this->_checkBoxChannelsValue = new bool[_numOfOS * _numOfCH];
-    for (int i = 0; i < _numOfOS * _numOfCH; ++i)
+    this->_checkBoxChannelsValue = new bool[_numOfS_OPT * _numOfCH_OPT];
+    for (int i = 0; i < _numOfS_OPT * _numOfCH_OPT; ++i)
         this->_checkBoxChannelsValue[i] = true;
 
     this->_chartTimeFlag = 0;
 
-    _seriesMinY.resize(_numOfOS * _numOfCH);
-    _seriesMaxY.resize(_numOfOS * _numOfCH);
+    _seriesMinY.resize(_numOfS_OPT * _numOfCH_OPT);
+    _seriesMaxY.resize(_numOfS_OPT * _numOfCH_OPT);
     _seriesMinY.fill(-1);
     _seriesMaxY.fill(0);
 
     connect(this->_threadReader, &ThreadReader::lastRowOfData, this,
         [=](QByteArray data)
         {
-            ERROR_LOGGER();
+//            qDebug() << "data:" << data.toHex();
+
+            DEBUGGER();
 
             if (_chartDialog == nullptr)
             {
-                ERROR_LOGGER();
+                DEBUGGER();
                 return;
             }
 
@@ -1269,13 +1281,13 @@ void    WindowNext::execChartDialog(void)
             unsigned int    minY = -1;
             unsigned int    maxY = 0;
             char            id = qFromBigEndian<unsigned char>(data.mid(_bytesPA, _bytesID).constData());
-            qint64          time = qFromLittleEndian<qint64>(data.mid(_totalBytes - 8 - 1, 8).constData()) - _startTime;
+            qint64          time = qFromLittleEndian<qint64>(data.mid(_totalBytes_OPT - 8 - 1, 8).constData()) - _startTime;
             qint64          minX = time;
 
-            for (int j = 0; j < _numOfCH; ++j)
+            for (int j = 0; (id == 1 || id == 2) && j < _numOfCH_OPT; ++j) // (id == 1 || id == 2) ==> to omit IMU
             {
-                value = qFromLittleEndian<unsigned int>(data.mid(_bytesPA + _bytesID + _bytesCO + _bytesCH + \
-                                                        _bytesOCH + j * _sizeOfCH, _sizeOfCH).constData());
+//                qDebug() << "id:" << (int)id;
+                value = qFromLittleEndian<unsigned int>(data.mid(_bytesPA + _bytesID + _bytesCO + j * _sizeOfCH_OPT, _sizeOfCH_OPT).constData());
                 ledID = j + id * id - 1;
 
                 _seriesMinY[ledID] = (value < _seriesMinY[ledID]) ? value : _seriesMinY[ledID];
@@ -1293,7 +1305,7 @@ void    WindowNext::execChartDialog(void)
                 {
                     if (_autoScale->isChecked() == true)
                     {
-                        for (int i = 0; i < _numOfOS * _numOfCH; i++)
+                        for (int i = 0; i < _numOfS_OPT * _numOfCH_OPT; i++)
                         {
                             for(int j = 0; j < _series[i].count(); j++)
                             {
@@ -1309,7 +1321,7 @@ void    WindowNext::execChartDialog(void)
 
                     _axisY->setRange(minY, maxY);
 
-                    for (int k = 0; k < _numOfOS * _numOfCH; ++k)
+                    for (int k = 0; k < _numOfS_OPT * _numOfCH_OPT; ++k)
                     {
                         if (_series[k].count() == 0)
                             continue ;
@@ -1321,7 +1333,7 @@ void    WindowNext::execChartDialog(void)
                 }
             }
 
-            ERROR_LOGGER();
+            DEBUGGER();
         });
 
     this->_chartView = new QChartView(_chart);
@@ -1349,48 +1361,43 @@ void    WindowNext::execChartDialog(void)
     connect(this->_sliderHorizontal, &QSlider::valueChanged, this,
         [=]()
         {
-            ERROR_LOGGER();
+            DEBUGGER();
             this->_chartDuration = this->_sliderHorizontal->value() * 1000;
         });
 
     this->_gridLayout = new QGridLayout;
 
     this->_hBoxLayout = new QHBoxLayout;
-    this->_checkBoxChannels = new QCheckBox[_numOfOS * _numOfCH];
+    this->_checkBoxChannels = new QCheckBox[_numOfS_OPT * _numOfCH_OPT];
     int j = -1;
     int n = 1;
-    for (int i = 0; i < _numOfOS * _numOfCH; ++i)
+    for (int i = 0; i < _numOfS_OPT * _numOfCH_OPT; ++i)
     {
-        if (++j >= _numOfCH)
+        if (++j >= _numOfCH_OPT)
         {
             j = 0;
             n++;
         }
-        if (i % _numOfCH == 0)
+        if (i % _numOfCH_OPT == 0)
         {
-            this->_checkBoxChannels[i].setText("Infrared" + QString::number(n) + ((i == _numOfCH - 1) ? "                " : "  "));
+            this->_checkBoxChannels[i].setText("Infrared" + QString::number(n) + ((i == _numOfCH_OPT - 1) ? "                " : "  "));
             this->_checkBoxChannels[i].setStyleSheet("color: blue; font-size: 16px;");
         }
-        else if (i % _numOfCH == 1)
+        else if (i % _numOfCH_OPT == 1)
         {
-            this->_checkBoxChannels[i].setText("Red" + QString::number(n) + ((i == _numOfCH - 1) ? "                " : "  "));
+            this->_checkBoxChannels[i].setText("Red" + QString::number(n) + ((i == _numOfCH_OPT - 1) ? "                " : "  "));
             this->_checkBoxChannels[i].setStyleSheet("color: red; font-size: 16px;");
         }
-        else if (i % _numOfCH == 2)
+        else if (i % _numOfCH_OPT == 2)
         {
-            this->_checkBoxChannels[i].setText("Green" + QString::number(n) + ((i == _numOfCH - 1) ? "                " : "  "));
+            this->_checkBoxChannels[i].setText("Green" + QString::number(n) + ((i == _numOfCH_OPT - 1) ? "                " : "  "));
             this->_checkBoxChannels[i].setStyleSheet("color: green; font-size: 16px;");
         }
-        else
-        {
-            this->_checkBoxChannels[i].setText("Other" + QString::number(n) + ((i == _numOfCH - 1) ? "                " : "  "));
-            this->_checkBoxChannels[i].setStyleSheet("color: gray; font-size: 16px;");
-        }
-            this->_checkBoxChannels[i].setChecked(true);
+        this->_checkBoxChannels[i].setChecked(true);
         connect(&this->_checkBoxChannels[i], &QCheckBox::clicked, this,
             [=]()
             {
-                ERROR_LOGGER();
+                DEBUGGER();
 
                 if (this->_checkBoxChannels[i].isChecked() == true)
                     this->_checkBoxChannelsValue[i] = true;
@@ -1400,7 +1407,7 @@ void    WindowNext::execChartDialog(void)
                     this->_checkBoxChannelsValue[i] = false;
                 }
 
-                ERROR_LOGGER();
+                DEBUGGER();
             });
         this->_hBoxLayout->addWidget(&_checkBoxChannels[i]);
     }
@@ -1408,7 +1415,7 @@ void    WindowNext::execChartDialog(void)
 #  ifdef Q_OS_MAC
 			_sliderHorizontalValues = new QLabel("  2        3        4        5        6         7        8        9       10", this);
 #  else
-    _sliderHorizontalValues = new QLabel("  2        3        4        5        6         7        8        9       10", this);
+    _sliderHorizontalValues = new QLabel(" 2         3        4        5        6         7        8        9       10", this);
 #  endif
     _sliderHorizontalValues->setStyleSheet("font-size: 12px;");
     _sliderHorizontalValues->setFixedWidth(_sliderHorizontal->width());
@@ -1419,7 +1426,7 @@ void    WindowNext::execChartDialog(void)
     connect(this->_autoScale, &QCheckBox::clicked, this,
         [=]()
         {
-            ERROR_LOGGER();
+            DEBUGGER();
 
             if (_autoScale->isChecked() == true)
             {
@@ -1435,7 +1442,7 @@ void    WindowNext::execChartDialog(void)
                 _sliderHorizontal->setEnabled(false);
             }
 
-            ERROR_LOGGER();
+            DEBUGGER();
         });
 
     this->_gridLayout->addWidget(_chartView, 0, 0, 1, 5);
@@ -1448,7 +1455,7 @@ void    WindowNext::execChartDialog(void)
 
 void    WindowNext::execPicDialog(void)
 {
-    ERROR_LOGGER();
+    DEBUGGER();
 
     int screenWidth = QApplication::primaryScreen()->size().width();
     int screenHeight = QApplication::primaryScreen()->size().height();
@@ -1471,7 +1478,7 @@ void    WindowNext::execPicDialog(void)
     connect(this->_threadDisplayTimer, &ThreadDisplayTimer::displayTimerText, this,
         [=](QString text)
         {
-            ERROR_LOGGER();
+            DEBUGGER();
             _displayTimerPic->setText(text);
         });
     
@@ -1483,16 +1490,16 @@ void    WindowNext::execPicDialog(void)
     connect(this->_threadDisplayTimer, &ThreadDisplayTimer::currentSecondAndImgPath, this,
         [=](int currentSecond, QString imgPath)
         {
-            ERROR_LOGGER();
+            DEBUGGER();
             this->showImage(currentSecond, imgPath);
         });
 
-    ERROR_LOGGER();
+    DEBUGGER();
 }
 
 void    WindowNext::showImage(int currentSecond, QString imgPath)
 {
-    ERROR_LOGGER();
+    DEBUGGER();
 
     QPixmap pixmap(imgPath);
 
@@ -1516,12 +1523,12 @@ void    WindowNext::showImage(int currentSecond, QString imgPath)
     this->_imageLabel->setPixmap(scaledPixmap);
     this->_imageSecondsLabel->setText(imageSeconds);
 
-    ERROR_LOGGER();
+    DEBUGGER();
 }
 
 void    WindowNext::infoMessageBox(const QString &msg)
 {
-    ERROR_LOGGER();
+    DEBUGGER();
 
     QMessageBox msgBox;
     msgBox.setWindowTitle(tr("Information"));
@@ -1531,12 +1538,12 @@ void    WindowNext::infoMessageBox(const QString &msg)
     msgBox.setWindowIcon(QIcon(":/Imgs/oqni.ico"));
     msgBox.exec();
 
-    ERROR_LOGGER();
+    DEBUGGER();
 }
 
 void    WindowNext::getSeriesMinMaxY(unsigned int *minY, unsigned int *maxY)
 {
-    ERROR_LOGGER();
+    DEBUGGER();
 
     (*minY) = -1;
     (*maxY) = 0;
@@ -1552,12 +1559,12 @@ void    WindowNext::getSeriesMinMaxY(unsigned int *minY, unsigned int *maxY)
         }
     }
 
-    ERROR_LOGGER();
+    DEBUGGER();
 }
 
 void   WindowNext::onThreadDisplayTimerFinished(void)
 {
-    ERROR_LOGGER();
+    DEBUGGER();
 
     QString msg;
     if (_durationMax == _durationTimerValue && this->_labelIsOk == true)
@@ -1632,5 +1639,5 @@ void   WindowNext::onThreadDisplayTimerFinished(void)
     this->infoMessageBox(msg);
     this->_metaDataSavingFailMsg = "";
 
-    ERROR_LOGGER();
+    DEBUGGER();
 }

@@ -1,10 +1,11 @@
 #include "comport.hpp"
+#include "debugger.hpp"
 
 ComPort::ComPort(const QSerialPortInfo &port, QGroupBox *groupbox) : \
                 _port(port), \
                 _portName(port.portName()), \
-                _baudRate(QSerialPort::Baud1200), \
-                _dataBits(QSerialPort::Data5), \
+                _baudRate(QSerialPort::Baud115200), \
+                _dataBits(QSerialPort::Data8), \
                 _parity(QSerialPort::NoParity), \
                 _stopBits(QSerialPort::OneStop), \
                 _flowControl(QSerialPort::NoFlowControl), \
@@ -14,7 +15,7 @@ ComPort::ComPort(const QSerialPortInfo &port, QGroupBox *groupbox) : \
                 _stopBitsIndex(0), \
                 _flowControlIndex(0) \
 {
-    ERROR_LOGGER();
+    DEBUGGER();
     
     this->_radioButton = new QRadioButton(this->_portName, groupbox); //delete
 
@@ -26,43 +27,43 @@ ComPort::ComPort(const QSerialPortInfo &port, QGroupBox *groupbox) : \
    	this->_toolButton->setStyleSheet("QToolButton { border: 0px; } \
 									  QToolButton:hover { border-radius: 5px; border: 1px solid red; background: yellow;} \
 									  QToolTip { font-size: 14pt; border: 0px; }");
-    ERROR_LOGGER();
+    DEBUGGER();
 }
 
 ComPort::~ComPort()
 {
-    ERROR_LOGGER();
+    DEBUGGER();
 
     delete this->_radioButton;
     delete this->_toolButton;
 
-    ERROR_LOGGER();
+    DEBUGGER();
 }
 
 void	ComPort::setBaudRate(const QString &rate, QStringList &items)
 {
     
-    ERROR_LOGGER();
+    DEBUGGER();
 
     _baudRateIndex = items.indexOf(rate);
     _baudRate = (QSerialPort::BaudRate)rate.toUInt();
 
-    ERROR_LOGGER();
+    DEBUGGER();
 }
 
 void	ComPort::setDataBits(const QString &bits, QStringList &items)
 {
-    ERROR_LOGGER();
+    DEBUGGER();
 
     _dataBitsIndex = items.indexOf(bits);
     _dataBits = (QSerialPort::DataBits)bits.toUInt();
 
-    ERROR_LOGGER();
+    DEBUGGER();
 }
 
 void	ComPort::setParity(const QString &parity, QStringList &items)
 {
-    ERROR_LOGGER();
+    DEBUGGER();
     
     _parityIndex = items.indexOf(parity);
     if (_parityIndex)
@@ -70,12 +71,12 @@ void	ComPort::setParity(const QString &parity, QStringList &items)
     _parity = (QSerialPort::Parity)_parityIndex;
     _parityIndex = items.indexOf(parity);
     
-    ERROR_LOGGER();
+    DEBUGGER();
 }
 
 void	ComPort::setStopBits(const QString &bits, QStringList &items)
 {
-    ERROR_LOGGER();
+    DEBUGGER();
 
     _stopBitsIndex = items.indexOf(bits) + 1;
     if (_stopBitsIndex == 2)
@@ -85,15 +86,15 @@ void	ComPort::setStopBits(const QString &bits, QStringList &items)
     _stopBits = static_cast<QSerialPort::StopBits>(_stopBitsIndex);
     _stopBitsIndex = items.indexOf(bits);
 
-    ERROR_LOGGER();
+    DEBUGGER();
 }
 
 void	ComPort::setFlowControl(const QString &flowcontrol, QStringList &items)
 {
-    ERROR_LOGGER();
+    DEBUGGER();
 
     _flowControlIndex = items.indexOf(flowcontrol);
     _flowControl = (QSerialPort::FlowControl)_flowControlIndex;
 
-    ERROR_LOGGER();
+    DEBUGGER();
 }

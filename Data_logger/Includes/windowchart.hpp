@@ -10,7 +10,6 @@
 # include <QChartView>
 # include <QPointF>
 # include "mainwindow.h"
-# include "errorlogger.hpp"
 
 class	MainWindow;
 class	MyChartView;

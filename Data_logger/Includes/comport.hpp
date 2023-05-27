@@ -12,7 +12,6 @@
 # include <QSerialPortInfo>
 # include <QStringList>
 # include <QToolButton>
-# include "errorlogger.hpp"
 
 class	ComPort
 {

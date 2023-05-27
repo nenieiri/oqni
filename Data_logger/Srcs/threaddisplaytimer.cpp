@@ -1,9 +1,10 @@
 #include "threaddisplaytimer.hpp"
+#include "debugger.hpp"
 
 ThreadDisplayTimer::ThreadDisplayTimer(int durationTimerValue, QDialog *windowNext, QString &expProtocolsPath, QList<QStringList>	&expProtocol)
 			: _durationTimerValue(durationTimerValue)
 {
-    ERROR_LOGGER();
+    DEBUGGER();
     
     QString text;
     int     num;
@@ -29,23 +30,23 @@ ThreadDisplayTimer::ThreadDisplayTimer(int durationTimerValue, QDialog *windowNe
     this->_expProtocolsPath = expProtocolsPath;
     this->_expProtocol = expProtocol;
     
-    ERROR_LOGGER();
+    DEBUGGER();
 }
 
 ThreadDisplayTimer::~ThreadDisplayTimer()
 {
-    ERROR_LOGGER();
+    DEBUGGER();
     
     delete _displayTimerLabel;
     delete _imageLabel;
     delete _imageSecondsLabel;
     
-    ERROR_LOGGER();
+    DEBUGGER();
 }
 
 void    ThreadDisplayTimer::run()
 {
-    ERROR_LOGGER();
+    DEBUGGER();
     
     this->_displayTimerLabel->setGeometry(220, 248, 160, 40);
     this->_displayTimerLabel->setAlignment(Qt::AlignCenter);
@@ -98,11 +99,11 @@ void    ThreadDisplayTimer::run()
         seconds--;
     }
     
-    ERROR_LOGGER();
+    DEBUGGER();
 }
 
 int ThreadDisplayTimer::getCurrentImgLabel(void)
 {
-    ERROR_LOGGER();
+    DEBUGGER();
     return this->_currentImgLabel;
 }

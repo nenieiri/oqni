@@ -27,7 +27,6 @@
 # include "threadreader.hpp"
 # include "threaddisplaytimer.hpp"
 # include "mainwindow.h"
-# include "errorlogger.hpp"
 
 class MainWindow;
 class MySlider;
@@ -117,16 +116,22 @@ class WindowNext : public QDialog
         bool                _closeEventFlag;
         bool                _labelIsOk;
 
-        char                _bytesPA;  // Preamble bytes
-        char                _bytesID;  // ID bytes
-        char                _bytesCO;  // Counter bytes
-        char                _bytesCH;  // Channels bytes
-        char                _bytesOCH; // Channels numbers bytes
-        char                _numOfCH;  // Number of channels following (N)
-        char                _sizeOfCH; // Number of bytes in one channel data (M)
-        char                _numOfOS;  // Number of connected optical sensors
+        char                _bytesPA;  // ok Preamble bytes
+        char                _bytesID;  // ok ID bytes
+        char                _bytesCO;  // ok Counter bytes
+        char                _numOfS_OPT;  // ok Number of connected OPT sensors
+        char                _numOfS_IMU;  // ok Number of connected IMU sensors
+
+        short               _sampleRate_OPT; // ok Sample Rate for OPT sensors
+        short               _sampleRate_IMU; // ok Sample Rate for IMU sensors
+        char                _numOfCH_OPT;  // ok Number of OPT channels (N)
+        char                _numOfCH_IMU;  // ok Number of IMU channels (N)
+        char                _sizeOfCH_OPT; // ok Number of bytes in one OPT channel data (M)
+        char                _sizeOfCH_IMU; // ok Number of bytes in one OPT channel data (M)
+
         qint64              _startTime;
-        int					_totalBytes;
+        int					_totalBytes_OPT;
+        int					_totalBytes_IMU;
 
         QDialog				*_picDialog;
         QDialog				*_chartDialog;

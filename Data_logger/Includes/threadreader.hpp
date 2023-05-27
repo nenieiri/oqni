@@ -8,7 +8,6 @@
 # include <QString>
 # include <QtEndian>
 # include <array>
-# include "errorlogger.hpp"
 
 # include "comport.hpp"
 # include "threaddisplaytimer.hpp"
@@ -20,7 +19,7 @@ class ThreadReader : public QThread
 	Q_OBJECT
     
 	public:
-        ThreadReader(ComPort *comPort, ThreadDisplayTimer *threadDisplayTimer, QCheckBox *showPic);
+        ThreadReader(int durationTimerValue, ComPort *comPort, ThreadDisplayTimer *threadDisplayTimer, QCheckBox *showPic);
 		~ThreadReader();
 
     public:
@@ -31,11 +30,16 @@ class ThreadReader : public QThread
         const char          getBytesPA() const;
         const char          getBytesID() const;
         const char          getBytesCO() const;
-        const char          getBytesCH() const;
-        const char          getBytesOCH() const;
-        const char          getNumOfCH() const;
-        const char          getSizeOfCH() const;
-        const char          getNumOfOS() const;
+
+        const short         getSampleRate_OPT() const;
+        const short         getSampleRate_IMU() const;
+        const char          getNumOfCH_OPT() const;
+        const char          getNumOfCH_IMU() const;
+        const char          getSizeOfCH_OPT() const;
+        const char          getSizeOfCH_IMU() const;
+        const char          getNumOfS_OPT() const;
+        const char          getNumOfS_IMU() const;
+
         QByteArray			&getDataRead();
         qint64				getStartTime() const;
         
@@ -45,26 +49,30 @@ class ThreadReader : public QThread
         
     private:
         void				stopAndClosePort(QSerialPort &port);
-        int					requestPortConfig(QSerialPort &port);
-        int					requestPortStart(QSerialPort &port);
+        bool				requestPortConfigAndStart(QSerialPort &port);
     
     private:
+        int                 _durationTimerValue;
 		ComPort             *_comPort;
         QString 	        _fileCreationDate;
         QString 	        _fileCreationTime;
         QString 	        _fileNamePrefix;
         ThreadDisplayTimer  *_threadDisplayTimer;
+
         char                _bytesPA;  // Preamble bytes
         char                _bytesID;  // ID bytes
         char                _bytesCO;  // Counter bytes
-        char                _bytesCH;  // Channels bytes
-        char                _bytesOCH; // One channel bytes
-        char                _numOfCH;  // Number of channels following (N)
-        char                _sizeOfCH; // Number of bytes in one channel data (M)
-        char                _numOfOS;  // Number of connected optical sensors
-        char                _numOfAdcCH;  // Number of ADC channels following (N)
-        char                _sizeOfAdcCH; // Number of bytes in one ADC channel data (M)
-        char                _typeOfSensor; // 02 - OPT, 03 - ADC
+        char                _numOfS_OPT;  // Number of connected OPT sensors
+        char                _numOfS_IMU;  // Number of connected IMU sensors
+
+        short               _sampleRate_OPT; // Sample Rate for OPT sensors
+        short               _sampleRate_IMU; // Sample Rate for IMU sensors
+        char                _numOfCH_OPT; // Number of OTP channels (N)
+        char                _numOfCH_IMU; // Number of IMU channels (N)
+        char                _sizeOfCH_OPT; // Number of bytes in one OPT channel data (M)
+        char                _sizeOfCH_IMU; // Number of bytes in one IMU channel data (M)
+
+//        QVector<QByteArray> _dataRead;
         QByteArray          _dataRead;
         qint64              _startTime;
         QCheckBox           *_showPic;

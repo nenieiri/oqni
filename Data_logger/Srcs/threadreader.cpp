@@ -1,10 +1,12 @@
 #include "threadreader.hpp"
+#include "debugger.hpp"
 
-ThreadReader::ThreadReader(ComPort *comPort, ThreadDisplayTimer *threadDisplayTimer, QCheckBox *showPic)
+ThreadReader::ThreadReader(int durationTimerValue, ComPort *comPort, ThreadDisplayTimer *threadDisplayTimer, QCheckBox *showPic)
 			: _comPort(comPort) \
-            , _showPic(showPic)
+            , _showPic(showPic) \
+            , _durationTimerValue(durationTimerValue)
 {
-    ERROR_LOGGER();
+    DEBUGGER();
     
     this->_fileCreationDate = QDateTime::currentDateTime().toString("yyMMdd");
     this->_fileCreationTime = QDateTime::currentDateTime().toString("hhmmss");
@@ -13,102 +15,125 @@ ThreadReader::ThreadReader(ComPort *comPort, ThreadDisplayTimer *threadDisplayTi
     this->_bytesPA = 4;  // Preamble bytes
     this->_bytesID = 1;  // ID bytes
     this->_bytesCO = 1;  // Counter bytes
-    this->_bytesCH = 1;  // Channels bytes
-    this->_bytesOCH = 1; // Channels numbers bytes
+    this->_numOfS_OPT = 2; // Number of OPT sensors
+    this->_numOfS_IMU = 3; // Number of IMU sensors
     
-    ERROR_LOGGER();
+    DEBUGGER();
 }
 
 ThreadReader::~ThreadReader()
 {
-    ERROR_LOGGER();
+    DEBUGGER();
 }
 
 const QString	&ThreadReader::getFileNamePrefix() const
 {
-    ERROR_LOGGER();
+    DEBUGGER();
     return (this->_fileNamePrefix);
 }
 
 const QString	&ThreadReader::getFileCreationDate() const
 {
-    ERROR_LOGGER();
+    DEBUGGER();
     return (this->_fileCreationDate);
 }
 
 const QString	&ThreadReader::getFileCreationTime() const
 {
-    ERROR_LOGGER();
+    DEBUGGER();
     return (this->_fileCreationTime);
 }
 
 const char	ThreadReader::getBytesPA() const
 {
-    ERROR_LOGGER();
+    DEBUGGER();
     return (this->_bytesPA);
 }
 
 const char	ThreadReader::getBytesID() const
 {
-    ERROR_LOGGER();
+    DEBUGGER();
     return (this->_bytesID);
 }
 
 const char	ThreadReader::getBytesCO() const
 {
-    ERROR_LOGGER();
+    DEBUGGER();
     return (this->_bytesCO);
 }
 
-const char	ThreadReader::getBytesCH() const
+const char	ThreadReader::getNumOfS_OPT() const
 {
-    ERROR_LOGGER();
-    return (this->_bytesCH);
+    DEBUGGER();
+    return (this->_numOfS_OPT);
 }
 
-const char	ThreadReader::getBytesOCH() const
+const char	ThreadReader::getNumOfS_IMU() const
 {
-    ERROR_LOGGER();
-    return (this->_bytesOCH);
+    DEBUGGER();
+    return (this->_numOfS_IMU);
 }
 
-const char	ThreadReader::getNumOfCH() const
+const short ThreadReader::getSampleRate_OPT() const
 {
-    ERROR_LOGGER();
-    return (this->_numOfCH);
+    DEBUGGER();
+    return (this->_sampleRate_OPT);
 }
 
-const char	ThreadReader::getSizeOfCH() const
+const short ThreadReader::getSampleRate_IMU() const
 {
-    ERROR_LOGGER();
-    return (this->_sizeOfCH);
+    DEBUGGER();
+    return (this->_sampleRate_IMU);
 }
 
-const char	ThreadReader::getNumOfOS() const
+const char	ThreadReader::getNumOfCH_OPT() const
 {
-    ERROR_LOGGER();
-    return (this->_numOfOS);
+    DEBUGGER();
+    return (this->_numOfCH_OPT);
+}
+
+const char	ThreadReader::getNumOfCH_IMU() const
+{
+    DEBUGGER();
+    return (this->_numOfCH_IMU);
+}
+
+const char	ThreadReader::getSizeOfCH_OPT() const
+{
+    DEBUGGER();
+    return (this->_sizeOfCH_OPT);
+}
+
+const char	ThreadReader::getSizeOfCH_IMU() const
+{
+    DEBUGGER();
+    return (this->_sizeOfCH_IMU);
 }
 
 QByteArray	&ThreadReader::getDataRead()
 {
-    ERROR_LOGGER();
+    DEBUGGER();
     return (this->_dataRead);
 }
 
 qint64	ThreadReader::getStartTime() const
 {
-    ERROR_LOGGER();
+    DEBUGGER();
     return (this->_startTime);
 }
 
 void    ThreadReader::run()
 {
-    ERROR_LOGGER();
+    DEBUGGER();
     
     QSerialPort port;
+    QByteArray  prefixData;
     int			bytesTillData;
+    int			bytesTotal_OPT;
+    int			bytesTotal_IMU;
     int			bytesTotal;
+    int			restOfBytes;
+    int         breakCondition;
     qint64      currentTime;
 
     port.setPort(_comPort->getPort());
@@ -121,45 +146,81 @@ void    ThreadReader::run()
     if (!port.open(QIODevice::ReadWrite))
     {
         qDebug() << "Faild to open serial port!";
-        ERROR_LOGGER();
+        DEBUGGER();
         return ;
     }
-    if (requestPortConfig(port) == -1)
+    if (requestPortConfigAndStart(port) == false)
     {
-        ERROR_LOGGER();
-        return ;
-    }
-    if (requestPortStart(port) == -1)
-    {
-        ERROR_LOGGER();
+        DEBUGGER();
         return ;
     }
     
-    bytesTillData = _bytesPA + _bytesID + _bytesCO + _bytesCH + _bytesOCH;
-    bytesTotal = bytesTillData + _numOfCH * _sizeOfCH;
+    bytesTillData = _bytesPA + _bytesID + _bytesCO;
+    bytesTotal_OPT = bytesTillData + _numOfCH_OPT * _sizeOfCH_OPT;
+    bytesTotal_IMU = bytesTillData + _numOfS_IMU * _numOfCH_IMU * _sizeOfCH_IMU;
     emit protocolConfigDataIsReady();
+
+//    _dataRead.reserve()
 
     while (!isInterruptionRequested())
     {
-        if (port.waitForReadyRead(MY_READY_READ_TIME))
+        // checking which ID was received
+        breakCondition = 5;
+        while (--breakCondition && port.waitForReadyRead(MY_READY_READ_TIME))
         {
-            _dataRead.append(port.read(bytesTotal));
-            currentTime = QDateTime::currentDateTime().toMSecsSinceEpoch();
-            _dataRead.append(QByteArray::fromRawData(reinterpret_cast<const char*>(&currentTime), sizeof(qint64)));
-            _dataRead.append(_showPic->isChecked() ? this->_threadDisplayTimer->getCurrentImgLabel() : 0); // when _showPic checkbox is not checked, label = 0
-            emit lastRowOfData(_dataRead.right(bytesTotal + 8 + 1)); // 8 - sizeof time; 1 - sizeof label
+            if (port.size() >= _bytesPA + _bytesID)
+            {
+                prefixData = port.read(_bytesPA + _bytesID);
+                break ;
+            }
         }
-        else
+        if (!breakCondition)
+        {
+            qDebug() << "TimeOut while reading data.";
             break ;
+        }
+
+        char ID = qFromLittleEndian<char>(prefixData.right(1).constData());
+
+        switch (ID) {
+            case 4 :
+                restOfBytes = bytesTotal_IMU - _bytesPA - _bytesID;
+                bytesTotal = bytesTotal_IMU;
+                break;
+            default :
+                restOfBytes = bytesTotal_OPT - _bytesPA - _bytesID;
+                bytesTotal = bytesTotal_OPT;
+                break;
+        }
+
+        breakCondition = 5;
+        while (--breakCondition && port.waitForReadyRead(MY_READY_READ_TIME))
+        {
+            if (port.size() >= bytesTotal)
+            {
+                _dataRead += prefixData + port.read(restOfBytes);
+                break ;
+            }
+        }
+        if (!breakCondition)
+        {
+            qDebug() << "TimeOut while reading data.";
+            break ;
+        }
+
+        currentTime = QDateTime::currentDateTime().toMSecsSinceEpoch();
+        _dataRead.append(QByteArray::fromRawData(reinterpret_cast<const char*>(&currentTime), sizeof(qint64)));
+        _dataRead.append(_showPic->isChecked() ? this->_threadDisplayTimer->getCurrentImgLabel() : 0); // when _showPic checkbox is not checked, label = 0
+        emit lastRowOfData(_dataRead.right(bytesTotal + 8 + 1)); // 8 - sizeof time; 1 - sizeof label
     }
     this->stopAndClosePort(port);
     
-    ERROR_LOGGER();
+    DEBUGGER();
 }
 
 void    ThreadReader::stopAndClosePort(QSerialPort &port)
 {
-    ERROR_LOGGER();
+    DEBUGGER();
     
     QByteArray  dataWrite;
     
@@ -168,76 +229,78 @@ void    ThreadReader::stopAndClosePort(QSerialPort &port)
     port.flush();
     port.close();
     
-    ERROR_LOGGER();
+    DEBUGGER();
 }
 
-int    ThreadReader::requestPortConfig(QSerialPort &port)
+bool    ThreadReader::requestPortConfigAndStart(QSerialPort &port)
 {
-    ERROR_LOGGER();
+    DEBUGGER();
     
-    QByteArray  dataWrite;
-    QByteArray  dataRead;
-    int         preamble = 0xaa55aa55;
+    QByteArray      dataWrite;
+    QByteArray      dataRead;    
+    unsigned int    preamble = 0xaa55aa55;    
+
+    // cleaning buffer before requesting configs
+    port.clear();
     
-    dataWrite.append(static_cast<char>(127)); // Requesting configuration
+    // requesting configuration
+    dataWrite.append(static_cast<char>(127));
+    dataWrite.append(static_cast<char>(7));
     port.write(dataWrite);
-    if (port.waitForReadyRead(MY_READY_READ_TIME))
-        dataRead = port.read(12);
-    else
-    {
-        qDebug() << "TimeOut while waiting for configs";
-		this->stopAndClosePort(port);
-        ERROR_LOGGER();
-        return -1;
-    }
-    if (dataRead.mid(0, 4).toHex().toUInt(nullptr, 16) != preamble) // checking if the first 4 bytes are 'aa55aa55'
-    {
-        qDebug() << "'aa55aa55' is not recevied, when try to config.";
-		this->stopAndClosePort(port);
-        ERROR_LOGGER();
-        return -1;
-    }
-	this->_typeOfSensor = qFromBigEndian<unsigned char>(dataRead.mid(5, 1).constData());   // 5 and 1 according to the protocol
-	this->_numOfAdcCH = qFromBigEndian<unsigned char>(dataRead.mid(6, 1).constData());   // 6 and 1 according to the protocol
-	this->_sizeOfAdcCH = qFromBigEndian<unsigned char>(dataRead.mid(7, 1).constData());   // 7 and 1 according to the protocol
-	this->_numOfOS = qFromBigEndian<unsigned char>(dataRead.mid(8, 1).constData());   // 8 and 1 according to the protocol
-	this->_numOfCH = qFromBigEndian<unsigned char>(dataRead.mid(9, 1).constData());   // 9 and 1 according to the protocol
-	this->_sizeOfCH = qFromBigEndian<unsigned char>(dataRead.mid(10, 1).constData()); // 10 and 1 according to the protocol
-    ERROR_LOGGER();
-    return (0);
-}
 
-int    ThreadReader::requestPortStart(QSerialPort &port)
-{
-    ERROR_LOGGER();
-    
-    QByteArray  dataWrite;
-    QByteArray  dataRead;
-    int         preamble = 0xaa55aa55;
+    // reading config for OPT and IMU sensors
+    while (dataRead.size() != 16)
+    {
+        if (port.waitForReadyRead(MY_READY_READ_TIME))
+            dataRead += port.read(8);
+        else
+        {
+            qDebug() << "TimeOut while waiting for config.";
+            this->stopAndClosePort(port);
+            return false;
+        }
+    }
 
+    // checking if the first 4 bytes are 'aa55aa55'
+    if (dataRead.mid(0, 4).toHex().toUInt(nullptr, 16) != preamble)
+    {
+        qDebug() << "'AA55AA55' not received when requesting configuration.";
+        this->stopAndClosePort(port);
+        return false;
+    }
+    qDebug() << "'AA55AA55' received."; // tmp
+
+    // parsing data from frame of type3 fromat by the protocol (two frames: OPT and IMU)
+    this->_sampleRate_OPT = qFromLittleEndian<short>(dataRead.mid(4, 2).constData());
+    this->_numOfCH_OPT = qFromLittleEndian<char>(dataRead.mid(6, 1).constData());
+    this->_sizeOfCH_OPT = qFromLittleEndian<char>(dataRead.mid(7, 1).constData());
+
+    this->_sampleRate_IMU = qFromLittleEndian<short>(dataRead.mid(12, 2).constData());
+    this->_numOfCH_IMU = qFromLittleEndian<char>(dataRead.mid(14, 1).constData());
+    this->_sizeOfCH_IMU = qFromLittleEndian<char>(dataRead.mid(15, 1).constData());
+
+    // cleaning buffer before starting
+    port.clear();
+
+    // starting acquisition
+    dataWrite.clear();
     dataWrite.append(static_cast<char>(0)); // First byte
-    dataWrite.append(static_cast<char>(6)); // Second byte
-    
-    port.write(dataWrite); 
+    dataWrite.append(static_cast<char>(7)); // Second byte
+    port.write(dataWrite);
+
     if (port.waitForReadyRead(MY_READY_READ_TIME))
     {
         this->_threadDisplayTimer->start();
         this->_startTime = QDateTime::currentDateTime().toMSecsSinceEpoch();
-        dataRead = port.read(7);
     }
     else
     {
+        qDebug() << "TimeOut while waiting for start.";
         this->stopAndClosePort(port);
-        ERROR_LOGGER();
-        return -1;
+        DEBUGGER();
+        return false;
     }
-    if (dataRead.mid(0, 4).toHex().toUInt(nullptr, 16) != preamble) // checking if the first 4 bytes are 'aa55aa55'
-    {
-        qDebug() << "'aa55aa55' is not recevied, when try to start.";
-		this->stopAndClosePort(port);
-        ERROR_LOGGER();
-        return -1;
-    }
-    ERROR_LOGGER();
-    return (0);
+
+    DEBUGGER();
+    return true;
 }

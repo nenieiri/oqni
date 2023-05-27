@@ -1,5 +1,5 @@
-#ifndef ERRORLOGGER_HPP
-# define ERRORLOGGER_HPP
+#ifndef DEBUGGER_HPP
+# define DEBUGGER_HPP
 
 # define DEBUGGER() errorLogger(__FILE__, __LINE__, __func__)
 

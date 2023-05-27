@@ -1,4 +1,5 @@
 #include "mainwindow.h"
+#include "debugger.hpp"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -6,7 +7,7 @@ MainWindow::MainWindow(QWidget *parent)
     , _portCount(0)
     , _selectedComPort(nullptr)
 {
-    ERROR_LOGGER();
+    DEBUGGER();
     
     ui->setupUi(this);
     
@@ -39,14 +40,14 @@ MainWindow::MainWindow(QWidget *parent)
                                       QToolButton:hover { border-radius: 20px; border: 3px solid #006699; background: white;}");
     this->_buttonAbout->setGeometry(626, 25, 40, 40);
     this->_buttonAbout->show();
-    connect(this->_buttonAbout, &QToolButton::clicked, this, [=](void) { ERROR_LOGGER(); this->buttonAboutAction(); });
+    connect(this->_buttonAbout, &QToolButton::clicked, this, [=](void) { DEBUGGER(); this->buttonAboutAction(); });
     
-    ERROR_LOGGER();
+    DEBUGGER();
 }
 
 MainWindow::~MainWindow()
 {
-    ERROR_LOGGER();
+    DEBUGGER();
     for (QVector<ComPort *>::iterator it = _comPorts.begin(); it < _comPorts.end(); ++it)
         delete *it;
     this->_comPorts.clear();
@@ -59,12 +60,12 @@ MainWindow::~MainWindow()
     delete _liftVertical;
     delete _groupBox;
     delete ui;
-    ERROR_LOGGER();
+    DEBUGGER();
 }
 
 void    MainWindow::putWindowOnScreen(int windowWidth, int windowHeight)
 {
-    ERROR_LOGGER();
+    DEBUGGER();
     
     /* ------ put window to the center of the screen ------ */
     QScreen *screen = QApplication::primaryScreen();
@@ -83,13 +84,13 @@ void    MainWindow::putWindowOnScreen(int windowWidth, int windowHeight)
     this->setWindowFilePath(":/Imgs/oqni.ico");
     this->setStyleSheet("background-image: url(:/Imgs/background.png); font-size: 20px");
     
-    ERROR_LOGGER();
+    DEBUGGER();
 }
 
 QPushButton    *MainWindow::createButton(const QString &name, int x, int y, int width, \
                                          int height, std::function<void(void)> onPressAction, QWidget *box)
 {
-    ERROR_LOGGER();
+    DEBUGGER();
     QPushButton *button;
    
     /* ------------------- Button design ------------------ */
@@ -100,34 +101,34 @@ QPushButton    *MainWindow::createButton(const QString &name, int x, int y, int 
     connect(button, &QPushButton::released, button,
         [=](void)
         {
-            ERROR_LOGGER();
+            DEBUGGER();
             button->setStyleSheet(MY_DEFINED_RELEASED_BUTTON);
-            ERROR_LOGGER();
+            DEBUGGER();
         });
     connect(button, &QPushButton::clicked, button,
         [=](void)
         {
-            ERROR_LOGGER();
+            DEBUGGER();
             button->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_BUTTON);
-            ERROR_LOGGER();
+            DEBUGGER();
         });
     connect(button, &QPushButton::pressed, button,
         [=](void)
         {
-            ERROR_LOGGER();
+            DEBUGGER();
             button->setStyleSheet(MY_DEFINED_PRESSED_BUTTON);
             if (onPressAction != nullptr)
                 onPressAction();
-            ERROR_LOGGER();
+            DEBUGGER();
         });
 
-    ERROR_LOGGER();
+    DEBUGGER();
     return (button);
 }
     
 void    MainWindow::addLoadingAnimation(QPushButton *button, int x, int y, int width, int height)
 {
-    ERROR_LOGGER();
+    DEBUGGER();
     
     /* ---------------- Button functional ----------------- */
     this->_gifLabel = new QLabel(this);
@@ -139,12 +140,12 @@ void    MainWindow::addLoadingAnimation(QPushButton *button, int x, int y, int w
     this->_gifLabel->setMovie(this->_gifMovie);
     this->_gifLabel->setStyleSheet("background: #e6e6e6;");
     
-    ERROR_LOGGER();
+    DEBUGGER();
 }
 
 void    MainWindow::createGroupBox(int x, int y, int width, int height)
 {
-    ERROR_LOGGER();
+    DEBUGGER();
     
     /* ---------------- adding GroupBox ------------------- */
     this->_groupBox = new QGroupBox("Connected COM ports:", this);
@@ -152,12 +153,12 @@ void    MainWindow::createGroupBox(int x, int y, int width, int height)
     this->_groupBox->stackUnder(this->_gifLabel);
     this->_groupBox->setStyleSheet("border: 1px solid gray; background: #e6e6e6;");
     
-    ERROR_LOGGER();
+    DEBUGGER();
 }
 
 void    MainWindow::createLiftVertical(int x, int y, int width, int height)
 {
-    ERROR_LOGGER();
+    DEBUGGER();
     
     /* ----------- adding Vertical ScrollBar -------------- */
     this->_liftVertical = new QScrollBar(Qt::Vertical, this);
@@ -166,7 +167,7 @@ void    MainWindow::createLiftVertical(int x, int y, int width, int height)
     connect(this->_liftVertical, &QScrollBar::valueChanged, this->_groupBox,
         [=](void)
         {
-            ERROR_LOGGER();
+            DEBUGGER();
             int liftRatio;
         
             for (QVector<ComPort *>::iterator it = _comPorts.begin(); it < _comPorts.end(); ++it)
@@ -190,15 +191,15 @@ void    MainWindow::createLiftVertical(int x, int y, int width, int height)
                 }
                 (*it)->getCheckBox()->setStyleSheet("border: 0px solid gray;");
             }
-            ERROR_LOGGER();
+            DEBUGGER();
         });
     
-    ERROR_LOGGER();
+    DEBUGGER();
 }
 
 void    MainWindow::buttonCheckAction(void)
 {
-    ERROR_LOGGER();
+    DEBUGGER();
     
     /* ----------- show animation and update radiobuttons' list ------------- */
     this->_buttonNext->setEnabled(false);
@@ -245,7 +246,7 @@ void    MainWindow::buttonCheckAction(void)
                 connect((*it)->getCheckBox(), &QRadioButton::clicked, (*it)->getToolButton(),
                     [=](void)
                     {
-                        ERROR_LOGGER();
+                        DEBUGGER();
                         
                         this->_buttonNext->setEnabled(true);
                         this->_buttonNext->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_BUTTON);
@@ -255,7 +256,7 @@ void    MainWindow::buttonCheckAction(void)
                             this->_previewsRadioButton->getToolButton()->hide();
                         this->_previewsRadioButton = *it;
                         
-                        ERROR_LOGGER();
+                        DEBUGGER();
                     });
                 if ((*it)->getCheckBox()->isChecked() == false)
                     (*it)->getToolButton()->hide();
@@ -263,19 +264,19 @@ void    MainWindow::buttonCheckAction(void)
                 connect((*it)->getToolButton(), &QToolButton::clicked, this,
 					[=](void)
 					{
-						ERROR_LOGGER();
+                        DEBUGGER();
                         this->buttonToolAction(*it);
-                        ERROR_LOGGER();
+                        DEBUGGER();
 					});
             }
         });
     
-    ERROR_LOGGER();
+    DEBUGGER();
 }
 
 void    MainWindow::buttonNextAction()
 {
-    ERROR_LOGGER();
+    DEBUGGER();
     
     for (QVector<ComPort *>::iterator it = _comPorts.begin(); it != _comPorts.end(); ++it)
     {
@@ -288,10 +289,10 @@ void    MainWindow::buttonNextAction()
     if (this->_selectedComPort == nullptr)
     {
         delete this->_windowNext;
-        ERROR_LOGGER();
+        DEBUGGER();
         return ;
     }
-    
+
     try
     {
 		this->_windowNext = new WindowNext(this);
@@ -307,12 +308,12 @@ void    MainWindow::buttonNextAction()
 	this->_buttonNext->setStyleSheet(MY_DEFINED_RELEASED_BUTTON);
     delete this->_windowNext;
     
-    ERROR_LOGGER();
+    DEBUGGER();
 }
 
 void    MainWindow::buttonChartAction()
 {
-	ERROR_LOGGER();
+    DEBUGGER();
     
     QString		selectedFile;
     QString		line;
@@ -324,7 +325,7 @@ void    MainWindow::buttonChartAction()
 	if (selectedFile == "")
     {
 		this->_buttonChart->setStyleSheet(MY_DEFINED_RELEASED_BUTTON);
-        ERROR_LOGGER();
+        DEBUGGER();
         return ;
     }
     QFile file(selectedFile);
@@ -332,7 +333,7 @@ void    MainWindow::buttonChartAction()
     {
         qWarning() << "Failed to open file";
 		this->_buttonChart->setStyleSheet(MY_DEFINED_RELEASED_BUTTON);
-        ERROR_LOGGER();
+        DEBUGGER();
         return ;
     }
     
@@ -367,12 +368,12 @@ void    MainWindow::buttonChartAction()
     connect(buttonOk, &QPushButton::clicked, &choosingFiles,
 		[&](void)
 		{
-            ERROR_LOGGER();
+            DEBUGGER();
         
             choosingFiles.close();
         	_isRejected = false;
             
-            ERROR_LOGGER();
+            DEBUGGER();
 		});
     
     choosingFiles.exec();
@@ -383,7 +384,7 @@ void    MainWindow::buttonChartAction()
 		delete [] _filesList;
 		_filesList = nullptr;
 		this->_buttonChart->setStyleSheet(MY_DEFINED_RELEASED_BUTTON);
-        ERROR_LOGGER();
+        DEBUGGER();
         return ;
     }
 
@@ -395,7 +396,7 @@ void    MainWindow::buttonChartAction()
 		delete [] _filesList;
 		_filesList = nullptr;
 		this->_buttonChart->setStyleSheet(MY_DEFINED_RELEASED_BUTTON);
-        ERROR_LOGGER();
+        DEBUGGER();
 		return ;
     }
 
@@ -420,12 +421,12 @@ void    MainWindow::buttonChartAction()
     delete [] _filesList;
     _filesList = nullptr;
     
-    ERROR_LOGGER();
+    DEBUGGER();
 }
 
 void    MainWindow::buttonToolAction(ComPort *comPort)
 {
-    ERROR_LOGGER();
+    DEBUGGER();
     
     comPort->_windowProperty = new QDialog(this);
     comPort->_windowProperty->setModal(true);
@@ -483,14 +484,14 @@ void    MainWindow::buttonToolAction(ComPort *comPort)
     connect(comPort->_cancelProperties, &QPushButton::clicked, comPort->_windowProperty,
 		[=](void)
 		{
-            ERROR_LOGGER();
+            DEBUGGER();
             comPort->_windowProperty->close();
-            ERROR_LOGGER();
+            DEBUGGER();
 		});
     connect(comPort->_setDefaultProperties, &QPushButton::clicked, comPort->_windowProperty,
 		[=](void)
 		{
-           ERROR_LOGGER(); 
+           DEBUGGER();
         
             baudComboBox->setCurrentIndex(7);
             dataComboBox->setCurrentIndex(3);
@@ -498,12 +499,12 @@ void    MainWindow::buttonToolAction(ComPort *comPort)
             stopComboBox->setCurrentIndex(0);
             flowComboBox->setCurrentIndex(0);
             
-            ERROR_LOGGER();
+            DEBUGGER();
 		});
     connect(comPort->_saveProperies, &QPushButton::clicked, comPort->_windowProperty,
         [=](void)
         {
-            ERROR_LOGGER();
+            DEBUGGER();
             
             comPort->setBaudRate(baudComboBox->currentText(), this->_baudRateItems);
             comPort->setDataBits(dataComboBox->currentText(), this->_dataBitsItems);
@@ -512,7 +513,7 @@ void    MainWindow::buttonToolAction(ComPort *comPort)
             comPort->setFlowControl(flowComboBox->currentText(), this->_flowControlItems);
             comPort->_windowProperty->close();
             
-            ERROR_LOGGER();
+            DEBUGGER();
         });
 
     comPort->_windowProperty->exec();
@@ -529,12 +530,12 @@ void    MainWindow::buttonToolAction(ComPort *comPort)
     delete flowComboBox;
     delete comPort->_windowProperty;
     
-    ERROR_LOGGER();
+    DEBUGGER();
 }
 
 void    MainWindow::buttonAboutAction()
 {
-    ERROR_LOGGER();
+    DEBUGGER();
     
     QString about = "Data logger 2.2 (for ESP-32) \
                     <br> <br> This program was created in collaboration \
@@ -552,5 +553,5 @@ void    MainWindow::buttonAboutAction()
     msgBox.setWindowIcon(QIcon(":/Imgs/oqni.ico"));
     msgBox.exec();
     
-    ERROR_LOGGER();
+    DEBUGGER();
 }

@@ -27,7 +27,7 @@ set(PROJECT_SOURCES
 		Includes/threadreader.hpp
 		Includes/windownext.hpp
 		Includes/windowchart.hpp
-		Includes/errorlogger.hpp
+		Includes/debugger.hpp
 		
         Srcs/comport.cpp
         Srcs/main.cpp
@@ -36,7 +36,7 @@ set(PROJECT_SOURCES
 		Srcs/threadreader.cpp
 		Srcs/windownext.cpp
 		Srcs/windowchart.cpp
-		Srcs/errorlogger.cpp
+		Srcs/debugger.cpp
 		
         mainwindow.ui
         ResourceFiles.qrc
