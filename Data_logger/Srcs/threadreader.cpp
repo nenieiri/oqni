@@ -134,7 +134,6 @@ void    ThreadReader::run()
     int			bytesTotal;
     int			restOfBytes;
     int         breakCondition;
-    qint64      currentTime;
 
     port.setPort(_comPort->getPort());
     port.setBaudRate(_comPort->getBaudRate());
@@ -199,10 +198,12 @@ void    ThreadReader::run()
         {
             if (port.size() >= bytesTotal)
             {
-                currentTime = QDateTime::currentDateTime().toMSecsSinceEpoch();
-                QByteArray currentTimeBytes = QByteArray::fromRawData(reinterpret_cast<const char*>(&currentTime), sizeof(qint64));
-                QByteArray labelBytes = QByteArray::number(_showPic->isChecked() ? this->_threadDisplayTimer->getCurrentImgLabel() : 0); // when _showPic checkbox is not checked, label = 0
-                _dataRead.push_back(prefixData + port.read(restOfBytes) + currentTimeBytes + labelBytes);
+                prefixData.append(port.read(restOfBytes));
+                qint64 currentTime = QDateTime::currentDateTime().toMSecsSinceEpoch();
+                prefixData.append(QByteArray::fromRawData(reinterpret_cast<const char*>(&currentTime), sizeof(qint64)));
+                int label = this->_threadDisplayTimer->getCurrentImgLabel();
+                prefixData.append(_showPic->isChecked() ? label : 0);
+                _dataRead.push_back(prefixData);
                 break ;
             }
         }

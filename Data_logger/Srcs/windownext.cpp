@@ -11,8 +11,8 @@ WindowNext::WindowNext(MainWindow *parent)
     int         screenWidth = screenSize.width();
     int         screenHeight = screenSize.height();
     int         windowWidth = 600;
-    int         windowHeight = 350;    
-        
+    int         windowHeight = 350;
+
     this->_chartDuration = 6 * 1000;
     this->_chartUpdateRatio = 3;
 
@@ -20,20 +20,20 @@ WindowNext::WindowNext(MainWindow *parent)
     this->_buttonStart = nullptr;
     this->_buttonStop = nullptr;
     this->_buttonClose = nullptr;
-    
+
     this->_closeEventFlag = true;
-    
+
     this->_selectedComPort = parent->getSelectedComPort();
-    
+
     this->_showReadingPort1 = new QLabel("Read from:", this);
-	this->_showReadingPort2 = new QLabel(this->_selectedComPort->getPortName(), this);
-    
+    this->_showReadingPort2 = new QLabel(this->_selectedComPort->getPortName(), this);
+
     this->_showSelectedDir1 = new QLabel("DB path:", this);
     this->_showSelectedDir2 = new QLineEdit(this);
 //    this->_selectedDirectory = QCoreApplication::applicationDirPath() + "/Recordings";
     this->_selectedDirectory = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation) + "/oqni/Recordings";
     this->_showSelectedDir2->setText(_selectedDirectory);
-    
+
 //    When editing the line below, don't forget to do the same in the "retryToSaveMetaData()" function.
     this->_metaDataFilePath = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation) + "/oqni/Recordings/metadata.xlsx";
     QFile metaDataFile(_metaDataFilePath);
@@ -47,7 +47,7 @@ WindowNext::WindowNext(MainWindow *parent)
         msgBox.addButton(QMessageBox::Ok);
         msgBox.addButton(QMessageBox::Cancel);
         msgBox.setWindowIcon(QIcon(":/Imgs/oqni.ico"));
-        
+
         int ret = msgBox.exec();
         if (ret == QMessageBox::Cancel)
         {
@@ -55,7 +55,7 @@ WindowNext::WindowNext(MainWindow *parent)
             throw	-1;
         }
     }
-    
+
     this->_recordingFolder1 = new QLabel("Recording Folder:", this);
     this->_recordingFolder2 = new QLineEdit(this);
     this->_recordingFolder3 = new QLineEdit(this);
@@ -70,7 +70,7 @@ WindowNext::WindowNext(MainWindow *parent)
 
     this->_protocol1 = new QLabel("Recording Protocol:", this);
     this->_protocol2 = new QComboBox(this);
-	this->_expProtocolsPath = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation) + "/oqni/exp_protocols";
+    this->_expProtocolsPath = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation) + "/oqni/exp_protocols";
     QStringList *items = this->findExpProtocols(this->_expProtocolsPath);
     this->_protocol2->addItems(*items);
     delete items;
@@ -80,33 +80,33 @@ WindowNext::WindowNext(MainWindow *parent)
     this->readExpProtocol();
 
     this->_timer1 = new QLabel("Duration (seconds):", this);
-    
+
     this->_lineEdit = new QLineEdit(this);
     this->_finishMsgLabel = new QLabel("", this);
-    
+
     this->_display = new QLabel("Display:", this);
     this->_showChart = new QCheckBox("chart", this);
     this->_showPic = new QCheckBox("pic", this);
     this->_saveCheckBox = new QCheckBox("save and update MD", this);
     this->_saveCheckBox->setChecked(true);
-    
+
     this->_chartDialog = nullptr;
-	this->_chart = nullptr;
-	this->_chartView = nullptr;
-	this->_axisX = nullptr;
-	this->_axisY = nullptr;
-	this->_series = nullptr;
-	this->_hBoxLayout = nullptr;
-	this->_gridLayout = nullptr;
+    this->_chart = nullptr;
+    this->_chartView = nullptr;
+    this->_axisX = nullptr;
+    this->_axisY = nullptr;
+    this->_series = nullptr;
+    this->_hBoxLayout = nullptr;
+    this->_gridLayout = nullptr;
     this->_gridLayoutPic = nullptr;
     this->_displayTimerPic = nullptr;
     this->_imageLabel = nullptr;
     this->_imageSecondsLabel = nullptr;
-    
+
     this->setModal(true);
-    
+
     this->setGeometry((screenWidth - windowWidth) / 2, (screenHeight - windowHeight) / 2, \
-                    		windowWidth, windowHeight);
+                            windowWidth, windowHeight);
     this->setMinimumSize(windowWidth, windowHeight);
     this->setMaximumSize(windowWidth, windowHeight);
     this->setWindowTitle("OQNI: Drawer");
@@ -176,11 +176,11 @@ void    WindowNext::setButtonStart(QPushButton *buttonStart)
     this->_buttonStart = buttonStart;
     if (this->_durationTimerValue == 0)
     {
-		this->_buttonStart->setEnabled(false);
+        this->_buttonStart->setEnabled(false);
         this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_BUTTON);
     }
     connect(this->_buttonStart, &QPushButton::clicked, this,
-		[=](void)
+        [=](void)
         {
             DEBUGGER();
 
@@ -189,7 +189,7 @@ void    WindowNext::setButtonStart(QPushButton *buttonStart)
                 DEBUGGER();
                 return ;
             }
-            
+
             while (this->saveMetaData("subjects", this->_recordingFolder3->text()) == false)
             {
                 if (_metaDataSavingFailMsg == "cancel")
@@ -202,46 +202,46 @@ void    WindowNext::setButtonStart(QPushButton *buttonStart)
 
             this->_buttonClose->setEnabled(false);
             this->_buttonClose->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_BUTTON);
-			this->_buttonStart->setEnabled(false);
+            this->_buttonStart->setEnabled(false);
             this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_BUTTON);
-			this->_buttonStop->setEnabled(true);
+            this->_buttonStop->setEnabled(true);
             this->_buttonStop->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_BUTTON);
-			this->_lineEdit->setEnabled(false);
+            this->_lineEdit->setEnabled(false);
             this->_lineEdit->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_TEXT);
-            
+
             this->_showSelectedDir2->setEnabled(false);
             this->_showSelectedDir2->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_TEXT);
-			this->_showSelectedDir2->setCursorPosition(0);
-            
+            this->_showSelectedDir2->setCursorPosition(0);
+
             this->_recordingFolder2->setEnabled(false);
             this->_recordingFolder2->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_TEXT);
             this->_recordingFolder3->setEnabled(false);
             this->_recordingFolder3->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_TEXT);
             this->_recordingFolder4->setEnabled(false);
             this->_recordingFolder4->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_TEXT);
-            
+
             this->_placement2->setEnabled(false);
             this->_placement2->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_TEXT);
             this->_placement4->setEnabled(false);
             this->_placement4->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_TEXT);
-            
+
             this->_protocol2->setEnabled(false);
             this->_protocol2->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_TEXT);
             this->_protocol4->setEnabled(false);
             this->_protocol4->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_TEXT);
-            
-			this->_closeEventFlag = false;
-            
+
+            this->_closeEventFlag = false;
+
             this->_threadDisplayTimer = new ThreadDisplayTimer(this->_durationTimerValue, this, this->_expProtocolsPath, this->_expProtocol); // this thread starts in TreadReader thread
             this->_threadReader = new ThreadReader(_durationTimerValue, _selectedComPort, _threadDisplayTimer, _showPic);
             this->_threadReader->start();
-            
-            this->_labelIsOk = _showPic->isChecked() ? true : false; 
-            
+
+            this->_labelIsOk = _showPic->isChecked() ? true : false;
+
             this->_finishMsgLabel->hide();
-			connect(this->_threadDisplayTimer, &ThreadDisplayTimer::finishedSignal, this, &WindowNext::onThreadDisplayTimerFinished);
+            connect(this->_threadDisplayTimer, &ThreadDisplayTimer::finishedSignal, this, &WindowNext::onThreadDisplayTimerFinished);
             connect(_threadReader, &ThreadReader::protocolConfigDataIsReady, this,
-            	[=](void)
+                [=](void)
                 {
                     DEBUGGER();
 
@@ -261,39 +261,39 @@ void    WindowNext::setButtonStart(QPushButton *buttonStart)
                     this->_startTime = _threadReader->getStartTime();
                     this->_totalBytes_OPT = _bytesPA + _bytesID + _bytesCO + _numOfCH_OPT * _sizeOfCH_OPT + 8 + 1; // 8 - sizeof time; 1 - sizeof label
                     this->_totalBytes_IMU = _bytesPA + _bytesID + _bytesCO + _numOfCH_IMU * _sizeOfCH_IMU + 8 + 1; // 8 - sizeof time; 1 - sizeof label
-					
-					if (this->_showChart->isChecked() == true) // starting thread for drawing chart
-					{
+
+                    if (this->_showChart->isChecked() == true) // starting thread for drawing chart
+                    {
                         this->_chartDialog = new QDialog(this);
-						connect(this->_chartDialog, &QDialog::rejected, this, 
-							[=]()
+                        connect(this->_chartDialog, &QDialog::rejected, this,
+                            [=]()
                             {
                                 DEBUGGER();
 
                                 this->_chartDialog = nullptr;
-								this->_showChart->setChecked(false);
+                                this->_showChart->setChecked(false);
 
                                 DEBUGGER();
-							});
-						this->execChartDialog();
-					}
+                            });
+                        this->execChartDialog();
+                    }
                     if (this->_showPic->isChecked() == true)
-					{
-						this->_picDialog = new QDialog(this);
-						connect(this->_picDialog, &QDialog::rejected, this, 
-							[=]()
+                    {
+                        this->_picDialog = new QDialog(this);
+                        connect(this->_picDialog, &QDialog::rejected, this,
+                            [=]()
                             {
                                 DEBUGGER();
 
                                 this->_picDialog = nullptr;
-								this->_showPic->setChecked(false);
+                                this->_showPic->setChecked(false);
 
                                 DEBUGGER();
-							});
-						this->execPicDialog();
-					}
+                            });
+                        this->execPicDialog();
+                    }
                 });
-		});
+        });
 }
 
 void		WindowNext::setButtonStop(QPushButton *buttonStop)
@@ -304,19 +304,19 @@ void		WindowNext::setButtonStop(QPushButton *buttonStop)
     this->_buttonStop->setEnabled(false);
     this->_buttonStop->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_BUTTON);
     connect(this->_buttonStop, &QPushButton::clicked, this,
-		[=](void)
+        [=](void)
         {
             DEBUGGER();
 
             QString msg;
             _metaDataSavingFailMsg = "<br><b>REASON:</b> the session was terminated (stopped).";
             msg = this->saveDataToFile("000") + _metaDataSavingFailMsg;
-        
-			this->_closeEventFlag = true;
-            
+
+            this->_closeEventFlag = true;
+
             this->_showChart->setChecked(false);
             this->_showPic->setChecked(false);
-        
+
             this->_buttonClose->setEnabled(true);
             this->_buttonClose->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_BUTTON);
             this->_buttonStart->setEnabled(true);
@@ -325,45 +325,45 @@ void		WindowNext::setButtonStop(QPushButton *buttonStop)
             this->_buttonStop->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_BUTTON);
             this->_lineEdit->setEnabled(true);
             this->_lineEdit->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
-        
+
             this->_showSelectedDir2->setEnabled(true);
             this->_showSelectedDir2->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
-        
+
             this->_recordingFolder2->setEnabled(true);
             this->_recordingFolder2->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
             this->_recordingFolder3->setEnabled(true);
             this->_recordingFolder3->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
             this->_recordingFolder4->setEnabled(true);
             this->_recordingFolder4->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
-        
+
             this->_placement2->setEnabled(true);
             this->_placement2->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
             this->_placement4->setEnabled(true);
             this->_placement4->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
-        
+
             this->_protocol2->setEnabled(true);
             this->_protocol2->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
             this->_protocol4->setEnabled(true);
             this->_protocol4->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
-            
+
             this->_threadDisplayTimer->requestInterruption();
-            this->_threadDisplayTimer->wait();    
+            this->_threadDisplayTimer->wait();
             delete this->_threadDisplayTimer;
             this->_threadDisplayTimer = nullptr;
 
-            this->_threadReader->requestInterruption();    
-            this->_threadReader->wait();    
+            this->_threadReader->requestInterruption();
+            this->_threadReader->wait();
             delete this->_threadReader;
             this->_threadReader = nullptr;
-        
+
             this->_finishMsgLabel->setText("Stopped");
             this->_finishMsgLabel->show();
-			this->_finishMsgLabel->setStyleSheet("font-size: 28px; color: #B22222; font-weight: bold;");
+            this->_finishMsgLabel->setStyleSheet("font-size: 28px; color: #B22222; font-weight: bold;");
             this->infoMessageBox(msg);
             this->_metaDataSavingFailMsg = "";
 
             DEBUGGER();
-		});
+        });
 
     DEBUGGER();
 }
@@ -399,15 +399,15 @@ void		WindowNext::setButtonBrowse(QPushButton *buttonBrowse)
             DEBUGGER();
 
             QFileDialog dialog;
-			QString     selectedDirectoryTmp;
-			
-		    dialog.setOption(QFileDialog::ShowDirsOnly);
-			selectedDirectoryTmp = dialog.getExistingDirectory(this, tr("Save to"), \
-					QStandardPaths::writableLocation(QStandardPaths::DesktopLocation));
-			if (selectedDirectoryTmp != "")
+            QString     selectedDirectoryTmp;
+
+            dialog.setOption(QFileDialog::ShowDirsOnly);
+            selectedDirectoryTmp = dialog.getExistingDirectory(this, tr("Save to"), \
+                    QStandardPaths::writableLocation(QStandardPaths::DesktopLocation));
+            if (selectedDirectoryTmp != "")
             {
-				this->_showSelectedDir2->setText(selectedDirectoryTmp);
-				this->_showSelectedDir2->setCursorPosition(0);
+                this->_showSelectedDir2->setText(selectedDirectoryTmp);
+                this->_showSelectedDir2->setCursorPosition(0);
                 this->_showSelectedDir2->setToolTip(selectedDirectoryTmp);
             }
 
@@ -425,32 +425,32 @@ void    WindowNext::setParametersDesign(void)
 
     this->_showReadingPort1->setGeometry(10, 10, 100, 30);
     this->_showReadingPort1->setStyleSheet("font-size: 18px;");
-    
+
     this->_showReadingPort2->setGeometry(120, 10, 480, 30);
     this->_showReadingPort2->setStyleSheet("font-size: 14px; color: blue;");
-    
+
     this->_showSelectedDir1->setGeometry(10, 50, 100, 30);
     this->_showSelectedDir1->setStyleSheet("font-size: 18px;");
-    
+
     this->_showSelectedDir2->setGeometry(120, 50, 360, 30);
     this->_showSelectedDir2->setCursorPosition(0);
     this->_showSelectedDir2->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
     this->_showSelectedDir2->setToolTip(_selectedDirectory);
-    
+
     this->_recordingFolder1->setGeometry(10, 90, 160, 30);
     this->_recordingFolder1->setStyleSheet("font-size: 18px;");
-    
+
     this->_recordingFolder2->setGeometry(180, 90, 105, 30);
     this->_recordingFolder2->setAlignment(Qt::AlignCenter);
-    this->_recordingFolder2->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);    
+    this->_recordingFolder2->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
     this->_recordingFolder2->setText("BL-003");
-    
+
     this->_recordingFolder3->setGeometry(300, 90, 123, 30);
     this->_recordingFolder3->setMaxLength(3);
     this->_recordingFolder3->setAlignment(Qt::AlignCenter);
     this->_recordingFolder3->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
     this->_recordingFolder3->setText(findMaxSubjectInMetadata());
-    
+
     this->_recordingFolder4->setGeometry(438, 90, 150, 30);
     this->_recordingFolder4->setAlignment(Qt::AlignCenter);
     this->_recordingFolder4->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
@@ -485,24 +485,24 @@ void    WindowNext::setParametersDesign(void)
     this->_lineEdit->setToolTip("Please enter only numeric values.");
     this->_lineEdit->setMaxLength(3);
     this->_lineEdit->setAlignment(Qt::AlignCenter);
-    
+
     this->_finishMsgLabel->setGeometry(220, 248, 160, 40);
     this->_finishMsgLabel->setAlignment(Qt::AlignCenter);
-    
+
     this->_display->setGeometry(300, 210, 160, 30);
     this->_display->setStyleSheet("font-size: 18px;");
-    
+
     this->_showChart->setGeometry(438, 210, 160, 30);
     this->_showChart->setStyleSheet("font-size: 18px;");
     this->_showChart->setChecked(false);
-    
+
     this->_showPic->setGeometry(518, 210, 160, 30);
     this->_showPic->setStyleSheet("font-size: 18px;");
     this->_showPic->setChecked(true);
-    
+
     this->_saveCheckBox->setGeometry(438, 240, 160, 30);
     this->_saveCheckBox->setStyleSheet("font-size: 14px;");
-    
+
     /* --- If the text contains a non-numeric character, show warrnig msg --- */
     this->_lineEdit->setText(QString::number(this->_durationMax));
     connect(this->_lineEdit, &QLineEdit::textChanged, this,
@@ -511,30 +511,30 @@ void    WindowNext::setParametersDesign(void)
             DEBUGGER();
 
             this->_durationTimerValue = 0;
-			this->_buttonStart->setEnabled(false);
+            this->_buttonStart->setEnabled(false);
             this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_BUTTON);
-        	if (this->_lineEdit->text().length() == 0)
+            if (this->_lineEdit->text().length() == 0)
             {
                 this->_lineEdit->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
                 return ;
-			}
+            }
             QString		text = this->_lineEdit->text();
             bool		hasOnlyDigits = true;
-			QMessageBox	msgBox;
-            
-			msgBox.setWindowTitle(tr("Invalid Input"));
+            QMessageBox	msgBox;
+
+            msgBox.setWindowTitle(tr("Invalid Input"));
             msgBox.setIcon(QMessageBox::Warning);
-			msgBox.addButton(QMessageBox::Ok);
+            msgBox.addButton(QMessageBox::Ok);
             msgBox.setWindowIcon(QIcon(":/Imgs/oqni.ico"));
-			
+
             for (int i = 0; i < text.length(); i++)
             {
                 if (text[i].isDigit() == false)
                 {
                     hasOnlyDigits = false;
                     this->_lineEdit->setStyleSheet("background-color: red; padding: 0 5px; color: blue;");
-					msgBox.setText(tr("Please enter a numeric value."));
-					msgBox.exec();
+                    msgBox.setText(tr("Please enter a numeric value."));
+                    msgBox.exec();
                     break ;
                 }
             }
@@ -545,21 +545,21 @@ void    WindowNext::setParametersDesign(void)
                     this->_lineEdit->setStyleSheet("background-color: red; padding: 0 5px; color: blue;");
                     QString msg = "Duration can't be greater<br>than protocol time (";
                     msg += QString::number(this->_durationMax) + " sec).";
-					msgBox.setText(msg);
-					msgBox.exec();
+                    msgBox.setText(msg);
+                    msgBox.exec();
                 }
                 else
                 {
                     this->_lineEdit->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
-					this->_durationTimerValue = text.toInt();
-					this->_buttonStart->setEnabled(true);
+                    this->_durationTimerValue = text.toInt();
+                    this->_buttonStart->setEnabled(true);
                     this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_BUTTON);
                 }
             }
 
             DEBUGGER();
         });
-    
+
     /* --- If the SaveTo (Browse) lineEdit text changed --- */
     connect(this->_showSelectedDir2, &QLineEdit::textChanged, this,
         [=](void)
@@ -599,7 +599,7 @@ void    WindowNext::setParametersDesign(void)
             }
 
             DEBUGGER();
-    	});
+        });
 
     /* --- When recordingFolder3 text changed --- */
     connect(this->_recordingFolder3, &QLineEdit::textChanged, this,
@@ -622,7 +622,7 @@ void    WindowNext::setParametersDesign(void)
             }
 
             DEBUGGER();
-    	});
+        });
 
     /* --- When recordingFolder4 text changed --- */
     connect(this->_recordingFolder4, &QLineEdit::textChanged, this,
@@ -644,7 +644,7 @@ void    WindowNext::setParametersDesign(void)
 
             DEBUGGER();
         });
-    
+
     /* --- When _placement2 value changed --- */
     connect(this->_placement2, &QComboBox::currentTextChanged, this,
         [=](void)
@@ -668,11 +668,11 @@ void    WindowNext::setParametersDesign(void)
             DEBUGGER();
 
             this->readExpProtocol();
-			this->_lineEdit->setText(QString::number(this->_durationMax));
+            this->_lineEdit->setText(QString::number(this->_durationMax));
             this->_protocol2->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT2);
 
             DEBUGGER();
-    	});
+        });
 
     /* --- When _protocol4 value changed --- */
     connect(this->_protocol4, &QComboBox::currentTextChanged, this,
@@ -694,42 +694,42 @@ void    WindowNext::setParametersDesign(void)
             if (this->_showChart->isChecked() == true)
             {
                 this->_chartDialog = new QDialog(this);
-                connect(this->_chartDialog, &QDialog::rejected, this, 
+                connect(this->_chartDialog, &QDialog::rejected, this,
                     [=]()
                     {
                         this->_chartDialog = nullptr;
-						this->_showChart->setChecked(false);
+                        this->_showChart->setChecked(false);
                     });
                 this->execChartDialog();
             }
             else
             {
-				delete _axisX;
-				this->_axisX = nullptr;
-				delete _axisY;
-				this->_axisY = nullptr;
+                delete _axisX;
+                this->_axisX = nullptr;
+                delete _axisY;
+                this->_axisY = nullptr;
                 for (int i = 0; i < _numOfS_OPT * _numOfCH_OPT; ++i)
                     this->_chart->removeSeries(&_series[i]);
-				delete [] _series;
-				this->_series = nullptr;
-				delete this->_chart;
+                delete [] _series;
+                this->_series = nullptr;
+                delete this->_chart;
                 this->_chart = nullptr;
-				delete _chartView;
-				this->_chartView = nullptr;
-				delete _autoScale;
-				this->_autoScale = nullptr;
-				delete _sliderHorizontal;
-				this->_sliderHorizontal = nullptr;
+                delete _chartView;
+                this->_chartView = nullptr;
+                delete _autoScale;
+                this->_autoScale = nullptr;
+                delete _sliderHorizontal;
+                this->_sliderHorizontal = nullptr;
                 delete _sliderHorizontalValues;
                 this->_sliderHorizontalValues = nullptr;
-				delete [] _checkBoxChannelsValue;
-				this->_checkBoxChannelsValue = nullptr;
-				delete [] _checkBoxChannels;
-				this->_checkBoxChannels = nullptr;
-				delete _hBoxLayout;
-				this->_hBoxLayout = nullptr;
-				delete _gridLayout;
-				this->_gridLayout = nullptr;
+                delete [] _checkBoxChannelsValue;
+                this->_checkBoxChannelsValue = nullptr;
+                delete [] _checkBoxChannels;
+                this->_checkBoxChannels = nullptr;
+                delete _hBoxLayout;
+                this->_hBoxLayout = nullptr;
+                delete _gridLayout;
+                this->_gridLayout = nullptr;
                 if (this->_chartDialog && this->_chartDialog->isVisible())
                     this->_chartDialog->close();
                 delete this->_chartDialog;
@@ -753,11 +753,11 @@ void    WindowNext::setParametersDesign(void)
             if (this->_showPic->isChecked() == true)
             {
                 this->_picDialog = new QDialog(this);
-                connect(this->_picDialog, &QDialog::rejected, this, 
+                connect(this->_picDialog, &QDialog::rejected, this,
                     [=]()
                     {
                         this->_picDialog = nullptr;
-						this->_showPic->setChecked(false);
+                        this->_showPic->setChecked(false);
                     });
                 this->execPicDialog();
             }
@@ -771,7 +771,7 @@ void    WindowNext::setParametersDesign(void)
                 delete this->_imageSecondsLabel;
                 this->_imageSecondsLabel = nullptr;
                 delete this->_gridLayoutPic;
-				this->_gridLayoutPic = nullptr;
+                this->_gridLayoutPic = nullptr;
                 if (this->_picDialog && this->_picDialog->isVisible())
                     this->_picDialog->close();
                 delete this->_picDialog;
@@ -790,7 +790,7 @@ void    WindowNext::createDirectory(const QString &path)
     DEBUGGER();
 
     QDir dir(path);
-    
+
     if (!dir.exists())
         if(!dir.mkpath(path))
             this->_selectedDirectory = "";
@@ -805,7 +805,7 @@ QStringList *WindowNext::findExpProtocols(const QString &path)
     QStringList     *items = new QStringList();
     QDir            directory(path);
     QFileInfoList   fileList;
-    
+
     directory.setNameFilters(QStringList() << "*.csv");
     fileList = directory.entryInfoList();
     for (const QFileInfo& fileInfo : fileList)
@@ -858,7 +858,7 @@ QString	WindowNext::saveDataToFile(const QString &subject)
         DEBUGGER();
         return msg;
     }
-    
+
     const int           maxIdPlusOne = 5; // max sensor ID + 1
     QFile               *myFile = new QFile[maxIdPlusOne];
     QTextStream         *out = new QTextStream[maxIdPlusOne];
@@ -870,18 +870,18 @@ QString	WindowNext::saveDataToFile(const QString &subject)
     int                 numOfCH[maxIdPlusOne] = {0, _numOfCH_OPT, _numOfCH_OPT, 0, _numOfCH_IMU * 3};
     int                 sizeOfCH[maxIdPlusOne] = {0, _sizeOfCH_OPT, _sizeOfCH_OPT, 0, _sizeOfCH_IMU};
     bool                firstCounter[maxIdPlusOne] = {true, true, true, true, true};
-    
-	this->_fullSavingPath = _selectedDirectory + "/";
+
+    this->_fullSavingPath = _selectedDirectory + "/";
     this->_fullSavingPath += _recordingFolder2->text() + "/";
     this->_fullSavingPath += _recordingFolder2->text() + "_";
     this->_fullSavingPath += subject + "_";
     this->_fullSavingPath += _threadReader->getFileCreationDate();
-	
-	this->createDirectory(_fullSavingPath);
-	if (this->_selectedDirectory == "")
+
+    this->createDirectory(_fullSavingPath);
+    if (this->_selectedDirectory == "")
     {
-		delete [] myFile;
-		delete [] out;
+        delete [] myFile;
+        delete [] out;
         delete [] oldCounter;
 
         DEBUGGER();
@@ -893,6 +893,7 @@ QString	WindowNext::saveDataToFile(const QString &subject)
         DEBUGGER();
         if (i == 3)
             continue ;
+
         QString	fileNamePrefix = _fullSavingPath + _threadReader->getFileNamePrefix(i);
 
         myFile[i].setFileName(fileNamePrefix + ((i == 4) ? "" : QString::number(i)) + ".csv");
@@ -902,10 +903,14 @@ QString	WindowNext::saveDataToFile(const QString &subject)
             qDebug() << msg;
             for (int j = 1; j < i; ++j)
             {
-                if (j == 3)
-                    continue ;
-                myFile[j].close();
-                myFile[j].remove();
+                switch (j) {
+                case 1:
+                case 2:
+                case 4:
+                    myFile[j].close();
+                    myFile[j].remove();
+                    break;
+                }
             }
             delete [] myFile;
             delete [] out;
@@ -914,46 +919,65 @@ QString	WindowNext::saveDataToFile(const QString &subject)
             return msg;
         }
         out[i].setDevice(&myFile[i]);
-        
+
         out[i] << "time_millisec";
-        for (int j = 1; j <= _numOfCH_OPT && (i != 4); ++j)
-            out[i] << ",led" + QString::number(i * 10 + j);
-        for (int j = 1; j <= (_numOfCH_IMU * 3) && (i == 4); ++j)
-            out[i] << ",led" + QString::number(i * 10 + j);
+
+        switch (i) {
+        case 1:
+        case 2:
+            for (int j = 1; j <= _numOfCH_OPT; ++j)
+                out[i] << ",led" + QString::number(i * 10 + j);
+            break;
+        case 4:
+            for (int j = 1; j <= _numOfCH_IMU * 3; ++j)
+                out[i] << ",led" + QString::number(i * 10 + j);
+            break;
+        }
         out[i] << ",label\n";
     }
 
     for (auto &data : dataRead)
     {
         id = qFromBigEndian<unsigned char>(data.mid(_bytesPA, _bytesID).constData());
-
         counter = qFromBigEndian<unsigned char>(data.mid(_bytesPA + _bytesID, _bytesCO).constData());
+
+        // in case if data missed
         if (firstCounter[id] == false)
-        {
-            for (int k = 0; k < counter - oldCounter[id] - 1; ++k) // in case if data missed
+            for (int k = 0; k < counter - oldCounter[id] - 1; ++k)
                out[id] << "-\n";
-        }
-        else
-            firstCounter[id] = true;
+
+        firstCounter[id] = false;
         oldCounter[id] = counter;
 
-        out[id] << qFromLittleEndian<qint64>(data.mid(totalBytes[id], 8).constData()) - _startTime;
-        out[id] << ",";
+        out[id] << qFromLittleEndian<qint64>(data.mid(totalBytes[id], 8).constData()) - _startTime << ",";
         for (int j = 0; j < numOfCH[id]; ++j)
         {
-            if (id != 4)
+            switch (id) {
+            case 1:
+            case 2:
                 out[id] << qFromLittleEndian<unsigned int>(data.mid(_bytesPA + _bytesID + _bytesCO + j * sizeOfCH[id], sizeOfCH[id]).constData()) << ",";
-            else
+                break;
+            case 4:
                 out[id] << qFromLittleEndian<int>(data.mid(_bytesPA + _bytesID + _bytesCO + j * sizeOfCH[id], sizeOfCH[id]).constData()) << ",";
+                break;
+            }
         }
-        out[id] << qFromLittleEndian<unsigned char>(data.mid((totalBytes[id] + 8), 1).constData()) << "\n";
+        out[id] << qFromLittleEndian<unsigned char>(data.right(1).constData()) << "\n";
     }
 
-    for (int i = 0; i < maxIdPlusOne; ++i)
-		myFile[i].close();
+    for (int i = 1; i < maxIdPlusOne; ++i)
+    {
+        switch (i) {
+        case 1:
+        case 2:
+        case 4:
+            myFile[i].close();
+            break;
+        }
+    }
     delete [] myFile;
     delete [] out;
-	delete [] oldCounter;
+    delete [] oldCounter;
 
     if (subject == "000")
         msg = "<b>Temporary</b> file created.<br>";
@@ -981,7 +1005,7 @@ bool	WindowNext::saveMetaData(const QString &excelSheet, const QString &subject)
     QString		cell;
     int     	row;
     QStringList	data;
-    
+
     if (_saveCheckBox->isChecked() == false)
     {
         _metaDataSavingFailMsg = "<br><b>REASON:</b> the save checkbox was not checked.";
@@ -1006,7 +1030,7 @@ bool	WindowNext::saveMetaData(const QString &excelSheet, const QString &subject)
         DEBUGGER();
         return true;
     }
-    
+
     if (excelSheet == "DB")
     {
         QXlsx::Document	xlsx(_metaDataFilePath);
@@ -1168,14 +1192,14 @@ QString	WindowNext::findMaxSubjectInMetadata(void)
     int	row;
     for(row = 2; row <= xlsx.dimension().lastRow(); ++row)
         if (xlsx.read(row, 1).toInt() > max)
-			max = xlsx.read(row, 1).toInt();
+            max = xlsx.read(row, 1).toInt();
     if (max == 999)
     {
         DEBUGGER();
         return (QString("000"));
     }
     if (xlsx.read(row - 1, 2) != "unknown")
-		++max;
+        ++max;
     if (max < 10)
     {
         DEBUGGER();
@@ -1188,7 +1212,7 @@ QString	WindowNext::findMaxSubjectInMetadata(void)
     }
 
     DEBUGGER();
-	return (QString::number(max));
+    return (QString::number(max));
 }
 
 QString	WindowNext::findSubjectInMetadata(QString subject, int *subjectRow)
@@ -1196,7 +1220,7 @@ QString	WindowNext::findSubjectInMetadata(QString subject, int *subjectRow)
     DEBUGGER();
 
     QString unknown = "unknown";
-    
+
     if (subjectRow)
         (*subjectRow) = 0;
     if (_metaDataFilePath == "")
@@ -1425,9 +1449,9 @@ void    WindowNext::execChartDialog(void)
             });
         this->_hBoxLayout->addWidget(&_checkBoxChannels[i]);
     }
-        
+
 #  ifdef Q_OS_MAC
-			_sliderHorizontalValues = new QLabel("  2        3        4        5        6         7        8        9       10", this);
+            _sliderHorizontalValues = new QLabel("  2        3        4        5        6         7        8        9       10", this);
 #  else
     _sliderHorizontalValues = new QLabel(" 2         3         4        5          6         7        8        9       10", this);
 #  endif
@@ -1475,30 +1499,30 @@ void    WindowNext::execPicDialog(void)
     int screenHeight = QApplication::primaryScreen()->size().height();
     int windowWidth = screenWidth * 3 / 10 - 25;
     int windowHeight = screenHeight * 9 / 10;
-    
+
     this->_picDialog->setGeometry(10 + screenWidth * 7 / 10 + 5, 30, windowWidth, windowHeight);
     this->_picDialog->setMinimumHeight(windowHeight * 3 / 5);
     this->_picDialog->setMinimumWidth(windowWidth * 3 / 5);
     this->_picDialog->show();
     this->raise();
-    
+
     _gridLayoutPic = new QGridLayout(_picDialog);
-    _picDialog->setLayout(_gridLayoutPic);  
-    
+    _picDialog->setLayout(_gridLayoutPic);
+
     _displayTimerPic = new QLabel("", this->_picDialog);
     _displayTimerPic->setStyleSheet("font-size: 50px; color: #B22222; font-weight: bold;");
     _gridLayoutPic ->addWidget(_displayTimerPic, 0, 0, Qt::AlignCenter);
-    
+
     connect(this->_threadDisplayTimer, &ThreadDisplayTimer::displayTimerText, this,
         [=](QString text)
         {
             DEBUGGER();
             _displayTimerPic->setText(text);
         });
-    
+
     this->_imageLabel = new QLabel("", this->_picDialog);
     _gridLayoutPic ->addWidget(_imageLabel, 1, 0, 6, 1, Qt::AlignCenter);
-    
+
     this->_imageSecondsLabel = new QLabel("", this->_picDialog);
     _gridLayoutPic ->addWidget(_imageSecondsLabel, 7, 0, 2, 1, Qt::AlignCenter);
     connect(this->_threadDisplayTimer, &ThreadDisplayTimer::currentSecondAndImgPath, this,
@@ -1533,7 +1557,7 @@ void    WindowNext::showImage(int currentSecond, QString imgPath)
     this->_imageSecondsLabel->setStyleSheet("font-size: " + \
                                             QString::number(_picDialog->size().height() * 2 / 9) + \
                                             "px; font-weight: bold;"); // 2/9 = rows of ImageSeconds
-    
+
     this->_imageLabel->setPixmap(scaledPixmap);
     this->_imageSecondsLabel->setText(imageSeconds);
 
@@ -1595,39 +1619,39 @@ void   WindowNext::onThreadDisplayTimerFinished(void)
             _metaDataSavingFailMsg = "<br><b>REASON:</b> the pic checkbox (label) was not checked during the session.";
         msg = this->saveDataToFile("000") + _metaDataSavingFailMsg;
     }
-    
+
     bool showChartWasChecked = this->_showChart->isChecked();
     this->_showChart->setChecked(false);
 
     bool showPicWasChecked = this->_showPic->isChecked();
     this->_showPic->setChecked(false);
-    
+
     this->_closeEventFlag = true;
-    
+
     this->_buttonClose->setEnabled(true);
     this->_buttonClose->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_BUTTON);
-	this->_buttonStart->setEnabled(true);
+    this->_buttonStart->setEnabled(true);
     this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_BUTTON);
-	this->_buttonStop->setEnabled(false);
+    this->_buttonStop->setEnabled(false);
     this->_buttonStop->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_BUTTON);
-	this->_lineEdit->setEnabled(true);
+    this->_lineEdit->setEnabled(true);
     this->_lineEdit->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
-    
+
     this->_showSelectedDir2->setEnabled(true);
     this->_showSelectedDir2->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
-    
+
     this->_recordingFolder2->setEnabled(true);
     this->_recordingFolder2->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
     this->_recordingFolder3->setEnabled(true);
     this->_recordingFolder3->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
     this->_recordingFolder4->setEnabled(true);
     this->_recordingFolder4->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
-    
+
     this->_placement2->setEnabled(true);
     this->_placement2->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
     this->_placement4->setEnabled(true);
     this->_placement4->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
-    
+
     this->_protocol2->setEnabled(true);
     this->_protocol2->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
     this->_protocol4->setEnabled(true);
@@ -1639,14 +1663,14 @@ void   WindowNext::onThreadDisplayTimerFinished(void)
         this->_showPic->setChecked(true);
 
     this->_threadDisplayTimer->wait();
-	delete this->_threadDisplayTimer;
+    delete this->_threadDisplayTimer;
     this->_threadDisplayTimer = nullptr;
 
     this->_threadReader->requestInterruption();
     this->_threadReader->wait();
     delete this->_threadReader;
     this->_threadReader = nullptr;
-    
+
     this->_finishMsgLabel->setText("Finished");
     this->_finishMsgLabel->setStyleSheet("font-size: 28px; color: #B22222; font-weight: bold;");
     this->_finishMsgLabel->show();
