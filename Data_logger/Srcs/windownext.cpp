@@ -259,8 +259,6 @@ void    WindowNext::setButtonStart(QPushButton *buttonStart)
                     this->_sizeOfCH_IMU = _threadReader->getSizeOfCH_IMU(); //ok
 
                     this->_startTime = _threadReader->getStartTime();
-                    this->_totalBytes_OPT = _bytesPA + _bytesID + _bytesCO + _numOfCH_OPT * _sizeOfCH_OPT + 8 + 1; // 8 - sizeof time; 1 - sizeof label
-                    this->_totalBytes_IMU = _bytesPA + _bytesID + _bytesCO + _numOfCH_IMU * _sizeOfCH_IMU + 8 + 1; // 8 - sizeof time; 1 - sizeof label
 
                     if (this->_showChart->isChecked() == true) // starting thread for drawing chart
                     {
@@ -866,7 +864,6 @@ QString	WindowNext::saveDataToFile(const QString &subject)
     unsigned char       counter;
     unsigned char       *oldCounter = new unsigned char[maxIdPlusOne];
     QVector<QByteArray> dataRead =_threadReader->getDataRead();
-    int                 totalBytes[maxIdPlusOne] = {0, _totalBytes_OPT, _totalBytes_OPT, 0, _totalBytes_IMU};
     int                 numOfCH[maxIdPlusOne] = {0, _numOfCH_OPT, _numOfCH_OPT, 0, _numOfCH_IMU * 3};
     int                 sizeOfCH[maxIdPlusOne] = {0, _sizeOfCH_OPT, _sizeOfCH_OPT, 0, _sizeOfCH_IMU};
     bool                firstCounter[maxIdPlusOne] = {true, true, true, true, true};
@@ -925,10 +922,12 @@ QString	WindowNext::saveDataToFile(const QString &subject)
         switch (i) {
         case 1:
         case 2:
+            // writing first line in the .csv file of OPT sensors
             for (int j = 1; j <= _numOfCH_OPT; ++j)
                 out[i] << ",led" + QString::number(i * 10 + j);
             break;
         case 4:
+            // writing first line in the .csv file of IMU sensors
             for (int j = 1; j <= _numOfCH_IMU * 3; ++j)
                 out[i] << ",led" + QString::number(i * 10 + j);
             break;
@@ -941,7 +940,7 @@ QString	WindowNext::saveDataToFile(const QString &subject)
         id = qFromBigEndian<unsigned char>(data.mid(_bytesPA, _bytesID).constData());
         counter = qFromBigEndian<unsigned char>(data.mid(_bytesPA + _bytesID, _bytesCO).constData());
 
-        // in case if data missed
+        // writing '-' character in the .csv file, if data missed
         if (firstCounter[id] == false)
             for (int k = 0; k < counter - oldCounter[id] - 1; ++k)
                out[id] << "-\n";
@@ -949,19 +948,28 @@ QString	WindowNext::saveDataToFile(const QString &subject)
         firstCounter[id] = false;
         oldCounter[id] = counter;
 
-        out[id] << qFromLittleEndian<qint64>(data.mid(totalBytes[id], 8).constData()) - _startTime << ",";
+        // writing time in the .csv file (= 'current time' - 'start time')
+        // bytes --> [xxxxxx....xxxx-TTTTTTT-x]
+        out[id] << qFromLittleEndian<qint64>(data.mid(data.size() - 8 - 1, 8).constData()) - _startTime << ",";
+
         for (int j = 0; j < numOfCH[id]; ++j)
         {
             switch (id) {
             case 1:
             case 2:
+                // unsigned int for OPT sensors data (4 bytes by protocol)
+                // bytes --> [xxxxxx....xxxx-DDDD-DDDD-DDDD]
                 out[id] << qFromLittleEndian<unsigned int>(data.mid(_bytesPA + _bytesID + _bytesCO + j * sizeOfCH[id], sizeOfCH[id]).constData()) << ",";
                 break;
             case 4:
+                // int for IMU sensors data (2 bytes by protocol)
+                // bytes --> [xxxxxx....xxxx-DD-DD-DD-DD-DD-DD-DD-DD-DD]
                 out[id] << qFromLittleEndian<int>(data.mid(_bytesPA + _bytesID + _bytesCO + j * sizeOfCH[id], sizeOfCH[id]).constData()) << ",";
                 break;
             }
         }
+
+        // writing current label in the .csv file (last byte of data)
         out[id] << qFromLittleEndian<unsigned char>(data.right(1).constData()) << "\n";
     }
 
@@ -1319,7 +1327,7 @@ void    WindowNext::execChartDialog(void)
             unsigned int    minY = -1;
             unsigned int    maxY = 0;
             char            id = qFromBigEndian<unsigned char>(data.mid(_bytesPA, _bytesID).constData());
-            qint64          time = qFromLittleEndian<qint64>(data.mid(_totalBytes_OPT - 8 - 1, 8).constData()) - _startTime;
+            qint64          time = qFromLittleEndian<qint64>(data.mid(data.size() - 8 - 1, 8).constData()) - _startTime;
             qint64          minX = time;
 
             for (int j = 0; (id == 1 || id == 2) && j < _numOfCH_OPT; ++j) // (id == 1 || id == 2) ==> to omit IMU
