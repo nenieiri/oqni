@@ -862,11 +862,11 @@ QString	WindowNext::saveDataToFile(const QString &subject)
     QTextStream         *out = new QTextStream[maxIdPlusOne];
     char                id;
     unsigned char       counter;
-    unsigned char       *oldCounter = new unsigned char[maxIdPlusOne];
+    unsigned char       oldCounter[maxIdPlusOne];
+    bool                oldCounterExists[maxIdPlusOne] = {false, false, false, false, false};
     QVector<QByteArray> dataRead =_threadReader->getDataRead();
     int                 numOfCH[maxIdPlusOne] = {0, _numOfCH_OPT, _numOfCH_OPT, 0, _numOfCH_IMU * 3};
-    int                 sizeOfCH[maxIdPlusOne] = {0, _sizeOfCH_OPT, _sizeOfCH_OPT, 0, _sizeOfCH_IMU};
-    bool                firstCounter[maxIdPlusOne] = {true, true, true, true, true};
+    int                 sizeOfCH[maxIdPlusOne] = {0, _sizeOfCH_OPT, _sizeOfCH_OPT, 0, _sizeOfCH_IMU};    
 
     this->_fullSavingPath = _selectedDirectory + "/";
     this->_fullSavingPath += _recordingFolder2->text() + "/";
@@ -879,7 +879,6 @@ QString	WindowNext::saveDataToFile(const QString &subject)
     {
         delete [] myFile;
         delete [] out;
-        delete [] oldCounter;
 
         DEBUGGER();
         return msg;
@@ -897,7 +896,6 @@ QString	WindowNext::saveDataToFile(const QString &subject)
         if (!myFile[i].open(QIODevice::WriteOnly | QIODevice::Text))
         {
             msg = "Permission denied: failed to open file for writing.<br>" + msg;
-            qDebug() << msg;
             for (int j = 1; j < i; ++j)
             {
                 switch (j) {
@@ -911,7 +909,6 @@ QString	WindowNext::saveDataToFile(const QString &subject)
             }
             delete [] myFile;
             delete [] out;
-            delete [] oldCounter;
 
             return msg;
         }
@@ -941,12 +938,12 @@ QString	WindowNext::saveDataToFile(const QString &subject)
         counter = qFromBigEndian<unsigned char>(data.mid(_bytesPA + _bytesID, _bytesCO).constData());
 
         // writing '-' character in the .csv file, if data missed
-        if (firstCounter[id] == false)
+        if (oldCounterExists[id] == true)
             for (int k = 0; k < counter - oldCounter[id] - 1; ++k)
                out[id] << "-\n";
 
-        firstCounter[id] = false;
         oldCounter[id] = counter;
+        oldCounterExists[id] = true;
 
         // writing time in the .csv file (= 'current time' - 'start time')
         // bytes --> [xxxxxx....xxxx-TTTTTTT-x]
@@ -985,7 +982,6 @@ QString	WindowNext::saveDataToFile(const QString &subject)
     }
     delete [] myFile;
     delete [] out;
-    delete [] oldCounter;
 
     if (subject == "000")
         msg = "<b>Temporary</b> file created.<br>";
