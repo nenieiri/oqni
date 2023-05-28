@@ -19,12 +19,12 @@ class ThreadDisplayTimer : public QThread
 		~ThreadDisplayTimer();
 
     public:
-		void    run() override;
-        int     getCurrentImgLabel(void);
+        void                run() override;
+        unsigned char       getCurrentImgLabel(void);
         
     private:
         int                 _durationTimerValue;
-        int                 _currentImgLabel;
+        unsigned char       _currentImgLabel;
         QLabel              *_displayTimerLabel;
         QLabel              *_imageLabel;
         QLabel              *_imageSecondsLabel;

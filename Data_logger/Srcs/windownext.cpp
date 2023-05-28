@@ -1266,7 +1266,7 @@ void    WindowNext::execChartDialog(void)
     this->raise();
 
     this->_chart = new QChart();
-    _chart->setTitle("Dynamic Line Chart");
+    _chart->setTitle("Dynamic Line Chart for OPT sensors");
     _chart->setBackgroundBrush(QBrush(QColor::fromRgb(235, 255, 255)));
     _chart->legend()->hide();
 
