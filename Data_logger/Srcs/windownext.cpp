@@ -245,18 +245,18 @@ void    WindowNext::setButtonStart(QPushButton *buttonStart)
                 {
                     DEBUGGER();
 
-                    this->_bytesPA = _threadReader->getBytesPA(); // ok
-                    this->_bytesID = _threadReader->getBytesID(); // ok
-                    this->_bytesCO = _threadReader->getBytesCO(); // ok
-                    this->_numOfS_OPT = _threadReader->getNumOfS_OPT(); // ok
-                    this->_numOfS_OPT = _threadReader->getNumOfS_IMU(); // ok
+                    this->_bytesPA = _threadReader->getBytesPA();
+                    this->_bytesID = _threadReader->getBytesID();
+                    this->_bytesCO = _threadReader->getBytesCO();
+                    this->_numOfS_OPT = _threadReader->getNumOfS_OPT();
+                    this->_numOfS_IMU = _threadReader->getNumOfS_IMU();
 
-                    this->_sampleRate_OPT = _threadReader->getSampleRate_OPT(); // ok
-                    this->_sampleRate_IMU = _threadReader->getSampleRate_IMU(); // ok
-                    this->_numOfCH_OPT = _threadReader->getNumOfCH_OPT(); // ok
-                    this->_numOfCH_IMU = _threadReader->getNumOfCH_IMU(); // ok
-                    this->_sizeOfCH_OPT = _threadReader->getSizeOfCH_OPT(); //ok
-                    this->_sizeOfCH_IMU = _threadReader->getSizeOfCH_IMU(); //ok
+                    this->_sampleRate_OPT = _threadReader->getSampleRate_OPT();
+                    this->_sampleRate_IMU = _threadReader->getSampleRate_IMU();
+                    this->_numOfCH_OPT = _threadReader->getNumOfCH_OPT();
+                    this->_numOfCH_IMU = _threadReader->getNumOfCH_IMU();
+                    this->_sizeOfCH_OPT = _threadReader->getSizeOfCH_OPT();
+                    this->_sizeOfCH_IMU = _threadReader->getSizeOfCH_IMU();
 
                     this->_startTime = _threadReader->getStartTime();
 
@@ -1411,29 +1411,22 @@ void    WindowNext::execChartDialog(void)
 
     this->_hBoxLayout = new QHBoxLayout;
     this->_checkBoxChannels = new QCheckBox[_numOfS_OPT * _numOfCH_OPT];
-    int j = -1;
-    int n = 1;
+
     for (int i = 0; i < _numOfS_OPT * _numOfCH_OPT; ++i)
     {
-        if (++j >= _numOfCH_OPT)
-        {
-            j = 0;
-            n++;
-        }
-        if (i % _numOfCH_OPT == 0)
-        {
-            this->_checkBoxChannels[i].setText("Infrared" + QString::number(n) + ((i == _numOfCH_OPT - 1) ? "                " : "  "));
-            this->_checkBoxChannels[i].setStyleSheet("color: blue; font-size: 16px;");
-        }
-        else if (i % _numOfCH_OPT == 1)
-        {
-            this->_checkBoxChannels[i].setText("Red" + QString::number(n) + ((i == _numOfCH_OPT - 1) ? "                " : "  "));
-            this->_checkBoxChannels[i].setStyleSheet("color: red; font-size: 16px;");
-        }
-        else if (i % _numOfCH_OPT == 2)
-        {
-            this->_checkBoxChannels[i].setText("Green" + QString::number(n) + ((i == _numOfCH_OPT - 1) ? "                " : "  "));
-            this->_checkBoxChannels[i].setStyleSheet("color: green; font-size: 16px;");
+        switch (i % _numOfCH_OPT) {
+        case 0:
+            this->_checkBoxChannels[i].setText("infrared" + QString::number(i / _numOfCH_OPT + 1) + "  ");
+            this->_checkBoxChannels[i].setStyleSheet("color: blue; font-size: 14px;");
+            break;
+        case 1:
+            this->_checkBoxChannels[i].setText("red" + QString::number(i / _numOfCH_OPT + 1) + "  ");
+            this->_checkBoxChannels[i].setStyleSheet("color: red; font-size: 14px;");
+            break;
+        case 2:
+            this->_checkBoxChannels[i].setText("green" + QString::number(i / _numOfCH_OPT + 1) + "          ");
+            this->_checkBoxChannels[i].setStyleSheet("color: green; font-size: 14px;");
+            break;
         }
         this->_checkBoxChannels[i].setChecked(true);
         connect(&this->_checkBoxChannels[i], &QCheckBox::clicked, this,
@@ -1457,7 +1450,7 @@ void    WindowNext::execChartDialog(void)
 #  ifdef Q_OS_MAC
             _sliderHorizontalValues = new QLabel("  2        3        4        5        6         7        8        9       10", this);
 #  else
-    _sliderHorizontalValues = new QLabel(" 2         3         4        5          6         7        8        9       10", this);
+    _sliderHorizontalValues = new QLabel(" 2         3         4        5          6         7         8        9       10", this);
 #  endif
     _sliderHorizontalValues->setStyleSheet("font-size: 12px;");
     _sliderHorizontalValues->setFixedWidth(_sliderHorizontal->width());
@@ -1489,7 +1482,7 @@ void    WindowNext::execChartDialog(void)
 
     this->_gridLayout->addWidget(_chartView, 0, 0, 1, 5);
     this->_gridLayout->addWidget(_autoScale, 1, 0, 1, 1, Qt::AlignLeft);
-    this->_gridLayout->addLayout(_hBoxLayout, 2, 0, 1, 3, Qt::AlignCenter);
+    this->_gridLayout->addLayout(_hBoxLayout, 2, 0, 1, 4, Qt::AlignCenter);
     this->_gridLayout->addWidget(_sliderHorizontalValues, 1, 4, 1, 1, Qt::AlignCenter);
     this->_gridLayout->addWidget(_sliderHorizontal, 2, 4, 1, 1, Qt::AlignCenter);
     this->_chartDialog->setLayout(_gridLayout);
