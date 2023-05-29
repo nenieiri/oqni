@@ -44,6 +44,7 @@ class WindowNext : public QDialog
         void				setButtonClose(QPushButton *buttonClose);
         void				setButtonBrowse(QPushButton *buttonBrowse);
         void                infoMessageBox(const QString &msg);
+        void                warningMessageBox(const QString &msg);
         
     private:
 		void				setParametersDesign(void);

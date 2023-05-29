@@ -241,6 +241,21 @@ void    WindowNext::setButtonStart(QPushButton *buttonStart)
 
             this->_finishMsgLabel->hide();
             connect(this->_threadDisplayTimer, &ThreadDisplayTimer::finishedSignal, this, &WindowNext::onThreadDisplayTimerFinished);
+            connect(_threadReader, &ThreadReader::failedToRun, this,
+                    [=](int errorCode)
+                    {
+                        this->_threadReader->requestInterruption();
+                        switch (errorCode) {
+                        case 1:
+                            this->warningMessageBox("Faild to open serial port.");
+                            break;
+                        case 2:
+                            this->warningMessageBox("Failed to get configuration.<br>Please try reconnecting the USB cable.</br>");
+                            break;
+                        }
+                        this->_buttonStop->click();
+                    });
+
             connect(_threadReader, &ThreadReader::protocolConfigDataIsReady, this,
                 [=](void)
                 {
@@ -1569,6 +1584,21 @@ void    WindowNext::infoMessageBox(const QString &msg)
     msgBox.setIcon(QMessageBox::Information);
     msgBox.addButton(QMessageBox::Ok);
     msgBox.setWindowIcon(QIcon(":/Imgs/oqni.ico"));
+    msgBox.exec();
+
+    DEBUGGER();
+}
+
+void    WindowNext::warningMessageBox(const QString &msg)
+{
+    DEBUGGER();
+
+    QMessageBox msgBox;
+    msgBox.setWindowTitle(tr("Warning"));
+    msgBox.setIcon(QMessageBox::Warning);
+    msgBox.addButton(QMessageBox::Ok);
+    msgBox.setWindowIcon(QIcon(":/Imgs/oqni.ico"));
+    msgBox.setText(msg);
     msgBox.exec();
 
     DEBUGGER();

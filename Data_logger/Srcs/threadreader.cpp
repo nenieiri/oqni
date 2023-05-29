@@ -150,11 +150,13 @@ void    ThreadReader::run()
     {
         qDebug() << "Faild to open serial port!";
         DEBUGGER();
+        emit failedToRun(1);
         return ;
     }
     if (requestPortConfigAndStart(port) == false)
     {
         DEBUGGER();
+        emit failedToRun(2);
         return ;
     }
     

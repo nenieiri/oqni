@@ -46,6 +46,7 @@ class ThreadReader : public QThread
     signals:
         void				lastRowOfData(QByteArray data);
         void				protocolConfigDataIsReady(void);
+        void				failedToRun(int errorCode);
         
     private:
         void				stopAndClosePort(QSerialPort &port);
