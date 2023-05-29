@@ -22,6 +22,7 @@
 # include <QtEndian>
 # include <QSlider>
 
+# include <algorithm>
 # include <xlsxdocument.h>
 
 # include "threadreader.hpp"

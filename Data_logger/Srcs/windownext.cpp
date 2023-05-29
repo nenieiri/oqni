@@ -1351,10 +1351,8 @@ void    WindowNext::execChartDialog(void)
                         {
                             for(int j = 0; j < _series[i].count(); j++)
                             {
-                                if(_series[i].at(j).y() > maxY)
-                                    maxY = _series[i].at(j).y();
-                                if(_series[i].at(j).y() < minY)
-                                    minY = _series[i].at(j).y();
+                                maxY = std::max(maxY, (unsigned int)_series[i].at(j).y());
+                                minY = std::min(minY, (unsigned int)_series[i].at(j).y());
                             }
                         }
                     }
@@ -1364,12 +1362,9 @@ void    WindowNext::execChartDialog(void)
                     _axisY->setRange(minY, maxY);
 
                     for (int k = 0; k < _numOfS_OPT * _numOfCH_OPT; ++k)
-                    {
-                        if (_series[k].count() == 0)
-                            continue ;
-                        if (_series[k].at(0).x() < minX)
-                            minX = _series[k].at(0).x();
-                    }
+                        if (_series[k].count() != 0)
+                            minX = std::min(minX, (qint64)_series[k].at(0).x());
+
                     _axisX->setRange(minX, minX + _chartDuration);
                     _chartTimeFlag = time + _startTime;
                 }
