@@ -17,6 +17,8 @@ ThreadReader::ThreadReader(int durationTimerValue, ComPort *comPort, ThreadDispl
     this->_bytesCO = 1;  // Counter bytes
     this->_numOfS_OPT = 2; // Number of OPT sensors
     this->_numOfS_IMU = 3; // Number of IMU sensors
+    this->_bytesLBL = 1; // Label bytes (frame type 2 format)
+    this->_bytesTC = 4; // Time Counter bytes (frame type 2 format)
     
     DEBUGGER();
 }
@@ -127,13 +129,15 @@ void    ThreadReader::run()
     DEBUGGER();
     
     QSerialPort port;
-    QByteArray  prefixData;
+    QByteArray  dataRead;
     int			bytesTillData;
     int			bytesTotal_OPT;
     int			bytesTotal_IMU;
-    int			bytesTotal;
-    int			restOfBytes;
+    int			bytesTotal = 0;
+    int			restOfBytes = 0;
     int         breakCondition;
+    qint64      currentTime = 0;
+    int         label = 0;
 
     port.setPort(_comPort->getPort());
     port.setBaudRate(_comPort->getBaudRate());
@@ -170,7 +174,7 @@ void    ThreadReader::run()
         {
             if (port.size() >= _bytesPA + _bytesID)
             {
-                prefixData = port.read(_bytesPA + _bytesID);
+                dataRead = port.read(_bytesPA + _bytesID); // first 5 bytes to check ID
                 break ;
             }
         }
@@ -180,30 +184,50 @@ void    ThreadReader::run()
             break ;
         }
 
-        char ID = qFromLittleEndian<char>(prefixData.right(1).constData());
+        char ID = qFromLittleEndian<char>(dataRead.right(1).constData());
 
         switch (ID) {
-            case 4 :
-                restOfBytes = bytesTotal_IMU - _bytesPA - _bytesID;
-                bytesTotal = bytesTotal_IMU;
-                break;
-            default :
-                restOfBytes = bytesTotal_OPT - _bytesPA - _bytesID;
-                bytesTotal = bytesTotal_OPT;
-                break;
+        case 1:
+        case 2:
+            restOfBytes = bytesTotal_OPT - _bytesPA - _bytesID;
+            bytesTotal = bytesTotal_OPT;
+            break;
+        case 4:
+            restOfBytes = bytesTotal_IMU - _bytesPA - _bytesID;
+            bytesTotal = bytesTotal_IMU;
+            break;
+        case 7:
+            restOfBytes = _bytesLBL + _bytesTC;
+            bytesTotal = _bytesPA + _bytesID + restOfBytes;
+            break;
+        default :
+            qDebug() << "Wrong ID received";
         }
 
+        // reading rest of bytes
         breakCondition = 5;
         while (--breakCondition && port.waitForReadyRead(MY_READY_READ_TIME))
         {
             if (port.size() >= bytesTotal)
             {
-                prefixData.append(port.read(restOfBytes));
-                qint64 currentTime = QDateTime::currentDateTime().toMSecsSinceEpoch();
-                prefixData.append(QByteArray::fromRawData(reinterpret_cast<const char*>(&currentTime), sizeof(qint64)));
-                int label = this->_threadDisplayTimer->getCurrentImgLabel();
-                prefixData.append(_showPic->isChecked() ? label : 0);
-                _dataRead.push_back(prefixData);
+                dataRead.append(port.read(restOfBytes));
+                switch (ID) {
+                case 1:
+                case 2:
+                case 4:
+                    currentTime = QDateTime::currentDateTime().toMSecsSinceEpoch();
+                    dataRead.append(QByteArray::fromRawData(reinterpret_cast<const char*>(&currentTime), sizeof(qint64)));
+                    label = this->_threadDisplayTimer->getCurrentImgLabel();
+                    dataRead.append(_showPic->isChecked() ? label : 0);
+                    _dataRead.push_back(dataRead);
+                    emit lastRowOfData(dataRead);
+                    break;
+                case 7:
+                    label = qFromLittleEndian<int>(dataRead.mid(_bytesPA + _bytesID, _bytesLBL).constData());
+                    this->_threadDisplayTimer->setCurrentLabel(label);
+                    currentTime = qFromLittleEndian<qint64>(dataRead.right(_bytesTC).constData()); // write in the file later
+                    break;
+                }
                 break ;
             }
         }
@@ -212,7 +236,6 @@ void    ThreadReader::run()
             qDebug() << "TimeOut while reading data.";
             break ;
         }
-        emit lastRowOfData(_dataRead.back());
     }
     this->stopAndClosePort(port);
     
@@ -301,6 +324,16 @@ bool    ThreadReader::requestPortConfigAndStart(QSerialPort &port)
         DEBUGGER();
         return false;
     }
+
+    // sending current label to the microcontroller
+    connect(_threadDisplayTimer, &ThreadDisplayTimer::currentLabel, this,
+        [&](int label)
+        {
+            QByteArray dataWrite;
+            dataWrite.append(static_cast<char>(7)); // First byte
+            dataWrite.append(static_cast<char>(label)); // Second byte
+            port.write(dataWrite);
+        });
 
     DEBUGGER();
     return true;

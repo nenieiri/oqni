@@ -84,7 +84,10 @@ void    ThreadDisplayTimer::run()
             imgPath = this->_expProtocolsPath.left(this->_expProtocolsPath.length() - 13) + (*it)[3];
             label = (*it)[1].toInt();
         }
-        this->_currentImgLabel = (char)label;
+        this->_tmpLabel = (unsigned char)label;
+        if (this->_currentImgLabel != (unsigned char)label)
+            emit currentLabel(label);
+//        this->_currentImgLabel = (unsigned char)label; // tmp
         emit currentSecondAndImgPath(currentSecond, imgPath);
         currentSecond--;
         
@@ -106,5 +109,14 @@ void    ThreadDisplayTimer::run()
 unsigned char ThreadDisplayTimer::getCurrentImgLabel(void)
 {
     DEBUGGER();
-    return this->_currentImgLabel;
+    if (this->_currentImgLabel)
+        return this->_currentImgLabel;
+    qDebug() << "Warning: Label not received. Temporary label was returned.";
+    return this->_tmpLabel;
+}
+
+ void ThreadDisplayTimer::setCurrentLabel(int receivedLabel)
+{
+    DEBUGGER();
+    this->_currentImgLabel = (unsigned char)receivedLabel;
 }
