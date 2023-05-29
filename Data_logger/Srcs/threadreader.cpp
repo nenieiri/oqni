@@ -292,7 +292,7 @@ bool    ThreadReader::requestPortConfigAndStart(QSerialPort &port)
         this->stopAndClosePort(port);
         return false;
     }
-    qDebug() << "'AA55AA55' received."; // tmp
+    qDebug() << "'AA55AA55' received: SUCCESS"; // tmp
 
     // parsing data from frame of type3 fromat by the protocol (two frames: OPT and IMU)
     this->_sampleRate_OPT = qFromLittleEndian<short>(dataRead.mid(4, 2).constData());

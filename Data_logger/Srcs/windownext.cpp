@@ -102,6 +102,7 @@ WindowNext::WindowNext(MainWindow *parent)
     this->_displayTimerPic = nullptr;
     this->_imageLabel = nullptr;
     this->_imageSecondsLabel = nullptr;
+    this->_picDialog = nullptr;
 
     this->setModal(true);
 
@@ -778,6 +779,7 @@ void    WindowNext::setParametersDesign(void)
                 disconnect(this->_threadDisplayTimer, &ThreadDisplayTimer::currentSecondAndImgPath, this, nullptr);
                 disconnect(this->_threadDisplayTimer, &ThreadDisplayTimer::currentLabel, this, nullptr);
                 this->_labelIsOk = false; // save the file in "000" directory because it will have "labes" with a 0 value
+                DEBUGGER();
             }
 
             DEBUGGER();
