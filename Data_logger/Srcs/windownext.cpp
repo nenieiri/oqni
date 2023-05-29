@@ -776,6 +776,7 @@ void    WindowNext::setParametersDesign(void)
                 this->_picDialog = nullptr;
                 disconnect(this->_threadDisplayTimer, &ThreadDisplayTimer::displayTimerText, this, nullptr);
                 disconnect(this->_threadDisplayTimer, &ThreadDisplayTimer::currentSecondAndImgPath, this, nullptr);
+                disconnect(this->_threadDisplayTimer, &ThreadDisplayTimer::currentLabel, this, nullptr);
                 this->_labelIsOk = false; // save the file in "000" directory because it will have "labes" with a 0 value
             }
 
