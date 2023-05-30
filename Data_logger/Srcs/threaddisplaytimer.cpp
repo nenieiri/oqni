@@ -31,6 +31,7 @@ ThreadDisplayTimer::ThreadDisplayTimer(int durationTimerValue, QDialog *windowNe
     this->_expProtocol = expProtocol;
 
     this->_currentImgLabel = (char)(*_expProtocol.begin())[1].toInt();
+    this->_tmpLabel = 0;
     
     DEBUGGER();
 }
@@ -84,10 +85,9 @@ void    ThreadDisplayTimer::run()
             imgPath = this->_expProtocolsPath.left(this->_expProtocolsPath.length() - 13) + (*it)[3];
             label = (*it)[1].toInt();
         }
-        this->_tmpLabel = (unsigned char)label;
-        if (this->_currentImgLabel != (unsigned char)label)
+        if (this->_tmpLabel != (unsigned char)label)
             emit currentLabel(label);
-//        this->_currentImgLabel = (unsigned char)label; // tmp
+        this->_tmpLabel = (unsigned char)label;
         emit currentSecondAndImgPath(currentSecond, imgPath);
         currentSecond--;
         

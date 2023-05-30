@@ -264,6 +264,7 @@ void    WindowNext::setButtonStart(QPushButton *buttonStart)
                     this->_bytesPA = _threadReader->getBytesPA();
                     this->_bytesID = _threadReader->getBytesID();
                     this->_bytesCO = _threadReader->getBytesCO();
+                    this->_bytesTC = _threadReader->getBytesTC();
                     this->_numOfS_OPT = _threadReader->getNumOfS_OPT();
                     this->_numOfS_IMU = _threadReader->getNumOfS_IMU();
 
@@ -884,7 +885,8 @@ QString	WindowNext::saveDataToFile(const QString &subject)
     bool                oldCounterExists[maxIdPlusOne] = {false, false, false, false, false};
     QVector<QByteArray> dataRead =_threadReader->getDataRead();
     int                 numOfCH[maxIdPlusOne] = {0, _numOfCH_OPT, _numOfCH_OPT, 0, _numOfCH_IMU * 3};
-    int                 sizeOfCH[maxIdPlusOne] = {0, _sizeOfCH_OPT, _sizeOfCH_OPT, 0, _sizeOfCH_IMU};    
+    int                 sizeOfCH[maxIdPlusOne] = {0, _sizeOfCH_OPT, _sizeOfCH_OPT, 0, _sizeOfCH_IMU};
+    int                 timeCounter[maxIdPlusOne] = {0, 0, 0, 0, 0};
 
     this->_fullSavingPath = _selectedDirectory + "/";
     this->_fullSavingPath += _recordingFolder2->text() + "/";
@@ -947,7 +949,7 @@ QString	WindowNext::saveDataToFile(const QString &subject)
                 out[i] << ",led" + QString::number(i * 10 + j);
             break;
         }
-        out[i] << ",label\n";
+        out[i] << ",label,time counter\n";
     }
 
     for (auto &data : dataRead)
@@ -964,8 +966,8 @@ QString	WindowNext::saveDataToFile(const QString &subject)
         oldCounterExists[id] = true;
 
         // writing time in the .csv file (= 'current time' - 'start time')
-        // bytes --> [xxxxxx....xxxx-TTTTTTT-x]
-        out[id] << qFromLittleEndian<qint64>(data.mid(data.size() - 8 - 1, 8).constData()) - _startTime << ",";
+        // bytes --> [xxxxxx....xxxx-TTTTTTT-x-xxxx]
+        out[id] << qFromLittleEndian<qint64>(data.mid(data.size() - 8 - 1 - _bytesTC, 8).constData()) - _startTime << ",";
 
         for (int j = 0; j < numOfCH[id]; ++j)
         {
@@ -973,19 +975,29 @@ QString	WindowNext::saveDataToFile(const QString &subject)
             case 1:
             case 2:
                 // unsigned int for OPT sensors data (4 bytes by protocol)
-                // bytes --> [xxxxxx....xxxx-DDDD-DDDD-DDDD]
+                // bytes --> [xxxx-x-x-DDDD-DDDD-DDDD-xxxxxxxx-x-xxxx]
                 out[id] << qFromLittleEndian<unsigned int>(data.mid(_bytesPA + _bytesID + _bytesCO + j * sizeOfCH[id], sizeOfCH[id]).constData()) << ",";
                 break;
             case 4:
                 // int for IMU sensors data (2 bytes by protocol)
-                // bytes --> [xxxxxx....xxxx-DD-DD-DD-DD-DD-DD-DD-DD-DD]
+                // bytes --> [xxxx-x-x-DD-DD-DD-DD-DD-DD-DD-DD-DD-xxxxxxxx-x-xxxx]
                 out[id] << qFromLittleEndian<int>(data.mid(_bytesPA + _bytesID + _bytesCO + j * sizeOfCH[id], sizeOfCH[id]).constData()) << ",";
                 break;
             }
         }
 
-        // writing current label in the .csv file (last byte of data)
-        out[id] << qFromLittleEndian<unsigned char>(data.right(1).constData()) << "\n";
+        // writing current label in the .csv file (1 bytes by protocol)
+        // bytes --> [xxxx-x-x-xx...xx-xxxxxxxx-L-xxxx]
+        out[id] << qFromLittleEndian<unsigned char>(data.mid(data.size() - 1 - _bytesTC, 1).constData()) << ",";
+
+        // writing Time Counter (received from MC) in the .csv file (4 bytes by protocol)
+        // bytes --> [xxxx-x-x-xx...xx-xxxxxxxx-x-CCCC]
+        int tc = qFromLittleEndian<int>(data.right(_bytesTC).constData());
+        if (tc != timeCounter[id])
+            out[id] << tc << '\n';
+        else
+            out[id] << '\n';
+        timeCounter[id] = tc;
     }
 
     for (int i = 1; i < maxIdPlusOne; ++i)

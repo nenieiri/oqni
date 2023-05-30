@@ -30,6 +30,7 @@ class ThreadReader : public QThread
         const char          getBytesPA() const;
         const char          getBytesID() const;
         const char          getBytesCO() const;
+        const char          getBytesTC() const;
 
         const short         getSampleRate_OPT() const;
         const short         getSampleRate_IMU() const;
@@ -74,6 +75,8 @@ class ThreadReader : public QThread
         char                _numOfCH_IMU; // Number of IMU channels (N)
         char                _sizeOfCH_OPT; // Number of bytes in one OPT channel data (M)
         char                _sizeOfCH_IMU; // Number of bytes in one IMU channel data (M)
+
+        QByteArray          _timeCounter; // Time Conuter received from MC (frame type 2 format)
 
         QVector<QByteArray> _dataRead;
         qint64              _startTime;

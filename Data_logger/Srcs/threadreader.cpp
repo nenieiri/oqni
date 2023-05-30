@@ -19,6 +19,8 @@ ThreadReader::ThreadReader(int durationTimerValue, ComPort *comPort, ThreadDispl
     this->_numOfS_IMU = 3; // Number of IMU sensors
     this->_bytesLBL = 1; // Label bytes (frame type 2 format)
     this->_bytesTC = 4; // Time Counter bytes (frame type 2 format)
+    this->_timeCounter.resize(4); // initial 4 bytes of Time Counter
+    this->_timeCounter.fill(0); // initial value (0) of Time Counter
     
     DEBUGGER();
 }
@@ -62,6 +64,12 @@ const char	ThreadReader::getBytesCO() const
 {
     DEBUGGER();
     return (this->_bytesCO);
+}
+
+const char	ThreadReader::getBytesTC() const
+{
+    DEBUGGER();
+    return (this->_bytesTC);
 }
 
 const char	ThreadReader::getNumOfS_OPT() const
@@ -221,13 +229,14 @@ void    ThreadReader::run()
                     dataRead.append(QByteArray::fromRawData(reinterpret_cast<const char*>(&currentTime), sizeof(qint64)));
                     label = this->_threadDisplayTimer->getCurrentImgLabel();
                     dataRead.append(_showPic->isChecked() ? label : 0);
-                    _dataRead.push_back(dataRead);
                     emit lastRowOfData(dataRead);
+                    dataRead.append(_timeCounter);
+                    _dataRead.push_back(dataRead);                    
                     break;
                 case 7:
                     label = qFromLittleEndian<int>(dataRead.mid(_bytesPA + _bytesID, _bytesLBL).constData());
                     this->_threadDisplayTimer->setCurrentLabel(label);
-                    currentTime = qFromLittleEndian<qint64>(dataRead.right(_bytesTC).constData()); // write in the file later
+                    _timeCounter = dataRead.right(_bytesTC);
                     break;
                 }
                 break ;

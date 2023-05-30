@@ -121,6 +121,7 @@ class WindowNext : public QDialog
         char                _bytesPA;  // Preamble bytes
         char                _bytesID;  // ID bytes
         char                _bytesCO;  // Counter bytes
+        char                _bytesTC;  // Time Counter bytes (frame type 2 format)
         char                _numOfS_OPT;  // Number of connected OPT sensors
         char                _numOfS_IMU;  // Number of connected IMU sensors
 
