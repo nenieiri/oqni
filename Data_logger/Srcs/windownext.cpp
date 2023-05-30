@@ -11,7 +11,7 @@ WindowNext::WindowNext(MainWindow *parent)
     int         screenWidth = screenSize.width();
     int         screenHeight = screenSize.height();
     int         windowWidth = 600;
-    int         windowHeight = 350;
+    int         windowHeight = 390;
 
     this->_chartDuration = 6 * 1000;
     this->_chartUpdateRatio = 3;
@@ -79,9 +79,9 @@ WindowNext::WindowNext(MainWindow *parent)
     this->_protocol4->addItems({"left leg", "right leg"});
     this->readExpProtocol();
 
-    this->_timer1 = new QLabel("Duration (seconds):", this);
+    this->_durationSec1 = new QLabel("Duration (seconds):", this);
 
-    this->_lineEdit = new QLineEdit(this);
+    this->_durationSec2 = new QLineEdit(this);
     this->_finishMsgLabel = new QLabel("", this);
 
     this->_display = new QLabel("Display:", this);
@@ -89,6 +89,12 @@ WindowNext::WindowNext(MainWindow *parent)
     this->_showPic = new QCheckBox("pic", this);
     this->_saveCheckBox = new QCheckBox("save and update MD", this);
     this->_saveCheckBox->setChecked(true);
+
+    this->_lightIntensity1 = new QLabel("Light intensity:", this);
+    this->_lightIntensity2 = new QLineEdit(this);
+
+    this->_distance1 = new QLabel("Distance:", this);
+    this->_distance2 = new QLineEdit(this);
 
     this->_chartDialog = nullptr;
     this->_chart = nullptr;
@@ -145,13 +151,17 @@ WindowNext::~WindowNext()
     delete _protocol2;
     delete _protocol3;
     delete _protocol4;
-    delete _timer1;
-    delete _lineEdit;
+    delete _durationSec1;
+    delete _durationSec2;
     delete _finishMsgLabel;
     delete _display;
     delete _showChart;
     delete _showPic;
     delete _saveCheckBox;
+    delete _lightIntensity1;
+    delete _lightIntensity2;
+    delete _distance1;
+    delete _distance2;
 
     DEBUGGER();
 }
@@ -207,8 +217,12 @@ void    WindowNext::setButtonStart(QPushButton *buttonStart)
             this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_BUTTON);
             this->_buttonStop->setEnabled(true);
             this->_buttonStop->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_BUTTON);
-            this->_lineEdit->setEnabled(false);
-            this->_lineEdit->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_TEXT);
+            this->_durationSec2->setEnabled(false);
+            this->_durationSec2->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_TEXT);
+            this->_lightIntensity2->setEnabled(false);
+            this->_lightIntensity2->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_TEXT);
+            this->_distance2->setEnabled(false);
+            this->_distance2->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_TEXT);
 
             this->_showSelectedDir2->setEnabled(false);
             this->_showSelectedDir2->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_TEXT);
@@ -240,6 +254,7 @@ void    WindowNext::setButtonStart(QPushButton *buttonStart)
             this->_labelIsOk = _showPic->isChecked() ? true : false;
 
             this->_finishMsgLabel->hide();
+
             connect(this->_threadDisplayTimer, &ThreadDisplayTimer::finishedSignal, this, &WindowNext::onThreadDisplayTimerFinished);
             connect(_threadReader, &ThreadReader::failedToRun, this,
                     [=](int errorCode)
@@ -338,8 +353,12 @@ void		WindowNext::setButtonStop(QPushButton *buttonStop)
             this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_BUTTON);
             this->_buttonStop->setEnabled(false);
             this->_buttonStop->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_BUTTON);
-            this->_lineEdit->setEnabled(true);
-            this->_lineEdit->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
+            this->_durationSec2->setEnabled(true);
+            this->_durationSec2->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
+            this->_lightIntensity2->setEnabled(true);
+            this->_lightIntensity2->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
+            this->_distance2->setEnabled(true);
+            this->_distance2->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
 
             this->_showSelectedDir2->setEnabled(true);
             this->_showSelectedDir2->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
@@ -491,17 +510,29 @@ void    WindowNext::setParametersDesign(void)
     this->_protocol4->setGeometry(438, 170, 150, 30);
     this->_protocol4->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
 
-    this->_timer1->setGeometry(10, 210, 160, 30);
-    this->_timer1->setStyleSheet("font-size: 18px;");
+    this->_durationSec1->setGeometry(10, 210, 160, 30);
+    this->_durationSec1->setStyleSheet("font-size: 18px;");
 
-    this->_lineEdit->setPlaceholderText("enter here");
-    this->_lineEdit->setGeometry(180, 210, 105, 30);
-    this->_lineEdit->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
-    this->_lineEdit->setToolTip("Please enter only numeric values.");
-    this->_lineEdit->setMaxLength(3);
-    this->_lineEdit->setAlignment(Qt::AlignCenter);
+    this->_durationSec2->setPlaceholderText("enter here");
+    this->_durationSec2->setGeometry(180, 210, 105, 30);
+    this->_durationSec2->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
+    this->_durationSec2->setToolTip("Please enter only numeric values.");
+    this->_durationSec2->setMaxLength(3);
+    this->_durationSec2->setAlignment(Qt::AlignCenter);
 
-    this->_finishMsgLabel->setGeometry(220, 248, 160, 40);
+    this->_lightIntensity2->setPlaceholderText("enter here");
+    this->_lightIntensity2->setGeometry(180, 250, 105, 30);
+    this->_lightIntensity2->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
+    this->_lightIntensity2->setToolTip("If you change this value and click Start, it will be updated in the MetaData file.");
+    this->_lightIntensity2->setAlignment(Qt::AlignCenter);
+
+    this->_distance2->setPlaceholderText("enter here");
+    this->_distance2->setGeometry(180, 290, 105, 30);
+    this->_distance2->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
+    this->_distance2->setToolTip("If you change this value and click Start, it will be updated in the MetaData file.");
+    this->_distance2->setAlignment(Qt::AlignCenter);
+
+    this->_finishMsgLabel->setGeometry(367, 280, 160, 40);
     this->_finishMsgLabel->setAlignment(Qt::AlignCenter);
 
     this->_display->setGeometry(300, 210, 160, 30);
@@ -518,9 +549,15 @@ void    WindowNext::setParametersDesign(void)
     this->_saveCheckBox->setGeometry(438, 240, 160, 30);
     this->_saveCheckBox->setStyleSheet("font-size: 14px;");
 
+    this->_lightIntensity1->setGeometry(10, 250, 160, 30);
+    this->_lightIntensity1->setStyleSheet("font-size: 18px;");
+
+    this->_distance1->setGeometry(10, 290, 160, 30);
+    this->_distance1->setStyleSheet("font-size: 18px;");
+
     /* --- If the text contains a non-numeric character, show warrnig msg --- */
-    this->_lineEdit->setText(QString::number(this->_durationMax));
-    connect(this->_lineEdit, &QLineEdit::textChanged, this,
+    this->_durationSec2->setText(QString::number(this->_durationMax));
+    connect(this->_durationSec2, &QLineEdit::textChanged, this,
         [=](void)
         {
             DEBUGGER();
@@ -528,12 +565,12 @@ void    WindowNext::setParametersDesign(void)
             this->_durationTimerValue = 0;
             this->_buttonStart->setEnabled(false);
             this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_BUTTON);
-            if (this->_lineEdit->text().length() == 0)
+            if (this->_durationSec2->text().length() == 0)
             {
-                this->_lineEdit->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
+                this->_durationSec2->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
                 return ;
             }
-            QString		text = this->_lineEdit->text();
+            QString		text = this->_durationSec2->text();
             bool		hasOnlyDigits = true;
             QMessageBox	msgBox;
 
@@ -547,7 +584,7 @@ void    WindowNext::setParametersDesign(void)
                 if (text[i].isDigit() == false)
                 {
                     hasOnlyDigits = false;
-                    this->_lineEdit->setStyleSheet("background-color: red; padding: 0 5px; color: blue;");
+                    this->_durationSec2->setStyleSheet("background-color: red; padding: 0 5px; color: blue;");
                     msgBox.setText(tr("Please enter a numeric value."));
                     msgBox.exec();
                     break ;
@@ -555,9 +592,9 @@ void    WindowNext::setParametersDesign(void)
             }
             if (hasOnlyDigits == true)
             {
-                if (this->_lineEdit->text().toInt() > this->_durationMax)
+                if (this->_durationSec2->text().toInt() > this->_durationMax)
                 {
-                    this->_lineEdit->setStyleSheet("background-color: red; padding: 0 5px; color: blue;");
+                    this->_durationSec2->setStyleSheet("background-color: red; padding: 0 5px; color: blue;");
                     QString msg = "Duration can't be greater<br>than protocol time (";
                     msg += QString::number(this->_durationMax) + " sec).";
                     msgBox.setText(msg);
@@ -565,7 +602,7 @@ void    WindowNext::setParametersDesign(void)
                 }
                 else
                 {
-                    this->_lineEdit->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
+                    this->_durationSec2->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
                     this->_durationTimerValue = text.toInt();
                     this->_buttonStart->setEnabled(true);
                     this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_BUTTON);
@@ -574,6 +611,46 @@ void    WindowNext::setParametersDesign(void)
 
             DEBUGGER();
         });
+
+    /* --- If the Light intensity lineEdit text changed --- */
+    this->_lightIntensity2->setText(this->getCellFromMetadata("exp_param", 2, 1));
+    connect(this->_lightIntensity2, &QLineEdit::textChanged, this,
+            [=](void)
+            {
+                DEBUGGER();
+
+                switch (this->_lightIntensity2->text().length()) {
+                case 0:
+                    this->_buttonStart->setEnabled(false);
+                    this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_BUTTON);
+                    break;
+                default :
+                    this->_buttonStart->setEnabled(true);
+                    this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_BUTTON);
+                }
+
+                DEBUGGER();
+            });
+
+    /* --- If the Distance lineEdit text changed --- */
+    this->_distance2->setText(this->getCellFromMetadata("exp_param", 2, 2));
+    connect(this->_distance2, &QLineEdit::textChanged, this,
+            [=](void)
+            {
+                DEBUGGER();
+
+                switch (this->_distance2->text().length()) {
+                case 0:
+                    this->_buttonStart->setEnabled(false);
+                    this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_BUTTON);
+                    break;
+                default :
+                    this->_buttonStart->setEnabled(true);
+                    this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_BUTTON);
+                }
+
+                DEBUGGER();
+            });
 
     /* --- If the SaveTo (Browse) lineEdit text changed --- */
     connect(this->_showSelectedDir2, &QLineEdit::textChanged, this,
@@ -683,7 +760,7 @@ void    WindowNext::setParametersDesign(void)
             DEBUGGER();
 
             this->readExpProtocol();
-            this->_lineEdit->setText(QString::number(this->_durationMax));
+            this->_durationSec2->setText(QString::number(this->_durationMax));
             this->_protocol2->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT2);
 
             DEBUGGER();
@@ -1079,6 +1156,8 @@ bool	WindowNext::saveMetaData(const QString &excelSheet, const QString &subject)
         data.append(_placement4->currentText());
         data.append(_protocol2->currentText());
         data.append(_protocol4->currentText());
+        data.append(_lightIntensity2->text());
+        data.append(_distance2->text());
 
         for(int col = 1; col <= data.size(); ++col)
         {
@@ -1103,6 +1182,7 @@ bool	WindowNext::saveMetaData(const QString &excelSheet, const QString &subject)
             DEBUGGER();
             return true;
         }
+
         if (subjectName == "unknown" || !subjectRow)
         {
             QXlsx::Document	xlsx(_metaDataFilePath);
@@ -1278,6 +1358,37 @@ QString	WindowNext::findSubjectInMetadata(QString subject, int *subjectRow)
 
     DEBUGGER();
     return unknown;
+}
+
+QString	WindowNext::getCellFromMetadata(QString sheet, int row, int col)
+{
+    DEBUGGER();
+
+    if (_metaDataFilePath == "")
+    {
+        DEBUGGER();
+        return "";
+    }
+    QXlsx::Document xlsx(_metaDataFilePath);
+    xlsx.selectSheet(sheet);
+    return xlsx.read(row, col).toString();
+}
+
+void	WindowNext::setCellInMetadata(QString sheet, int row, int col, const QString &text)
+{
+    DEBUGGER();
+
+    if (_metaDataFilePath == "")
+    {
+        DEBUGGER();
+        return;
+    }
+    QXlsx::Document xlsx(_metaDataFilePath);
+    xlsx.selectSheet(sheet);
+    xlsx.write(QXlsx::CellReference(row, col).toString(), text);
+    xlsx.save();
+
+    DEBUGGER();
 }
 
 void    WindowNext::execChartDialog(void)
@@ -1671,8 +1782,12 @@ void   WindowNext::onThreadDisplayTimerFinished(void)
     this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_BUTTON);
     this->_buttonStop->setEnabled(false);
     this->_buttonStop->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_BUTTON);
-    this->_lineEdit->setEnabled(true);
-    this->_lineEdit->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
+    this->_durationSec2->setEnabled(true);
+    this->_durationSec2->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
+    this->_lightIntensity2->setEnabled(true);
+    this->_lightIntensity2->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
+    this->_distance2->setEnabled(true);
+    this->_distance2->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
 
     this->_showSelectedDir2->setEnabled(true);
     this->_showSelectedDir2->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
@@ -1713,6 +1828,9 @@ void   WindowNext::onThreadDisplayTimerFinished(void)
     this->_finishMsgLabel->show();
     this->infoMessageBox(msg);
     this->_metaDataSavingFailMsg = "";
+
+    this->setCellInMetadata("exp_param", 2, 1, _lightIntensity2->text());
+    this->setCellInMetadata("exp_param", 2, 2, _distance2->text());
 
     DEBUGGER();
 }

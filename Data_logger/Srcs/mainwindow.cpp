@@ -297,9 +297,9 @@ void    MainWindow::buttonNextAction()
     {
 		this->_windowNext = new WindowNext(this);
 		this->_windowNext->setButtonBrowse(createButton("Browse", 490, 50, 100, 30, nullptr, this->_windowNext));
-		this->_windowNext->setButtonStart(createButton("Start", 140, 300, 100, 30, nullptr, this->_windowNext));
-		this->_windowNext->setButtonStop(createButton("Stop", 250, 300, 100, 30, nullptr, this->_windowNext));
-		this->_windowNext->setButtonClose(createButton("Close", 360, 300, 100, 30, nullptr, this->_windowNext));
+        this->_windowNext->setButtonStart(createButton("Start", 140, 340, 100, 30, nullptr, this->_windowNext));
+        this->_windowNext->setButtonStop(createButton("Stop", 250, 340, 100, 30, nullptr, this->_windowNext));
+        this->_windowNext->setButtonClose(createButton("Close", 360, 340, 100, 30, nullptr, this->_windowNext));
 		
 		this->_windowNext->exec();
     }

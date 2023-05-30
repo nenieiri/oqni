@@ -59,6 +59,8 @@ class WindowNext : public QDialog
         void                showImage(int currentSecond, QString imgPath);
         QString            	findMaxSubjectInMetadata(void);
         QString             findSubjectInMetadata(QString subject, int *subjectRow);
+        QString             getCellFromMetadata(QString sheet, int row, int col);
+        void                setCellInMetadata(QString sheet, int row, int col, const QString &text);
         void                getSeriesMinMaxY(unsigned int *minY, unsigned int *maxY);
         
     private slots:
@@ -96,9 +98,15 @@ class WindowNext : public QDialog
 		QLabel				*_protocol3;
 		QComboBox			*_protocol4;
         
-		QLabel				*_timer1;
-        QLineEdit			*_lineEdit;
+        QLabel				*_durationSec1;
+        QLineEdit			*_durationSec2;
         QLabel				*_finishMsgLabel;
+
+        QLabel				*_lightIntensity1;
+        QLineEdit			*_lightIntensity2;
+
+        QLabel				*_distance1;
+        QLineEdit			*_distance2;
 
         ComPort				*_selectedComPort;
         
