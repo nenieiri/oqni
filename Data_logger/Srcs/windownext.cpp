@@ -1415,12 +1415,17 @@ void    WindowNext::execChartDialog(void)
     for (int i = 0; i < _numOfS_OPT * _numOfCH_OPT; ++i)
     {
         _chart->addSeries(&_series[i]);
-        if (i % _numOfCH_OPT == 0)
-            _series[i].setColor(Qt::blue); // infraRed
-        else if (i % _numOfCH_OPT == 1)
-            _series[i].setColor(Qt::red);
-        else if (i % _numOfCH_OPT == 2)
+        switch (i % _numOfCH_OPT) {
+        case 0:
             _series[i].setColor(Qt::green);
+            break;
+        case 1:
+            _series[i].setColor(Qt::red);
+            break;
+        case 2:
+            _series[i].setColor(Qt::blue); // infraRed
+            break;
+        }
     }
 
     this->_axisX = new QValueAxis();
@@ -1552,16 +1557,16 @@ void    WindowNext::execChartDialog(void)
     {
         switch (i % _numOfCH_OPT) {
         case 0:
-            this->_checkBoxChannels[i].setText("infrared" + QString::number(i / _numOfCH_OPT + 1) + "  ");
-            this->_checkBoxChannels[i].setStyleSheet("color: blue; font-size: 14px;");
+            this->_checkBoxChannels[i].setText("green" + QString::number(i / _numOfCH_OPT + 1) + "  ");
+            this->_checkBoxChannels[i].setStyleSheet("color: green; font-size: 14px;");
             break;
         case 1:
             this->_checkBoxChannels[i].setText("red" + QString::number(i / _numOfCH_OPT + 1) + "  ");
             this->_checkBoxChannels[i].setStyleSheet("color: red; font-size: 14px;");
             break;
-        case 2:
-            this->_checkBoxChannels[i].setText("green" + QString::number(i / _numOfCH_OPT + 1) + "          ");
-            this->_checkBoxChannels[i].setStyleSheet("color: green; font-size: 14px;");
+        case 2:            
+            this->_checkBoxChannels[i].setText("infrared" + QString::number(i / _numOfCH_OPT + 1) + "          ");
+            this->_checkBoxChannels[i].setStyleSheet("color: blue; font-size: 14px;");
             break;
         }
         this->_checkBoxChannels[i].setChecked(true);

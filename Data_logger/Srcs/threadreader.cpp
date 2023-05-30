@@ -259,11 +259,16 @@ void    ThreadReader::stopAndClosePort(QSerialPort &port)
     
     QByteArray  dataWrite;
     
-    dataWrite.append(static_cast<char>(-1));
-    port.write(dataWrite);
-    port.flush();
-    port.close();
-    
+    if (port.isOpen())
+    {
+        port.clear();
+        dataWrite.append(static_cast<char>(-1));
+        dataWrite.append(static_cast<char>(0));
+        port.write(dataWrite);
+        port.flush();
+        port.close();
+    }
+
     DEBUGGER();
 }
 
