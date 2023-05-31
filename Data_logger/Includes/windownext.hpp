@@ -156,8 +156,8 @@ class WindowNext : public QDialog
 
         QDialog				*_picDialog;
         QDialog				*_chartDialog;
-        QChart				*_chart;
-        QChartView			*_chartView;
+        QChart				*_chart_OPT;
+        QChartView			*_chartView_OPT;
         QValueAxis			*_axisX;
         QValueAxis			*_axisY;
         QLineSeries			*_series;

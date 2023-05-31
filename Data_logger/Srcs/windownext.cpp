@@ -97,8 +97,8 @@ WindowNext::WindowNext(MainWindow *parent)
     this->_distance2 = new QLineEdit(this);
 
     this->_chartDialog = nullptr;
-    this->_chart = nullptr;
-    this->_chartView = nullptr;
+    this->_chart_OPT = nullptr;
+    this->_chartView_OPT = nullptr;
     this->_axisX = nullptr;
     this->_axisY = nullptr;
     this->_series = nullptr;
@@ -803,13 +803,13 @@ void    WindowNext::setParametersDesign(void)
                 delete _axisY;
                 this->_axisY = nullptr;
                 for (int i = 0; i < _numOfS_OPT * _numOfCH_OPT; ++i)
-                    this->_chart->removeSeries(&_series[i]);
+                    this->_chart_OPT->removeSeries(&_series[i]);
                 delete [] _series;
                 this->_series = nullptr;
-                delete this->_chart;
-                this->_chart = nullptr;
-                delete _chartView;
-                this->_chartView = nullptr;
+                delete this->_chart_OPT;
+                this->_chart_OPT = nullptr;
+                delete _chartView_OPT;
+                this->_chartView_OPT = nullptr;
                 delete _autoScale;
                 this->_autoScale = nullptr;
                 delete _sliderHorizontal;
@@ -1408,15 +1408,15 @@ void    WindowNext::execChartDialog(void)
     this->_chartDialog->show();
     this->raise();
 
-    this->_chart = new QChart();
-    _chart->setTitle("Dynamic Line Chart for OPT sensors");
-    _chart->setBackgroundBrush(QBrush(QColor::fromRgb(235, 255, 255)));
-    _chart->legend()->hide();
+    this->_chart_OPT = new QChart();
+    _chart_OPT->setTitle("Dynamic Line Chart for OPT sensors");
+    _chart_OPT->setBackgroundBrush(QBrush(QColor::fromRgb(235, 255, 255)));
+    _chart_OPT->legend()->hide();
 
     _series = new QLineSeries[_numOfS_OPT * _numOfCH_OPT];
     for (int i = 0; i < _numOfS_OPT * _numOfCH_OPT; ++i)
     {
-        _chart->addSeries(&_series[i]);
+        _chart_OPT->addSeries(&_series[i]);
         switch (i % _numOfCH_OPT) {
         case 0:
             _series[i].setColor(Qt::green);
@@ -1432,13 +1432,13 @@ void    WindowNext::execChartDialog(void)
 
     this->_axisX = new QValueAxis();
     _axisX->setTitleText("Time (milliseconds)");
-    _chart->addAxis(_axisX, Qt::AlignBottom);
+    _chart_OPT->addAxis(_axisX, Qt::AlignBottom);
     for (int i = 0; i < _numOfS_OPT * _numOfCH_OPT; ++i)
         _series[i].attachAxis(_axisX);
 
     this->_axisY = new QValueAxis();
     _axisY->setTitleText("Values");
-    _chart->addAxis(_axisY, Qt::AlignLeft);
+    _chart_OPT->addAxis(_axisY, Qt::AlignLeft);
     for (int i = 0; i < _numOfS_OPT * _numOfCH_OPT; ++i)
         _series[i].attachAxis(_axisY);
 
@@ -1473,8 +1473,8 @@ void    WindowNext::execChartDialog(void)
             }
         });
 
-    this->_chartView = new QChartView(_chart);
-    this->_chartView->setRenderHint(QPainter::Antialiasing);
+    this->_chartView_OPT = new QChartView(_chart_OPT);
+    this->_chartView_OPT->setRenderHint(QPainter::Antialiasing);
 
     this->_sliderHorizontal = new QSlider(Qt::Horizontal, _chartDialog);
     this->_sliderHorizontal->setRange(2, 10);
@@ -1564,7 +1564,7 @@ void    WindowNext::execChartDialog(void)
             DEBUGGER();
         });
 
-    this->_gridLayout->addWidget(_chartView, 0, 0, 1, 5);
+    this->_gridLayout->addWidget(_chartView_OPT, 0, 0, 1, 5);
     this->_gridLayout->addWidget(_autoScale, 1, 0, 1, 1, Qt::AlignLeft);
     this->_gridLayout->addLayout(_hBoxLayout, 2, 0, 1, 4, Qt::AlignCenter);
     this->_gridLayout->addWidget(_sliderHorizontalValues, 1, 4, 1, 1, Qt::AlignCenter);

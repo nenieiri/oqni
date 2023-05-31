@@ -9,7 +9,6 @@
 # include <QSlider>
 # include <QChartView>
 # include <QPointF>
-# include "mainwindow.h"
 
 class	MainWindow;
 class	MyChartView;

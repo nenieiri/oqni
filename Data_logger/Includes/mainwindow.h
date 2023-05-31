@@ -1,10 +1,8 @@
 #ifndef MAINWINDOW_H
 # define MAINWINDOW_H
 
-# include "all.hpp"
 # include "../ui_mainwindow.h"
 # include "comport.hpp"
-# include "windownext.hpp"
 # include "windowchart.hpp"
 
 # define MY_DEFINED_DEFAULT_ACTIVE_BUTTON   "QPushButton {border-radius: 6px; background: #6FD5CA; color: black; border: 1px solid gray;} \

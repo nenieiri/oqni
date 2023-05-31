@@ -1,4 +1,5 @@
 #include "windowchart.hpp"
+#include "mainwindow.h"
 #include "debugger.hpp"
 
 WindowChart::WindowChart(MainWindow *parent, const QString &pathToFiles, \

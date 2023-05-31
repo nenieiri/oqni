@@ -31,8 +31,4 @@
 
 # include <functional>
 
-# include "comport.hpp"
-# include "threadreader.hpp"
-# include "threaddisplaytimer.hpp"
-
 #endif

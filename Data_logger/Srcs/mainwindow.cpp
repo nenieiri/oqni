@@ -1,4 +1,5 @@
 #include "mainwindow.h"
+#include "windownext.hpp"
 #include "debugger.hpp"
 
 MainWindow::MainWindow(QWidget *parent)
