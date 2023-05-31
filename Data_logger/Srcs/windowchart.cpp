@@ -202,17 +202,23 @@ void    WindowChart::execChartDialog(void)
 
 	for (int i = 0; i < _numOfCH + 1; ++i)
 	{
-		_chart->addSeries(&_series[i]);
-		if (i == _numOfCH)
-			_series[i].setColor(Qt::black);
-		else if (i % (_numOfCH / _checkedFilesCount) == 0)
-			_series[i].setColor(Qt::blue); // infraRed
-		else if (i % (_numOfCH / _checkedFilesCount) == 1)
-			_series[i].setColor(Qt::red);
-		else if (i % (_numOfCH / _checkedFilesCount) == 2)
-			_series[i].setColor(Qt::green);
-		else
-			_series[i].setColor(Qt::gray);
+        _chart->addSeries(&_series[i]);
+        if (i == _numOfCH)
+            _series[i].setColor(Qt::black);
+        else
+        {
+            switch (i % (_numOfCH / _checkedFilesCount)) {
+            case 0:
+                _series[i].setColor(Qt::green);
+                break;
+            case 1:
+                _series[i].setColor(Qt::red);
+                break;
+            case 2:
+                _series[i].setColor(Qt::blue); // infraRed
+                break;
+            }
+        }
 	}
 
 	this->_axisX = new QValueAxis();
@@ -285,29 +291,22 @@ void    WindowChart::execChartDialog(void)
         ++j;        
         for (int i = 0; i < (_numOfCH / _checkedFilesCount); ++i)
         {
-            if (i % (_numOfCH / _checkedFilesCount) == 0)
-            {
-                text = "Infrared" + QString::number(k + 1) + "  ";
+            switch (i % (_numOfCH / _checkedFilesCount)){
+            case 0:
+                text = "green" + QString::number(k + 1) + "  ";
                 this->_checkBoxChannels[i + j * (_numOfCH / _checkedFilesCount)].setText(text);
-                this->_checkBoxChannels[i + j * (_numOfCH / _checkedFilesCount)].setStyleSheet("color: blue; font-size: 16px;");
-            }
-            else if (i % (_numOfCH / _checkedFilesCount) == 1)
-            {
+                this->_checkBoxChannels[i + j * (_numOfCH / _checkedFilesCount)].setStyleSheet("color: green; font-size: 14px;");
+                break;
+            case 1:
                 text = "Red" + QString::number(k + 1) + "  ";
                 this->_checkBoxChannels[i + j * (_numOfCH / _checkedFilesCount)].setText(text);
-                this->_checkBoxChannels[i + j * (_numOfCH / _checkedFilesCount)].setStyleSheet("color: red; font-size: 16px;");
-            }
-            else if (i % (_numOfCH / _checkedFilesCount) == 2)
-            {
-                text = "Green" + QString::number(k + 1) + ((i == (_numOfCH / _checkedFilesCount) - 1) ? "                " : "  ");
+                this->_checkBoxChannels[i + j * (_numOfCH / _checkedFilesCount)].setStyleSheet("color: red; font-size: 14px;");
+                break;
+            case 2:
+                text = "infrared" + QString::number(k + 1) + "          ";
                 this->_checkBoxChannels[i + j * (_numOfCH / _checkedFilesCount)].setText(text);
-                this->_checkBoxChannels[i + j * (_numOfCH / _checkedFilesCount)].setStyleSheet("color: green; font-size: 16px;");
-            }
-            else
-            {
-                text = "Other" + QString::number(k + 1) + ((i == (_numOfCH / _checkedFilesCount) - 1) ? "                " : "  ");
-                this->_checkBoxChannels[i + j * (_numOfCH / _checkedFilesCount)].setText(text);
-                this->_checkBoxChannels[i + j * (_numOfCH / _checkedFilesCount)].setStyleSheet("color: gray; font-size: 16px;");
+                this->_checkBoxChannels[i + j * (_numOfCH / _checkedFilesCount)].setStyleSheet("color: blue; font-size: 14px;");
+                break;
             }
             
             this->_checkBoxChannels[i + j * (_numOfCH / _checkedFilesCount)].setChecked(true);
@@ -317,7 +316,7 @@ void    WindowChart::execChartDialog(void)
         if (j + 1 == _checkedFilesCount)
         {
             this->_checkBoxChannels[_numOfCH].setText("Label");
-            this->_checkBoxChannels[_numOfCH].setStyleSheet("color: black; font-size: 16px;");
+            this->_checkBoxChannels[_numOfCH].setStyleSheet("color: black; font-size: 14px;");
             this->_checkBoxChannels[_numOfCH].setChecked(true);
             this->connectStaticChatCheckBox(_numOfCH);
             this->_hBoxLayout->addWidget(&_checkBoxChannels[_numOfCH]);
