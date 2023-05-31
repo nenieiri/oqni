@@ -1460,50 +1460,17 @@ void    WindowNext::execChartDialog(void)
             if (_chartDialog == nullptr)
                 return;
 
-            unsigned int    value, ledID, minY = -1, maxY = 0;
-            char            id = qFromBigEndian<unsigned char>(data.mid(_bytesPA, _bytesID).constData());
-            qint64          time = qFromLittleEndian<qint64>(data.mid(data.size() - 8 - 1, 8).constData()) - _startTime;
-            qint64          minX = time;
+            char    id = qFromBigEndian<unsigned char>(data.mid(_bytesPA, _bytesID).constData());
+            qint64  time = qFromLittleEndian<qint64>(data.mid(data.size() - 8 - 1, 8).constData()) - _startTime;
 
-            for (int j = 0; (id == 1 || id == 2) && j < _numOfCH_OPT; ++j) // (id == 1 || id == 2) ==> to omit IMU
-            {
-//                qDebug() << "id:" << (int)id;
-                value = qFromLittleEndian<unsigned int>(data.mid(_bytesPA + _bytesID + _bytesCO + j * _sizeOfCH_OPT, _sizeOfCH_OPT).constData());
-                ledID = j + id * id - 1;
-
-                _seriesMinY[ledID] = (value < _seriesMinY[ledID]) ? value : _seriesMinY[ledID];
-                _seriesMaxY[ledID] = (value > _seriesMaxY[ledID]) ? value : _seriesMaxY[ledID];
-
-                if (_checkBoxChannelsValue[ledID] == true)
-                {
-                    _series[ledID].append(time, value);
-                    while (_series[ledID].count() > _chartDuration / 10)
-                        _series[ledID].remove(0);
-                }
-
-                // updating axisX and axisY in interval "_chartDuration / 1000 * _chartUpdateRatio"
-                if (time + _startTime - _chartTimeFlag >= _chartDuration / 1000 * _chartUpdateRatio)
-                {
-                    if (_autoScale->isChecked() == false)
-                        getSeriesMinMaxY(&minY, &maxY);
-                    else
-                        for (int i = 0; i < _numOfS_OPT * _numOfCH_OPT; i++)
-                            for(int j = 0; j < _series[i].count(); j++)
-                                maxY = std::max(maxY, (unsigned int)_series[i].at(j).y()),
-                                minY = std::min(minY, (unsigned int)_series[i].at(j).y());
-
-
-                    _axisY->setRange(minY, maxY);
-
-                    for (int k = 0; k < _numOfS_OPT * _numOfCH_OPT; ++k)
-                        if (_series[k].count() != 0)
-                            minX = std::min(minX, (qint64)_series[k].at(0).x());
-
-                    _axisX->setRange(minX, minX + _chartDuration);
-                    _chartTimeFlag = time + _startTime;
-                }
+            switch (id) {
+            case 1:
+            case 2:
+                fillSeriesAndUpdateAxes_OPT(data, id, time);
+                break;
+            case 4:
+                break;
             }
-            DEBUGGER();
         });
 
     this->_chartView = new QChartView(_chart);
@@ -1615,6 +1582,53 @@ void    WindowNext::execChartDialog(void)
     this->_gridLayout->addWidget(_sliderHorizontal, 2, 4, 1, 1, Qt::AlignCenter);
     this->_chartDialog->setLayout(_gridLayout);
 }
+
+void    WindowNext::fillSeriesAndUpdateAxes_OPT(QByteArray &data, char &id, qint64 &time)
+{
+    DEBUGGER();
+
+    unsigned int    value, ledID, minY = -1, maxY = 0;
+    qint64          minX = time;
+
+    for (int j = 0; j < _numOfCH_OPT; ++j)
+    {
+        value = qFromLittleEndian<unsigned int>(data.mid(_bytesPA + _bytesID + _bytesCO + j * _sizeOfCH_OPT, _sizeOfCH_OPT).constData());
+        ledID = j + id * id - 1;
+
+        _seriesMinY[ledID] = std::min(value, _seriesMinY[ledID]);
+        _seriesMaxY[ledID] = std::max(value, _seriesMaxY[ledID]);
+
+        if (_checkBoxChannelsValue[ledID] == true)
+        {
+            _series[ledID].append(time, value);
+            while (_series[ledID].count() > _chartDuration / 10)
+                _series[ledID].remove(0);
+        }
+
+        // updating axisX and axisY in interval "_chartDuration / 1000 * _chartUpdateRatio"
+        if (time + _startTime - _chartTimeFlag >= _chartDuration / 1000 * _chartUpdateRatio)
+        {
+            if (_autoScale->isChecked() == false)
+                getSeriesMinMaxY(&minY, &maxY);
+            else
+                for (int i = 0; i < _numOfS_OPT * _numOfCH_OPT; i++)
+                    for(int j = 0; j < _series[i].count(); j++)
+                        minY = std::min(minY, (unsigned int)_series[i].at(j).y()),
+                            maxY = std::max(maxY, (unsigned int)_series[i].at(j).y());
+
+            _axisY->setRange(minY, maxY);
+
+            for (int k = 0; k < _numOfS_OPT * _numOfCH_OPT; ++k)
+                if (_series[k].count() != 0)
+                    minX = std::min(minX, (qint64)_series[k].at(0).x());
+
+            _axisX->setRange(minX, minX + _chartDuration);
+            _chartTimeFlag = time + _startTime;
+        }
+    }
+    DEBUGGER();
+}
+
 
 void    WindowNext::execPicDialog(void)
 {

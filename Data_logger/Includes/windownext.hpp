@@ -55,6 +55,7 @@ class WindowNext : public QDialog
         bool            	saveMetaData(const QString &excelSheet, const QString &subject);
         void                retryToSaveMetaData(QXlsx::Document &xlsx, const QString &excelSheet);
         void                execChartDialog(void);
+        void                fillSeriesAndUpdateAxes_OPT(QByteArray &data, char &id, qint64 &time);
         void                execPicDialog(void);
         void                showImage(int currentSecond, QString imgPath);
         QString            	findMaxSubjectInMetadata(void);
