@@ -323,6 +323,8 @@ void    WindowNext::setButtonStart(QPushButton *buttonStart)
                         this->execPicDialog();
                     }
                 });
+            this->setCellInMetadata("exp_param", 2, 1, _lightIntensity2->text());
+            this->setCellInMetadata("exp_param", 2, 2, _distance2->text());
         });
 }
 
@@ -1454,20 +1456,11 @@ void    WindowNext::execChartDialog(void)
     connect(this->_threadReader, &ThreadReader::lastRowOfData, this,
         [=](QByteArray data)
         {
-//            qDebug() << "data:" << data.toHex();
-
             DEBUGGER();
-
             if (_chartDialog == nullptr)
-            {
-                DEBUGGER();
                 return;
-            }
 
-            unsigned int    value;
-            int             ledID;
-            unsigned int    minY = -1;
-            unsigned int    maxY = 0;
+            unsigned int    value, ledID, minY = -1, maxY = 0;
             char            id = qFromBigEndian<unsigned char>(data.mid(_bytesPA, _bytesID).constData());
             qint64          time = qFromLittleEndian<qint64>(data.mid(data.size() - 8 - 1, 8).constData()) - _startTime;
             qint64          minX = time;
@@ -1491,19 +1484,14 @@ void    WindowNext::execChartDialog(void)
                 // updating axisX and axisY in interval "_chartDuration / 1000 * _chartUpdateRatio"
                 if (time + _startTime - _chartTimeFlag >= _chartDuration / 1000 * _chartUpdateRatio)
                 {
-                    if (_autoScale->isChecked() == true)
-                    {
-                        for (int i = 0; i < _numOfS_OPT * _numOfCH_OPT; i++)
-                        {
-                            for(int j = 0; j < _series[i].count(); j++)
-                            {
-                                maxY = std::max(maxY, (unsigned int)_series[i].at(j).y());
-                                minY = std::min(minY, (unsigned int)_series[i].at(j).y());
-                            }
-                        }
-                    }
-                    else
+                    if (_autoScale->isChecked() == false)
                         getSeriesMinMaxY(&minY, &maxY);
+                    else
+                        for (int i = 0; i < _numOfS_OPT * _numOfCH_OPT; i++)
+                            for(int j = 0; j < _series[i].count(); j++)
+                                maxY = std::max(maxY, (unsigned int)_series[i].at(j).y()),
+                                minY = std::min(minY, (unsigned int)_series[i].at(j).y());
+
 
                     _axisY->setRange(minY, maxY);
 
@@ -1515,7 +1503,6 @@ void    WindowNext::execChartDialog(void)
                     _chartTimeFlag = time + _startTime;
                 }
             }
-
             DEBUGGER();
         });
 
@@ -1833,9 +1820,6 @@ void   WindowNext::onThreadDisplayTimerFinished(void)
     this->_finishMsgLabel->show();
     this->infoMessageBox(msg);
     this->_metaDataSavingFailMsg = "";
-
-    this->setCellInMetadata("exp_param", 2, 1, _lightIntensity2->text());
-    this->setCellInMetadata("exp_param", 2, 2, _distance2->text());
 
     DEBUGGER();
 }
