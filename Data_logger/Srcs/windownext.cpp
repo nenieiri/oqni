@@ -98,17 +98,21 @@ WindowNext::WindowNext(MainWindow *parent)
 
     this->_chartDialog = nullptr;
     this->_chart_OPT = nullptr;
+    this->_chart_IMU = nullptr;
     this->_chartView_OPT = nullptr;
     this->_axisX = nullptr;
     this->_axisY = nullptr;
     this->_series = nullptr;
-    this->_hBoxLayout = nullptr;
+    this->_hBoxLayoutLegends = nullptr;
+    this->_hBoxLayoutOptions = nullptr;
     this->_gridLayout = nullptr;
     this->_gridLayoutPic = nullptr;
     this->_displayTimerPic = nullptr;
     this->_imageLabel = nullptr;
     this->_imageSecondsLabel = nullptr;
     this->_picDialog = nullptr;
+    this->_autoScale = nullptr;
+    this->_checkBoxSensors = nullptr;
 
     this->setModal(true);
 
@@ -808,10 +812,14 @@ void    WindowNext::setParametersDesign(void)
                 this->_series = nullptr;
                 delete this->_chart_OPT;
                 this->_chart_OPT = nullptr;
+                delete this->_chart_IMU;
+                this->_chart_IMU = nullptr;
                 delete _chartView_OPT;
                 this->_chartView_OPT = nullptr;
                 delete _autoScale;
                 this->_autoScale = nullptr;
+                delete [] _checkBoxSensors;
+                this->_checkBoxSensors = nullptr;
                 delete _sliderHorizontal;
                 this->_sliderHorizontal = nullptr;
                 delete _sliderHorizontalValues;
@@ -820,8 +828,10 @@ void    WindowNext::setParametersDesign(void)
                 this->_checkBoxChannelsValue = nullptr;
                 delete [] _checkBoxChannels;
                 this->_checkBoxChannels = nullptr;
-                delete _hBoxLayout;
-                this->_hBoxLayout = nullptr;
+                delete _hBoxLayoutLegends;
+                this->_hBoxLayoutLegends = nullptr;
+                delete _hBoxLayoutOptions;
+                this->_hBoxLayoutOptions = nullptr;
                 delete _gridLayout;
                 this->_gridLayout = nullptr;
                 if (this->_chartDialog && this->_chartDialog->isVisible())
@@ -1413,6 +1423,11 @@ void    WindowNext::execChartDialog(void)
     _chart_OPT->setBackgroundBrush(QBrush(QColor::fromRgb(235, 255, 255)));
     _chart_OPT->legend()->hide();
 
+    this->_chart_IMU = new QChart();
+    _chart_IMU->setTitle("Dynamic Line Chart for IMU sensors");
+    _chart_IMU->setBackgroundBrush(QBrush(QColor::fromRgb(235, 255, 255)));
+    _chart_IMU->legend()->hide();
+
     _series = new QLineSeries[_numOfS_OPT * _numOfCH_OPT];
     for (int i = 0; i < _numOfS_OPT * _numOfCH_OPT; ++i)
     {
@@ -1492,23 +1507,22 @@ void    WindowNext::execChartDialog(void)
         });
 
     this->_gridLayout = new QGridLayout;
-
-    this->_hBoxLayout = new QHBoxLayout;
+    this->_hBoxLayoutLegends = new QHBoxLayout;
     this->_checkBoxChannels = new QCheckBox[_numOfS_OPT * _numOfCH_OPT];
 
     for (int i = 0; i < _numOfS_OPT * _numOfCH_OPT; ++i)
     {
         switch (i % _numOfCH_OPT) {
         case 0:
-            this->_checkBoxChannels[i].setText("green" + QString::number(i / _numOfCH_OPT + 1) + "  ");
+            this->_checkBoxChannels[i].setText("OPT" + QString::number(i / _numOfCH_OPT + 1) + "green  ");
             this->_checkBoxChannels[i].setStyleSheet("color: green; font-size: 14px;");
             break;
         case 1:
-            this->_checkBoxChannels[i].setText("red" + QString::number(i / _numOfCH_OPT + 1) + "  ");
+            this->_checkBoxChannels[i].setText("OPT" + QString::number(i / _numOfCH_OPT + 1) + "red  ");
             this->_checkBoxChannels[i].setStyleSheet("color: red; font-size: 14px;");
             break;
         case 2:            
-            this->_checkBoxChannels[i].setText("infrared" + QString::number(i / _numOfCH_OPT + 1) + "          ");
+            this->_checkBoxChannels[i].setText("OPT" + QString::number(i / _numOfCH_OPT + 1) + "infrared               ");
             this->_checkBoxChannels[i].setStyleSheet("color: blue; font-size: 14px;");
             break;
         }
@@ -1528,7 +1542,7 @@ void    WindowNext::execChartDialog(void)
 
                 DEBUGGER();
             });
-        this->_hBoxLayout->addWidget(&_checkBoxChannels[i]);
+        this->_hBoxLayoutLegends->addWidget(&_checkBoxChannels[i]);
     }
 
 #  ifdef Q_OS_MAC
@@ -1539,9 +1553,12 @@ void    WindowNext::execChartDialog(void)
     _sliderHorizontalValues->setStyleSheet("font-size: 12px;");
     _sliderHorizontalValues->setFixedWidth(_sliderHorizontal->width());
 
-    this->_autoScale = new QCheckBox("Autoscale");
+    this->_hBoxLayoutOptions = new QHBoxLayout;
+
+    this->_autoScale = new QCheckBox("Autoscale               ");
     this->_autoScale->setChecked(true);
     this->_autoScale->setStyleSheet("font-size: 16px;");
+    this->_hBoxLayoutOptions->addWidget(_autoScale);
     connect(this->_autoScale, &QCheckBox::clicked, this,
         [=]()
         {
@@ -1564,9 +1581,28 @@ void    WindowNext::execChartDialog(void)
             DEBUGGER();
         });
 
+    int chartsCount = 1 + 3; // 1 for OPT sensors and 3 for IMU sensores
+    this->_checkBoxSensors = new QCheckBox[chartsCount];
+    this->_checkBoxSensors[0].setText("Accelerometer  ");
+    this->_checkBoxSensors[1].setText("Giroscop  ");
+    this->_checkBoxSensors[2].setText("Magnetometer  ");
+    this->_checkBoxSensors[3].setText("OPT sensores");
+    for (int i = 0; i < chartsCount; ++i)
+    {
+        this->_checkBoxSensors[i].setChecked(true);
+        this->_checkBoxSensors[i].setStyleSheet("color: purple; font-size: 14px;");
+        connect(&this->_checkBoxSensors[i], &QCheckBox::clicked, this,
+            [=]()
+            {
+                DEBUGGER();
+            });
+    this->_hBoxLayoutOptions->addWidget(&_checkBoxSensors[i]);
+
+    }
+
     this->_gridLayout->addWidget(_chartView_OPT, 0, 0, 1, 5);
-    this->_gridLayout->addWidget(_autoScale, 1, 0, 1, 1, Qt::AlignLeft);
-    this->_gridLayout->addLayout(_hBoxLayout, 2, 0, 1, 4, Qt::AlignCenter);
+    this->_gridLayout->addLayout(_hBoxLayoutLegends, 1, 0, 1, 4, Qt::AlignCenter);
+    this->_gridLayout->addLayout(_hBoxLayoutOptions, 2, 0, 1, 1, Qt::AlignLeft);
     this->_gridLayout->addWidget(_sliderHorizontalValues, 1, 4, 1, 1, Qt::AlignCenter);
     this->_gridLayout->addWidget(_sliderHorizontal, 2, 4, 1, 1, Qt::AlignCenter);
     this->_chartDialog->setLayout(_gridLayout);

@@ -157,7 +157,9 @@ class WindowNext : public QDialog
         QDialog				*_picDialog;
         QDialog				*_chartDialog;
         QChart				*_chart_OPT;
+        QChart				*_chart_IMU;
         QChartView			*_chartView_OPT;
+        QChartView			*_chartView_IMU;
         QValueAxis			*_axisX;
         QValueAxis			*_axisY;
         QLineSeries			*_series;
@@ -165,10 +167,12 @@ class WindowNext : public QDialog
         QVector<unsigned int> _seriesMaxY;
         QGridLayout         *_gridLayoutPic;
         QGridLayout			*_gridLayout;
-        QHBoxLayout			*_hBoxLayout;
+        QHBoxLayout			*_hBoxLayoutLegends;
+        QHBoxLayout			*_hBoxLayoutOptions;
         QCheckBox			*_checkBoxChannels;
         bool                *_checkBoxChannelsValue;
         QCheckBox           *_autoScale;
+        QCheckBox           *_checkBoxSensors;
         QSlider             *_sliderHorizontal;
         QLabel              *_sliderHorizontalValues;
         int                 _sliderHorizontalLastValue;
