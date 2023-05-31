@@ -29,6 +29,17 @@
 # include "threaddisplaytimer.hpp"
 # include "mainwindow.h"
 
+# define MY_DEFINED_SLIDER_HORIZONTAL_STYLE "QSlider::handle:horizontal {\
+                                            background: white; \
+                                            border: 1px solid black; \
+                                            width: 10px; \
+                                            height: 10px; \
+                                            margin: -8px 0; \
+                                            border-radius: 5px; } \
+                                            QSlider::handle:horizontal:hover { \
+                                            background-color: yellow; \
+                                            border: 1px solid black; }"
+
 class MainWindow;
 class MySlider;
 

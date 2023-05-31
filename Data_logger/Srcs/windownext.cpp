@@ -1483,18 +1483,7 @@ void    WindowNext::execChartDialog(void)
     this->_sliderHorizontal->setTickInterval(1);
     this->_sliderHorizontal->setValue(this->_chartDuration / 1000);
     this->_sliderHorizontal->setFixedHeight(15);
-
-    this->_sliderHorizontal->setStyleSheet("QSlider::handle:horizontal {"
-                                            "background: white;"
-                                            "border: 1px solid black;"
-                                            "width: 10px;"
-                                            "height: 10px;"
-                                            "margin: -8px 0;"
-                                            "border-radius: 5px; }"
-                                            "QSlider::handle:horizontal:hover {"
-                                            "background-color: yellow;"
-                                            "border: 1px solid black; }");
-
+    this->_sliderHorizontal->setStyleSheet(MY_DEFINED_SLIDER_HORIZONTAL_STYLE);
     connect(this->_sliderHorizontal, &QSlider::valueChanged, this,
         [=]()
         {
