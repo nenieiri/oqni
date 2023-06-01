@@ -101,8 +101,10 @@ WindowNext::WindowNext(MainWindow *parent)
     this->_chart_IMU = nullptr;
     this->_chartView_OPT = nullptr;
     this->_chartView_IMU = nullptr;
-    this->_axisX = nullptr;
-    this->_axisY = nullptr;
+    this->_axisX_OPT = nullptr;
+    this->_axisX_IMU = nullptr;
+    this->_axisY_OPT = nullptr;
+    this->_axisY_IMU = nullptr;
     this->_series = nullptr;
     this->_hBoxLayoutLegends = nullptr;
     this->_hBoxLayoutOptions = nullptr;
@@ -803,10 +805,14 @@ void    WindowNext::setParametersDesign(void)
             }
             else
             {
-                delete _axisX;
-                this->_axisX = nullptr;
-                delete _axisY;
-                this->_axisY = nullptr;
+                delete _axisX_OPT;
+                this->_axisX_OPT = nullptr;
+                delete [] _axisX_IMU;
+                this->_axisX_IMU = nullptr;
+                delete _axisY_OPT;
+                this->_axisY_OPT = nullptr;
+                delete [] _axisY_IMU;
+                this->_axisY_IMU = nullptr;
                 for (int i = 0; i < _numOfS_OPT * _numOfCH_OPT; ++i)
                     this->_chart_OPT->removeSeries(&_series[i]);
                 delete [] _series;
@@ -1453,17 +1459,39 @@ void    WindowNext::execChartDialog(void)
         }
     }
 
-    this->_axisX = new QValueAxis();
-    _axisX->setTitleText("Time (milliseconds)");
-    _chart_OPT->addAxis(_axisX, Qt::AlignBottom);
+    // creating axis X for OPT sersors
+    this->_axisX_OPT = new QValueAxis();
+    _axisX_OPT->setTitleText("Time (milliseconds)");
+    _chart_OPT->addAxis(_axisX_OPT, Qt::AlignBottom);
     for (int i = 0; i < _numOfS_OPT * _numOfCH_OPT; ++i)
-        _series[i].attachAxis(_axisX);
+        _series[i].attachAxis(_axisX_OPT);
 
-    this->_axisY = new QValueAxis();
-    _axisY->setTitleText("Values");
-    _chart_OPT->addAxis(_axisY, Qt::AlignLeft);
+    // creating axes X for IMU sersors
+    this->_axisX_IMU = new QValueAxis[_numOfS_IMU];
+    for (int i = 0; i < _numOfS_IMU; ++i)
+    {
+//        _axisX_IMU[i].setTitleText("Time (milliseconds)");
+        _axisX_IMU[i].setMin(0);    // tmp
+        _axisX_IMU[i].setMax(1);    // tmp
+        _chart_IMU[i].addAxis(&_axisX_IMU[i], Qt::AlignBottom);
+    }
+
+    // creating axis Y for OPT sersors
+    this->_axisY_OPT = new QValueAxis();
+    _axisY_OPT->setTitleText("Values");
+    _chart_OPT->addAxis(_axisY_OPT, Qt::AlignLeft);
     for (int i = 0; i < _numOfS_OPT * _numOfCH_OPT; ++i)
-        _series[i].attachAxis(_axisY);
+        _series[i].attachAxis(_axisY_OPT);
+
+    // creating axes Y for IMU sersors
+    this->_axisY_IMU = new QValueAxis[_numOfS_IMU];
+    for (int i = 0; i < _numOfS_IMU; ++i)
+    {
+        _axisY_IMU[i].setTitleText("Values");
+        _axisY_IMU[i].setMin(-1);   // tmp
+        _axisY_IMU[i].setMax(1);    // tmp
+        _chart_IMU[i].addAxis(&_axisY_IMU[i], Qt::AlignLeft);
+    }
 
     this->_checkBoxChannelsValue = new bool[_numOfS_OPT * _numOfCH_OPT];
     for (int i = 0; i < _numOfS_OPT * _numOfCH_OPT; ++i)
@@ -1699,13 +1727,13 @@ void    WindowNext::fillSeriesAndUpdateAxes_OPT(QByteArray &data, char &id, qint
                         minY = std::min(minY, (unsigned int)_series[i].at(j).y()),
                             maxY = std::max(maxY, (unsigned int)_series[i].at(j).y());
 
-            _axisY->setRange(minY, maxY);
+            _axisY_OPT->setRange(minY, maxY);
 
             for (int k = 0; k < _numOfS_OPT * _numOfCH_OPT; ++k)
                 if (_series[k].count() != 0)
                     minX = std::min(minX, (qint64)_series[k].at(0).x());
 
-            _axisX->setRange(minX, minX + _chartDuration);
+            _axisX_OPT->setRange(minX, minX + _chartDuration);
             _chartTimeFlag = time + _startTime;
         }
     }

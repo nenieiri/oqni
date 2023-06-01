@@ -160,8 +160,10 @@ class WindowNext : public QDialog
         QChart				*_chart_IMU;
         QChartView			*_chartView_OPT;
         QChartView			*_chartView_IMU;
-        QValueAxis			*_axisX;
-        QValueAxis			*_axisY;
+        QValueAxis			*_axisX_OPT;
+        QValueAxis			*_axisX_IMU;
+        QValueAxis			*_axisY_OPT;
+        QValueAxis			*_axisY_IMU;
         QLineSeries			*_series;
         QVector<unsigned int> _seriesMinY;
         QVector<unsigned int> _seriesMaxY;
