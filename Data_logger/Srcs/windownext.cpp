@@ -100,6 +100,7 @@ WindowNext::WindowNext(MainWindow *parent)
     this->_chart_OPT = nullptr;
     this->_chart_IMU = nullptr;
     this->_chartView_OPT = nullptr;
+    this->_chartView_IMU = nullptr;
     this->_axisX = nullptr;
     this->_axisY = nullptr;
     this->_series = nullptr;
@@ -812,10 +813,12 @@ void    WindowNext::setParametersDesign(void)
                 this->_series = nullptr;
                 delete this->_chart_OPT;
                 this->_chart_OPT = nullptr;
-                delete this->_chart_IMU;
+                delete [] _chart_IMU;
                 this->_chart_IMU = nullptr;
                 delete _chartView_OPT;
                 this->_chartView_OPT = nullptr;
+                delete [] _chartView_IMU;
+                this->_chartView_IMU = nullptr;
                 delete _autoScale;
                 this->_autoScale = nullptr;
                 delete [] _checkBoxSensors;
@@ -1419,14 +1422,19 @@ void    WindowNext::execChartDialog(void)
     this->raise();
 
     this->_chart_OPT = new QChart();
-    _chart_OPT->setTitle("Dynamic Line Chart for OPT sensors");
+    _chart_OPT->setTitle("<b>OPT sensors:</b> ID1 and ID2");
     _chart_OPT->setBackgroundBrush(QBrush(QColor::fromRgb(235, 255, 255)));
     _chart_OPT->legend()->hide();
 
-    this->_chart_IMU = new QChart();
-    _chart_IMU->setTitle("Dynamic Line Chart for IMU sensors");
-    _chart_IMU->setBackgroundBrush(QBrush(QColor::fromRgb(235, 255, 255)));
-    _chart_IMU->legend()->hide();
+    this->_chart_IMU = new QChart[_numOfS_IMU];
+    _chart_IMU[0].setTitle("<b>Accelerometer:</b> red-<b>X</b> green-<b>Y</b> blue-<b>Z</b>");
+    _chart_IMU[1].setTitle("<b>Giroscop:</b> red-<b>X</b> green-<b>Y</b> blue-<b>Z</b>");
+    _chart_IMU[2].setTitle("<b>Magnetometer:</b> red-<b>X</b> green-<b>Y</b> blue-<b>Z</b>");
+    for (int i = 0; i < _numOfS_IMU; ++i)
+    {
+        _chart_IMU[i].setBackgroundBrush(QBrush(QColor::fromRgb(255, 245, 255)));
+        _chart_IMU[i].legend()->hide();
+    }
 
     _series = new QLineSeries[_numOfS_OPT * _numOfCH_OPT];
     for (int i = 0; i < _numOfS_OPT * _numOfCH_OPT; ++i)
@@ -1490,6 +1498,11 @@ void    WindowNext::execChartDialog(void)
 
     this->_chartView_OPT = new QChartView(_chart_OPT);
     this->_chartView_OPT->setRenderHint(QPainter::Antialiasing);
+
+    this->_chartView_IMU = new QChartView[_numOfS_IMU];
+    for (int i = 0; i < _numOfS_IMU; ++i)
+        _chartView_IMU[i].setChart(&_chart_IMU[i]),
+        _chartView_IMU[i].setRenderHint(QPainter::Antialiasing);
 
     this->_sliderHorizontal = new QSlider(Qt::Horizontal, _chartDialog);
     this->_sliderHorizontal->setRange(2, 10);
@@ -1563,7 +1576,6 @@ void    WindowNext::execChartDialog(void)
         [=]()
         {
             DEBUGGER();
-
             if (_autoScale->isChecked() == true)
             {
                 this->_autoScale->setStyleSheet("color: black; font-size: 16px;");
@@ -1577,35 +1589,81 @@ void    WindowNext::execChartDialog(void)
                 _sliderHorizontal->setValue(10);
                 _sliderHorizontal->setEnabled(false);
             }
-
             DEBUGGER();
         });
 
-    int chartsCount = 1 + 3; // 1 for OPT sensors and 3 for IMU sensores
+    // _gridLayout's initial layout
+    this->_gridLayout->addWidget(_chartView_OPT, 0, 0, 1, 5);
+    this->_gridLayout->addLayout(_hBoxLayoutLegends, 1, 0, 1, 4, Qt::AlignCenter);
+    this->_gridLayout->addWidget(_sliderHorizontalValues, 1, 4, 1, 1, Qt::AlignCenter);
+    this->_gridLayout->addLayout(_hBoxLayoutOptions, 2, 0, 1, 1, Qt::AlignLeft);
+    this->_gridLayout->addWidget(_sliderHorizontal, 2, 4, 1, 1, Qt::AlignCenter);
+    this->_chartDialog->setLayout(_gridLayout);
+
+    int chartsCount = _numOfS_OPT / 2 + _numOfS_IMU; // 1 for OPT sensors and 3 for IMU sensores
     this->_checkBoxSensors = new QCheckBox[chartsCount];
-    this->_checkBoxSensors[0].setText("Accelerometer  ");
-    this->_checkBoxSensors[1].setText("Giroscop  ");
-    this->_checkBoxSensors[2].setText("Magnetometer  ");
-    this->_checkBoxSensors[3].setText("OPT sensores");
+    QStringList title = {"Accelerometer  ", "Giroscop  ", "Magnetometer  ", "OPT sensores"};
     for (int i = 0; i < chartsCount; ++i)
     {
-        this->_checkBoxSensors[i].setChecked(true);
-        this->_checkBoxSensors[i].setStyleSheet("color: purple; font-size: 14px;");
+        this->_checkBoxSensors[i].setText(title[i]);
+        this->_checkBoxSensors[i].setChecked(i == 3);
+        this->_checkBoxSensors[i].setEnabled(i != 3);
+        this->_checkBoxSensors[i].setStyleSheet("font-size: 14px;");
         connect(&this->_checkBoxSensors[i], &QCheckBox::clicked, this,
             [=]()
             {
                 DEBUGGER();
+
+                // we calculate how many boxes are checked
+                int checkedSum = 0;
+                for (int j = 0; j < chartsCount; ++j)
+                    checkedSum += _checkBoxSensors[j].isChecked();
+
+                // if only one box is checked, we disable that box
+                // so at least one box must be checked
+                for (int j = 0; j < chartsCount; ++j)
+                    _checkBoxSensors[j].setEnabled(checkedSum != 1 || !_checkBoxSensors[j].isChecked());
+
+                // fist we removed all items from the _gridLayout to add in new order
+                for (int j = 0; j < _numOfS_IMU; ++j)
+                {
+                    _gridLayout->removeWidget(&_chartView_IMU[j]);
+                    _chartView_IMU[i].hide();
+                }
+                _gridLayout->removeWidget(_chartView_OPT);
+                _chartView_OPT->hide();
+                _gridLayout->removeItem(_hBoxLayoutLegends);
+                _gridLayout->removeWidget(_sliderHorizontalValues);
+                _gridLayout->removeItem(_hBoxLayoutOptions);
+                _gridLayout->removeWidget(_sliderHorizontal);
+                this->_gridLayout->update();
+
+                // than we add items to the _gridLayout in new order
+                int offset = 0;
+                for (int j = 0; j < _numOfS_IMU; ++j)
+                {
+                    if (_checkBoxSensors[j].isChecked())
+                    {
+                        _gridLayout->addWidget(&_chartView_IMU[j], offset, 0, 1, 5);
+                        _chartView_IMU[j].show();
+                        ++offset;
+                    }
+                }
+                if (_checkBoxSensors[_numOfS_IMU].isChecked())
+                {
+                    this->_gridLayout->addWidget(_chartView_OPT, offset, 0, 1, 5);
+                    _chartView_OPT->show();
+                    ++offset;
+                }
+                this->_gridLayout->addLayout(_hBoxLayoutLegends, offset, 0, 1, 4, Qt::AlignCenter);
+                this->_gridLayout->addWidget(_sliderHorizontalValues, offset, 4, 1, 1, Qt::AlignCenter);
+                this->_gridLayout->addLayout(_hBoxLayoutOptions, offset + 1, 0, 1, 1, Qt::AlignLeft);
+                this->_gridLayout->addWidget(_sliderHorizontal, offset + 1, 4, 1, 1, Qt::AlignCenter);
+                this->_gridLayout->update();
+                DEBUGGER();
             });
     this->_hBoxLayoutOptions->addWidget(&_checkBoxSensors[i]);
-
     }
-
-    this->_gridLayout->addWidget(_chartView_OPT, 0, 0, 1, 5);
-    this->_gridLayout->addLayout(_hBoxLayoutLegends, 1, 0, 1, 4, Qt::AlignCenter);
-    this->_gridLayout->addLayout(_hBoxLayoutOptions, 2, 0, 1, 1, Qt::AlignLeft);
-    this->_gridLayout->addWidget(_sliderHorizontalValues, 1, 4, 1, 1, Qt::AlignCenter);
-    this->_gridLayout->addWidget(_sliderHorizontal, 2, 4, 1, 1, Qt::AlignCenter);
-    this->_chartDialog->setLayout(_gridLayout);
 }
 
 void    WindowNext::fillSeriesAndUpdateAxes_OPT(QByteArray &data, char &id, qint64 &time)
