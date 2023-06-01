@@ -1628,7 +1628,7 @@ void    WindowNext::execChartDialog(void)
                 for (int j = 0; j < _numOfS_IMU; ++j)
                 {
                     _gridLayout->removeWidget(&_chartView_IMU[j]);
-                    _chartView_IMU[i].hide();
+                    _chartView_IMU[j].hide();
                 }
                 _gridLayout->removeWidget(_chartView_OPT);
                 _chartView_OPT->hide();
