@@ -1664,7 +1664,7 @@ void    WindowNext::execChartDialog(void)
                 _gridLayout->removeWidget(_sliderHorizontalValues);
                 _gridLayout->removeItem(_hBoxLayoutOptions);
                 _gridLayout->removeWidget(_sliderHorizontal);
-                this->_gridLayout->update();
+                _gridLayout->update();
 
                 // than we add items to the _gridLayout in new order
                 int offset = 0;
@@ -1673,21 +1673,25 @@ void    WindowNext::execChartDialog(void)
                     if (_checkBoxSensors[j].isChecked())
                     {
                         _gridLayout->addWidget(&_chartView_IMU[j], offset, 0, 1, 5);
+                        _gridLayout->setRowStretch(offset, 1); // set the stretch factor for the rows
                         _chartView_IMU[j].show();
                         ++offset;
                     }
                 }
                 if (_checkBoxSensors[_numOfS_IMU].isChecked())
                 {
-                    this->_gridLayout->addWidget(_chartView_OPT, offset, 0, 1, 5);
+                    _gridLayout->addWidget(_chartView_OPT, offset, 0, 1, 5);
+                    _gridLayout->setRowStretch(offset, 1); // set the stretch factor for the rows
                     _chartView_OPT->show();
                     ++offset;
                 }
-                this->_gridLayout->addLayout(_hBoxLayoutLegends, offset, 0, 1, 4, Qt::AlignCenter);
-                this->_gridLayout->addWidget(_sliderHorizontalValues, offset, 4, 1, 1, Qt::AlignCenter);
-                this->_gridLayout->addLayout(_hBoxLayoutOptions, offset + 1, 0, 1, 1, Qt::AlignLeft);
-                this->_gridLayout->addWidget(_sliderHorizontal, offset + 1, 4, 1, 1, Qt::AlignCenter);
-                this->_gridLayout->update();
+                _gridLayout->addLayout(_hBoxLayoutLegends, offset, 0, 1, 4, Qt::AlignCenter);
+                _gridLayout->addWidget(_sliderHorizontalValues, offset, 4, 1, 1, Qt::AlignCenter);
+                _gridLayout->setRowStretch(offset, 0); // UNset the stretch factor for the rows
+                _gridLayout->addLayout(_hBoxLayoutOptions, ++offset, 0, 1, 1, Qt::AlignLeft); // increasing offset (i.e. go to the next ров)
+                _gridLayout->addWidget(_sliderHorizontal, offset, 4, 1, 1, Qt::AlignCenter);
+                _gridLayout->setRowStretch(offset, 0); // UNset the stretch factor for the rows
+                _gridLayout->update();
                 DEBUGGER();
             });
     this->_hBoxLayoutOptions->addWidget(&_checkBoxSensors[i]);
