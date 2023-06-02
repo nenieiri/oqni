@@ -106,6 +106,7 @@ WindowNext::WindowNext(MainWindow *parent)
     this->_axisY_OPT = nullptr;
     this->_axisY_IMU = nullptr;
     this->_series_OPT = nullptr;
+    this->_series_IMU = nullptr;
     this->_hBoxLayoutLegends = nullptr;
     this->_hBoxLayoutOptions = nullptr;
     this->_gridLayout = nullptr;
@@ -815,8 +816,12 @@ void    WindowNext::setParametersDesign(void)
                 this->_axisY_IMU = nullptr;
                 for (int i = 0; i < _numOfS_OPT * _numOfCH_OPT; ++i)
                     this->_chart_OPT->removeSeries(&_series_OPT[i]);
+                for (int i = 0; i < _numOfS_IMU * _numOfCH_IMU; ++i)
+                    this->_chart_IMU[i / _numOfS_IMU].removeSeries(&_series_IMU[i]);
                 delete [] _series_OPT;
                 this->_series_OPT = nullptr;
+                delete [] _series_IMU;
+                this->_series_IMU = nullptr;
                 delete this->_chart_OPT;
                 this->_chart_OPT = nullptr;
                 delete [] _chart_IMU;
@@ -1442,10 +1447,45 @@ void    WindowNext::execChartDialog(void)
         _chart_IMU[i].legend()->hide();
     }
 
+
+    // creating axis X for OPT sersors
+    this->_axisX_OPT = new QValueAxis();
+    _axisX_OPT->setTitleText("Time (milliseconds)");
+    _chart_OPT->addAxis(_axisX_OPT, Qt::AlignBottom);
+
+    // creating axes X for IMU sersors
+    this->_axisX_IMU = new QValueAxis[_numOfS_IMU];
+    for (int i = 0; i < _numOfS_IMU; ++i)
+    {
+        //_axisX_IMU[i].setTitleText("Time (milliseconds)");
+        _axisX_IMU[i].setMin(0);    // tmp
+        _axisX_IMU[i].setMax(1);    // tmp
+        _chart_IMU[i].addAxis(&_axisX_IMU[i], Qt::AlignBottom);
+    }
+
+    // creating axis Y for OPT sersors
+    this->_axisY_OPT = new QValueAxis();
+    _axisY_OPT->setTitleText("Values");
+    _chart_OPT->addAxis(_axisY_OPT, Qt::AlignLeft);
+
+    // creating axes Y for IMU sersors
+    this->_axisY_IMU = new QValueAxis[_numOfS_IMU];
+    for (int i = 0; i < _numOfS_IMU; ++i)
+    {
+        _axisY_IMU[i].setTitleText("Values");
+        _axisY_IMU[i].setMin(-1);   // tmp
+        _axisY_IMU[i].setMax(1);    // tmp
+        _chart_IMU[i].addAxis(&_axisY_IMU[i], Qt::AlignLeft);
+    }
+
+
+    // creating series for OPT sersors
     _series_OPT = new QLineSeries[_numOfS_OPT * _numOfCH_OPT];
     for (int i = 0; i < _numOfS_OPT * _numOfCH_OPT; ++i)
     {
         _chart_OPT->addSeries(&_series_OPT[i]);
+        _series_OPT[i].attachAxis(_axisX_OPT);
+        _series_OPT[i].attachAxis(_axisY_OPT);
         switch (i % _numOfCH_OPT) {
         case 0:
             _series_OPT[i].setColor(Qt::green);
@@ -1459,39 +1499,26 @@ void    WindowNext::execChartDialog(void)
         }
     }
 
-    // creating axis X for OPT sersors
-    this->_axisX_OPT = new QValueAxis();
-    _axisX_OPT->setTitleText("Time (milliseconds)");
-    _chart_OPT->addAxis(_axisX_OPT, Qt::AlignBottom);
-    for (int i = 0; i < _numOfS_OPT * _numOfCH_OPT; ++i)
-        _series_OPT[i].attachAxis(_axisX_OPT);
-
-    // creating axes X for IMU sersors
-    this->_axisX_IMU = new QValueAxis[_numOfS_IMU];
-    for (int i = 0; i < _numOfS_IMU; ++i)
+    // creating series for IMU sersors
+    _series_IMU = new QLineSeries[_numOfS_IMU * _numOfCH_IMU];
+    for (int i = 0; i < _numOfS_IMU * _numOfCH_IMU; ++i)
     {
-//        _axisX_IMU[i].setTitleText("Time (milliseconds)");
-        _axisX_IMU[i].setMin(0);    // tmp
-        _axisX_IMU[i].setMax(1);    // tmp
-        _chart_IMU[i].addAxis(&_axisX_IMU[i], Qt::AlignBottom);
+        _chart_IMU[i / _numOfS_IMU].addSeries(&_series_IMU[i]);
+        _series_IMU[i].attachAxis(&_axisX_IMU[i / _numOfS_IMU]);
+        _series_IMU[i].attachAxis(&_axisY_IMU[i / _numOfS_IMU]);
+        switch (i % _numOfCH_IMU) {
+        case 0:
+            _series_IMU[i].setColor(Qt::green); // X
+            break;
+        case 1:
+            _series_IMU[i].setColor(Qt::red);   // Y
+            break;
+        case 2:
+            _series_IMU[i].setColor(Qt::blue);  // Z
+            break;
+        }
     }
 
-    // creating axis Y for OPT sersors
-    this->_axisY_OPT = new QValueAxis();
-    _axisY_OPT->setTitleText("Values");
-    _chart_OPT->addAxis(_axisY_OPT, Qt::AlignLeft);
-    for (int i = 0; i < _numOfS_OPT * _numOfCH_OPT; ++i)
-        _series_OPT[i].attachAxis(_axisY_OPT);
-
-    // creating axes Y for IMU sersors
-    this->_axisY_IMU = new QValueAxis[_numOfS_IMU];
-    for (int i = 0; i < _numOfS_IMU; ++i)
-    {
-        _axisY_IMU[i].setTitleText("Values");
-        _axisY_IMU[i].setMin(-1);   // tmp
-        _axisY_IMU[i].setMax(1);    // tmp
-        _chart_IMU[i].addAxis(&_axisY_IMU[i], Qt::AlignLeft);
-    }
 
     this->_checkBoxChannelsValue = new bool[_numOfS_OPT * _numOfCH_OPT];
     for (int i = 0; i < _numOfS_OPT * _numOfCH_OPT; ++i)

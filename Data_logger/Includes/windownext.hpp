@@ -165,6 +165,7 @@ class WindowNext : public QDialog
         QValueAxis			*_axisY_OPT;
         QValueAxis			*_axisY_IMU;
         QLineSeries			*_series_OPT;
+        QLineSeries			*_series_IMU;
         QVector<unsigned int> _seriesMinY_OPT;
         QVector<unsigned int> _seriesMaxY_OPT;
         QGridLayout         *_gridLayoutPic;
