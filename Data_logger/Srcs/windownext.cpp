@@ -1779,7 +1779,7 @@ void    WindowNext::fillSeriesAndUpdateAxes_OPT(QByteArray &data, char &id, qint
 void    WindowNext::fillSeriesAndUpdateAxes_IMU(QByteArray &data, char &id, qint64 &time) // draft
 {
     DEBUGGER();
-//    return ;
+    return ;
 
     short   value, minY = SHRT_MAX, maxY = SHRT_MIN;
     qint64  minX = time;
