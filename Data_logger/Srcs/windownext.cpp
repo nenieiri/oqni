@@ -1084,7 +1084,7 @@ QString	WindowNext::saveDataToFile(const QString &subject)
             case 4:
                 // int for IMU sensors data (2 bytes by protocol)
                 // bytes --> [xxxx-x-x-DD-DD-DD-DD-DD-DD-DD-DD-DD-xxxxxxxx-x-xxxx]
-                out[id] << qFromLittleEndian<int>(data.mid(_bytesPA + _bytesID + _bytesCO + j * sizeOfCH[id], sizeOfCH[id]).constData()) << ",";
+                out[id] << qFromLittleEndian<short>(data.mid(_bytesPA + _bytesID + _bytesCO + j * sizeOfCH[id], sizeOfCH[id]).constData()) << ",";
                 break;
             }
         }
@@ -1783,11 +1783,10 @@ void    WindowNext::fillSeriesAndUpdateAxes_OPT(QByteArray &data, char &id, qint
 void    WindowNext::fillSeriesAndUpdateAxes_IMU(QByteArray &data, char &id, qint64 &time) // draft
 {
     DEBUGGER();
+//    return ;
 
-    return ;
-
-    short           value, minY = -1, maxY = 0;
-    qint64          minX = time;
+    short   value, minY = SHRT_MAX, maxY = SHRT_MIN;
+    qint64  minX = time;
 
     for (int ch = 0; ch < _numOfS_IMU * _numOfCH_IMU; ++ch)
     {
