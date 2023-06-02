@@ -105,7 +105,7 @@ WindowNext::WindowNext(MainWindow *parent)
     this->_axisX_IMU = nullptr;
     this->_axisY_OPT = nullptr;
     this->_axisY_IMU = nullptr;
-    this->_series = nullptr;
+    this->_series_OPT = nullptr;
     this->_hBoxLayoutLegends = nullptr;
     this->_hBoxLayoutOptions = nullptr;
     this->_gridLayout = nullptr;
@@ -814,9 +814,9 @@ void    WindowNext::setParametersDesign(void)
                 delete [] _axisY_IMU;
                 this->_axisY_IMU = nullptr;
                 for (int i = 0; i < _numOfS_OPT * _numOfCH_OPT; ++i)
-                    this->_chart_OPT->removeSeries(&_series[i]);
-                delete [] _series;
-                this->_series = nullptr;
+                    this->_chart_OPT->removeSeries(&_series_OPT[i]);
+                delete [] _series_OPT;
+                this->_series_OPT = nullptr;
                 delete this->_chart_OPT;
                 this->_chart_OPT = nullptr;
                 delete [] _chart_IMU;
@@ -1442,19 +1442,19 @@ void    WindowNext::execChartDialog(void)
         _chart_IMU[i].legend()->hide();
     }
 
-    _series = new QLineSeries[_numOfS_OPT * _numOfCH_OPT];
+    _series_OPT = new QLineSeries[_numOfS_OPT * _numOfCH_OPT];
     for (int i = 0; i < _numOfS_OPT * _numOfCH_OPT; ++i)
     {
-        _chart_OPT->addSeries(&_series[i]);
+        _chart_OPT->addSeries(&_series_OPT[i]);
         switch (i % _numOfCH_OPT) {
         case 0:
-            _series[i].setColor(Qt::green);
+            _series_OPT[i].setColor(Qt::green);
             break;
         case 1:
-            _series[i].setColor(Qt::red);
+            _series_OPT[i].setColor(Qt::red);
             break;
         case 2:
-            _series[i].setColor(Qt::blue); // infraRed
+            _series_OPT[i].setColor(Qt::blue); // infraRed
             break;
         }
     }
@@ -1464,7 +1464,7 @@ void    WindowNext::execChartDialog(void)
     _axisX_OPT->setTitleText("Time (milliseconds)");
     _chart_OPT->addAxis(_axisX_OPT, Qt::AlignBottom);
     for (int i = 0; i < _numOfS_OPT * _numOfCH_OPT; ++i)
-        _series[i].attachAxis(_axisX_OPT);
+        _series_OPT[i].attachAxis(_axisX_OPT);
 
     // creating axes X for IMU sersors
     this->_axisX_IMU = new QValueAxis[_numOfS_IMU];
@@ -1481,7 +1481,7 @@ void    WindowNext::execChartDialog(void)
     _axisY_OPT->setTitleText("Values");
     _chart_OPT->addAxis(_axisY_OPT, Qt::AlignLeft);
     for (int i = 0; i < _numOfS_OPT * _numOfCH_OPT; ++i)
-        _series[i].attachAxis(_axisY_OPT);
+        _series_OPT[i].attachAxis(_axisY_OPT);
 
     // creating axes Y for IMU sersors
     this->_axisY_IMU = new QValueAxis[_numOfS_IMU];
@@ -1499,10 +1499,10 @@ void    WindowNext::execChartDialog(void)
 
     this->_chartTimeFlag = 0;
 
-    _seriesMinY.resize(_numOfS_OPT * _numOfCH_OPT);
-    _seriesMaxY.resize(_numOfS_OPT * _numOfCH_OPT);
-    _seriesMinY.fill(-1);
-    _seriesMaxY.fill(0);
+    _seriesMinY_OPT.resize(_numOfS_OPT * _numOfCH_OPT);
+    _seriesMaxY_OPT.resize(_numOfS_OPT * _numOfCH_OPT);
+    _seriesMinY_OPT.fill(-1);
+    _seriesMaxY_OPT.fill(0);
 
     connect(this->_threadReader, &ThreadReader::lastRowOfData, this,
         [=](QByteArray data)
@@ -1577,7 +1577,7 @@ void    WindowNext::execChartDialog(void)
                     this->_checkBoxChannelsValue[i] = true;
                 else
                 {
-                    _series[i].clear();
+                    _series_OPT[i].clear();
                     this->_checkBoxChannelsValue[i] = false;
                 }
 
@@ -1710,32 +1710,32 @@ void    WindowNext::fillSeriesAndUpdateAxes_OPT(QByteArray &data, char &id, qint
         value = qFromLittleEndian<unsigned int>(data.mid(_bytesPA + _bytesID + _bytesCO + j * _sizeOfCH_OPT, _sizeOfCH_OPT).constData());
         ledID = j + id * id - 1;
 
-        _seriesMinY[ledID] = std::min(value, _seriesMinY[ledID]);
-        _seriesMaxY[ledID] = std::max(value, _seriesMaxY[ledID]);
+        _seriesMinY_OPT[ledID] = std::min(value, _seriesMinY_OPT[ledID]);
+        _seriesMaxY_OPT[ledID] = std::max(value, _seriesMaxY_OPT[ledID]);
 
         if (_checkBoxChannelsValue[ledID] == true)
         {
-            _series[ledID].append(time, value);
-            while (_series[ledID].count() > _chartDuration / 10)
-                _series[ledID].remove(0);
+            _series_OPT[ledID].append(time, value);
+            while (_series_OPT[ledID].count() > _chartDuration / 10)
+                _series_OPT[ledID].remove(0);
         }
 
         // updating axisX and axisY in interval "_chartDuration / 1000 * _chartUpdateRatio"
         if (time + _startTime - _chartTimeFlag >= _chartDuration / 1000 * _chartUpdateRatio)
         {
             if (_autoScale->isChecked() == false)
-                getSeriesMinMaxY(&minY, &maxY);
+                getSeriesMinMaxY_OPT(minY, maxY);
             else
                 for (int i = 0; i < _numOfS_OPT * _numOfCH_OPT; i++)
-                    for(int j = 0; j < _series[i].count(); j++)
-                        minY = std::min(minY, (unsigned int)_series[i].at(j).y()),
-                            maxY = std::max(maxY, (unsigned int)_series[i].at(j).y());
+                    for(int j = 0; j < _series_OPT[i].count(); j++)
+                        minY = std::min(minY, (unsigned int)_series_OPT[i].at(j).y()),
+                            maxY = std::max(maxY, (unsigned int)_series_OPT[i].at(j).y());
 
             _axisY_OPT->setRange(minY, maxY);
 
             for (int k = 0; k < _numOfS_OPT * _numOfCH_OPT; ++k)
-                if (_series[k].count() != 0)
-                    minX = std::min(minX, (qint64)_series[k].at(0).x());
+                if (_series_OPT[k].count() != 0)
+                    minX = std::min(minX, (qint64)_series_OPT[k].at(0).x());
 
             _axisX_OPT->setRange(minX, minX + _chartDuration);
             _chartTimeFlag = time + _startTime;
@@ -1848,24 +1848,21 @@ void    WindowNext::warningMessageBox(const QString &msg)
     DEBUGGER();
 }
 
-void    WindowNext::getSeriesMinMaxY(unsigned int *minY, unsigned int *maxY)
+void    WindowNext::getSeriesMinMaxY_OPT(unsigned int &minY, unsigned int &maxY)
 {
     DEBUGGER();
 
-    (*minY) = -1;
-    (*maxY) = 0;
+    minY = -1;
+    maxY = 0;
 
-    for (int i = 0; i < _seriesMinY.size(); ++i)
+    for (int i = 0; i < _seriesMinY_OPT.size(); ++i)
     {
         if (_checkBoxChannels[i].isChecked())
         {
-            if (_seriesMinY[i] < (*minY))
-                (*minY) = _seriesMinY[i];
-            if (_seriesMaxY[i] > (*maxY))
-                (*maxY) = _seriesMaxY[i];
+            minY = std::min(minY, _seriesMinY_OPT[i]);
+            maxY = std::max(maxY, _seriesMaxY_OPT[i]);
         }
     }
-
     DEBUGGER();
 }
 

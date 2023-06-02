@@ -73,7 +73,7 @@ class WindowNext : public QDialog
         QString             findSubjectInMetadata(QString subject, int *subjectRow);
         QString             getCellFromMetadata(QString sheet, int row, int col);
         void                setCellInMetadata(QString sheet, int row, int col, const QString &text);
-        void                getSeriesMinMaxY(unsigned int *minY, unsigned int *maxY);
+        void                getSeriesMinMaxY_OPT(unsigned int &minY, unsigned int &maxY);
         
     private slots:
 		void				onThreadDisplayTimerFinished(void);
@@ -164,9 +164,9 @@ class WindowNext : public QDialog
         QValueAxis			*_axisX_IMU;
         QValueAxis			*_axisY_OPT;
         QValueAxis			*_axisY_IMU;
-        QLineSeries			*_series;
-        QVector<unsigned int> _seriesMinY;
-        QVector<unsigned int> _seriesMaxY;
+        QLineSeries			*_series_OPT;
+        QVector<unsigned int> _seriesMinY_OPT;
+        QVector<unsigned int> _seriesMaxY_OPT;
         QGridLayout         *_gridLayoutPic;
         QGridLayout			*_gridLayout;
         QHBoxLayout			*_hBoxLayoutLegends;
