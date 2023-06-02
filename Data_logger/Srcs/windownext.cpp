@@ -1535,8 +1535,8 @@ void    WindowNext::execChartDialog(void)
     _seriesMaxY_IMU.resize(_numOfS_IMU);
     for (int j = 0; j < _numOfS_IMU; ++j)
         for (int i = 0; i < _numOfCH_IMU; ++i)
-            _seriesMinY_IMU[j].push_back(-1),
-            _seriesMaxY_IMU[j].push_back(0);
+            _seriesMinY_IMU[j].push_back(SHRT_MAX),
+            _seriesMaxY_IMU[j].push_back(SHRT_MIN);
 
 
     connect(this->_threadReader, &ThreadReader::lastRowOfData, this,
@@ -1783,7 +1783,7 @@ void    WindowNext::fillSeriesAndUpdateAxes_OPT(QByteArray &data, char &id, qint
 void    WindowNext::fillSeriesAndUpdateAxes_IMU(QByteArray &data, char &id, qint64 &time) // draft
 {
     DEBUGGER();
-//    return ;
+    return ;
 
     short   value, minY = SHRT_MAX, maxY = SHRT_MIN;
     qint64  minX = time;
