@@ -1458,8 +1458,6 @@ void    WindowNext::execChartDialog(void)
     for (int i = 0; i < _numOfS_IMU; ++i)
     {
         //_axisX_IMU[i].setTitleText("Time (milliseconds)");
-        _axisX_IMU[i].setMin(0);    // tmp
-        _axisX_IMU[i].setMax(1);    // tmp
         _chart_IMU[i].addAxis(&_axisX_IMU[i], Qt::AlignBottom);
     }
 
@@ -1473,8 +1471,6 @@ void    WindowNext::execChartDialog(void)
     for (int i = 0; i < _numOfS_IMU; ++i)
     {
         _axisY_IMU[i].setTitleText("Values");
-        _axisY_IMU[i].setMin(-1);   // tmp
-        _axisY_IMU[i].setMax(1);    // tmp
         _chart_IMU[i].addAxis(&_axisY_IMU[i], Qt::AlignLeft);
     }
 
@@ -1783,7 +1779,7 @@ void    WindowNext::fillSeriesAndUpdateAxes_OPT(QByteArray &data, char &id, qint
 void    WindowNext::fillSeriesAndUpdateAxes_IMU(QByteArray &data, char &id, qint64 &time) // draft
 {
     DEBUGGER();
-    return ;
+//    return ;
 
     short   value, minY = SHRT_MAX, maxY = SHRT_MIN;
     qint64  minX = time;
