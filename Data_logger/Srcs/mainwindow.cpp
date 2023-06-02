@@ -147,12 +147,12 @@ void    MainWindow::addLoadingAnimation(QPushButton *button, int x, int y, int w
 void    MainWindow::createGroupBox(int x, int y, int width, int height)
 {
     DEBUGGER();
-    
+
     /* ---------------- adding GroupBox ------------------- */
     this->_groupBox = new QGroupBox("Connected COM ports:", this);
     this->_groupBox->setGeometry(x, y, width, height);
     this->_groupBox->stackUnder(this->_gifLabel);
-    this->_groupBox->setStyleSheet("border: 1px solid gray; background: #e6e6e6;");
+    this->_groupBox->setStyleSheet("color: black; border: 1px solid gray; background: #e6e6e6;");
     
     DEBUGGER();
 }
@@ -362,7 +362,7 @@ void    MainWindow::buttonChartAction()
 		_filesList[i].setGeometry(20, 10 + i * 40, 260, 30);
 		_filesList[i].setChecked(true);
 		_filesList[i].setText(files[i]);
-		_filesList[i].setStyleSheet("font-size: 18px;");
+        _filesList[i].setStyleSheet("color: black; font-size: 18px;");
     }
     
     _isRejected = true;
@@ -441,36 +441,47 @@ void    MainWindow::buttonToolAction(ComPort *comPort)
     
     QLabel *portName = new QLabel("Port name:         " + comPort->getPortName(), comPort->_windowProperty);
     portName->setGeometry(10, 10, 430, 30);
+    portName->setStyleSheet("color: black;");
     QLabel *baudRate = new QLabel("Baud Rate:" , comPort->_windowProperty);
     baudRate->setGeometry(10, 50, 130, 30);
+    baudRate->setStyleSheet("color: black;");
     QLabel *dataBits = new QLabel("Data Bits:", comPort->_windowProperty);
     dataBits->setGeometry(10, 90, 130, 30);
+    dataBits->setStyleSheet("color: black;");
     QLabel *parity = new QLabel("Parity:", comPort->_windowProperty);
     parity->setGeometry(10, 130, 130, 30);
+    parity->setStyleSheet("color: black;");
     QLabel *stopBits = new QLabel("Stop Bits:", comPort->_windowProperty);
     stopBits->setGeometry(10, 170, 130, 30);
+    stopBits->setStyleSheet("color: black;");
     QLabel *flowControl = new QLabel("Flow Control:", comPort->_windowProperty);
     flowControl->setGeometry(10, 210, 130, 30);
+    flowControl->setStyleSheet("color: black;");
     
     QComboBox *baudComboBox = new QComboBox(comPort->_windowProperty);
     baudComboBox->addItems(this->_baudRateItems);
     baudComboBox->setGeometry(150, 50, 200, 30);
+    baudComboBox->setStyleSheet("color: black;");
     
     QComboBox *dataComboBox = new QComboBox(comPort->_windowProperty);
     dataComboBox->addItems(this->_dataBitsItems);
     dataComboBox->setGeometry(150, 90, 200, 30);
+    dataComboBox->setStyleSheet("color: black;");
     
     QComboBox *parityComboBox = new QComboBox(comPort->_windowProperty);
     parityComboBox->addItems(this->_parityItems);
     parityComboBox->setGeometry(150, 130, 200, 30);
+    parityComboBox->setStyleSheet("color: black;");
     
     QComboBox *stopComboBox = new QComboBox(comPort->_windowProperty);
     stopComboBox->addItems(this->_stopBitsItems);
     stopComboBox->setGeometry(150, 170, 200, 30);
+    stopComboBox->setStyleSheet("color: black;");
     
     QComboBox *flowComboBox = new QComboBox(comPort->_windowProperty);
     flowComboBox->addItems(this->_flowControlItems);
     flowComboBox->setGeometry(150, 210, 200, 30);
+    flowComboBox->setStyleSheet("color: black;");
     
     comPort->_cancelProperties = this->createButton("Cancel", 10, 255, 100, 30, nullptr, comPort->_windowProperty);
     comPort->_setDefaultProperties = this->createButton("Default", 130, 255, 100, 30, nullptr, comPort->_windowProperty);

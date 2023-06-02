@@ -294,17 +294,17 @@ void    WindowChart::execChartDialog(void)
         {
             switch (i % (_numOfCH / _checkedFilesCount)){
             case 0:
-                text = "green" + QString::number(k + 1) + "  ";
+                text = "OPT" + QString::number(k + 1) + "green  ";
                 this->_checkBoxChannels[i + j * (_numOfCH / _checkedFilesCount)].setText(text);
                 this->_checkBoxChannels[i + j * (_numOfCH / _checkedFilesCount)].setStyleSheet("color: green; font-size: 14px;");
                 break;
             case 1:
-                text = "Red" + QString::number(k + 1) + "  ";
+                text = "OPT" + QString::number(k + 1) + "red  ";
                 this->_checkBoxChannels[i + j * (_numOfCH / _checkedFilesCount)].setText(text);
                 this->_checkBoxChannels[i + j * (_numOfCH / _checkedFilesCount)].setStyleSheet("color: red; font-size: 14px;");
                 break;
             case 2:
-                text = "infrared" + QString::number(k + 1) + "          ";
+                text = "OPT" + QString::number(k + 1) + "infrared          ";
                 this->_checkBoxChannels[i + j * (_numOfCH / _checkedFilesCount)].setText(text);
                 this->_checkBoxChannels[i + j * (_numOfCH / _checkedFilesCount)].setStyleSheet("color: blue; font-size: 14px;");
                 break;

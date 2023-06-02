@@ -468,13 +468,13 @@ void    WindowNext::setParametersDesign(void)
     DEBUGGER();
 
     this->_showReadingPort1->setGeometry(10, 10, 100, 30);
-    this->_showReadingPort1->setStyleSheet("font-size: 18px;");
+    this->_showReadingPort1->setStyleSheet("color: black; font-size: 18px;");
 
     this->_showReadingPort2->setGeometry(120, 10, 480, 30);
     this->_showReadingPort2->setStyleSheet("font-size: 14px; color: blue;");
 
     this->_showSelectedDir1->setGeometry(10, 50, 100, 30);
-    this->_showSelectedDir1->setStyleSheet("font-size: 18px;");
+    this->_showSelectedDir1->setStyleSheet("color: black; font-size: 18px;");
 
     this->_showSelectedDir2->setGeometry(120, 50, 360, 30);
     this->_showSelectedDir2->setCursorPosition(0);
@@ -482,7 +482,7 @@ void    WindowNext::setParametersDesign(void)
     this->_showSelectedDir2->setToolTip(_selectedDirectory);
 
     this->_recordingFolder1->setGeometry(10, 90, 160, 30);
-    this->_recordingFolder1->setStyleSheet("font-size: 18px;");
+    this->_recordingFolder1->setStyleSheet("color: black; font-size: 18px;");
 
     this->_recordingFolder2->setGeometry(180, 90, 105, 30);
     this->_recordingFolder2->setAlignment(Qt::AlignCenter);
@@ -503,25 +503,25 @@ void    WindowNext::setParametersDesign(void)
     this->_recordingFolder4->setToolTip(_recordingFolder4->text());
 
     this->_placement1->setGeometry(10, 130, 160, 30);
-    this->_placement1->setStyleSheet("font-size: 18px;");
+    this->_placement1->setStyleSheet("color: black; font-size: 18px;");
     this->_placement2->setGeometry(180, 130, 105, 30);
     this->_placement2->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
     this->_placement3->setGeometry(300, 130, 160, 30);
-    this->_placement3->setStyleSheet("font-size: 18px;");
+    this->_placement3->setStyleSheet("color: black; font-size: 18px;");
     this->_placement4->setGeometry(438, 130, 150, 30);
     this->_placement4->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
 
     this->_protocol1->setGeometry(10, 170, 160, 30);
-    this->_protocol1->setStyleSheet("font-size: 18px;");
+    this->_protocol1->setStyleSheet("color: black; font-size: 18px;");
     this->_protocol2->setGeometry(180, 170, 105, 30);
     this->_protocol2->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
     this->_protocol3->setGeometry(300, 170, 160, 30);
-    this->_protocol3->setStyleSheet("font-size: 18px;");
+    this->_protocol3->setStyleSheet("color: black; font-size: 18px;");
     this->_protocol4->setGeometry(438, 170, 150, 30);
     this->_protocol4->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
 
     this->_durationSec1->setGeometry(10, 210, 160, 30);
-    this->_durationSec1->setStyleSheet("font-size: 18px;");
+    this->_durationSec1->setStyleSheet("color: black; font-size: 18px;");
 
     this->_durationSec2->setPlaceholderText("enter here");
     this->_durationSec2->setGeometry(180, 210, 105, 30);
@@ -546,24 +546,24 @@ void    WindowNext::setParametersDesign(void)
     this->_finishMsgLabel->setAlignment(Qt::AlignCenter);
 
     this->_display->setGeometry(300, 210, 160, 30);
-    this->_display->setStyleSheet("font-size: 18px;");
+    this->_display->setStyleSheet("color: black; font-size: 18px;");
 
     this->_showChart->setGeometry(438, 210, 160, 30);
-    this->_showChart->setStyleSheet("font-size: 18px;");
+    this->_showChart->setStyleSheet("color: black; font-size: 18px;");
     this->_showChart->setChecked(false);
 
     this->_showPic->setGeometry(518, 210, 160, 30);
-    this->_showPic->setStyleSheet("font-size: 18px;");
+    this->_showPic->setStyleSheet("color: black; font-size: 18px;");
     this->_showPic->setChecked(true);
 
     this->_saveCheckBox->setGeometry(438, 240, 160, 30);
-    this->_saveCheckBox->setStyleSheet("font-size: 14px;");
+    this->_saveCheckBox->setStyleSheet("color: black; font-size: 14px;");
 
     this->_lightIntensity1->setGeometry(10, 250, 160, 30);
-    this->_lightIntensity1->setStyleSheet("font-size: 18px;");
+    this->_lightIntensity1->setStyleSheet("color: black; font-size: 18px;");
 
     this->_distance1->setGeometry(10, 290, 160, 30);
-    this->_distance1->setStyleSheet("font-size: 18px;");
+    this->_distance1->setStyleSheet("color: black; font-size: 18px;");
 
     /* --- If the text contains a non-numeric character, show warrnig msg --- */
     this->_durationSec2->setText(QString::number(this->_durationMax));
@@ -1531,6 +1531,14 @@ void    WindowNext::execChartDialog(void)
     _seriesMinY_OPT.fill(-1);
     _seriesMaxY_OPT.fill(0);
 
+    _seriesMinY_IMU.resize(_numOfS_IMU);
+    _seriesMaxY_IMU.resize(_numOfS_IMU);
+    for (int j = 0; j < _numOfS_IMU; ++j)
+        for (int i = 0; i < _numOfCH_IMU; ++i)
+            _seriesMinY_IMU[j].push_back(-1),
+            _seriesMaxY_IMU[j].push_back(0);
+
+
     connect(this->_threadReader, &ThreadReader::lastRowOfData, this,
         [=](QByteArray data)
         {
@@ -1547,6 +1555,7 @@ void    WindowNext::execChartDialog(void)
                 fillSeriesAndUpdateAxes_OPT(data, id, time);
                 break;
             case 4:
+                fillSeriesAndUpdateAxes_IMU(data, id, time);
                 break;
             }
         });
@@ -1618,14 +1627,14 @@ void    WindowNext::execChartDialog(void)
 #  else
     _sliderHorizontalValues = new QLabel(" 2         3         4        5          6         7         8        9       10", this);
 #  endif
-    _sliderHorizontalValues->setStyleSheet("font-size: 12px;");
+    _sliderHorizontalValues->setStyleSheet("color: black; font-size: 12px;");
     _sliderHorizontalValues->setFixedWidth(_sliderHorizontal->width());
 
     this->_hBoxLayoutOptions = new QHBoxLayout;
 
     this->_autoScale = new QCheckBox("Autoscale               ");
     this->_autoScale->setChecked(true);
-    this->_autoScale->setStyleSheet("font-size: 16px;");
+    this->_autoScale->setStyleSheet("color: black; font-size: 16px;");
     this->_hBoxLayoutOptions->addWidget(_autoScale);
     connect(this->_autoScale, &QCheckBox::clicked, this,
         [=]()
@@ -1663,7 +1672,7 @@ void    WindowNext::execChartDialog(void)
         this->_checkBoxSensors[i].setText(title[i]);
         this->_checkBoxSensors[i].setChecked(i == 3);
         this->_checkBoxSensors[i].setEnabled(i != 3);
-        this->_checkBoxSensors[i].setStyleSheet("font-size: 14px;");
+        this->_checkBoxSensors[i].setStyleSheet("color: black; font-size: 14px;");
         connect(&this->_checkBoxSensors[i], &QCheckBox::clicked, this,
             [=]()
             {
@@ -1732,10 +1741,10 @@ void    WindowNext::fillSeriesAndUpdateAxes_OPT(QByteArray &data, char &id, qint
     unsigned int    value, ledID, minY = -1, maxY = 0;
     qint64          minX = time;
 
-    for (int j = 0; j < _numOfCH_OPT; ++j)
+    for (int ch = 0; ch < _numOfCH_OPT; ++ch)
     {
-        value = qFromLittleEndian<unsigned int>(data.mid(_bytesPA + _bytesID + _bytesCO + j * _sizeOfCH_OPT, _sizeOfCH_OPT).constData());
-        ledID = j + id * id - 1;
+        value = qFromLittleEndian<unsigned int>(data.mid(_bytesPA + _bytesID + _bytesCO + ch * _sizeOfCH_OPT, _sizeOfCH_OPT).constData());
+        ledID = ch + id * id - 1;
 
         _seriesMinY_OPT[ledID] = std::min(value, _seriesMinY_OPT[ledID]);
         _seriesMaxY_OPT[ledID] = std::max(value, _seriesMaxY_OPT[ledID]);
@@ -1753,10 +1762,10 @@ void    WindowNext::fillSeriesAndUpdateAxes_OPT(QByteArray &data, char &id, qint
             if (_autoScale->isChecked() == false)
                 getSeriesMinMaxY_OPT(minY, maxY);
             else
-                for (int i = 0; i < _numOfS_OPT * _numOfCH_OPT; i++)
-                    for(int j = 0; j < _series_OPT[i].count(); j++)
+                for (int i = 0; i < _numOfS_OPT * _numOfCH_OPT; ++i)
+                    for(int j = 0; j < _series_OPT[i].count(); ++j)
                         minY = std::min(minY, (unsigned int)_series_OPT[i].at(j).y()),
-                            maxY = std::max(maxY, (unsigned int)_series_OPT[i].at(j).y());
+                        maxY = std::max(maxY, (unsigned int)_series_OPT[i].at(j).y());
 
             _axisY_OPT->setRange(minY, maxY);
 
@@ -1768,6 +1777,55 @@ void    WindowNext::fillSeriesAndUpdateAxes_OPT(QByteArray &data, char &id, qint
             _chartTimeFlag = time + _startTime;
         }
     }
+    DEBUGGER();
+}
+
+void    WindowNext::fillSeriesAndUpdateAxes_IMU(QByteArray &data, char &id, qint64 &time) // draft
+{
+    DEBUGGER();
+
+    return ;
+
+    short           value, minY = -1, maxY = 0;
+    qint64          minX = time;
+
+    for (int ch = 0; ch < _numOfS_IMU * _numOfCH_IMU; ++ch)
+    {
+        value = qFromLittleEndian<short>(data.mid(_bytesPA + _bytesID + _bytesCO + ch * _sizeOfCH_IMU, _sizeOfCH_IMU).constData());
+
+        _seriesMinY_IMU[ch / _numOfS_IMU][ch % _numOfCH_IMU] = std::min(value, _seriesMinY_IMU[ch / _numOfS_IMU][ch % _numOfCH_IMU]);
+        _seriesMaxY_IMU[ch / _numOfS_IMU][ch % _numOfCH_IMU] = std::max(value, _seriesMaxY_IMU[ch / _numOfS_IMU][ch % _numOfCH_IMU]);
+
+        _series_IMU[ch].append(time, value);
+        while (_series_IMU[ch].count() > _chartDuration / 10)
+            _series_IMU[ch].remove(0);
+
+        // updating axisX and axisY in interval "_chartDuration / 1000 * _chartUpdateRatio"
+        if (time + _startTime - _chartTimeFlag >= _chartDuration / 1000 * _chartUpdateRatio)
+        {
+            int begin = (ch / _numOfS_IMU) * _numOfCH_IMU;
+            int end = begin + _numOfCH_IMU;
+            if (_autoScale->isChecked() == false)
+                getSeriesMinMaxY_IMU(minY, maxY, ch / _numOfS_IMU);
+            else
+            {
+                for (int i = begin; i < end; ++i)
+                    for(int j = 0; j < _series_IMU[i].count(); ++j)
+                        minY = std::min(minY, (short)_series_IMU[i].at(j).y()),
+                        maxY = std::max(maxY, (short)_series_IMU[i].at(j).y());
+            }
+            _axisY_IMU[ch / _numOfS_IMU].setRange(minY, maxY);
+
+            for (int k = begin; k < end; ++k)
+                if (_series_OPT[k].count() != 0)
+                    minX = std::min(minX, (qint64)_series_OPT[k].at(0).x());
+
+            _axisX_IMU[ch / _numOfS_IMU].setRange(minX, minX + _chartDuration);
+            _chartTimeFlag = time + _startTime;
+        }
+
+    }
+
     DEBUGGER();
 }
 
@@ -1835,7 +1893,7 @@ void    WindowNext::showImage(int currentSecond, QString imgPath)
     QPixmap scaledPixmap = pixmap.scaled(height, width * 11 / 10, Qt::KeepAspectRatio); // increase "width" by 10%
     QString imageSeconds = QString::number(currentSecond);
 
-    this->_imageSecondsLabel->setStyleSheet("font-size: " + \
+    this->_imageSecondsLabel->setStyleSheet("color: black; font-size: " + \
                                             QString::number(_picDialog->size().height() * 2 / 9) + \
                                             "px; font-weight: bold;"); // 2/9 = rows of ImageSeconds
 
@@ -1889,6 +1947,21 @@ void    WindowNext::getSeriesMinMaxY_OPT(unsigned int &minY, unsigned int &maxY)
             minY = std::min(minY, _seriesMinY_OPT[i]);
             maxY = std::max(maxY, _seriesMaxY_OPT[i]);
         }
+    }
+    DEBUGGER();
+}
+
+void    WindowNext::getSeriesMinMaxY_IMU(short &minY, short &maxY, int index)
+{
+    DEBUGGER();
+
+    minY = SHRT_MAX;
+    maxY = SHRT_MIN;
+
+    for (int i = 0; i < _seriesMinY_IMU[index].size(); ++i)
+    {
+        minY = std::min(minY, _seriesMinY_IMU[index][i]);
+        maxY = std::max(maxY, _seriesMaxY_IMU[index][i]);
     }
     DEBUGGER();
 }

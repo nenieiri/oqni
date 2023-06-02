@@ -67,6 +67,7 @@ class WindowNext : public QDialog
         void                retryToSaveMetaData(QXlsx::Document &xlsx, const QString &excelSheet);
         void                execChartDialog(void);
         void                fillSeriesAndUpdateAxes_OPT(QByteArray &data, char &id, qint64 &time);
+        void                fillSeriesAndUpdateAxes_IMU(QByteArray &data, char &id, qint64 &time); // implementation is in process
         void                execPicDialog(void);
         void                showImage(int currentSecond, QString imgPath);
         QString            	findMaxSubjectInMetadata(void);
@@ -74,6 +75,7 @@ class WindowNext : public QDialog
         QString             getCellFromMetadata(QString sheet, int row, int col);
         void                setCellInMetadata(QString sheet, int row, int col, const QString &text);
         void                getSeriesMinMaxY_OPT(unsigned int &minY, unsigned int &maxY);
+        void                getSeriesMinMaxY_IMU(short &minY, short &maxY, int index);
         
     private slots:
 		void				onThreadDisplayTimerFinished(void);
@@ -166,8 +168,10 @@ class WindowNext : public QDialog
         QValueAxis			*_axisY_IMU;
         QLineSeries			*_series_OPT;
         QLineSeries			*_series_IMU;
-        QVector<unsigned int> _seriesMinY_OPT;
-        QVector<unsigned int> _seriesMaxY_OPT;
+        QVector<unsigned int>   _seriesMinY_OPT;
+        QVector<unsigned int>   _seriesMaxY_OPT;
+        QVector<QVector<short>> _seriesMinY_IMU;
+        QVector<QVector<short>> _seriesMaxY_IMU;
         QGridLayout         *_gridLayoutPic;
         QGridLayout			*_gridLayout;
         QHBoxLayout			*_hBoxLayoutLegends;
