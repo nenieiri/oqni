@@ -13,7 +13,7 @@ WindowNext::WindowNext(MainWindow *parent)
     int         windowWidth = 600;
     int         windowHeight = 390;
 
-    this->_chartDuration = 6 * 1000;
+    this->_chartDuration = 5 * 1000;
     this->_chartUpdateRatio_OPT = 3;
     this->_chartUpdateRatio_IMU = 6;
 
