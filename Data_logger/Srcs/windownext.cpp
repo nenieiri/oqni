@@ -1723,7 +1723,24 @@ void    WindowNext::execChartDialog(void)
                 _gridLayout->addLayout(_hBoxLayoutOptions, ++offset, 0, 1, 1, Qt::AlignLeft); // increasing offset (i.e. go to the next ров)
                 _gridLayout->addWidget(_sliderHorizontal, offset, 4, 1, 1, Qt::AlignCenter);
                 _gridLayout->setRowStretch(offset, 0); // UNset the stretch factor for the rows
+
+                // if OPT _checkBoxSensors is checked/unchecked enable/disable all _checkBoxChannels
+                QStringList format = {"color: green; font-size: 14px;", "color: red; font-size: 14px;", "color: blue; font-size: 14px;"};
+                if (_checkBoxSensors[chartsCount - 1].isChecked())
+                {
+                    for (int j = 0; j < _numOfS_OPT * _numOfCH_OPT; ++j)
+                        _checkBoxChannels[j].setEnabled(true),
+                        _checkBoxChannels[j].setStyleSheet(format[j % 3]);
+                }
+                else
+                {
+                    for (int j = 0; j < _numOfS_OPT * _numOfCH_OPT; ++j)
+                        _checkBoxChannels[j].setEnabled(false),
+                        _checkBoxChannels[j].setStyleSheet("color: gray; font-size: 14px;");
+                }
+
                 _gridLayout->update();
+
                 DEBUGGER();
             });
     this->_hBoxLayoutOptions->addWidget(&_checkBoxSensors[i]);
