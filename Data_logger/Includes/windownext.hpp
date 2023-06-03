@@ -185,8 +185,10 @@ class WindowNext : public QDialog
         int                 _sliderHorizontalLastValue;
 
         unsigned int        _chartDuration;
-        unsigned int        _chartUpdateRatio;
-        qint64				_chartTimeFlag;
+        unsigned int        _chartUpdateRatio_OPT;
+        unsigned int        _chartUpdateRatio_IMU;
+        qint64				_chartTimeFlag_OPT;
+        QVector<qint64>		_chartTimeFlag_IMU;
         
         QLabel              *_displayTimerPic;
         QLabel              *_imageLabel;

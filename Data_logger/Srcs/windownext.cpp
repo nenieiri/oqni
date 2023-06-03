@@ -14,7 +14,8 @@ WindowNext::WindowNext(MainWindow *parent)
     int         windowHeight = 390;
 
     this->_chartDuration = 6 * 1000;
-    this->_chartUpdateRatio = 3;
+    this->_chartUpdateRatio_OPT = 3;
+    this->_chartUpdateRatio_IMU = 6;
 
     this->_buttonBrowse = nullptr;
     this->_buttonStart = nullptr;
@@ -1048,7 +1049,7 @@ QString	WindowNext::saveDataToFile(const QString &subject)
             break;
         case 4:
             // writing first line in the .csv file of IMU sensors
-            for (int j = 1; j <= _numOfCH_IMU * 3; ++j)
+            for (int j = 1; j <= _numOfS_IMU * _numOfCH_IMU; ++j)
                 out[i] << ",led" + QString::number(i * 10 + j);
             break;
         }
@@ -1456,10 +1457,7 @@ void    WindowNext::execChartDialog(void)
     // creating axes X for IMU sersors
     this->_axisX_IMU = new QValueAxis[_numOfS_IMU];
     for (int i = 0; i < _numOfS_IMU; ++i)
-    {
-        //_axisX_IMU[i].setTitleText("Time (milliseconds)");
         _chart_IMU[i].addAxis(&_axisX_IMU[i], Qt::AlignBottom);
-    }
 
     // creating axis Y for OPT sersors
     this->_axisY_OPT = new QValueAxis();
@@ -1473,7 +1471,6 @@ void    WindowNext::execChartDialog(void)
         _axisY_IMU[i].setTitleText("Values");
         _chart_IMU[i].addAxis(&_axisY_IMU[i], Qt::AlignLeft);
     }
-
 
     // creating series for OPT sersors
     _series_OPT = new QLineSeries[_numOfS_OPT * _numOfCH_OPT];
@@ -1520,7 +1517,8 @@ void    WindowNext::execChartDialog(void)
     for (int i = 0; i < _numOfS_OPT * _numOfCH_OPT; ++i)
         this->_checkBoxChannelsValue[i] = true;
 
-    this->_chartTimeFlag = 0;
+    this->_chartTimeFlag_OPT = 0;
+    this->_chartTimeFlag_IMU.resize(_numOfS_IMU, 0);
 
     _seriesMinY_OPT.resize(_numOfS_OPT * _numOfCH_OPT);
     _seriesMaxY_OPT.resize(_numOfS_OPT * _numOfCH_OPT);
@@ -1679,6 +1677,36 @@ void    WindowNext::execChartDialog(void)
                 for (int j = 0; j < chartsCount; ++j)
                     checkedSum += _checkBoxSensors[j].isChecked();
 
+
+                // setting update frequency of axes X
+                switch (checkedSum) {
+                case 1:
+                    if (_checkBoxSensors[chartsCount - 1].isChecked() == true)
+                        _chartUpdateRatio_OPT = 3;
+                    else
+                        _chartUpdateRatio_IMU = 1;
+                    break;
+                case 2:
+                    if (_checkBoxSensors[chartsCount - 1].isChecked() == false)
+                        _chartUpdateRatio_IMU = 3;
+                    else
+                    {
+                        _chartUpdateRatio_OPT = 6;
+                        _chartUpdateRatio_IMU = 5;
+                    }
+                    break;
+                case 3:
+                case 4:
+                    if (_checkBoxSensors[chartsCount - 1].isChecked() == false)
+                        _chartUpdateRatio_IMU = 3;
+                    else
+                    {
+                        _chartUpdateRatio_OPT = 10;
+                        _chartUpdateRatio_IMU = 8;
+                    }
+                    break;
+                }
+
                 // if only one box is checked, we disable that box
                 // so at least one box must be checked
                 for (int j = 0; j < chartsCount; ++j)
@@ -1765,12 +1793,12 @@ void    WindowNext::fillSeriesAndUpdateAxes_OPT(QByteArray &data, char &id, qint
         if (_checkBoxChannelsValue[ledID] == true)
         {
             _series_OPT[ledID].append(time, value);
-            while (_series_OPT[ledID].count() > _chartDuration / 10)
+            while (_series_OPT[ledID].count() > _chartDuration / 1000 * _sampleRate_OPT)
                 _series_OPT[ledID].remove(0);
         }
 
-        // updating axisX and axisY in interval "_chartDuration / 1000 * _chartUpdateRatio"
-        if (time + _startTime - _chartTimeFlag >= _chartDuration / 1000 * _chartUpdateRatio)
+        // updating axisX and axisY in interval "_chartDuration / 1000 * _chartUpdateRatio_OPT"
+        if (time + _startTime - _chartTimeFlag_OPT >= _chartDuration / 1000 * _chartUpdateRatio_OPT)
         {
             if (_autoScale->isChecked() == false)
                 getSeriesMinMaxY_OPT(minY, maxY);
@@ -1784,10 +1812,10 @@ void    WindowNext::fillSeriesAndUpdateAxes_OPT(QByteArray &data, char &id, qint
 
             for (int k = 0; k < _numOfS_OPT * _numOfCH_OPT; ++k)
                 if (_series_OPT[k].count() != 0)
-                    minX = std::min(minX, (qint64)_series_OPT[k].at(0).x());
+                    minX = std::min(minX + 100, (qint64)_series_OPT[k].at(0).x());
 
             _axisX_OPT->setRange(minX, minX + _chartDuration);
-            _chartTimeFlag = time + _startTime;
+            _chartTimeFlag_OPT = time + _startTime;
         }
     }
     DEBUGGER();
@@ -1796,7 +1824,6 @@ void    WindowNext::fillSeriesAndUpdateAxes_OPT(QByteArray &data, char &id, qint
 void    WindowNext::fillSeriesAndUpdateAxes_IMU(QByteArray &data, char &id, qint64 &time) // draft
 {
     DEBUGGER();
-    return ;
 
     short   value, minY = SHRT_MAX, maxY = SHRT_MIN;
     qint64  minX = time;
@@ -1809,11 +1836,11 @@ void    WindowNext::fillSeriesAndUpdateAxes_IMU(QByteArray &data, char &id, qint
         _seriesMaxY_IMU[ch / _numOfS_IMU][ch % _numOfCH_IMU] = std::max(value, _seriesMaxY_IMU[ch / _numOfS_IMU][ch % _numOfCH_IMU]);
 
         _series_IMU[ch].append(time, value);
-        while (_series_IMU[ch].count() > _chartDuration / 10)
+        while (_series_IMU[ch].count() > _chartDuration / 1000 * _sampleRate_IMU)
             _series_IMU[ch].remove(0);
 
-        // updating axisX and axisY in interval "_chartDuration / 1000 * _chartUpdateRatio"
-        if (time + _startTime - _chartTimeFlag >= _chartDuration / 1000 * _chartUpdateRatio)
+        // updating axisX and axisY in interval "_chartDuration / 1000 * _chartUpdateRatio_IMU"
+        if (time + _startTime - _chartTimeFlag_IMU[ch / _numOfS_IMU] >= _chartDuration / 1000 * _chartUpdateRatio_IMU)
         {
             int begin = (ch / _numOfS_IMU) * _numOfCH_IMU;
             int end = begin + _numOfCH_IMU;
@@ -1821,6 +1848,8 @@ void    WindowNext::fillSeriesAndUpdateAxes_IMU(QByteArray &data, char &id, qint
                 getSeriesMinMaxY_IMU(minY, maxY, ch / _numOfS_IMU);
             else
             {
+                minY = SHRT_MAX;
+                maxY = SHRT_MIN;
                 for (int i = begin; i < end; ++i)
                     for(int j = 0; j < _series_IMU[i].count(); ++j)
                         minY = std::min(minY, (short)_series_IMU[i].at(j).y()),
@@ -1829,13 +1858,12 @@ void    WindowNext::fillSeriesAndUpdateAxes_IMU(QByteArray &data, char &id, qint
             _axisY_IMU[ch / _numOfS_IMU].setRange(minY, maxY);
 
             for (int k = begin; k < end; ++k)
-                if (_series_OPT[k].count() != 0)
-                    minX = std::min(minX, (qint64)_series_OPT[k].at(0).x());
+                if (_series_IMU[k].count() != 0)
+                    minX = std::min(minX + 100, (qint64)_series_IMU[k].at(0).x());
 
             _axisX_IMU[ch / _numOfS_IMU].setRange(minX, minX + _chartDuration);
-            _chartTimeFlag = time + _startTime;
+            _chartTimeFlag_IMU[ch / _numOfS_IMU] = time + _startTime;
         }
-
     }
 
     DEBUGGER();
