@@ -1798,30 +1798,38 @@ void    WindowNext::fillSeriesAndUpdateAxes_OPT(QByteArray &data, char &id, qint
         }
 
         // updating axisX and axisY in interval "_chartDuration / 1000 * _chartUpdateRatio_OPT"
-        if (time + _startTime - _chartTimeFlag_OPT >= _chartDuration / 1000 * _chartUpdateRatio_OPT)
+        if (_checkBoxSensors[_numOfS_IMU].isChecked()) // _checkBoxSensors[3]
         {
-            if (_autoScale->isChecked() == false)
-                getSeriesMinMaxY_OPT(minY, maxY);
-            else
-                for (int i = 0; i < _numOfS_OPT * _numOfCH_OPT; ++i)
-                    for(int j = 0; j < _series_OPT[i].count(); ++j)
-                        minY = std::min(minY, (unsigned int)_series_OPT[i].at(j).y()),
-                        maxY = std::max(maxY, (unsigned int)_series_OPT[i].at(j).y());
+            if (time + _startTime - _chartTimeFlag_OPT >= _chartDuration / 1000 * _chartUpdateRatio_OPT)
+            {
+                if (_autoScale->isChecked() == false)
+                    getSeriesMinMaxY_OPT(minY, maxY);
+                else
+                    for (int i = 0; i < _numOfS_OPT * _numOfCH_OPT; ++i)
+                        for(int j = 0; j < _series_OPT[i].count(); ++j)
+                            minY = std::min(minY, (unsigned int)_series_OPT[i].at(j).y()),
+                            maxY = std::max(maxY, (unsigned int)_series_OPT[i].at(j).y());
 
-            _axisY_OPT->setRange(minY, maxY);
+                _axisY_OPT->setRange(minY, maxY);
 
-            for (int k = 0; k < _numOfS_OPT * _numOfCH_OPT; ++k)
-                if (_series_OPT[k].count() != 0)
-                    minX = std::min(minX + 100, (qint64)_series_OPT[k].at(0).x());
+                for (int k = 0; k < _numOfS_OPT * _numOfCH_OPT; ++k)
+                {
+                    if (_series_OPT[k].count() != 0)
+                    {
+                        minX = std::min(minX, (qint64)_series_OPT[k].at(0).x());
+                        break;
+                    }
+                }
 
-            _axisX_OPT->setRange(minX, minX + _chartDuration);
-            _chartTimeFlag_OPT = time + _startTime;
+                _axisX_OPT->setRange(minX + 70, minX + _chartDuration);
+                _chartTimeFlag_OPT = time + _startTime;
+            }
         }
     }
     DEBUGGER();
 }
 
-void    WindowNext::fillSeriesAndUpdateAxes_IMU(QByteArray &data, char &id, qint64 &time) // draft
+void    WindowNext::fillSeriesAndUpdateAxes_IMU(QByteArray &data, char &id, qint64 &time)
 {
     DEBUGGER();
 
@@ -1840,29 +1848,36 @@ void    WindowNext::fillSeriesAndUpdateAxes_IMU(QByteArray &data, char &id, qint
             _series_IMU[ch].remove(0);
 
         // updating axisX and axisY in interval "_chartDuration / 1000 * _chartUpdateRatio_IMU"
-        if (time + _startTime - _chartTimeFlag_IMU[ch / _numOfS_IMU] >= _chartDuration / 1000 * _chartUpdateRatio_IMU)
+        if (_checkBoxSensors[ch / _numOfS_IMU].isChecked())
         {
-            int begin = (ch / _numOfS_IMU) * _numOfCH_IMU;
-            int end = begin + _numOfCH_IMU;
-            if (_autoScale->isChecked() == false)
-                getSeriesMinMaxY_IMU(minY, maxY, ch / _numOfS_IMU);
-            else
+            if (time + _startTime - _chartTimeFlag_IMU[ch / _numOfS_IMU] >= _chartDuration / 1000 * _chartUpdateRatio_IMU)
             {
-                minY = SHRT_MAX;
-                maxY = SHRT_MIN;
-                for (int i = begin; i < end; ++i)
-                    for(int j = 0; j < _series_IMU[i].count(); ++j)
-                        minY = std::min(minY, (short)_series_IMU[i].at(j).y()),
-                        maxY = std::max(maxY, (short)_series_IMU[i].at(j).y());
+                int begin = (ch / _numOfS_IMU) * _numOfCH_IMU;
+                int end = begin + _numOfCH_IMU;
+                if (_autoScale->isChecked() == false)
+                    getSeriesMinMaxY_IMU(minY, maxY, ch / _numOfS_IMU);
+                else
+                {
+                    minY = SHRT_MAX;
+                    maxY = SHRT_MIN;
+                    for (int i = begin; i < end; ++i)
+                        for(int j = 0; j < _series_IMU[i].count(); ++j)
+                            minY = std::min(minY, (short)_series_IMU[i].at(j).y()),
+                            maxY = std::max(maxY, (short)_series_IMU[i].at(j).y());
+                }
+                _axisY_IMU[ch / _numOfS_IMU].setRange(minY, maxY);
+
+                for (int k = begin; k < end; ++k)
+                {
+                    if (_series_IMU[k].count() != 0)
+                    {
+                        minX = std::min(minX, (qint64)_series_IMU[k].at(0).x());
+                        break;
+                    }
+                }
+                _axisX_IMU[ch / _numOfS_IMU].setRange(minX + 70, minX + _chartDuration - 70);
+                _chartTimeFlag_IMU[ch / _numOfS_IMU] = time + _startTime;
             }
-            _axisY_IMU[ch / _numOfS_IMU].setRange(minY, maxY);
-
-            for (int k = begin; k < end; ++k)
-                if (_series_IMU[k].count() != 0)
-                    minX = std::min(minX + 100, (qint64)_series_IMU[k].at(0).x());
-
-            _axisX_IMU[ch / _numOfS_IMU].setRange(minX, minX + _chartDuration);
-            _chartTimeFlag_IMU[ch / _numOfS_IMU] = time + _startTime;
         }
     }
 
