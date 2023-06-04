@@ -1520,17 +1520,18 @@ void    WindowNext::execChartDialog(void)
     this->_chartTimeFlag_OPT = 0;
     this->_chartTimeFlag_IMU.resize(_numOfS_IMU, 0);
 
-    _seriesMinY_OPT.resize(_numOfS_OPT * _numOfCH_OPT);
-    _seriesMaxY_OPT.resize(_numOfS_OPT * _numOfCH_OPT);
-    _seriesMinY_OPT.fill(-1);
-    _seriesMaxY_OPT.fill(0);
+    _seriesMinY_NoAutoscale_OPT.resize(_numOfS_OPT * _numOfCH_OPT);
+    _seriesMaxY_NoAutoscale_OPT.resize(_numOfS_OPT * _numOfCH_OPT);
+    _seriesMinMaxY_autoscale_OPT.resize(_numOfS_OPT * _numOfCH_OPT);
+    _seriesMinY_NoAutoscale_OPT.fill(-1);
+    _seriesMaxY_NoAutoscale_OPT.fill(0);
 
-    _seriesMinY_IMU.resize(_numOfS_IMU);
-    _seriesMaxY_IMU.resize(_numOfS_IMU);
+    _seriesMinY_NoAutoscale_IMU.resize(_numOfS_IMU);
+    _seriesMaxY_NoAutoscale_IMU.resize(_numOfS_IMU);
     for (int j = 0; j < _numOfS_IMU; ++j)
         for (int i = 0; i < _numOfCH_IMU; ++i)
-            _seriesMinY_IMU[j].push_back(SHRT_MAX),
-            _seriesMaxY_IMU[j].push_back(SHRT_MIN);
+            _seriesMinY_NoAutoscale_IMU[j].push_back(SHRT_MAX),
+            _seriesMaxY_NoAutoscale_IMU[j].push_back(SHRT_MIN);
 
 
     connect(this->_threadReader, &ThreadReader::lastRowOfData, this,
@@ -1608,6 +1609,7 @@ void    WindowNext::execChartDialog(void)
                 else
                 {
                     _series_OPT[i].clear();
+                    _seriesMinMaxY_autoscale_OPT[i].clear();
                     this->_checkBoxChannelsValue[i] = false;
                 }
 
@@ -1787,14 +1789,18 @@ void    WindowNext::fillSeriesAndUpdateAxes_OPT(QByteArray &data, char &id, qint
         value = qFromLittleEndian<unsigned int>(data.mid(_bytesPA + _bytesID + _bytesCO + ch * _sizeOfCH_OPT, _sizeOfCH_OPT).constData());
         ledID = ch + id * id - 1;
 
-        _seriesMinY_OPT[ledID] = std::min(value, _seriesMinY_OPT[ledID]);
-        _seriesMaxY_OPT[ledID] = std::max(value, _seriesMaxY_OPT[ledID]);
+        _seriesMinY_NoAutoscale_OPT[ledID] = std::min(value, _seriesMinY_NoAutoscale_OPT[ledID]);
+        _seriesMaxY_NoAutoscale_OPT[ledID] = std::max(value, _seriesMaxY_NoAutoscale_OPT[ledID]);
 
         if (_checkBoxChannelsValue[ledID] == true)
         {
             _series_OPT[ledID].append(time, value);
+            _seriesMinMaxY_autoscale_OPT[ledID].insert(value);
             while (_series_OPT[ledID].count() > _chartDuration / 1000 * _sampleRate_OPT)
+            {
+                _seriesMinMaxY_autoscale_OPT[ledID].erase(_series_OPT[ledID].at(0).y());
                 _series_OPT[ledID].remove(0);
+            }
         }
 
         // updating axisX and axisY in interval "_chartDuration / 1000 * _chartUpdateRatio_OPT"
@@ -1802,24 +1808,16 @@ void    WindowNext::fillSeriesAndUpdateAxes_OPT(QByteArray &data, char &id, qint
         {
             if (time + _startTime - _chartTimeFlag_OPT >= _chartDuration / 1000 * _chartUpdateRatio_OPT)
             {
-                if (_autoScale->isChecked() == false)
-                    getSeriesMinMaxY_OPT(minY, maxY);
+                if (_autoScale->isChecked() == true)
+                    getSeriesMinMaxY_autoscale_OPT(minY, maxY);
                 else
-                    for (int i = 0; i < _numOfS_OPT * _numOfCH_OPT; ++i)
-                        for(int j = 0; j < _series_OPT[i].count(); ++j)
-                            minY = std::min(minY, (unsigned int)_series_OPT[i].at(j).y()),
-                            maxY = std::max(maxY, (unsigned int)_series_OPT[i].at(j).y());
+                    getSeriesMinMaxY_NoAutoscale_OPT(minY, maxY);
 
                 _axisY_OPT->setRange(minY, maxY);
 
                 for (int k = 0; k < _numOfS_OPT * _numOfCH_OPT; ++k)
-                {
                     if (_series_OPT[k].count() != 0)
-                    {
                         minX = std::min(minX, (qint64)_series_OPT[k].at(0).x());
-                        break;
-                    }
-                }
 
                 _axisX_OPT->setRange(minX + 70, minX + _chartDuration);
                 _chartTimeFlag_OPT = time + _startTime;
@@ -1840,8 +1838,8 @@ void    WindowNext::fillSeriesAndUpdateAxes_IMU(QByteArray &data, char &id, qint
     {
         value = qFromLittleEndian<short>(data.mid(_bytesPA + _bytesID + _bytesCO + ch * _sizeOfCH_IMU, _sizeOfCH_IMU).constData());
 
-        _seriesMinY_IMU[ch / _numOfS_IMU][ch % _numOfCH_IMU] = std::min(value, _seriesMinY_IMU[ch / _numOfS_IMU][ch % _numOfCH_IMU]);
-        _seriesMaxY_IMU[ch / _numOfS_IMU][ch % _numOfCH_IMU] = std::max(value, _seriesMaxY_IMU[ch / _numOfS_IMU][ch % _numOfCH_IMU]);
+        _seriesMinY_NoAutoscale_IMU[ch / _numOfS_IMU][ch % _numOfCH_IMU] = std::min(value, _seriesMinY_NoAutoscale_IMU[ch / _numOfS_IMU][ch % _numOfCH_IMU]);
+        _seriesMaxY_NoAutoscale_IMU[ch / _numOfS_IMU][ch % _numOfCH_IMU] = std::max(value, _seriesMaxY_NoAutoscale_IMU[ch / _numOfS_IMU][ch % _numOfCH_IMU]);
 
         _series_IMU[ch].append(time, value);
         while (_series_IMU[ch].count() > _chartDuration / 1000 * _sampleRate_IMU)
@@ -1854,9 +1852,7 @@ void    WindowNext::fillSeriesAndUpdateAxes_IMU(QByteArray &data, char &id, qint
             {
                 int begin = (ch / _numOfS_IMU) * _numOfCH_IMU;
                 int end = begin + _numOfCH_IMU;
-                if (_autoScale->isChecked() == false)
-                    getSeriesMinMaxY_IMU(minY, maxY, ch / _numOfS_IMU);
-                else
+                if (_autoScale->isChecked() == true)
                 {
                     minY = SHRT_MAX;
                     maxY = SHRT_MIN;
@@ -1865,6 +1861,9 @@ void    WindowNext::fillSeriesAndUpdateAxes_IMU(QByteArray &data, char &id, qint
                             minY = std::min(minY, (short)_series_IMU[i].at(j).y()),
                             maxY = std::max(maxY, (short)_series_IMU[i].at(j).y());
                 }
+                else
+                    getSeriesMinMaxY_NoAutoscale_IMU(minY, maxY, ch / _numOfS_IMU);
+
                 _axisY_IMU[ch / _numOfS_IMU].setRange(minY, maxY);
 
                 for (int k = begin; k < end; ++k)
@@ -1988,35 +1987,49 @@ void    WindowNext::warningMessageBox(const QString &msg)
     DEBUGGER();
 }
 
-void    WindowNext::getSeriesMinMaxY_OPT(unsigned int &minY, unsigned int &maxY)
+void    WindowNext::getSeriesMinMaxY_NoAutoscale_OPT(unsigned int &minY, unsigned int &maxY)
 {
     DEBUGGER();
-
     minY = -1;
     maxY = 0;
-
-    for (int i = 0; i < _seriesMinY_OPT.size(); ++i)
+    for (int i = 0; i < _seriesMinY_NoAutoscale_OPT.size(); ++i)
     {
         if (_checkBoxChannels[i].isChecked())
         {
-            minY = std::min(minY, _seriesMinY_OPT[i]);
-            maxY = std::max(maxY, _seriesMaxY_OPT[i]);
+            minY = std::min(minY, _seriesMinY_NoAutoscale_OPT[i]);
+            maxY = std::max(maxY, _seriesMaxY_NoAutoscale_OPT[i]);
         }
     }
     DEBUGGER();
 }
 
-void    WindowNext::getSeriesMinMaxY_IMU(short &minY, short &maxY, int index)
+void    WindowNext::getSeriesMinMaxY_autoscale_OPT(unsigned int &minY, unsigned int &maxY)
+{
+    DEBUGGER();
+    minY = -1;
+    maxY = 0;
+    for (int i = 0; i < _seriesMinMaxY_autoscale_OPT.size(); ++i)
+    {
+        if (_checkBoxChannels[i].isChecked() && _seriesMinMaxY_autoscale_OPT[i].size())
+        {
+            minY = std::min(minY, *(_seriesMinMaxY_autoscale_OPT[i].begin()));
+            maxY = std::max(maxY, *(--(_seriesMinMaxY_autoscale_OPT[i].end())));
+        }
+    }
+    DEBUGGER();
+}
+
+void    WindowNext::getSeriesMinMaxY_NoAutoscale_IMU(short &minY, short &maxY, int index)
 {
     DEBUGGER();
 
     minY = SHRT_MAX;
     maxY = SHRT_MIN;
 
-    for (int i = 0; i < _seriesMinY_IMU[index].size(); ++i)
+    for (int i = 0; i < _seriesMinY_NoAutoscale_IMU[index].size(); ++i)
     {
-        minY = std::min(minY, _seriesMinY_IMU[index][i]);
-        maxY = std::max(maxY, _seriesMaxY_IMU[index][i]);
+        minY = std::min(minY, _seriesMinY_NoAutoscale_IMU[index][i]);
+        maxY = std::max(maxY, _seriesMaxY_NoAutoscale_IMU[index][i]);
     }
     DEBUGGER();
 }

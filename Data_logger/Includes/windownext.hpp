@@ -22,6 +22,7 @@
 # include <QtEndian>
 # include <QSlider>
 
+# include <set>
 # include <algorithm>
 # include <xlsxdocument.h>
 
@@ -74,8 +75,9 @@ class WindowNext : public QDialog
         QString             findSubjectInMetadata(QString subject, int *subjectRow);
         QString             getCellFromMetadata(QString sheet, int row, int col);
         void                setCellInMetadata(QString sheet, int row, int col, const QString &text);
-        void                getSeriesMinMaxY_OPT(unsigned int &minY, unsigned int &maxY);
-        void                getSeriesMinMaxY_IMU(short &minY, short &maxY, int index);
+        void                getSeriesMinMaxY_NoAutoscale_OPT(unsigned int &minY, unsigned int &maxY);
+        void                getSeriesMinMaxY_autoscale_OPT(unsigned int &minY, unsigned int &maxY);
+        void                getSeriesMinMaxY_NoAutoscale_IMU(short &minY, short &maxY, int index);
         
     private slots:
 		void				onThreadDisplayTimerFinished(void);
@@ -168,10 +170,11 @@ class WindowNext : public QDialog
         QValueAxis			*_axisY_IMU;
         QLineSeries			*_series_OPT;
         QLineSeries			*_series_IMU;
-        QVector<unsigned int>   _seriesMinY_OPT;
-        QVector<unsigned int>   _seriesMaxY_OPT;
-        QVector<QVector<short>> _seriesMinY_IMU;
-        QVector<QVector<short>> _seriesMaxY_IMU;
+        QVector<unsigned>                   _seriesMinY_NoAutoscale_OPT;
+        QVector<unsigned>                   _seriesMaxY_NoAutoscale_OPT;
+        QVector<std::multiset<unsigned>>    _seriesMinMaxY_autoscale_OPT;
+        QVector<QVector<short>>             _seriesMinY_NoAutoscale_IMU;
+        QVector<QVector<short>>             _seriesMaxY_NoAutoscale_IMU;
         QGridLayout         *_gridLayoutPic;
         QGridLayout			*_gridLayout;
         QHBoxLayout			*_hBoxLayoutLegends;
