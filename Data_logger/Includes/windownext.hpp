@@ -78,6 +78,7 @@ class WindowNext : public QDialog
         void                getSeriesMinMaxY_NoAutoscale_OPT(unsigned int &minY, unsigned int &maxY);
         void                getSeriesMinMaxY_autoscale_OPT(unsigned int &minY, unsigned int &maxY);
         void                getSeriesMinMaxY_NoAutoscale_IMU(short &minY, short &maxY, int index);
+        void                getSeriesMinMaxY_autoscale_IMU(short &minY, short &maxY, int index);
         
     private slots:
 		void				onThreadDisplayTimerFinished(void);
@@ -170,11 +171,12 @@ class WindowNext : public QDialog
         QValueAxis			*_axisY_IMU;
         QLineSeries			*_series_OPT;
         QLineSeries			*_series_IMU;
-        QVector<unsigned>                   _seriesMinY_NoAutoscale_OPT;
-        QVector<unsigned>                   _seriesMaxY_NoAutoscale_OPT;
-        QVector<std::multiset<unsigned>>    _seriesMinMaxY_autoscale_OPT;
-        QVector<QVector<short>>             _seriesMinY_NoAutoscale_IMU;
-        QVector<QVector<short>>             _seriesMaxY_NoAutoscale_IMU;
+        QVector<unsigned>                       _seriesMinY_NoAutoscale_OPT;
+        QVector<unsigned>                       _seriesMaxY_NoAutoscale_OPT;
+        QVector<std::multiset<unsigned>>        _seriesMinMaxY_autoscale_OPT;
+        QVector<QVector<short>>                 _seriesMinY_NoAutoscale_IMU;
+        QVector<QVector<short>>                 _seriesMaxY_NoAutoscale_IMU;
+        QVector<QVector<std::multiset<short>>>  _seriesMinMaxY_autoscale_IMU;
         QGridLayout         *_gridLayoutPic;
         QGridLayout			*_gridLayout;
         QHBoxLayout			*_hBoxLayoutLegends;
