@@ -75,10 +75,8 @@ class WindowNext : public QDialog
         QString             findSubjectInMetadata(QString subject, int *subjectRow);
         QString             getCellFromMetadata(QString sheet, int row, int col);
         void                setCellInMetadata(QString sheet, int row, int col, const QString &text);
-        void                getSeriesMinMaxY_NoAutoscale_OPT(unsigned int &minY, unsigned int &maxY);
-        void                getSeriesMinMaxY_autoscale_OPT(unsigned int &minY, unsigned int &maxY);
-        void                getSeriesMinMaxY_NoAutoscale_IMU(short &minY, short &maxY, int index);
-        void                getSeriesMinMaxY_autoscale_IMU(short &minY, short &maxY, int index);
+        void                getSeriesMinMaxY_OPT(unsigned int &minY, unsigned int &maxY);
+        void                getSeriesMinMaxY_IMU(short &minY, short &maxY, int index);
         
     private slots:
 		void				onThreadDisplayTimerFinished(void);

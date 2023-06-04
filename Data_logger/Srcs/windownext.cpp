@@ -1814,11 +1814,7 @@ void    WindowNext::fillSeriesAndUpdateAxes_OPT(QByteArray &data, char &id, qint
         {
             if (time + _startTime - _chartTimeFlag_OPT >= _chartDuration / 1000 * _chartUpdateRatio_OPT)
             {
-                if (_autoScale->isChecked() == true)
-                    getSeriesMinMaxY_autoscale_OPT(minY, maxY);
-                else
-                    getSeriesMinMaxY_NoAutoscale_OPT(minY, maxY);
-
+                getSeriesMinMaxY_OPT(minY, maxY);
                 _axisY_OPT->setRange(minY, maxY);
 
                 for (int k = 0; k < _numOfS_OPT * _numOfCH_OPT; ++k)
@@ -1860,15 +1856,11 @@ void    WindowNext::fillSeriesAndUpdateAxes_IMU(QByteArray &data, char &id, qint
         {
             if (time + _startTime - _chartTimeFlag_IMU[ch / _numOfS_IMU] >= _chartDuration / 1000 * _chartUpdateRatio_IMU)
             {
-                int begin = (ch / _numOfS_IMU) * _numOfCH_IMU;
-                int end = begin + _numOfCH_IMU;
-                if (_autoScale->isChecked() == true)
-                    getSeriesMinMaxY_autoscale_IMU(minY, maxY, ch / _numOfS_IMU);
-                else
-                    getSeriesMinMaxY_NoAutoscale_IMU(minY, maxY, ch / _numOfS_IMU);
-
+                getSeriesMinMaxY_IMU(minY, maxY, ch / _numOfS_IMU);
                 _axisY_IMU[ch / _numOfS_IMU].setRange(minY, maxY);
 
+                int begin = (ch / _numOfS_IMU) * _numOfCH_IMU;
+                int end = begin + _numOfCH_IMU;
                 for (int k = begin; k < end; ++k)
                 {
                     if (_series_IMU[k].count() != 0)
@@ -1885,7 +1877,6 @@ void    WindowNext::fillSeriesAndUpdateAxes_IMU(QByteArray &data, char &id, qint
 
     DEBUGGER();
 }
-
 
 void    WindowNext::execPicDialog(void)
 {
@@ -1990,67 +1981,42 @@ void    WindowNext::warningMessageBox(const QString &msg)
     DEBUGGER();
 }
 
-void    WindowNext::getSeriesMinMaxY_NoAutoscale_OPT(unsigned int &minY, unsigned int &maxY)
+void    WindowNext::getSeriesMinMaxY_OPT(unsigned int &minY, unsigned int &maxY)
 {
     DEBUGGER();
     minY = -1;
     maxY = 0;
-    for (int i = 0; i < _seriesMinY_NoAutoscale_OPT.size(); ++i)
-    {
-        if (_checkBoxChannels[i].isChecked())
-        {
-            minY = std::min(minY, _seriesMinY_NoAutoscale_OPT[i]);
-            maxY = std::max(maxY, _seriesMaxY_NoAutoscale_OPT[i]);
-        }
+
+    if (_autoScale->isChecked()) {
+        for (int i = 0; i < _seriesMinMaxY_autoscale_OPT.size(); ++i)
+            if (_checkBoxChannels[i].isChecked() && _seriesMinMaxY_autoscale_OPT[i].size())
+                minY = std::min(minY, *(_seriesMinMaxY_autoscale_OPT[i].begin())),
+                maxY = std::max(maxY, *(--(_seriesMinMaxY_autoscale_OPT[i].end())));
+    } else {
+        for (int i = 0; i < _seriesMinY_NoAutoscale_OPT.size(); ++i)
+            if (_checkBoxChannels[i].isChecked())
+                minY = std::min(minY, _seriesMinY_NoAutoscale_OPT[i]),
+                maxY = std::max(maxY, _seriesMaxY_NoAutoscale_OPT[i]);
     }
     DEBUGGER();
 }
 
-void    WindowNext::getSeriesMinMaxY_autoscale_OPT(unsigned int &minY, unsigned int &maxY)
-{
-    DEBUGGER();
-    minY = -1;
-    maxY = 0;
-    for (int i = 0; i < _seriesMinMaxY_autoscale_OPT.size(); ++i)
-    {
-        if (_checkBoxChannels[i].isChecked() && _seriesMinMaxY_autoscale_OPT[i].size())
-        {
-            minY = std::min(minY, *(_seriesMinMaxY_autoscale_OPT[i].begin()));
-            maxY = std::max(maxY, *(--(_seriesMinMaxY_autoscale_OPT[i].end())));
-        }
-    }
-    DEBUGGER();
-}
-
-void    WindowNext::getSeriesMinMaxY_NoAutoscale_IMU(short &minY, short &maxY, int index)
+void    WindowNext::getSeriesMinMaxY_IMU(short &minY, short &maxY, int index)
 {
     DEBUGGER();
 
     minY = SHRT_MAX;
     maxY = SHRT_MIN;
 
-    for (int i = 0; i < _seriesMinY_NoAutoscale_IMU[index].size(); ++i)
-    {
-        minY = std::min(minY, _seriesMinY_NoAutoscale_IMU[index][i]);
-        maxY = std::max(maxY, _seriesMaxY_NoAutoscale_IMU[index][i]);
-    }
-    DEBUGGER();
-}
-
-void    WindowNext::getSeriesMinMaxY_autoscale_IMU(short &minY, short &maxY, int index)
-{
-    DEBUGGER();
-
-    minY = SHRT_MAX;
-    maxY = SHRT_MIN;
-
-    for (int i = 0; i < _seriesMinMaxY_autoscale_IMU[index].size(); ++i)
-    {
-        if (_seriesMinMaxY_autoscale_IMU[index][i].size())
-        {
-            minY = std::min(minY, *(_seriesMinMaxY_autoscale_IMU[index][i].begin()));
-            maxY = std::max(maxY, *(--(_seriesMinMaxY_autoscale_IMU[index][i].end())));
-        }
+    if (_autoScale->isChecked()) {
+        for (int i = 0; i < _seriesMinMaxY_autoscale_IMU[index].size(); ++i)
+            if (_seriesMinMaxY_autoscale_IMU[index][i].size())
+                minY = std::min(minY, *(_seriesMinMaxY_autoscale_IMU[index][i].begin())),
+                maxY = std::max(maxY, *(--(_seriesMinMaxY_autoscale_IMU[index][i].end())));
+    } else {
+        for (int i = 0; i < _seriesMinY_NoAutoscale_IMU[index].size(); ++i)
+            minY = std::min(minY, _seriesMinY_NoAutoscale_IMU[index][i]),
+            maxY = std::max(maxY, _seriesMaxY_NoAutoscale_IMU[index][i]);
     }
     DEBUGGER();
 }
