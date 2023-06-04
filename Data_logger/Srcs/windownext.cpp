@@ -13,7 +13,7 @@ WindowNext::WindowNext(MainWindow *parent)
     int         windowWidth = 600;
     int         windowHeight = 390;
 
-    this->_chartDuration = 5 * 1000;
+    this->_chartDuration = 4 * 1000;
     this->_chartUpdateRatio_OPT = 3;
     this->_chartUpdateRatio_IMU = 6;
 
@@ -1567,7 +1567,7 @@ void    WindowNext::execChartDialog(void)
         _chartView_IMU[i].setRenderHint(QPainter::Antialiasing);
 
     this->_sliderHorizontal = new QSlider(Qt::Horizontal, _chartDialog);
-    this->_sliderHorizontal->setRange(2, 10);
+    this->_sliderHorizontal->setRange(2, 6);
     this->_sliderHorizontal->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
     this->_sliderHorizontal->setFixedWidth(300);
     this->_sliderHorizontal->setTickInterval(1);
@@ -1622,9 +1622,12 @@ void    WindowNext::execChartDialog(void)
     }
 
 #  ifdef Q_OS_MAC
-            _sliderHorizontalValues = new QLabel("  2        3        4        5        6         7        8        9       10", this);
+//    _sliderHorizontalValues = new QLabel("  2        3        4        5        6         7        8        9       10", this);
+    _sliderHorizontalValues = new QLabel("  2                 3                 4                  5                 6", this);
 #  else
-    _sliderHorizontalValues = new QLabel(" 2         3         4        5          6         7         8        9       10", this);
+//    _sliderHorizontalValues = new QLabel(" 2         3         4        5          6         7         8        9       10", this);
+    _sliderHorizontalValues = new QLabel(" 2                    3                    4                    5                    6", this);
+
 #  endif
     _sliderHorizontalValues->setStyleSheet("color: black; font-size: 12px;");
     _sliderHorizontalValues->setFixedWidth(_sliderHorizontal->width());
@@ -1649,7 +1652,7 @@ void    WindowNext::execChartDialog(void)
             {
                 this->_autoScale->setStyleSheet("color: gray; font-size: 16px;");
                 _sliderHorizontalLastValue = _sliderHorizontal->value();
-                _sliderHorizontal->setValue(10);
+                _sliderHorizontal->setValue(_sliderHorizontal->maximum());
                 _sliderHorizontal->setEnabled(false);
             }
             DEBUGGER();
