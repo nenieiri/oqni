@@ -21,8 +21,7 @@ include_directories(Includes/)
 
 set(PROJECT_SOURCES
         Includes/mainwindow.h
-        Includes/comport.hpp
-        Includes/all.hpp
+		Includes/comport.hpp
 		Includes/threaddisplaytimer.hpp
 		Includes/threadreader.hpp
 		Includes/windownext.hpp
