@@ -80,7 +80,9 @@ void    ThreadDisplayTimer::run()
         }        
         if (currentSecond == 0)
         {
-            it++;
+            ++it;
+            if (it == _expProtocol.end())
+                it = this->_expProtocol.begin();
             currentSecond = (*it)[2].toInt();            
             imgPath = this->_expProtocolsPath.left(this->_expProtocolsPath.length() - 13) + (*it)[3];
             label = (*it)[1].toInt();

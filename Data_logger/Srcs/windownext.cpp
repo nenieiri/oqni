@@ -527,7 +527,8 @@ void    WindowNext::setParametersDesign(void)
     this->_durationSec2->setPlaceholderText("enter here");
     this->_durationSec2->setGeometry(180, 210, 105, 30);
     this->_durationSec2->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
-    this->_durationSec2->setToolTip("Please enter only numeric values.");
+    this->_durationSec2->setToolTip("Please enter only numeric values.<br>For test mode, set the duration to 0.");
+
     this->_durationSec2->setMaxLength(3);
     this->_durationSec2->setAlignment(Qt::AlignCenter);
 
@@ -614,7 +615,22 @@ void    WindowNext::setParametersDesign(void)
                 else
                 {
                     this->_durationSec2->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
-                    this->_durationTimerValue = text.toInt();
+
+                    // if duration is set to 0, enable test mode 23:59:59
+                    if (text.toInt() == 0)
+                    {
+                        this->_durationTimerValue = 24 * 3600;
+                        this->_saveCheckBox->setChecked(false);
+                        this->_saveCheckBox->setCheckable(false);
+                        this->_saveCheckBox->setStyleSheet("color: gray; font-size: 14px;");
+                    }
+                    else
+                    {
+                        this->_durationTimerValue = text.toInt();
+                        this->_saveCheckBox->setCheckable(true);
+                        this->_saveCheckBox->setStyleSheet("color: black; font-size: 14px;");
+                    }
+
                     this->_buttonStart->setEnabled(true);
                     this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_BUTTON);
                 }
