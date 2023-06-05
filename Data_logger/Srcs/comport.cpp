@@ -1,19 +1,19 @@
 #include "comport.hpp"
 #include "debugger.hpp"
 
-ComPort::ComPort(const QSerialPortInfo &port, QGroupBox *groupbox) : \
-                _port(port), \
-                _portName(port.portName()), \
-                _baudRate(QSerialPort::Baud115200), \
-                _dataBits(QSerialPort::Data8), \
-                _parity(QSerialPort::NoParity), \
-                _stopBits(QSerialPort::OneStop), \
-                _flowControl(QSerialPort::NoFlowControl), \
-                _baudRateIndex(7), \
-                _dataBitsIndex(3), \
-                _parityIndex(0), \
-                _stopBitsIndex(0), \
-                _flowControlIndex(0) \
+ComPort::ComPort(const QSerialPortInfo &port, QGroupBox *groupbox) \
+    : _port(port) \
+    , _portName(port.portName()) \
+    , _baudRate(QSerialPort::Baud115200) \
+    , _dataBits(QSerialPort::Data8) \
+    , _parity(QSerialPort::NoParity) \
+    , _stopBits(QSerialPort::OneStop) \
+    , _flowControl(QSerialPort::NoFlowControl) \
+    , _baudRateIndex(7) \
+    , _dataBitsIndex(3) \
+    , _parityIndex(0) \
+    , _stopBitsIndex(0) \
+    , _flowControlIndex(0) \
 {
     DEBUGGER();
     
