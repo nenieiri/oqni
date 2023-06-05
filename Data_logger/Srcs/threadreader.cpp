@@ -154,6 +154,12 @@ void    ThreadReader::run()
     port.setStopBits(_comPort->getStopBits());
     port.setFlowControl(_comPort->getFlowControl());
 
+    // first we open and close the port to fix the problem getting configuration from microcontroller
+    // this problem should be fixed in microcontroller code
+    port.open(QIODevice::ReadWrite);
+    if (port.isOpen())
+        port.close();
+
     if (!port.open(QIODevice::ReadWrite))
     {
         qDebug() << "Faild to open serial port!";
