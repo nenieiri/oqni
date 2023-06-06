@@ -156,8 +156,7 @@ void    ThreadReader::run()
 
     // first we open and close the port to fix the problem getting configuration from microcontroller
     // this problem should be fixed in microcontroller code
-    port.open(QIODevice::ReadWrite);
-    if (port.isOpen())
+    if (port.open(QIODevice::ReadWrite))
         port.close();
 
     if (!port.open(QIODevice::ReadWrite))
