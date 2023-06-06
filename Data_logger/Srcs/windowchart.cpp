@@ -78,20 +78,32 @@ WindowChart::~WindowChart()
     DEBUGGER();
     
     delete _axisX;
+    _axisX = nullptr;
 	delete _axisY;
+    _axisY = nullptr;
 	for (int i = 0; i < _numOfCH; ++i)
         if (_chart->series().contains(&_series[i]))
-            this->_chart->removeSeries(&_series[i]);
+            _chart->removeSeries(&_series[i]);
 	delete[] _series;
-	delete this->_chart;
+    _series = nullptr;
+    delete _chart;
+    _chart = nullptr;
 	delete _chartView;
+    _chartView = nullptr;
 	delete _horizontalScrollBar;
+    _horizontalScrollBar = nullptr;
 	delete _verticalScrollBar;
+    _verticalScrollBar = nullptr;
 	delete[] _checkBoxChannelsValue;
+    _checkBoxChannelsValue = nullptr;
 	delete[] _checkBoxChannels;
+    _checkBoxChannels = nullptr;
 	delete _hBoxLayout;
+    _hBoxLayout = nullptr;
 	delete _gridLayout;
+    _gridLayout = nullptr;
 	delete _zoomToHomeButton;
+    _zoomToHomeButton = nullptr;
     
     DEBUGGER();
 }

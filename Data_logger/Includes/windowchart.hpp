@@ -10,6 +10,8 @@
 # include <QChartView>
 # include <QPointF>
 
+# include <algorithm>
+
 class	MainWindow;
 class	MyChartView;
 
@@ -93,10 +95,10 @@ class	MyChartView : public QChartView
             {
                 _mPx = this->chart()->mapToValue(event->pos()).x();
                 _mPy = this->chart()->mapToValue(event->pos()).y();
-                _mPx = (_mPx < _axisX->min()) ? _axisX->min() : _mPx;
-                _mPx = (_mPx > _axisX->max()) ? _axisX->max() : _mPx;
-                _mPy = (_mPy < _axisY->min()) ? _axisY->min() : _mPy;
-                _mPy = (_mPy > _axisY->max()) ? _axisY->max() : _mPy;
+                _mPx = std::max((int)_axisX->min(), _mPx);
+                _mPx = std::min((int)_axisX->max(), _mPx);
+                _mPy = std::max((int)_axisY->min(), _mPy);
+                _mPy = std::min((int)_axisY->max(), _mPy);
             }
             QChartView::mousePressEvent(event);
         }
@@ -106,10 +108,10 @@ class	MyChartView : public QChartView
             {
                 _mRx = this->chart()->mapToValue(event->pos()).x();
                 _mRy = this->chart()->mapToValue(event->pos()).y();
-                _mRx = (_mRx < _axisX->min()) ? _axisX->min() : _mRx;
-                _mRx = (_mRx > _axisX->max()) ? _axisX->max() : _mRx;
-                _mRy = (_mRy < _axisY->min()) ? _axisY->min() : _mRy;
-                _mRy = (_mRy > _axisY->max()) ? _axisY->max() : _mRy;
+                _mRx = std::max((int)_axisX->min(), _mRx);
+                _mRx = std::min((int)_axisX->max(), _mRx);
+                _mRy = std::max((int)_axisY->min(), _mRy);
+                _mRy = std::min((int)_axisY->max(), _mRy);
             }
             if (event->button() == Qt::RightButton)
             {
@@ -136,8 +138,8 @@ class	MyChartView : public QChartView
             _verticalScrollBar->setRange(_valueLineMin, _valueLineMax - _currentAxisYLength);
             if (_firstTimeZooming == true)
             {
-                _axisX->setRange((_mPx < _mRx) ? _mPx : _mRx, (_mPx > _mRx) ? _mPx : _mRx);
-                _axisY->setRange((_mPy < _mRy) ? _mPy : _mRy, (_mPy > _mRy) ? _mPy : _mRy);
+                _axisX->setRange(std::min(_mPx, _mRx), std::max(_mPx, _mRx));
+                _axisY->setRange(std::min(_mPy, _mRy), std::max(_mPy, _mRy));
                 _firstTimeZooming = false;
             }
             _verticalScrollBar->setValue(_axisY->min());
