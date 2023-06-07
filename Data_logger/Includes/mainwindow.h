@@ -46,6 +46,7 @@ class MainWindow : public QMainWindow
         void            buttonChartAction(void);
 		void            buttonToolAction(ComPort *comPort);
         void            buttonAboutAction(void);
+        QString         getExecutableGrandparentDirPath(void);
 
     private:
         Ui::MainWindow      *ui;

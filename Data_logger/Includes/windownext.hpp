@@ -77,6 +77,7 @@ class WindowNext : public QDialog
         void                setCellInMetadata(QString sheet, int row, int col, const QString &text);
         void                getSeriesMinMaxY_OPT(unsigned int &minY, unsigned int &maxY);
         void                getSeriesMinMaxY_IMU(short &minY, short &maxY, int index);
+        QString             getExecutableGrandparentDirPath(void);
         
     private slots:
 		void				onThreadDisplayTimerFinished(void);

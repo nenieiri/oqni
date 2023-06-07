@@ -31,12 +31,13 @@ WindowNext::WindowNext(MainWindow *parent)
 
     this->_showSelectedDir1 = new QLabel("DB path:", this);
     this->_showSelectedDir2 = new QLineEdit(this);
-//    this->_selectedDirectory = QCoreApplication::applicationDirPath() + "/Recordings";
-    this->_selectedDirectory = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation) + "/oqni/Recordings";
+
+    this->_selectedDirectory = this->getExecutableGrandparentDirPath() + "/Recordings";
     this->_showSelectedDir2->setText(_selectedDirectory);
 
 //    When editing the line below, don't forget to do the same in the "retryToSaveMetaData()" function.
-    this->_metaDataFilePath = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation) + "/oqni/Recordings/metadata.xlsx";
+//    this->_metaDataFilePath = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation) + "/oqni/Recordings/metadata.xlsx";
+    this->_metaDataFilePath = this->getExecutableGrandparentDirPath() + "/Recordings/metadata.xlsx";
     QFile metaDataFile(_metaDataFilePath);
     if(!metaDataFile.exists())
     {
@@ -1312,7 +1313,7 @@ void WindowNext::retryToSaveMetaData(QXlsx::Document &xlsx, const QString &excel
             int ret = msgBox.exec();
             if (ret == QMessageBox::Ignore)
                 break ;
-            _metaDataFilePath = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation) + "/oqni/Recordings/metadata.xlsx";
+            _metaDataFilePath = this->getExecutableGrandparentDirPath() + "/Recordings/metadata.xlsx";
             QFile metaDataFile(_metaDataFilePath);
             if(!metaDataFile.exists())
                 _metaDataFilePath = "";
@@ -2035,6 +2036,15 @@ void    WindowNext::getSeriesMinMaxY_IMU(short &minY, short &maxY, int index)
             maxY = std::max(maxY, _seriesMaxY_NoAutoscale_IMU[index][i]);
     }
     DEBUGGER();
+}
+
+QString WindowNext::getExecutableGrandparentDirPath(void)
+{
+    QString executableDirPath = QCoreApplication::applicationDirPath();
+    QDir parentDir(executableDirPath);
+    parentDir.cdUp();
+    QString grandparentDirPath = parentDir.absolutePath();
+    return grandparentDirPath;
 }
 
 void   WindowNext::onThreadDisplayTimerFinished(void)

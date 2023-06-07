@@ -319,10 +319,9 @@ void    MainWindow::buttonChartAction()
     QString		selectedFile;
     QString		line;
 	
-//  QCoreApplication::applicationDirPath() + "/Recordings";
     selectedFile = QFileDialog::getOpenFileName(this, "Select a file", \
-                            QStandardPaths::writableLocation(QStandardPaths::DesktopLocation)  + "/oqni/Recordings", \
-                            "All Files (*.csv)");
+                                                this->getExecutableGrandparentDirPath() + "/Recordings", \
+                                                "All Files (*.csv)");
 	if (selectedFile == "")
     {
 		this->_buttonChart->setStyleSheet(MY_DEFINED_RELEASED_BUTTON);
@@ -566,4 +565,13 @@ void    MainWindow::buttonAboutAction()
     msgBox.exec();
     
     DEBUGGER();
+}
+
+QString MainWindow::getExecutableGrandparentDirPath(void)
+{
+    QString executableDirPath = QCoreApplication::applicationDirPath();
+    QDir parentDir(executableDirPath);
+    parentDir.cdUp();
+    QString grandparentDirPath = parentDir.absolutePath();
+    return grandparentDirPath;
 }
