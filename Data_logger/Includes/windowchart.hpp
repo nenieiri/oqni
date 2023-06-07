@@ -55,6 +55,8 @@ class	WindowChart : public QDialog
 		unsigned int    _valueLineMin;
 		unsigned int    _valueLineMax;
 		int             _maxLabel;
+        bool            _isSelected_OPT;
+        bool            _isSelected_IMU;
 };
 
 class	MyChartView : public QChartView

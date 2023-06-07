@@ -58,12 +58,27 @@ WindowChart::WindowChart(MainWindow *parent, const QString &pathToFiles, \
     this->raise();
 	this->show();
     
-    _numOfCH = 0;
-    
-    _checkedFilesCount = 0;
+    this->_numOfCH = 0;
+
+    this->_isSelected_OPT = false;
+    this->_isSelected_IMU = false;
+    this->_checkedFilesCount = 0;
     for	(int i = 0; i < _filesCount; ++i)
+    {
         if (_filesList[i].isChecked() == true)
+        {
             ++_checkedFilesCount;
+            switch (i) {
+            case 0:
+                _isSelected_IMU = true;
+                break;
+            case 1:
+            case 2:
+                _isSelected_OPT = true;
+                break;
+            }
+        }
+    }
     if (_checkedFilesCount == 0) // for prevent warning in line 114
         _checkedFilesCount = 1;
     
