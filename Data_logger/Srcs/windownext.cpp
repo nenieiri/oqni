@@ -35,8 +35,6 @@ WindowNext::WindowNext(MainWindow *parent)
     this->_selectedDirectory = this->getExecutableGrandparentDirPath() + "/Recordings";
     this->_showSelectedDir2->setText(_selectedDirectory);
 
-//    When editing the line below, don't forget to do the same in the "retryToSaveMetaData()" function.
-//    this->_metaDataFilePath = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation) + "/oqni/Recordings/metadata.xlsx";
     this->_metaDataFilePath = this->getExecutableGrandparentDirPath() + "/Recordings/metadata.xlsx";
     QFile metaDataFile(_metaDataFilePath);
     if(!metaDataFile.exists())
@@ -1422,7 +1420,7 @@ void	WindowNext::setCellInMetadata(QString sheet, int row, int col, const QStrin
 {
     DEBUGGER();
 
-    if (_metaDataFilePath == "")
+    if (_metaDataFilePath == "" || text == "")
     {
         DEBUGGER();
         return;
