@@ -70,7 +70,7 @@ WindowNext::WindowNext(MainWindow *parent)
 
     this->_protocol1 = new QLabel("Recording Protocol:", this);
     this->_protocol2 = new QComboBox(this);
-    this->_expProtocolsPath = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation) + "/oqni/exp_protocols";
+    this->_expProtocolsPath = this->getExecutableGrandparentDirPath() + "/exp_protocols";
     QStringList *items = this->findExpProtocols(this->_expProtocolsPath);
     this->_protocol2->addItems(*items);
     delete items;
