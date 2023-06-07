@@ -32,14 +32,16 @@ class	WindowChart : public QDialog
         const QString   _pathToFiles;
         QCheckBox       *_filesList;
         int             _filesCount;
-        int				_checkedFilesCount;
+        int				_checkedFilesCount_OPT;
+        int				_checkedFilesCount_IMU;
         
         QChart          *_chart;
         MyChartView   	*_chartView;
         QValueAxis		*_axisX;
         QValueAxis		*_axisY;
         QValueAxis		*_axisYLabel;
-        QLineSeries		*_series;
+        QLineSeries		*_series_OPT;
+        QLineSeries		*_series_IMU;
         QGridLayout		*_gridLayout;
         QHBoxLayout		*_hBoxLayout;
         QCheckBox		*_checkBoxChannels;
@@ -52,12 +54,11 @@ class	WindowChart : public QDialog
         char            _numOfCH_OPT;
         char            _numOfCH_IMU;
         qint64          _timeLineMin;
-        qint64          _timeLineMax;
+        qint64          _timeLineMax_OPT;
+        qint64          _timeLineMax_IMU;
 		unsigned int    _valueLineMin;
 		unsigned int    _valueLineMax;
-		int             _maxLabel;
-        bool            _isSelected_OPT;
-        bool            _isSelected_IMU;
+        int             _maxLabel;
 };
 
 class	MyChartView : public QChartView

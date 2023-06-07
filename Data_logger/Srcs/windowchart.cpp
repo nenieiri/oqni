@@ -22,8 +22,12 @@ WindowChart::WindowChart(MainWindow *parent, const QString &pathToFiles, \
 	this->setMinimumWidth(windowWidth / 2);
     
     this->_chartView = nullptr;
+    this->_series_OPT = nullptr;
+    this->_series_IMU = nullptr;
     this->_maxLabel = 0;
     this->_timeLineMin = 0;
+    this->_timeLineMax_OPT = 0;
+    this->_timeLineMax_IMU = 0;
     this->_zoomToHomeButton = new QPushButton;
     this->_zoomToHomeButton->setEnabled(false);
     QPixmap pixmap(":/Imgs/iconHome.png");
@@ -38,12 +42,12 @@ WindowChart::WindowChart(MainWindow *parent, const QString &pathToFiles, \
         {
             DEBUGGER();
             
-            _axisX->setRange(_timeLineMin, _timeLineMax);
+            _axisX->setRange(_timeLineMin, _timeLineMax_OPT);
 			_axisY->setRange(_valueLineMin, _valueLineMax);
             _axisYLabel->setRange(0, _maxLabel + 1);
             _chartView->_zoomed = false;
 			_zoomToHomeButton->setEnabled(false);
-            _chartView->_currentAxisXLength = _timeLineMax - _timeLineMin;
+            _chartView->_currentAxisXLength = _timeLineMax_OPT - _timeLineMin;
 			_horizontalScrollBar->setRange(_timeLineMin, _timeLineMin);
 			_horizontalScrollBar->setValue(_timeLineMin);
             _chartView->_currentAxisYLength = _valueLineMax - _valueLineMin;
@@ -61,22 +65,18 @@ WindowChart::WindowChart(MainWindow *parent, const QString &pathToFiles, \
     this->_numOfCH_OPT = 0;
     this->_numOfCH_IMU = 0;
 
-    this->_isSelected_OPT = false;
-    this->_isSelected_IMU = false;
-    this->_checkedFilesCount = 0;
+    this->_checkedFilesCount_OPT = 0;
+    this->_checkedFilesCount_IMU = 0;
     for	(int i = 0; i < _filesCount; ++i)
     {
         if (_filesList[i].isChecked() == true)
         {
-            ++_checkedFilesCount;
             if (_filesList[i].text().mid(14,3) == "IMU")
-                _isSelected_IMU = true;
+                ++_checkedFilesCount_IMU;
             else if (_filesList[i].text().mid(14,3) == "OPT")
-                _isSelected_OPT = true;
+                ++_checkedFilesCount_OPT;
         }
     }
-    if (_checkedFilesCount == 0) // for prevent warning in line 114
-        _checkedFilesCount = 1;
     
     this->readFromFile();
     this->execChartDialog();
@@ -93,10 +93,12 @@ WindowChart::~WindowChart()
 	delete _axisY;
     _axisY = nullptr;
     for (int i = 0; i < _numOfCH_OPT; ++i)
-        if (_chart->series().contains(&_series[i]))
-            _chart->removeSeries(&_series[i]);
-	delete[] _series;
-    _series = nullptr;
+        if (_chart->series().contains(&_series_OPT[i]))
+            _chart->removeSeries(&_series_OPT[i]);
+    delete[] _series_OPT;
+    _series_OPT = nullptr;
+    delete[] _series_IMU;
+    _series_IMU = nullptr;
     delete _chart;
     _chart = nullptr;
 	delete _chartView;
@@ -126,43 +128,75 @@ void    WindowChart::readFromFile(void)
     QStringList splitList;
     qint64      time;
     
-    QFile		*files = new QFile[_checkedFilesCount];
-    QTextStream *ins = new QTextStream[_checkedFilesCount];
+    QFile		*files = new QFile[_checkedFilesCount_OPT + _checkedFilesCount_IMU];
+    QTextStream *ins = new QTextStream[_checkedFilesCount_OPT + _checkedFilesCount_IMU];
+
+    // open files and count the number of channels (series) for OPT and IMU
+    DEBUGGER();
     for (int i = 0, j = -1; i < _filesCount; ++i)
     {
-        if (_filesList[i].isChecked() == true)
+        if (_filesList[i].isChecked())
         {
 			files[++j].setFileName(_pathToFiles + _filesList[i].text());
 			files[j].open(QIODevice::ReadOnly | QIODevice::Text);
             ins[j].setDevice(&(files[j]));
-            if (_filesList[j].text().mid(14,3) == "IMU")
-                _numOfCH_IMU += ins[j].readLine().count("led"); // counting sum of _numofCh_IMU and omitting first line
-            else if (_filesList[j].text().mid(14,3) == "OPT")
-                _numOfCH_OPT += ins[j].readLine().count("led"); // counting sum of _numofCh_OPT and omitting first line
-        }
-    }
-    _series = new QLineSeries[_numOfCH_OPT + 1];
-    
-    for (int i = 0, j = -1; i < _filesCount; ++i)
-    {
-        if (_filesList[i].isChecked() == true)
-        {
-            ++j;
-			while (!ins[j].atEnd())
-			{
-				splitList = ins[j].readLine().split(',');
-				time = splitList[0].toLongLong();
-                int k = 0;
-                for (; k < _numOfCH_OPT / _checkedFilesCount; ++k)
-                    _series[k + j * _numOfCH_OPT / _checkedFilesCount].append(time, splitList[k + 1].toUInt());
-                if (j == 0)
-                    _series[_numOfCH_OPT].append(time, splitList[k + 1].toUInt());
-			}
-			files[j].close();
+            if (_filesList[i].text().mid(14,3) == "IMU")
+                _numOfCH_IMU += ins[j].readLine().count("led"); // counting number of IMU channels and omitting first line in file
+            else if (_filesList[i].text().mid(14,3) == "OPT")
+                _numOfCH_OPT += ins[j].readLine().count("led"); // counting number of OPT channels and omitting first line in file
         }
     }
 
-    _timeLineMax = _series[0].at(_series[0].count() - 1).x();
+    // creating series if necessary
+    DEBUGGER();
+    if (_checkedFilesCount_OPT)
+        _series_OPT = new QLineSeries[_numOfCH_OPT + 1]; // +1 for label
+    if (_checkedFilesCount_IMU)
+        _series_IMU = new QLineSeries[_numOfCH_IMU + 1]; // +1 for label
+
+    // reading data from files to series
+    DEBUGGER();
+    bool labelIsRead_OPT = false;
+    for (int i = 0, j = 0; i < _filesCount; ++i)
+    {
+        if (_filesList[i].isChecked())
+        {
+            while (!ins[j].atEnd())
+            {
+                splitList = ins[j].readLine().split(',');
+                time = splitList[0].toLongLong();
+
+                if (_filesList[i].text().mid(14,3) == "IMU")
+                {
+                    int k = 0;
+                    if (_checkedFilesCount_IMU)
+                        for (; k < _numOfCH_IMU / _checkedFilesCount_IMU; ++k)
+                            _series_IMU[k + j * _numOfCH_IMU / _checkedFilesCount_IMU].append(time, splitList[k + 1].toUInt()); // k+1, because at index 0 is the time in millisec
+                    _series_IMU[_numOfCH_IMU].append(time, splitList[k + 1].toUInt()); // label
+
+                }
+                else if (_filesList[i].text().mid(14,3) == "OPT")
+                {
+                    int k = 0;
+                    if (_checkedFilesCount_OPT)
+                        for (; k < _numOfCH_OPT / _checkedFilesCount_OPT; ++k)
+                            _series_OPT[k + (j - _checkedFilesCount_IMU) * _numOfCH_OPT / _checkedFilesCount_OPT].append(time, splitList[k + 1].toUInt()); // k+1, because at index 0 is the time in millisec
+                    if (!labelIsRead_OPT)
+                        _series_OPT[_numOfCH_OPT].append(time, splitList[k + 1].toUInt()); // label
+                }
+            }
+            files[j++].close();
+            if (_filesList[i].text().mid(14,3) == "OPT")
+                labelIsRead_OPT = true;
+        }
+    }
+
+    DEBUGGER();
+    if (_checkedFilesCount_OPT)
+        _timeLineMax_OPT = _series_OPT[0].at(_series_OPT[0].count() - 1).x();
+    if (_checkedFilesCount_IMU)
+        _timeLineMax_IMU = _series_IMU[0].at(_series_IMU[0].count() - 1).x();
+
     delete [] files;
     delete [] ins;
     
@@ -176,7 +210,7 @@ void    WindowChart::updateValueLineAxis(void)
     if (this->_chartView != nullptr && this->_chartView->_zoomed == true)
         return ;
     
-    bool		flag = false;
+    bool flag = false;
     
     this->_valueLineMin = -1;
     this->_valueLineMax = 0;
@@ -186,14 +220,12 @@ void    WindowChart::updateValueLineAxis(void)
         if (_checkBoxChannelsValue[i] == false)
             continue ;
         flag = true;
-		for(int j = 0; j < _series[i].count(); j++)
+        for(int j = 0; j < _series_OPT[i].count(); j++)
 		{
-            if (_series[i].at(j).x() >= _timeLineMin && _series[i].at(j).x() <= _timeLineMax)
+            if (_series_OPT[i].at(j).x() >= _timeLineMin && _series_OPT[i].at(j).x() <= _timeLineMax_OPT)
             {
-                if(_series[i].at(j).y() > _valueLineMax)
-                    _valueLineMax = _series[i].at(j).y();
-				if(_series[i].at(j).y() < _valueLineMin)
-					_valueLineMin = _series[i].at(j).y();
+                _valueLineMax = std::max((unsigned)_series_OPT[i].at(j).y(), _valueLineMax);
+                _valueLineMin = std::min((unsigned)_series_OPT[i].at(j).y(), _valueLineMin);
             }
 		}
 	}
@@ -228,20 +260,20 @@ void    WindowChart::execChartDialog(void)
 
     for (int i = 0; i < _numOfCH_OPT + 1; ++i)
 	{
-        _chart->addSeries(&_series[i]);
+        _chart->addSeries(&_series_OPT[i]);
         if (i == _numOfCH_OPT)
-            _series[i].setColor(Qt::black);
+            _series_OPT[i].setColor(Qt::black);
         else
         {
-            switch (i % (_numOfCH_OPT / _checkedFilesCount)) {
+            switch (i % (_numOfCH_OPT / _checkedFilesCount_OPT)) {
             case 0:
-                _series[i].setColor(Qt::green);
+                _series_OPT[i].setColor(Qt::green);
                 break;
             case 1:
-                _series[i].setColor(Qt::red);
+                _series_OPT[i].setColor(Qt::red);
                 break;
             case 2:
-                _series[i].setColor(Qt::blue); // infraRed
+                _series_OPT[i].setColor(Qt::blue); // infraRed
                 break;
             }
         }
@@ -251,21 +283,20 @@ void    WindowChart::execChartDialog(void)
 	_axisX->setTitleText("Time (milliseconds)");
 	_chart->addAxis(_axisX, Qt::AlignBottom);
     for (int i = 0; i < _numOfCH_OPT + 1; ++i)
-		_series[i].attachAxis(_axisX);
+        _series_OPT[i].attachAxis(_axisX);
 
 	this->_axisY = new QValueAxis();
 	_axisY->setTitleText("Values");
 	_chart->addAxis(_axisY, Qt::AlignLeft);
     for (int i = 0; i < _numOfCH_OPT; ++i)
-		_series[i].attachAxis(_axisY);
+        _series_OPT[i].attachAxis(_axisY);
 
 	this->_axisYLabel = new QValueAxis();
 	_axisYLabel->setTitleText("Label");
 	_chart->addAxis(_axisYLabel, Qt::AlignRight);
-    _series[_numOfCH_OPT].attachAxis(_axisYLabel);
-    for (int i = 0; i < _series[_numOfCH_OPT].count(); ++i)
-        if (_maxLabel < _series[_numOfCH_OPT].at(i).y())
-            _maxLabel = _series[_numOfCH_OPT].at(i).y();
+    _series_OPT[_numOfCH_OPT].attachAxis(_axisYLabel);
+    for (int i = 0; i < _series_OPT[_numOfCH_OPT].count(); ++i)
+        _maxLabel = std::max((int)_series_OPT[_numOfCH_OPT].at(i).y(), _maxLabel);
     _axisYLabel->setRange(0, _maxLabel + 1);
 	
     this->_checkBoxChannelsValue = new bool[_numOfCH_OPT + 1];
@@ -273,7 +304,7 @@ void    WindowChart::execChartDialog(void)
 		this->_checkBoxChannelsValue[i] = true;
     
 	this->updateValueLineAxis();
-	_axisX->setRange(_timeLineMin, _timeLineMax);
+    _axisX->setRange(_timeLineMin, _timeLineMax_OPT);
     
     this->_horizontalScrollBar = new QScrollBar(Qt::Horizontal, this);
     this->_horizontalScrollBar->setRange(0, 0);
@@ -295,7 +326,7 @@ void    WindowChart::execChartDialog(void)
             DEBUGGER();
 		});
 
-	this->_chartView = new MyChartView(_chart, _timeLineMin, _timeLineMax, _valueLineMin, _valueLineMax, \
+    this->_chartView = new MyChartView(_chart, _timeLineMin, _timeLineMax_OPT, _valueLineMin, _valueLineMax, \
                                        _axisX, _axisY, _axisYLabel, _maxLabel, \
                                        _zoomToHomeButton, _horizontalScrollBar, _verticalScrollBar);
 	this->_chartView->setRenderHint(QPainter::Antialiasing);
@@ -309,37 +340,34 @@ void    WindowChart::execChartDialog(void)
 	
 	this->_hBoxLayout = new QHBoxLayout;
     this->_checkBoxChannels = new QCheckBox[_numOfCH_OPT + 1];
-    QString text;
+
     for (int k = 0, j = -1; k < _filesCount; ++k)
     {
-        if (_filesList[k].isChecked() == false)
+        if (_filesList[k].isChecked() == false || _filesList[k].text().mid(14,3) == "IMU")
             continue ;
         ++j;        
-        for (int i = 0; i < (_numOfCH_OPT / _checkedFilesCount); ++i)
+        for (int i = 0; i < (_numOfCH_OPT / _checkedFilesCount_OPT); ++i)
         {
-            switch (i % (_numOfCH_OPT / _checkedFilesCount)){
+            switch (i % (_numOfCH_OPT / _checkedFilesCount_OPT)){
             case 0:
-                text = "OPT" + QString::number(k + 1) + "green  ";
-                this->_checkBoxChannels[i + j * (_numOfCH_OPT / _checkedFilesCount)].setText(text);
-                this->_checkBoxChannels[i + j * (_numOfCH_OPT / _checkedFilesCount)].setStyleSheet("color: green; font-size: 14px;");
+                this->_checkBoxChannels[i + j * (_numOfCH_OPT / _checkedFilesCount_OPT)].setText("OPT" + QString::number(k) + "green  ");
+                this->_checkBoxChannels[i + j * (_numOfCH_OPT / _checkedFilesCount_OPT)].setStyleSheet("color: green; font-size: 14px;");
                 break;
             case 1:
-                text = "OPT" + QString::number(k + 1) + "red  ";
-                this->_checkBoxChannels[i + j * (_numOfCH_OPT / _checkedFilesCount)].setText(text);
-                this->_checkBoxChannels[i + j * (_numOfCH_OPT / _checkedFilesCount)].setStyleSheet("color: red; font-size: 14px;");
+                this->_checkBoxChannels[i + j * (_numOfCH_OPT / _checkedFilesCount_OPT)].setText("OPT" + QString::number(k) + "red  ");
+                this->_checkBoxChannels[i + j * (_numOfCH_OPT / _checkedFilesCount_OPT)].setStyleSheet("color: red; font-size: 14px;");
                 break;
             case 2:
-                text = "OPT" + QString::number(k + 1) + "infrared          ";
-                this->_checkBoxChannels[i + j * (_numOfCH_OPT / _checkedFilesCount)].setText(text);
-                this->_checkBoxChannels[i + j * (_numOfCH_OPT / _checkedFilesCount)].setStyleSheet("color: blue; font-size: 14px;");
+                this->_checkBoxChannels[i + j * (_numOfCH_OPT / _checkedFilesCount_OPT)].setText("OPT" + QString::number(k) + "infrared          ");
+                this->_checkBoxChannels[i + j * (_numOfCH_OPT / _checkedFilesCount_OPT)].setStyleSheet("color: blue; font-size: 14px;");
                 break;
             }
             
-            this->_checkBoxChannels[i + j * (_numOfCH_OPT / _checkedFilesCount)].setChecked(true);
-            this->connectStaticChatCheckBox(i + j * (_numOfCH_OPT / _checkedFilesCount));
-            this->_hBoxLayout->addWidget(&_checkBoxChannels[i + j * (_numOfCH_OPT / _checkedFilesCount)]);
+            this->_checkBoxChannels[i + j * (_numOfCH_OPT / _checkedFilesCount_OPT)].setChecked(true);
+            this->connectStaticChatCheckBox(i + j * (_numOfCH_OPT / _checkedFilesCount_OPT));
+            this->_hBoxLayout->addWidget(&_checkBoxChannels[i + j * (_numOfCH_OPT / _checkedFilesCount_OPT)]);
         }
-        if (j + 1 == _checkedFilesCount)
+        if (j + 1 == _checkedFilesCount_OPT)
         {
             this->_checkBoxChannels[_numOfCH_OPT].setText("Label");
             this->_checkBoxChannels[_numOfCH_OPT].setStyleSheet("color: black; font-size: 14px;");
@@ -371,8 +399,6 @@ QString WindowChart::staticChartTitle(const QString &selectedFile)
     int lastDot = selectedFile.lastIndexOf('.');
     int lastUnderscoreLine = selectedFile.lastIndexOf('_');
     int lastSlash = selectedFile.lastIndexOf('/');
-//    if (lastSlash == -1)
-//        lastSlash = selectedFile.lastIndexOf('\\');
     if (lastDot == -1 || lastUnderscoreLine == -1 || lastSlash == -1)
     {
         DEBUGGER();
@@ -394,8 +420,6 @@ QString WindowChart::staticChartTitle(const QString &selectedFile)
 
     tmp = selectedFile.left(lastSlash);
     lastSlash = tmp.lastIndexOf('/');
-//    if (lastSlash == -1)
-//        lastSlash = tmp.lastIndexOf('\\');
     tmp = tmp.mid(lastSlash + 1);
 
     lastUnderscoreLine = tmp.lastIndexOf('_');
@@ -422,17 +446,17 @@ void WindowChart::connectStaticChatCheckBox(int i)
             
             if (this->_checkBoxChannels[i].isChecked() == true)
             {
-                _chart->addSeries(&_series[i]);
-                _series[i].attachAxis(_axisX);
+                _chart->addSeries(&_series_OPT[i]);
+                _series_OPT[i].attachAxis(_axisX);
                 if (i && i % _numOfCH_OPT == 0)
-                    _series[i].attachAxis(_axisYLabel);
+                    _series_OPT[i].attachAxis(_axisYLabel);
                 else
-                    _series[i].attachAxis(_axisY);
+                    _series_OPT[i].attachAxis(_axisY);
                 this->_checkBoxChannelsValue[i] = true;
             }
             else
             {
-                _chart->removeSeries(&_series[i]);
+                _chart->removeSeries(&_series_OPT[i]);
                 this->_checkBoxChannelsValue[i] = false;
             }
             this->updateValueLineAxis();
