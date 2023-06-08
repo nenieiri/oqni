@@ -21,10 +21,19 @@ WindowChart::WindowChart(MainWindow *parent, const QString &pathToFiles, \
 	this->setMinimumHeight(windowHeight / 2);
 	this->setMinimumWidth(windowWidth / 2);
     
-    this->_chartView = nullptr;
+    this->_chart_OPT = nullptr;
+    this->_chart_IMU = nullptr;
+    this->_chartView_OPT = nullptr;
+    this->_chartView_IMU = nullptr;
+    this->_axisX_OPT = nullptr;
+    this->_axisX_IMU = nullptr;
+    this->_axisY_OPT = nullptr;
+    this->_axisY_IMU = nullptr;
+    this->_axisYLabel_OPT = nullptr;
+    this->_axisYLabel_IMU = nullptr;
     this->_series_OPT = nullptr;
     this->_series_IMU = nullptr;
-    this->_maxLabel = 0;
+    this->_maxLabel_OPT = 0;
     this->_timeLineMin = 0;
     this->_timeLineMax_OPT = 0;
     this->_timeLineMax_IMU = 0;
@@ -42,17 +51,27 @@ WindowChart::WindowChart(MainWindow *parent, const QString &pathToFiles, \
         {
             DEBUGGER();
             
-            _axisX->setRange(_timeLineMin, _timeLineMax_OPT);
-			_axisY->setRange(_valueLineMin, _valueLineMax);
-            _axisYLabel->setRange(0, _maxLabel + 1);
-            _chartView->_zoomed = false;
+            _axisX_OPT->setRange(_timeLineMin, _timeLineMax_OPT);
+            _axisY_OPT->setRange(_valueLineMin_OPT, _valueLineMax_OPT);
+            _axisYLabel_OPT->setRange(0, _maxLabel_OPT + 1);
+
+            _chartView_OPT->_zoomed = false;
+            _chartView_OPT->_currentAxisXLength = _timeLineMax_OPT - _timeLineMin;
+            _chartView_OPT->_currentAxisYLength = _valueLineMax_OPT - _valueLineMin_OPT;
+            for (int i = 0; i < _chartView_IMU->size().height(); ++i)
+            {
+                _chartView_IMU[i]._zoomed = false;
+                _chartView_IMU[i]._currentAxisXLength = _timeLineMax_IMU - _timeLineMin;
+                _chartView_IMU[i]._currentAxisYLength = _valueLineMax_IMU[i] - _valueLineMin_IMU[i];
+            }
+
 			_zoomToHomeButton->setEnabled(false);
-            _chartView->_currentAxisXLength = _timeLineMax_OPT - _timeLineMin;
-			_horizontalScrollBar->setRange(_timeLineMin, _timeLineMin);
-			_horizontalScrollBar->setValue(_timeLineMin);
-            _chartView->_currentAxisYLength = _valueLineMax - _valueLineMin;
-			_verticalScrollBar->setRange(_valueLineMin, _valueLineMin);
-			_verticalScrollBar->setValue(_valueLineMin);
+
+            _horizontalScrollBar_OPT->setRange(_timeLineMin, _timeLineMin);
+            _horizontalScrollBar_OPT->setValue(_timeLineMin);
+
+            _verticalScrollBar_OPT->setRange(_valueLineMin_OPT, _valueLineMin_OPT);
+            _verticalScrollBar_OPT->setValue(_valueLineMin_OPT);
             
             DEBUGGER();
     	});
@@ -88,25 +107,48 @@ WindowChart::~WindowChart()
 {
     DEBUGGER();
     
-    delete _axisX;
-    _axisX = nullptr;
-	delete _axisY;
-    _axisY = nullptr;
-    for (int i = 0; i < _numOfCH_OPT; ++i)
-        if (_chart->series().contains(&_series_OPT[i]))
-            _chart->removeSeries(&_series_OPT[i]);
+    delete _axisX_OPT;
+    _axisX_OPT = nullptr;
+    delete [] _axisX_IMU;
+    _axisX_IMU = nullptr;
+    delete _axisY_OPT;
+    _axisY_OPT = nullptr;
+    delete [] _axisY_IMU;
+    _axisY_IMU = nullptr;
+    for (int i = 0; i < _numOfCH_OPT + 1; ++i) // +1 for label
+        if (_chart_OPT->series().contains(&_series_OPT[i]))
+            _chart_OPT->removeSeries(&_series_OPT[i]);
     delete[] _series_OPT;
     _series_OPT = nullptr;
+    for (int i = 0; i < _numOfCH_IMU + 1; ++i) // +1 for label
+    {
+        switch (i / 3) {
+        case 0:
+        case 1:
+        case 2:
+            _chart_IMU[i / 3].removeSeries(&_series_IMU[i]); // removing sersor's series
+            break;
+        case 3:
+            for (int j = 0; j < _numOfCH_IMU / 3; ++j) // removing label series
+                _chart_IMU[j].removeSeries(&_series_IMU[i]);
+            break;
+        }
+        _chart_IMU[i].removeSeries(&_series_OPT[i]);
+    }
     delete[] _series_IMU;
     _series_IMU = nullptr;
-    delete _chart;
-    _chart = nullptr;
-	delete _chartView;
-    _chartView = nullptr;
-	delete _horizontalScrollBar;
-    _horizontalScrollBar = nullptr;
-	delete _verticalScrollBar;
-    _verticalScrollBar = nullptr;
+    delete _chart_OPT;
+    _chart_OPT = nullptr;
+    delete [] _chart_IMU;
+    _chart_IMU = nullptr;
+    delete _chartView_OPT;
+    _chartView_OPT = nullptr;
+    delete [] _chartView_IMU;
+    _chartView_IMU = nullptr;
+    delete _horizontalScrollBar_OPT;
+    _horizontalScrollBar_OPT = nullptr;
+    delete _verticalScrollBar_OPT;
+    _verticalScrollBar_OPT = nullptr;
 	delete[] _checkBoxChannelsValue;
     _checkBoxChannelsValue = nullptr;
 	delete[] _checkBoxChannels;
@@ -147,12 +189,9 @@ void    WindowChart::readFromFile(void)
         }
     }
 
-    // creating series if necessary
-    DEBUGGER();
-    if (_checkedFilesCount_OPT)
-        _series_OPT = new QLineSeries[_numOfCH_OPT + 1]; // +1 for label
-    if (_checkedFilesCount_IMU)
-        _series_IMU = new QLineSeries[_numOfCH_IMU + 1]; // +1 for label
+    // creating series
+    this->_series_OPT = new QLineSeries[_numOfCH_OPT + 1]; // +1 for label
+    this->_series_IMU = new QLineSeries[_numOfCH_IMU + 1]; // +1 for label
 
     // reading data from files to series
     DEBUGGER();
@@ -207,13 +246,13 @@ void    WindowChart::updateValueLineAxis(void)
 {
     DEBUGGER();
     
-    if (this->_chartView != nullptr && this->_chartView->_zoomed == true)
+    if (this->_chartView_OPT != nullptr && this->_chartView_OPT->_zoomed == true)
         return ;
     
     bool flag = false;
     
-    this->_valueLineMin = -1;
-    this->_valueLineMax = 0;
+    this->_valueLineMin_OPT = -1;
+    this->_valueLineMax_OPT = 0;
 
     for (int i = 0; i < _numOfCH_OPT; i++)
 	{
@@ -224,17 +263,17 @@ void    WindowChart::updateValueLineAxis(void)
 		{
             if (_series_OPT[i].at(j).x() >= _timeLineMin && _series_OPT[i].at(j).x() <= _timeLineMax_OPT)
             {
-                _valueLineMax = std::max((unsigned)_series_OPT[i].at(j).y(), _valueLineMax);
-                _valueLineMin = std::min((unsigned)_series_OPT[i].at(j).y(), _valueLineMin);
+                _valueLineMax_OPT = std::max((unsigned)_series_OPT[i].at(j).y(), _valueLineMax_OPT);
+                _valueLineMin_OPT = std::min((unsigned)_series_OPT[i].at(j).y(), _valueLineMin_OPT);
             }
 		}
 	}
     if (flag == false)
     {
-        this->_valueLineMin = 0;
-        this->_valueLineMax = 1;
+        this->_valueLineMin_OPT = 0;
+        this->_valueLineMax_OPT = 1;
     }
-	_axisY->setRange(_valueLineMin, _valueLineMax);
+    _axisY_OPT->setRange(_valueLineMin_OPT, _valueLineMax_OPT);
     
     DEBUGGER();
 }
@@ -243,24 +282,24 @@ void    WindowChart::execChartDialog(void)
 {
     DEBUGGER();
     
-    this->_chart = new QChart();
+    this->_chart_OPT = new QChart();
     
     int i = 0;
     for (; i < _filesCount; ++i)
         if (_filesList[i].isChecked() == true)
             break ;
-    _chart->setTitle(this->staticChartTitle(_pathToFiles + _filesList[i].text()));
+    _chart_OPT->setTitle(this->staticChartTitle(_pathToFiles + _filesList[i].text()));
     
     QFont font;
     font.setBold(true);
     font.setPointSize(14);
-    _chart->setTitleFont(font);
-    _chart->setBackgroundBrush(QBrush(QColor::fromRgb(235, 255, 255)));
-    _chart->legend()->hide();
+    _chart_OPT->setTitleFont(font);
+    _chart_OPT->setBackgroundBrush(QBrush(QColor::fromRgb(235, 255, 255)));
+    _chart_OPT->legend()->hide();
 
-    for (int i = 0; i < _numOfCH_OPT + 1; ++i)
+    for (int i = 0; i < _numOfCH_OPT + 1; ++i) // +1 for series
 	{
-        _chart->addSeries(&_series_OPT[i]);
+        _chart_OPT->addSeries(&_series_OPT[i]);
         if (i == _numOfCH_OPT)
             _series_OPT[i].setColor(Qt::black);
         else
@@ -279,62 +318,66 @@ void    WindowChart::execChartDialog(void)
         }
 	}
 
-	this->_axisX = new QValueAxis();
-	_axisX->setTitleText("Time (milliseconds)");
-	_chart->addAxis(_axisX, Qt::AlignBottom);
-    for (int i = 0; i < _numOfCH_OPT + 1; ++i)
-        _series_OPT[i].attachAxis(_axisX);
+    this->_axisX_OPT = new QValueAxis();
+    _axisX_OPT->setTitleText("Time (milliseconds)");
+    _chart_OPT->addAxis(_axisX_OPT, Qt::AlignBottom);
+    for (int i = 0; i < _numOfCH_OPT + 1; ++i) // +1 for label
+        _series_OPT[i].attachAxis(_axisX_OPT);
 
-	this->_axisY = new QValueAxis();
-	_axisY->setTitleText("Values");
-	_chart->addAxis(_axisY, Qt::AlignLeft);
-    for (int i = 0; i < _numOfCH_OPT; ++i)
-        _series_OPT[i].attachAxis(_axisY);
+    this->_axisX_OPT = new QValueAxis[_numOfCH_IMU / 3];
+//    for (int i = 0; i < _numOfCH_IMU / 3; ++i)
 
-	this->_axisYLabel = new QValueAxis();
-	_axisYLabel->setTitleText("Label");
-	_chart->addAxis(_axisYLabel, Qt::AlignRight);
-    _series_OPT[_numOfCH_OPT].attachAxis(_axisYLabel);
+
+    this->_axisY_OPT = new QValueAxis();
+    _axisY_OPT->setTitleText("Values");
+    _chart_OPT->addAxis(_axisY_OPT, Qt::AlignLeft);
+    for (int i = 0; i < _numOfCH_OPT; ++i) // +1 for label
+        _series_OPT[i].attachAxis(_axisY_OPT);
+
+    this->_axisYLabel_OPT = new QValueAxis();
+    _axisYLabel_OPT->setTitleText("Label");
+    _chart_OPT->addAxis(_axisYLabel_OPT, Qt::AlignRight);
+    _series_OPT[_numOfCH_OPT].attachAxis(_axisYLabel_OPT);
     for (int i = 0; i < _series_OPT[_numOfCH_OPT].count(); ++i)
-        _maxLabel = std::max((int)_series_OPT[_numOfCH_OPT].at(i).y(), _maxLabel);
-    _axisYLabel->setRange(0, _maxLabel + 1);
+        _maxLabel_OPT = std::max((int)_series_OPT[_numOfCH_OPT].at(i).y(), _maxLabel_OPT);
+    _axisYLabel_OPT->setRange(0, _maxLabel_OPT + 1);
 	
     this->_checkBoxChannelsValue = new bool[_numOfCH_OPT + 1];
     for (int i = 0; i < _numOfCH_OPT + 1; ++i)
 		this->_checkBoxChannelsValue[i] = true;
     
 	this->updateValueLineAxis();
-    _axisX->setRange(_timeLineMin, _timeLineMax_OPT);
+    _axisX_OPT->setRange(_timeLineMin, _timeLineMax_OPT);
     
-    this->_horizontalScrollBar = new QScrollBar(Qt::Horizontal, this);
-    this->_horizontalScrollBar->setRange(0, 0);
-    connect(this->_horizontalScrollBar, &QScrollBar::valueChanged, this,
+    this->_horizontalScrollBar_OPT = new QScrollBar(Qt::Horizontal, this);
+    this->_horizontalScrollBar_OPT->setRange(0, 0);
+    connect(this->_horizontalScrollBar_OPT, &QScrollBar::valueChanged, this,
         [=](int value)
     	{
             DEBUGGER();
-            this->_axisX->setRange(value, value + this->_chartView->_currentAxisXLength);
+            this->_axisX_OPT->setRange(value, value + this->_chartView_OPT->_currentAxisXLength);
             DEBUGGER();
 		});
     
-    this->_verticalScrollBar = new QScrollBar(Qt::Vertical, this);
-    this->_verticalScrollBar->setRange(0, 0);
-    connect(this->_verticalScrollBar, &QScrollBar::valueChanged, this,
+    this->_verticalScrollBar_OPT = new QScrollBar(Qt::Vertical, this);
+    this->_verticalScrollBar_OPT->setRange(0, 0);
+    connect(this->_verticalScrollBar_OPT, &QScrollBar::valueChanged, this,
         [=](int value)
     	{
             DEBUGGER();
-            this->_axisY->setRange(value, value + this->_chartView->_currentAxisYLength);
+            this->_axisY_OPT->setRange(value, value + this->_chartView_OPT->_currentAxisYLength);
             DEBUGGER();
 		});
 
-    this->_chartView = new MyChartView(_chart, _timeLineMin, _timeLineMax_OPT, _valueLineMin, _valueLineMax, \
-                                       _axisX, _axisY, _axisYLabel, _maxLabel, \
-                                       _zoomToHomeButton, _horizontalScrollBar, _verticalScrollBar);
-	this->_chartView->setRenderHint(QPainter::Antialiasing);
-    this->_chartView->setRubberBand(QChartView::RectangleRubberBand);
+    this->_chartView_OPT = new MyChartView(_chart_OPT, _timeLineMin, _timeLineMax_OPT, _valueLineMin_OPT, _valueLineMax_OPT, \
+                                       _axisX_OPT, _axisY_OPT, _axisYLabel_OPT, _maxLabel_OPT, \
+                                       _zoomToHomeButton, _horizontalScrollBar_OPT, _verticalScrollBar_OPT);
+    this->_chartView_OPT->setRenderHint(QPainter::Antialiasing);
+    this->_chartView_OPT->setRubberBand(QChartView::RectangleRubberBand);
     
-    this->_horizontalScrollBar->setParent(this->_chartView);
-    this->_verticalScrollBar->setParent(this->_chartView);
-    this->_verticalScrollBar->setInvertedAppearance(true); // reverse the direction
+    this->_horizontalScrollBar_OPT->setParent(this->_chartView_OPT);
+    this->_verticalScrollBar_OPT->setParent(this->_chartView_OPT);
+    this->_verticalScrollBar_OPT->setInvertedAppearance(true); // reverse the direction
     
 	this->_gridLayout = new QGridLayout;
 	
@@ -377,9 +420,9 @@ void    WindowChart::execChartDialog(void)
         }
     }
     
-	this->_gridLayout->addWidget(this->_chartView, 0, 0, 1, 5);
-    this->_gridLayout->addWidget(this->_verticalScrollBar, 0, 0, 1, 5, Qt::AlignRight); 
-    this->_gridLayout->addWidget(this->_horizontalScrollBar, 0, 0, 1, 5, Qt::AlignBottom); 
+    this->_gridLayout->addWidget(this->_chartView_OPT, 0, 0, 1, 5);
+    this->_gridLayout->addWidget(this->_verticalScrollBar_OPT, 0, 0, 1, 5, Qt::AlignRight);
+    this->_gridLayout->addWidget(this->_horizontalScrollBar_OPT, 0, 0, 1, 5, Qt::AlignBottom);
     this->_gridLayout->addLayout(_hBoxLayout, 1, 0, 1, 4, Qt::AlignCenter);
     this->_gridLayout->addWidget(this->_zoomToHomeButton, 1, 4, 1, 1, Qt::AlignVCenter); 
     
@@ -446,21 +489,21 @@ void WindowChart::connectStaticChatCheckBox(int i)
             
             if (this->_checkBoxChannels[i].isChecked() == true)
             {
-                _chart->addSeries(&_series_OPT[i]);
-                _series_OPT[i].attachAxis(_axisX);
+                _chart_OPT->addSeries(&_series_OPT[i]);
+                _series_OPT[i].attachAxis(_axisX_OPT);
                 if (i && i % _numOfCH_OPT == 0)
-                    _series_OPT[i].attachAxis(_axisYLabel);
+                    _series_OPT[i].attachAxis(_axisYLabel_OPT);
                 else
-                    _series_OPT[i].attachAxis(_axisY);
+                    _series_OPT[i].attachAxis(_axisY_OPT);
                 this->_checkBoxChannelsValue[i] = true;
             }
             else
             {
-                _chart->removeSeries(&_series_OPT[i]);
+                _chart_OPT->removeSeries(&_series_OPT[i]);
                 this->_checkBoxChannelsValue[i] = false;
             }
             this->updateValueLineAxis();
-            _chart->update();
+            _chart_OPT->update();
         });
     
     DEBUGGER();

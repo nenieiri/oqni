@@ -35,11 +35,16 @@ class	WindowChart : public QDialog
         int				_checkedFilesCount_OPT;
         int				_checkedFilesCount_IMU;
         
-        QChart          *_chart;
-        MyChartView   	*_chartView;
-        QValueAxis		*_axisX;
-        QValueAxis		*_axisY;
-        QValueAxis		*_axisYLabel;
+        QChart          *_chart_OPT;
+        QChart          *_chart_IMU;
+        MyChartView   	*_chartView_OPT;
+        MyChartView   	*_chartView_IMU;
+        QValueAxis		*_axisX_OPT;
+        QValueAxis		*_axisX_IMU;
+        QValueAxis		*_axisY_OPT;
+        QValueAxis		*_axisY_IMU;
+        QValueAxis		*_axisYLabel_OPT;
+        QValueAxis		*_axisYLabel_IMU;
         QLineSeries		*_series_OPT;
         QLineSeries		*_series_IMU;
         QGridLayout		*_gridLayout;
@@ -48,17 +53,20 @@ class	WindowChart : public QDialog
         bool            *_checkBoxChannelsValue;
         QPushButton		*_zoomToHomeButton;
 		QIcon			*_iconHome;
-        QScrollBar		*_horizontalScrollBar;
-        QScrollBar		*_verticalScrollBar;
+        QScrollBar		*_horizontalScrollBar_OPT;
+        QScrollBar		*_verticalScrollBar_OPT;
 
         char            _numOfCH_OPT;
         char            _numOfCH_IMU;
         qint64          _timeLineMin;
         qint64          _timeLineMax_OPT;
         qint64          _timeLineMax_IMU;
-		unsigned int    _valueLineMin;
-		unsigned int    _valueLineMax;
-        int             _maxLabel;
+        unsigned int    _valueLineMin_OPT;
+        unsigned int    _valueLineMin_IMU[3];
+        unsigned int    _valueLineMax_OPT;
+        unsigned int    _valueLineMax_IMU[3];
+        int             _maxLabel_OPT;
+        int             _maxLabel_IMU;
 };
 
 class	MyChartView : public QChartView
