@@ -384,14 +384,6 @@ void    WindowChart::execChartDialog(void)
         }
     }
     _axisYLabel_IMU->setRange(0, _maxLabel_IMU + 1);
-
-
-
-
-
-
-
-
 	
     this->_checkBoxChannelsValue = new bool[_numOfSeries_OPT];
     for (int i = 0; i < _numOfSeries_OPT; ++i)
