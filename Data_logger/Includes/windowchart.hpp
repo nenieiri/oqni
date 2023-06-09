@@ -56,8 +56,10 @@ class	WindowChart : public QDialog
         QScrollBar		*_horizontalScrollBar_OPT;
         QScrollBar		*_verticalScrollBar_OPT;
 
-        char            _numOfCH_OPT;
-        char            _numOfCH_IMU;
+        char            _numOfSeries_OPT;
+        char            _numOfSeries_IMU;
+        char            _numOfChart_OPT;
+        char            _numOfChart_IMU;
         qint64          _timeLineMin;
         qint64          _timeLineMax_OPT;
         qint64          _timeLineMax_IMU;
