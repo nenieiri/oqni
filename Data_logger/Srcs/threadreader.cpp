@@ -294,10 +294,10 @@ bool    ThreadReader::requestPortConfigAndStart(QSerialPort &port)
     port.write(dataWrite);
 
     // reading config for OPT and IMU sensors
-    while (dataRead.size() != 16)
+    while (dataRead.size() < 16)
     {
         if (port.waitForReadyRead(MY_READY_READ_TIME))
-            dataRead += port.read(8);
+            dataRead += port.read(port.size());
         else
         {
             qDebug() << "TimeOut while waiting for config.";
