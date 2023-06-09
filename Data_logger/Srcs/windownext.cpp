@@ -526,7 +526,7 @@ void    WindowNext::setParametersDesign(void)
     this->_durationSec2->setPlaceholderText("enter here");
     this->_durationSec2->setGeometry(180, 210, 105, 30);
     this->_durationSec2->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
-    this->_durationSec2->setToolTip("Please enter only numeric values.<br>For test mode, set the duration to 0.");
+    this->_durationSec2->setToolTip("For test mode, set the duration to 0.");
 
     this->_durationSec2->setMaxLength(3);
     this->_durationSec2->setAlignment(Qt::AlignCenter);
