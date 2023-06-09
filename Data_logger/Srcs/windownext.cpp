@@ -124,7 +124,7 @@ WindowNext::WindowNext(MainWindow *parent)
                             windowWidth, windowHeight);
     this->setMinimumSize(windowWidth, windowHeight);
     this->setMaximumSize(windowWidth, windowHeight);
-    this->setWindowTitle("OQNI: Drawer");
+    this->setWindowTitle("OQNI: Session configuration");
     this->setWindowIcon(QIcon(":/Imgs/oqni.ico"));
     this->setWindowFilePath(":/Imgs/oqni.ico");
     this->setStyleSheet("background: #e6e6e6;");
