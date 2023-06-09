@@ -450,7 +450,7 @@ void    WindowChart::execChartDialog(void)
                 break;
             case 3:
                 this->_checkBoxChannels[index].setText("Label" + QString::number(k) + "      ");
-                this->_checkBoxChannels[index].setStyleSheet("color: blue; font-size: 14px;");
+                this->_checkBoxChannels[index].setStyleSheet("color: black; font-size: 14px;");
                 break;
             }            
             this->_checkBoxChannels[index].setChecked(true);
