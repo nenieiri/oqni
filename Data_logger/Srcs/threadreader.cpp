@@ -267,6 +267,7 @@ void    ThreadReader::stopAndClosePort(QSerialPort &port)
     if (port.isOpen())
     {
         port.clear();
+        port.flush();
         dataWrite.append(static_cast<char>(-1));
         dataWrite.append(static_cast<char>(0));
         port.write(dataWrite);
@@ -287,11 +288,13 @@ bool    ThreadReader::requestPortConfigAndStart(QSerialPort &port)
 
     // cleaning buffer before requesting configs
     port.clear();
+    port.flush();
     
     // requesting configuration
     dataWrite.append(static_cast<char>(127));
     dataWrite.append(static_cast<char>(7));
     port.write(dataWrite);
+    port.flush();
 
     // reading config for OPT and IMU sensors
     while (dataRead.size() < 16)
