@@ -50,7 +50,6 @@ class	WindowChart : public QDialog
         QGridLayout		*_gridLayout;
         QHBoxLayout		*_hBoxLayout;
         QCheckBox		*_checkBoxChannels;
-        bool            *_checkBoxChannelsValue;
         QPushButton		*_zoomToHomeButton;
 		QIcon			*_iconHome;
         QScrollBar		*_horizontalScrollBar_OPT;

@@ -63,12 +63,12 @@ WindowChart::WindowChart(MainWindow *parent, const QString &pathToFiles, \
             _chartView_OPT->_zoomed = false;
             _chartView_OPT->_currentAxisXLength = _timeLineMax_OPT - _timeLineMin;
             _chartView_OPT->_currentAxisYLength = _valueLineMax_OPT - _valueLineMin_OPT;
-            for (int i = 0; i < _chartView_IMU->size().height(); ++i)
-            {
-                _chartView_IMU[i]._zoomed = false;
-                _chartView_IMU[i]._currentAxisXLength = _timeLineMax_IMU - _timeLineMin;
-                _chartView_IMU[i]._currentAxisYLength = _valueLineMax_IMU[i] - _valueLineMin_IMU[i];
-            }
+//            for (int i = 0; i < _chartView_IMU->size().height(); ++i)
+//            {
+//                _chartView_IMU[i]._zoomed = false;
+//                _chartView_IMU[i]._currentAxisXLength = _timeLineMax_IMU - _timeLineMin;
+//                _chartView_IMU[i]._currentAxisYLength = _valueLineMax_IMU[i] - _valueLineMin_IMU[i];
+//            }
 
 			_zoomToHomeButton->setEnabled(false);
 
@@ -150,8 +150,6 @@ WindowChart::~WindowChart()
     _horizontalScrollBar_OPT = nullptr;
     delete _verticalScrollBar_OPT;
     _verticalScrollBar_OPT = nullptr;
-	delete[] _checkBoxChannelsValue;
-    _checkBoxChannelsValue = nullptr;
 	delete[] _checkBoxChannels;
     _checkBoxChannels = nullptr;
 	delete _hBoxLayout;
@@ -256,7 +254,10 @@ void    WindowChart::updateValueLineAxis(void)
 
     for (int i = 0; i < _numOfSeries_OPT; i++)
 	{
-        if (_checkBoxChannelsValue[i] == false)
+        DEBUGGER();
+        if (i == 3 || i == 7) // skip label
+            continue ;
+        if (_checkBoxChannels[i].isChecked() == false)
             continue ;
         flag = true;
         for(int j = 0; j < _series_OPT[i].count(); j++)
@@ -385,10 +386,10 @@ void    WindowChart::execChartDialog(void)
                 _series_OPT[i].attachAxis(_axisY_OPT);
                 break;
             case 3: // series at indexes 3 and 7 are labels
-                break;
                 _series_OPT[i].attachAxis(_axisYLabel_OPT);
                 for (int j = 0; j < _series_OPT[i].count(); ++j)
                     _maxLabel_OPT = std::max((int)_series_OPT[i].at(j).y(), _maxLabel_OPT);
+                break;
             }
         }
     }
@@ -425,11 +426,11 @@ void    WindowChart::execChartDialog(void)
     for (int i = 0; i < _numOfChart_IMU; ++i)
         _axisYLabel_IMU[i].setRange(0, _maxLabel_IMU + 1);
     DEBUGGER();
-	
-    this->_checkBoxChannelsValue = new bool[_numOfSeries_OPT];
-    for (int i = 0; i < _numOfSeries_OPT; ++i)
-        this->_checkBoxChannelsValue[i] = true;
     
+    this->_checkBoxChannels = new QCheckBox[_numOfSeries_OPT];
+    for (int i = 0; i < _numOfSeries_OPT; ++i)
+        this->_checkBoxChannels[i].setChecked(true);
+
 	this->updateValueLineAxis();
     _axisX_OPT->setRange(_timeLineMin, _timeLineMax_OPT);
     
@@ -467,7 +468,6 @@ void    WindowChart::execChartDialog(void)
 	this->_gridLayout = new QGridLayout;
 	
 	this->_hBoxLayout = new QHBoxLayout;
-    this->_checkBoxChannels = new QCheckBox[_numOfSeries_OPT];
 
     for (int k = 0, j = -1; k < _filesCount; ++k)
     {
@@ -576,13 +576,9 @@ void WindowChart::connectStaticChatCheckBox(int i)
                     _series_OPT[i].attachAxis(_axisYLabel_OPT);
                 else
                     _series_OPT[i].attachAxis(_axisY_OPT);
-                this->_checkBoxChannelsValue[i] = true;
             }
             else
-            {
                 _chart_OPT->removeSeries(&_series_OPT[i]);
-                this->_checkBoxChannelsValue[i] = false;
-            }
             this->updateValueLineAxis();
             _chart_OPT->update();
         });
