@@ -426,7 +426,7 @@ void    WindowChart::execChartDialog(void)
         _axisY_IMU[i].setTitleText("Values");
         _axisYLabel_IMU[i].setTitleText("Label");
         _chart_IMU[i].addAxis(&_axisY_IMU[i], Qt::AlignLeft);
-        _chart_IMU[i].addAxis(&_axisYLabel_IMU[i], Qt::AlignLeft);
+        _chart_IMU[i].addAxis(&_axisYLabel_IMU[i], Qt::AlignRight);
     }
     DEBUGGER();
     for (int i = 0; i < _numOfSeries_IMU; ++i)
