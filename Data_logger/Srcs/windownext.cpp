@@ -2040,6 +2040,13 @@ QString WindowNext::getExecutableGrandparentDirPath(void)
 {
     QString executableDirPath = QCoreApplication::applicationDirPath();
     QDir parentDir(executableDirPath);
+
+#  ifdef Q_OS_MAC
+    parentDir.cdUp();
+    parentDir.cdUp();
+    parentDir.cdUp();
+#  endif
+
     parentDir.cdUp();
     QString grandparentDirPath = parentDir.absolutePath();
     return grandparentDirPath;
