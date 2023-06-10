@@ -100,7 +100,7 @@ WindowChart::WindowChart(MainWindow *parent, const QString &pathToFiles, \
     }
     
     this->readFromFile();
-    this->execChartDialog();
+    //this->execChartDialog();
     
     DEBUGGER();
 }
@@ -184,7 +184,7 @@ void    WindowChart::readFromFile(void)
 			files[j].open(QIODevice::ReadOnly | QIODevice::Text);
             ins[j].setDevice(&(files[j]));
             if (_filesList[i].text().mid(14,3) == "IMU")
-                _numOfSeries_IMU += ins[j].readLine().count("led") + 1; // counting number of IMU channels (+labels) and omitting first line in file
+                _numOfSeries_IMU += ins[j].readLine().count("led") + 3; // counting number of IMU channels (+labels) and omitting first line in file
             else if (_filesList[i].text().mid(14,3) == "OPT")
                 _numOfSeries_OPT += ins[j].readLine().count("led") + 1; // counting number of OPT channels (+labels) and omitting first line in file
         }
@@ -209,7 +209,7 @@ void    WindowChart::readFromFile(void)
                 {
                     int l = -1; // for label series tracking
                     // loop over data, except label (label is the last element in splitList)
-                    for (int k = 0; k < splitList.size() - 1; ++k)
+                    for (int k = 0; k < 9; ++k) // 9 - number of IMU 9 channals
                     {
                         if (k % _numOfChart_IMU == 0)
                             ++l;
@@ -218,12 +218,12 @@ void    WindowChart::readFromFile(void)
                     }
 
                     // loop over label series at indexes 3, 7 and 11
-                    for (int k = 3; k < splitList.size(); k += 4)
-                        _series_IMU[k].append(time, splitList[splitList.size() - 1].toUInt()); // label is the last element in splitList
+                    for (int k = 3; k < 12; k += 4) // 12 - number of IMU series
+                        _series_IMU[k].append(time, splitList[10].toUInt()); // label is the 10th element in splitList
                 }
                 else if (_filesList[i].text().mid(14,3) == "OPT")
                     if (_checkedFilesCount_OPT)
-                        for (int k = 0; k < splitList.size(); ++k)
+                        for (int k = 0; k < 4; ++k) // green, red, infrared and label for each OPT sensor
                             _series_OPT[k + (j - _checkedFilesCount_IMU) * _numOfSeries_OPT / _checkedFilesCount_OPT].append(time, splitList[k + 1].toUInt()); // k+1, because at index 0 is the time in millisec
             }
             files[j++].close();
