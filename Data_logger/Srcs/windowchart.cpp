@@ -100,7 +100,7 @@ WindowChart::WindowChart(MainWindow *parent, const QString &pathToFiles, \
     }
     
     this->readFromFile();
-    //this->execChartDialog();
+    this->execChartDialog();
     
     DEBUGGER();
 }
@@ -134,7 +134,7 @@ WindowChart::~WindowChart()
     _series_OPT = nullptr;
 
     for (int i = 0; i < _numOfSeries_IMU; ++i)
-            _chart_IMU[i / 4].removeSeries(&_series_IMU[i]); // in each _chart_IMU[i] are 4 series (x, y, z and label)
+        _chart_IMU[i / 4].removeSeries(&_series_IMU[i]); // in each _chart_IMU[i] are 4 series (x, y, z and label)
     delete[] _series_IMU;
     _series_IMU = nullptr;
 
@@ -281,14 +281,18 @@ void    WindowChart::updateValueLineAxis(void)
 void    WindowChart::execChartDialog(void)
 {
     DEBUGGER();
-    
+
     this->_chart_OPT = new QChart();
+    this->_chart_IMU = new QChart[_numOfChart_IMU];
     
     int i = 0;
     for (; i < _filesCount; ++i)
         if (_filesList[i].isChecked() == true)
             break ;
-    _chart_OPT->setTitle(this->staticChartTitle(_pathToFiles + _filesList[i].text()));
+/*    _chart_OPT->setTitle(this->staticChartTitle(_pathToFiles + _filesList[i].text()));
+    for (int i = 0; i < _numOfChart_IMU; ++i)
+        _chart_IMU[i].setTitle("...");
+*/    DEBUGGER();
     
     QFont font;
     font.setBold(true);
@@ -296,6 +300,15 @@ void    WindowChart::execChartDialog(void)
     _chart_OPT->setTitleFont(font);
     _chart_OPT->setBackgroundBrush(QBrush(QColor::fromRgb(235, 255, 255)));
     _chart_OPT->legend()->hide();
+    DEBUGGER();
+
+    for (int i = 0; i < _numOfChart_IMU; ++i)
+    {
+        _chart_IMU[i].setTitleFont(font);
+        _chart_IMU[i].setBackgroundBrush(QBrush(QColor::fromRgb(255, 245, 255)));
+        _chart_IMU[i].legend()->hide();
+    }
+    DEBUGGER();
 
     for (int i = 0; i < _numOfSeries_OPT; ++i)
 	{
@@ -315,7 +328,27 @@ void    WindowChart::execChartDialog(void)
                 _series_OPT[i].setColor(Qt::black); // label
             }
         }
-	}
+    }
+    DEBUGGER();
+
+    for (int i = 0; i < _numOfSeries_IMU; ++i)
+    {
+        _chart_IMU[i / 4].addSeries(&_series_IMU[i]);
+        switch (i % 4) {
+        case 0:
+            _series_IMU[i].setColor(Qt::red); // X
+            break;
+        case 1:
+            _series_IMU[i].setColor(Qt::green); // Y
+            break;
+        case 2:
+            _series_IMU[i].setColor(Qt::blue); // Z
+            break;
+        case 3:
+            _series_IMU[i].setColor(Qt::black); // label
+        }
+    }
+    DEBUGGER();
 
     // creating axis X for OPT sensors
     this->_axisX_OPT = new QValueAxis();
@@ -323,6 +356,7 @@ void    WindowChart::execChartDialog(void)
     _chart_OPT->addAxis(_axisX_OPT, Qt::AlignBottom);
     for (int i = 0; i < _numOfSeries_OPT; ++i)
         _series_OPT[i].attachAxis(_axisX_OPT);
+    DEBUGGER();
 
     // creating axis X for IMU sensors
     // for 3 charts: accelerometer, gyroscope, magnetometer
@@ -330,7 +364,8 @@ void    WindowChart::execChartDialog(void)
     for (int i = 0; i < _numOfChart_IMU; ++i)
         _chart_IMU[i].addAxis(&_axisX_IMU[i], Qt::AlignBottom);
     for (int i = 0; i < _numOfSeries_IMU; ++i)
-            _series_IMU[i].attachAxis(&_axisX_IMU[i / _numOfChart_IMU]);
+        _series_IMU[i].attachAxis(&_axisX_IMU[i / _numOfChart_IMU]);
+    DEBUGGER();
 
     // creating axis Y for OPT sensors and labels
     this->_axisY_OPT = new QValueAxis();
@@ -339,11 +374,14 @@ void    WindowChart::execChartDialog(void)
     _axisYLabel_OPT->setTitleText("Label");
     _chart_OPT->addAxis(_axisY_OPT, Qt::AlignLeft);
     _chart_OPT->addAxis(_axisYLabel_OPT, Qt::AlignRight);
+
     for (int i = 0; i < _numOfSeries_OPT; ++i)
     {
         if (_checkedFilesCount_OPT) {
             switch (i % (_numOfSeries_OPT / _checkedFilesCount_OPT)) {
-            case 0 ... 2:
+            case 0:
+            case 1:
+            case 2:
                 _series_OPT[i].attachAxis(_axisY_OPT);
                 break;
             case 3: // series at indexes 3 and 7 are labels
@@ -355,6 +393,7 @@ void    WindowChart::execChartDialog(void)
         }
     }
     _axisYLabel_OPT->setRange(0, _maxLabel_OPT + 1);
+    DEBUGGER();
 
     // creating axis Y for IMU sensors and labels
     // for 3 charts: accelerometer, gyroscope, magnetometer
@@ -367,23 +406,25 @@ void    WindowChart::execChartDialog(void)
         _chart_IMU[i].addAxis(&_axisY_IMU[i], Qt::AlignLeft);
         _chart_IMU[i].addAxis(&_axisYLabel_IMU[i], Qt::AlignLeft);
     }
+    DEBUGGER();
     for (int i = 0; i < _numOfSeries_IMU; ++i)
     {
-        if (_checkedFilesCount_IMU)
-        {
-            switch (i % 4) {
-            case 0 ... 2:
-                _series_IMU[i].attachAxis(_axisY_IMU);
-                break;
-            case 3: // series at indexes 3, 7 and 11 are labels
-                break;
-                _series_IMU[i].attachAxis(_axisYLabel_IMU);
-                for (int j = 0; j < _series_IMU[i].count(); ++j)
-                    _maxLabel_IMU = std::max((int)_series_IMU[i].at(j).y(), _maxLabel_IMU);
-            }
+        switch (i % 4) {
+        case 0:
+        case 1:
+        case 2:
+            _series_IMU[i].attachAxis(_axisY_IMU);
+            break;
+        case 3: // series at indexes 3, 7 and 11 are labels
+            break;
+            _series_IMU[i].attachAxis(_axisYLabel_IMU);
+            for (int j = 0; j < _series_IMU[i].count(); ++j)
+                _maxLabel_IMU = std::max((int)_series_IMU[i].at(j).y(), _maxLabel_IMU);
         }
     }
-    _axisYLabel_IMU->setRange(0, _maxLabel_IMU + 1);
+    for (int i = 0; i < _numOfChart_IMU; ++i)
+        _axisYLabel_IMU[i].setRange(0, _maxLabel_IMU + 1);
+    DEBUGGER();
 	
     this->_checkBoxChannelsValue = new bool[_numOfSeries_OPT];
     for (int i = 0; i < _numOfSeries_OPT; ++i)
@@ -401,6 +442,7 @@ void    WindowChart::execChartDialog(void)
             this->_axisX_OPT->setRange(value, value + this->_chartView_OPT->_currentAxisXLength);
             DEBUGGER();
 		});
+    DEBUGGER();
     
     this->_verticalScrollBar_OPT = new QScrollBar(Qt::Vertical, this);
     this->_verticalScrollBar_OPT->setRange(0, 0);
