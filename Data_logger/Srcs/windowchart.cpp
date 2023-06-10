@@ -37,6 +37,7 @@ WindowChart::WindowChart(MainWindow *parent, const QString &pathToFiles, \
     this->_axisYLabel_IMU = nullptr;
     this->_series_OPT = nullptr;
     this->_series_IMU = nullptr;
+    this->_checkBoxSensors = nullptr;
     this->_numOfSeries_OPT = 0; // initial value
     this->_numOfSeries_IMU = 0; // initial value
     this->_maxLabel_OPT = 0;
@@ -141,6 +142,9 @@ WindowChart::~WindowChart()
     delete [] _chart_IMU;
     _chart_IMU = nullptr;
 
+    delete [] _checkBoxSensors;
+    this->_checkBoxSensors = nullptr;
+
     delete _horizontalScrollBar_OPT;
     _horizontalScrollBar_OPT = nullptr;
     for (int i = 0; i < _numOfChart_IMU; ++i)
@@ -167,8 +171,10 @@ WindowChart::~WindowChart()
 
 	delete[] _checkBoxChannels;
     _checkBoxChannels = nullptr;
-	delete _hBoxLayout;
-    _hBoxLayout = nullptr;
+    delete _hBoxLayoutLegends;
+    _hBoxLayoutLegends = nullptr;
+    delete _hBoxLayoutOptions;
+    _hBoxLayoutOptions = nullptr;
 	delete _gridLayout;
     _gridLayout = nullptr;
 	delete _zoomToHomeButton;
@@ -380,7 +386,7 @@ void    WindowChart::execChartDialog(void)
     for (int i = 0; i < _numOfChart_IMU; ++i)
         _chart_IMU[i].addAxis(&_axisX_IMU[i], Qt::AlignBottom);
     for (int i = 0; i < _numOfSeries_IMU; ++i)
-        _series_IMU[i].attachAxis(&_axisX_IMU[i / _numOfChart_IMU]);
+        _series_IMU[i].attachAxis(&_axisX_IMU[i / 4]);
     DEBUGGER();
 
     // creating axis Y for OPT sensors and labels
@@ -522,7 +528,8 @@ void    WindowChart::execChartDialog(void)
     }
 
     this->_gridLayout = new QGridLayout;
-	this->_hBoxLayout = new QHBoxLayout;
+    this->_hBoxLayoutLegends = new QHBoxLayout;
+    this->_hBoxLayoutOptions = new QHBoxLayout;
 
     for (int k = 0, j = -1; k < _filesCount; ++k)
     {
@@ -552,18 +559,166 @@ void    WindowChart::execChartDialog(void)
             }            
             this->_checkBoxChannels[index].setChecked(true);
             this->connectStaticChatCheckBox(index);
-            this->_hBoxLayout->addWidget(&_checkBoxChannels[index]);
+            this->_hBoxLayoutLegends->addWidget(&_checkBoxChannels[index]);
         }
     }
     
-    this->_gridLayout->addWidget(this->_chartView_OPT, 0, 0, 1, 5);
-    this->_gridLayout->addWidget(this->_verticalScrollBar_OPT, 0, 0, 1, 5, Qt::AlignRight);
-    this->_gridLayout->addWidget(this->_horizontalScrollBar_OPT, 0, 0, 1, 5, Qt::AlignBottom);
-    this->_gridLayout->addLayout(_hBoxLayout, 1, 0, 1, 4, Qt::AlignCenter);
-    this->_gridLayout->addWidget(this->_zoomToHomeButton, 1, 4, 1, 1, Qt::AlignVCenter); 
-    
-	this->setLayout(this->_gridLayout);
-    
+    if (_checkedFilesCount_IMU == 0)
+    {
+        this->_gridLayout->addWidget(_chartView_OPT, 0, 0, 1, 5);
+        this->_gridLayout->addWidget(_verticalScrollBar_OPT, 0, 0, 1, 5, Qt::AlignRight);
+        this->_gridLayout->addWidget(_horizontalScrollBar_OPT, 0, 0, 1, 5, Qt::AlignBottom);
+        this->_gridLayout->addLayout(_hBoxLayoutLegends, 1, 0, 1, 4, Qt::AlignCenter);
+        this->_gridLayout->addWidget(_zoomToHomeButton, 1, 4, 1, 1, Qt::AlignVCenter);
+    }
+    else if (_checkedFilesCount_OPT == 0)
+    {
+        int i;
+        for (i = 0; i < _numOfChart_IMU; ++i)
+        {
+            this->_gridLayout->addWidget(_chartView_IMU[i], i, 0, 1, 5);
+            this->_gridLayout->addWidget(_verticalScrollBar_IMU[i], i, 0, 1, 5, Qt::AlignRight);
+            this->_gridLayout->addWidget(_horizontalScrollBar_IMU[i], i, 0, 1, 5, Qt::AlignBottom);
+            this->_gridLayout->setRowStretch(i, true);
+        }
+        this->_gridLayout->addLayout(_hBoxLayoutOptions, i, 0, 1, 4, Qt::AlignCenter);
+        this->_gridLayout->addWidget(_zoomToHomeButton, i, 4, 1, 1, Qt::AlignVCenter);
+    }
+    else
+    {
+        int i;
+        for (i = 0; i < _numOfChart_IMU; ++i)
+        {
+            this->_gridLayout->addWidget(_chartView_IMU[i], i, 0, 1, 5);
+            this->_gridLayout->addWidget(_verticalScrollBar_IMU[i], i, 0, 1, 5, Qt::AlignRight);
+            this->_gridLayout->addWidget(_horizontalScrollBar_IMU[i], i, 0, 1, 5, Qt::AlignBottom);
+            this->_gridLayout->setRowStretch(i, true);
+        }
+        this->_gridLayout->addWidget(_chartView_OPT, i, 0, 1, 5);
+        this->_gridLayout->addWidget(_verticalScrollBar_OPT, i, 0, 1, 5, Qt::AlignRight);
+        this->_gridLayout->addWidget(_horizontalScrollBar_OPT, i, 0, 1, 5, Qt::AlignBottom);
+        this->_gridLayout->setRowStretch(i, true);
+        this->_gridLayout->addLayout(_hBoxLayoutLegends, i + 1, 0, 1, 4, Qt::AlignCenter);
+        this->_gridLayout->addLayout(_hBoxLayoutOptions, i + 2, 0, 1, 4, Qt::AlignCenter);
+        this->_gridLayout->addWidget(_zoomToHomeButton, i + 2, 4, 1, 1, Qt::AlignVCenter);
+    }
+    this->setLayout(_gridLayout);
+
+//    int chartsCount = _numOfS_OPT / 2 + _numOfS_IMU; // 1 for OPT sensors and 3 for IMU sensores
+//    this->_checkBoxSensors = new QCheckBox[chartsCount];
+//    QStringList title = {"Accelerometer  ", "Giroscop  ", "Magnetometer  ", "OPT sensores"};
+//    for (int i = 0; i < chartsCount; ++i)
+//    {
+//        this->_checkBoxSensors[i].setText(title[i]);
+//        this->_checkBoxSensors[i].setChecked(i == 3);
+//        this->_checkBoxSensors[i].setEnabled(i != 3);
+//        this->_checkBoxSensors[i].setStyleSheet("color: black; font-size: 14px;");
+//        connect(&this->_checkBoxSensors[i], &QCheckBox::clicked, this,
+//                [=]()
+//                {
+//                    DEBUGGER();
+
+//                    // we calculate how many boxes are checked
+//                    int checkedSum = 0;
+//                    for (int j = 0; j < chartsCount; ++j)
+//                        checkedSum += _checkBoxSensors[j].isChecked();
+
+
+//                    // setting update frequency of axes X
+//                    switch (checkedSum) {
+//                    case 1:
+//                        if (_checkBoxSensors[chartsCount - 1].isChecked() == true)
+//                            _chartUpdateRatio_OPT = 3;
+//                        else
+//                            _chartUpdateRatio_IMU = 1;
+//                        break;
+//                    case 2:
+//                        if (_checkBoxSensors[chartsCount - 1].isChecked() == false)
+//                            _chartUpdateRatio_IMU = 3;
+//                        else
+//                        {
+//                            _chartUpdateRatio_OPT = 6;
+//                            _chartUpdateRatio_IMU = 5;
+//                        }
+//                        break;
+//                    case 3:
+//                    case 4:
+//                        if (_checkBoxSensors[chartsCount - 1].isChecked() == false)
+//                            _chartUpdateRatio_IMU = 3;
+//                        else
+//                        {
+//                            _chartUpdateRatio_OPT = 10;
+//                            _chartUpdateRatio_IMU = 8;
+//                        }
+//                        break;
+//                    }
+
+//                    // if only one box is checked, we disable that box
+//                    // so at least one box must be checked
+//                    for (int j = 0; j < chartsCount; ++j)
+//                        _checkBoxSensors[j].setEnabled(checkedSum != 1 || !_checkBoxSensors[j].isChecked());
+
+//                    // fist we removed all items from the _gridLayout to add in new order
+//                    for (int j = 0; j < _numOfS_IMU; ++j)
+//                    {
+//                        _gridLayout->removeWidget(&_chartView_IMU[j]);
+//                        _chartView_IMU[j].hide();
+//                    }
+//                    _gridLayout->removeWidget(_chartView_OPT);
+//                    _chartView_OPT->hide();
+//                    _gridLayout->removeItem(_hBoxLayoutLegendsLegends);
+//                    _gridLayout->removeWidget(_sliderHorizontalValues);
+//                    _gridLayout->removeItem(_hBoxLayoutLegendsOptions);
+//                    _gridLayout->removeWidget(_sliderHorizontal);
+//                    _gridLayout->update();
+
+//                    // than we add items to the _gridLayout in new order
+//                    int offset = 0;
+//                    for (int j = 0; j < _numOfS_IMU; ++j)
+//                    {
+//                        if (_checkBoxSensors[j].isChecked())
+//                        {
+//                            _gridLayout->addWidget(&_chartView_IMU[j], offset, 0, 1, 5);
+//                            _gridLayout->setRowStretch(offset, 1); // set the stretch factor for the rows
+//                            _chartView_IMU[j].show();
+//                            ++offset;
+//                        }
+//                    }
+//                    if (_checkBoxSensors[_numOfS_IMU].isChecked())
+//                    {
+//                        _gridLayout->addWidget(_chartView_OPT, offset, 0, 1, 5);
+//                        _gridLayout->setRowStretch(offset, 1); // set the stretch factor for the rows
+//                        _chartView_OPT->show();
+//                        ++offset;
+//                    }
+//                    _gridLayout->addLayout(_hBoxLayoutLegendsLegends, offset, 0, 1, 4, Qt::AlignCenter);
+//                    _gridLayout->addWidget(_sliderHorizontalValues, offset, 4, 1, 1, Qt::AlignCenter);
+//                    _gridLayout->setRowStretch(offset, 0); // UNset the stretch factor for the rows
+//                    _gridLayout->addLayout(_hBoxLayoutLegendsOptions, ++offset, 0, 1, 1, Qt::AlignLeft); // increasing offset (i.e. go to the next ров)
+//                    _gridLayout->addWidget(_sliderHorizontal, offset, 4, 1, 1, Qt::AlignCenter);
+//                    _gridLayout->setRowStretch(offset, 0); // UNset the stretch factor for the rows
+
+//                    // if OPT _checkBoxSensors is checked/unchecked enable/disable all _checkBoxChannels
+//                    QStringList format = {"color: green; font-size: 14px;", "color: red; font-size: 14px;", "color: blue; font-size: 14px;"};
+//                    if (_checkBoxSensors[chartsCount - 1].isChecked())
+//                    {
+//                        for (int j = 0; j < _numOfS_OPT * _numOfCH_OPT; ++j)
+//                            _checkBoxChannels[j].setEnabled(true),
+//                                _checkBoxChannels[j].setStyleSheet(format[j % 3]);
+//                    }
+//                    else
+//                    {
+//                        for (int j = 0; j < _numOfS_OPT * _numOfCH_OPT; ++j)
+//                            _checkBoxChannels[j].setEnabled(false),
+//                                _checkBoxChannels[j].setStyleSheet("color: gray; font-size: 14px;");
+//                    }
+
+//                    _gridLayout->update();
+
+//                    DEBUGGER();
+//                });
+//        this->_hBoxLayoutLegendsOptions->addWidget(&_checkBoxSensors[i]);
+//    }
     DEBUGGER();
 }
 

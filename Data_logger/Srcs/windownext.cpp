@@ -1756,7 +1756,7 @@ void    WindowNext::execChartDialog(void)
                     if (_checkBoxSensors[j].isChecked())
                     {
                         _gridLayout->addWidget(&_chartView_IMU[j], offset, 0, 1, 5);
-                        _gridLayout->setRowStretch(offset, 1); // set the stretch factor for the rows
+                        _gridLayout->setRowStretch(offset, true); // set the stretch factor for the rows
                         _chartView_IMU[j].show();
                         ++offset;
                     }
@@ -1764,16 +1764,16 @@ void    WindowNext::execChartDialog(void)
                 if (_checkBoxSensors[_numOfS_IMU].isChecked())
                 {
                     _gridLayout->addWidget(_chartView_OPT, offset, 0, 1, 5);
-                    _gridLayout->setRowStretch(offset, 1); // set the stretch factor for the rows
+                    _gridLayout->setRowStretch(offset, true); // set the stretch factor for the rows
                     _chartView_OPT->show();
                     ++offset;
                 }
                 _gridLayout->addLayout(_hBoxLayoutLegends, offset, 0, 1, 4, Qt::AlignCenter);
                 _gridLayout->addWidget(_sliderHorizontalValues, offset, 4, 1, 1, Qt::AlignCenter);
-                _gridLayout->setRowStretch(offset, 0); // UNset the stretch factor for the rows
+                _gridLayout->setRowStretch(offset, false); // UNset the stretch factor for the rows
                 _gridLayout->addLayout(_hBoxLayoutOptions, ++offset, 0, 1, 1, Qt::AlignLeft); // increasing offset (i.e. go to the next ров)
                 _gridLayout->addWidget(_sliderHorizontal, offset, 4, 1, 1, Qt::AlignCenter);
-                _gridLayout->setRowStretch(offset, 0); // UNset the stretch factor for the rows
+                _gridLayout->setRowStretch(offset, false); // UNset the stretch factor for the rows
 
                 // if OPT _checkBoxSensors is checked/unchecked enable/disable all _checkBoxChannels
                 QStringList format = {"color: green; font-size: 14px;", "color: red; font-size: 14px;", "color: blue; font-size: 14px;"};
