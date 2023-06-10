@@ -38,7 +38,7 @@ class	WindowChart : public QDialog
         QChart          *_chart_OPT;
         QChart          *_chart_IMU;
         MyChartView   	*_chartView_OPT;
-        MyChartView   	*_chartView_IMU;
+        MyChartView   	*_chartView_IMU[3];
         QValueAxis		*_axisX_OPT;
         QValueAxis		*_axisX_IMU;
         QValueAxis		*_axisY_OPT;
@@ -53,7 +53,9 @@ class	WindowChart : public QDialog
         QPushButton		*_zoomToHomeButton;
 		QIcon			*_iconHome;
         QScrollBar		*_horizontalScrollBar_OPT;
+        QScrollBar		*_horizontalScrollBar_IMU[3];
         QScrollBar		*_verticalScrollBar_OPT;
+        QScrollBar		*_verticalScrollBar_IMU[3];
 
         char            _numOfSeries_OPT;
         char            _numOfSeries_IMU;

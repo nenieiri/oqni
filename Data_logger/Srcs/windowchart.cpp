@@ -21,10 +21,14 @@ WindowChart::WindowChart(MainWindow *parent, const QString &pathToFiles, \
 	this->setMinimumHeight(windowHeight / 2);
 	this->setMinimumWidth(windowWidth / 2);
 
+    this->_numOfChart_OPT = 1;
+    this->_numOfChart_IMU = 3;
+
     this->_chart_OPT = nullptr;
     this->_chart_IMU = nullptr;
     this->_chartView_OPT = nullptr;
-    this->_chartView_IMU = nullptr;
+    for (int i = 0; i < _numOfChart_IMU; ++i)
+        this->_chartView_IMU[i] = nullptr;
     this->_axisX_OPT = nullptr;
     this->_axisX_IMU = nullptr;
     this->_axisY_OPT = nullptr;
@@ -35,8 +39,6 @@ WindowChart::WindowChart(MainWindow *parent, const QString &pathToFiles, \
     this->_series_IMU = nullptr;
     this->_numOfSeries_OPT = 0; // initial value
     this->_numOfSeries_IMU = 0; // initial value
-    this->_numOfChart_OPT = 1;
-    this->_numOfChart_IMU = 3;
     this->_maxLabel_OPT = 0;
     this->_maxLabel_IMU = 0;
     this->_timeLineMin = 0;
@@ -111,19 +113,16 @@ WindowChart::~WindowChart()
     
     delete _axisX_OPT;
     _axisX_OPT = nullptr;
-
     delete [] _axisX_IMU;
     _axisX_IMU = nullptr;
 
     delete _axisY_OPT;
     _axisY_OPT = nullptr;
-
     delete [] _axisY_IMU;
     _axisY_IMU = nullptr;
 
     delete _axisYLabel_OPT;
     _axisYLabel_OPT = nullptr;
-
     delete [] _axisYLabel_IMU;
     _axisYLabel_IMU = nullptr;
 
@@ -132,7 +131,6 @@ WindowChart::~WindowChart()
             _chart_OPT->removeSeries(&_series_OPT[i]);
     delete[] _series_OPT;
     _series_OPT = nullptr;
-
     for (int i = 0; i < _numOfSeries_IMU; ++i)
         _chart_IMU[i / 4].removeSeries(&_series_IMU[i]); // in each _chart_IMU[i] are 4 series (x, y, z and label)
     delete[] _series_IMU;
@@ -142,14 +140,31 @@ WindowChart::~WindowChart()
     _chart_OPT = nullptr;
     delete [] _chart_IMU;
     _chart_IMU = nullptr;
-    delete _chartView_OPT;
-    _chartView_OPT = nullptr;
-    delete [] _chartView_IMU;
-    _chartView_IMU = nullptr;
+
     delete _horizontalScrollBar_OPT;
     _horizontalScrollBar_OPT = nullptr;
+    for (int i = 0; i < _numOfChart_IMU; ++i)
+    {
+        delete _horizontalScrollBar_IMU[i];
+        _horizontalScrollBar_IMU[i] = nullptr;
+    }
+
     delete _verticalScrollBar_OPT;
     _verticalScrollBar_OPT = nullptr;
+    for (int i = 0; i < _numOfChart_IMU; ++i)
+    {
+        delete _verticalScrollBar_IMU[i];
+        _verticalScrollBar_IMU[i] = nullptr;
+    }
+
+    delete _chartView_OPT;
+    _chartView_OPT = nullptr;
+    for (int i = 0; i < _numOfChart_IMU; ++i)
+    {
+        delete _chartView_IMU[i];
+        _chartView_IMU[i] = nullptr;
+    }
+
 	delete[] _checkBoxChannels;
     _checkBoxChannels = nullptr;
 	delete _hBoxLayout;
@@ -444,29 +459,69 @@ void    WindowChart::execChartDialog(void)
             DEBUGGER();
 		});
     DEBUGGER();
-    
+
     this->_verticalScrollBar_OPT = new QScrollBar(Qt::Vertical, this);
     this->_verticalScrollBar_OPT->setRange(0, 0);
     connect(this->_verticalScrollBar_OPT, &QScrollBar::valueChanged, this,
-        [=](int value)
-    	{
-            DEBUGGER();
-            this->_axisY_OPT->setRange(value, value + this->_chartView_OPT->_currentAxisYLength);
-            DEBUGGER();
-		});
+            [=](int value)
+            {
+                DEBUGGER();
+                this->_axisY_OPT->setRange(value, value + this->_chartView_OPT->_currentAxisYLength);
+                DEBUGGER();
+            });
+
+    for (int i = 0; i < _numOfChart_IMU; ++i)
+    {
+        this->_horizontalScrollBar_IMU[i] = new QScrollBar(Qt::Horizontal, this);
+        this->_horizontalScrollBar_IMU[i]->setRange(0, 0);
+        connect(_horizontalScrollBar_IMU[i], &QScrollBar::valueChanged, this,
+                [=](int value)
+                {
+                    DEBUGGER();
+                    this->_axisX_IMU[i].setRange(value, value + this->_chartView_IMU[i]->_currentAxisXLength);
+                    DEBUGGER();
+                });
+        DEBUGGER();
+
+        this->_verticalScrollBar_IMU[i] = new QScrollBar(Qt::Vertical, this);
+        this->_verticalScrollBar_IMU[i]->setRange(0, 0);
+        connect(_verticalScrollBar_IMU[i], &QScrollBar::valueChanged, this,
+                [=](int value)
+                {
+                    DEBUGGER();
+                    this->_axisY_IMU[i].setRange(value, value + this->_chartView_IMU[i]->_currentAxisYLength);
+                    DEBUGGER();
+                });
+    }
 
     this->_chartView_OPT = new MyChartView(_chart_OPT, _timeLineMin, _timeLineMax_OPT, _valueLineMin_OPT, _valueLineMax_OPT, \
                                        _axisX_OPT, _axisY_OPT, _axisYLabel_OPT, _maxLabel_OPT, \
                                        _zoomToHomeButton, _horizontalScrollBar_OPT, _verticalScrollBar_OPT);
     this->_chartView_OPT->setRenderHint(QPainter::Antialiasing);
     this->_chartView_OPT->setRubberBand(QChartView::RectangleRubberBand);
+
+    for (int i = 0; i < _numOfChart_IMU; ++i)
+    {
+        this->_chartView_IMU[i] = new MyChartView(&_chart_IMU[i], _timeLineMin, _timeLineMax_IMU, _valueLineMin_IMU[i], _valueLineMax_IMU[i], \
+                                               &_axisX_IMU[i], &_axisY_IMU[i], &_axisYLabel_IMU[i], _maxLabel_IMU, \
+                                               _zoomToHomeButton, _horizontalScrollBar_IMU[i], _verticalScrollBar_IMU[i]);
+        this->_chartView_IMU[i]->setRenderHint(QPainter::Antialiasing);
+        this->_chartView_IMU[i]->setRubberBand(QChartView::RectangleRubberBand);
+    }
+    DEBUGGER();
     
     this->_horizontalScrollBar_OPT->setParent(this->_chartView_OPT);
     this->_verticalScrollBar_OPT->setParent(this->_chartView_OPT);
     this->_verticalScrollBar_OPT->setInvertedAppearance(true); // reverse the direction
-    
-	this->_gridLayout = new QGridLayout;
-	
+
+    for (int i = 0; i < _numOfChart_IMU; ++i)
+    {
+        this->_horizontalScrollBar_IMU[i]->setParent(this->_chartView_IMU[i]);
+        this->_verticalScrollBar_IMU[i]->setParent(this->_chartView_IMU[i]);
+        this->_verticalScrollBar_IMU[i]->setInvertedAppearance(true); // reverse the direction
+    }
+
+    this->_gridLayout = new QGridLayout;
 	this->_hBoxLayout = new QHBoxLayout;
 
     for (int k = 0, j = -1; k < _filesCount; ++k)
