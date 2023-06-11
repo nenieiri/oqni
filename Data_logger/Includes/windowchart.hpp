@@ -52,7 +52,9 @@ class	WindowChart : public QDialog
         QHBoxLayout		*_hBoxLayoutOptions;
         QCheckBox		*_checkBoxChannels;
         QPushButton		*_zoomToHomeButton;
+        QPushButton		*_snapshotButton;
 		QIcon			*_iconHome;
+        QIcon			*_iconCamera;
         QScrollBar		*_horizontalScrollBar_OPT;
         QScrollBar		*_horizontalScrollBar_IMU[3];
         QScrollBar		*_verticalScrollBar_OPT;

@@ -6,5 +6,6 @@
         <file>Imgs/config.png</file>
         <file>Imgs/iconHome.png</file>
         <file>Imgs/about.png</file>
+        <file>Imgs/iconSnapshot.png</file>
     </qresource>
 </RCC>
