@@ -1638,7 +1638,7 @@ void    WindowNext::execChartDialog(void)
 
 #  ifdef Q_OS_MAC
 //    _sliderHorizontalValues = new QLabel("  2        3        4        5        6         7        8        9       10", this);
-    _sliderHorizontalValues = new QLabel("  2                 3                 4                  5                 6", this);
+    _sliderHorizontalValues = new QLabel("  2                  3                   4                  5                  6", this);
 #  else
 //    _sliderHorizontalValues = new QLabel(" 2         3         4        5          6         7         8        9       10", this);
     _sliderHorizontalValues = new QLabel(" 2                    3                    4                    5                    6", this);
