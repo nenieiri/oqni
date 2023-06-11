@@ -548,12 +548,12 @@ void    MainWindow::buttonAboutAction()
 {
     DEBUGGER();
     
-    QString about = "Data logger 2.2 (for ESP-32) \
+    QString about = "<b>Data logger 2.2</b> (for ESP-32) \
                     <br> <br> This program was created in collaboration \
-                    <br> between «Tumo Labs» and «OQNI». \
-                    <br> <br>Authors: \u00A0\u00A0\u00A0\u00A0Volodya Ismailyan \
+                    <br> between <b>«Tumo Labs»</b> and <b>«OQNI»</b>. \
+                    <br> <br>Authors: \u00A0\u00A0\u00A0\u00A0<b>Volodya Ismailyan \
                     <br> \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0 \
-                         \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0Vladimir Khlghatyan \
+                         \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0Vladimir Khlghatyan</b> \
                     <br> <br> ©2023. All rights reserved.";
 
     QMessageBox msgBox;
