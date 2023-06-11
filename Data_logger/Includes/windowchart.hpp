@@ -28,9 +28,6 @@ class	WindowChart : public QDialog
         QString         staticChartTitle(int index);
         void            connectStaticChatCheckBox(int i);
 
-//    private slots:
-//        void            checkRightClickAction(void);
-    
     private:
         const QString   _pathToFiles;
         QCheckBox       *_filesList;

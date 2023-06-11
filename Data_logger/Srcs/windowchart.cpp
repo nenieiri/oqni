@@ -627,7 +627,7 @@ void    WindowChart::execChartDialog(void)
 
     int chartsCount = _numOfChart_IMU + _numOfChart_OPT;
     this->_checkBoxSensors = new QCheckBox[chartsCount];
-    QStringList title = {"Accelerometer  ", "Giroscop  ", "Magnetometer  ", "OPT sensores"};
+    QStringList title = {"Accelerometer  ", "Gyroscope  ", "Magnetometer  ", "OPT sensores"};
     for (int i = 0; i < chartsCount; ++i)
     {
         this->_checkBoxSensors[i].setText(title[i]);
@@ -808,7 +808,7 @@ QString WindowChart::staticChartTitle(int index)
             if (_filesList[i].text().mid(14,3) == "IMU" && index < 3)
             {
                 QStringList names = {"<b>\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0Accelerometer:</b> \u00A0\u00A0 red-<b>X</b> \u00A0\u00A0 green-<b>Y</b> \u00A0\u00A0 blue-<b>Z</b>", \
-                                     "<b>\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0Giroscop:</b> \u00A0\u00A0 red-<b>X</b> \u00A0\u00A0 green-<b>Y</b> \u00A0\u00A0 blue-<b>Z</b>", \
+                                     "<b>\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0Gyroscope:</b> \u00A0\u00A0 red-<b>X</b> \u00A0\u00A0 green-<b>Y</b> \u00A0\u00A0 blue-<b>Z</b>", \
                                      "<b>\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0Magnetometer:</b> \u00A0\u00A0 red-<b>X</b> \u00A0\u00A0 green-<b>Y</b> \u00A0\u00A0 blue-<b>Z</b>"};
                 title += names[index];
             }

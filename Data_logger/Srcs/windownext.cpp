@@ -1455,7 +1455,7 @@ void    WindowNext::execChartDialog(void)
 
     this->_chart_IMU = new QChart[_numOfS_IMU];
     _chart_IMU[0].setTitle("<b>Accelerometer:</b> red-<b>X</b> green-<b>Y</b> blue-<b>Z</b>");
-    _chart_IMU[1].setTitle("<b>Giroscop:</b> red-<b>X</b> green-<b>Y</b> blue-<b>Z</b>");
+    _chart_IMU[1].setTitle("<b>Gyroscope:</b> red-<b>X</b> green-<b>Y</b> blue-<b>Z</b>");
     _chart_IMU[2].setTitle("<b>Magnetometer:</b> red-<b>X</b> green-<b>Y</b> blue-<b>Z</b>");
     for (int i = 0; i < _numOfS_IMU; ++i)
     {
@@ -1683,7 +1683,7 @@ void    WindowNext::execChartDialog(void)
 
     int chartsCount = _numOfS_OPT / 2 + _numOfS_IMU; // 1 for OPT sensors and 3 for IMU sensores
     this->_checkBoxSensors = new QCheckBox[chartsCount];
-    QStringList title = {"Accelerometer  ", "Giroscop  ", "Magnetometer  ", "OPT sensores"};
+    QStringList title = {"Accelerometer  ", "Gyroscope  ", "Magnetometer  ", "OPT sensores"};
     for (int i = 0; i < chartsCount; ++i)
     {
         this->_checkBoxSensors[i].setText(title[i]);
