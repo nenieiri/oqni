@@ -25,8 +25,11 @@ class	WindowChart : public QDialog
         void			execChartDialog(void);
         void    		readFromFile(void);
 		void			updateValueLineAxis(void);
-        QString         staticChartTitle(const QString &selectedFile);
+        QString         staticChartTitle(int index);
         void            connectStaticChatCheckBox(int i);
+
+//    private slots:
+//        void            checkRightClickAction(void);
     
     private:
         const QString   _pathToFiles;
@@ -67,21 +70,23 @@ class	WindowChart : public QDialog
         qint64          _timeLineMax_OPT;
         qint64          _timeLineMax_IMU;
         unsigned int    _valueLineMin_OPT;
-        unsigned int    _valueLineMin_IMU[3];
+        short           _valueLineMin_IMU[3];
         unsigned int    _valueLineMax_OPT;
-        unsigned int    _valueLineMax_IMU[3];
+        short           _valueLineMax_IMU[3];
         int             _maxLabel_OPT;
         int             _maxLabel_IMU;
 };
 
 class	MyChartView : public QChartView
 {
+    Q_OBJECT
+
 	public:
 		MyChartView(QChart *parent, \
                     qint64 timeLineMin, \
                     qint64 timeLineMax, \
-                    unsigned int valueLineMin, \
-                    unsigned int valueLineMax, \
+                    int valueLineMin, \
+                    int valueLineMax, \
                     QValueAxis *axisX, \
                     QValueAxis *axisY, \
                     QValueAxis *axisYLabel,
@@ -104,7 +109,7 @@ class	MyChartView : public QChartView
             , _horizontalScrollBar(horizontalScrollBar) \
             , _verticalScrollBar(verticalScrollBar)
         {}
-	
+
 	protected:
         void mousePressEvent(QMouseEvent *event) override
         {
@@ -136,7 +141,7 @@ class	MyChartView : public QChartView
                 _axisY->setRange(_valueLineMin, _valueLineMax);
                 _axisYLabel->setRange(0, _maxLabel + 1);
                 _zoomed = false;
-				_zoomToHomeButton->setEnabled(false);
+                emit this->rightClickAction();
 				_currentAxisXLength = _timeLineMax - _timeLineMin;
     			_horizontalScrollBar->setRange(_timeLineMin, _timeLineMin);
 				_horizontalScrollBar->setValue(_timeLineMin);
@@ -170,8 +175,8 @@ class	MyChartView : public QChartView
         QValueAxis		*_axisYLabel;        
         qint64          _timeLineMin;
         qint64          _timeLineMax;
-		unsigned int    _valueLineMin;
-		unsigned int    _valueLineMax;
+        int             _valueLineMin;
+        int             _valueLineMax;
         int				_maxLabel;
         QPushButton		*_zoomToHomeButton;
         QScrollBar		*_horizontalScrollBar;
@@ -186,6 +191,9 @@ class	MyChartView : public QChartView
         bool            _firstTimeZooming;
         int				_currentAxisXLength;
         int				_currentAxisYLength;
+
+    signals:
+        void    rightClickAction(void);
 };
 
 #endif
