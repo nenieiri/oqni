@@ -53,13 +53,14 @@ WindowChart::WindowChart(MainWindow *parent, const QString &pathToFiles, \
     this->_snapshotButton->setIcon(*_iconCamera);
     this->_snapshotButton->setIconSize(SnapshotPixmap.size());
     this->_snapshotButton->setFixedSize(SnapshotPixmap.size());
-    this->_snapshotButton->setStyleSheet("QPushButton { border: none; }");
+    this->_snapshotButton->setStyleSheet("QPushButton {border: none;} QPushButton:pressed {background-color: yellow;}");
     this->_snapshotButton->setMask(SnapshotPixmap.mask());
     this->_snapshotButton->setToolTip("Take a snapshot.");
     connect(this->_snapshotButton, &QPushButton::clicked, this,
         [=]()
         {
             qDebug() << "snapshot button needs functionality";
+            this->shnapshotMessage();
         });
 
     this->_zoomToHomeButton = new QPushButton;
@@ -891,5 +892,22 @@ void WindowChart::connectStaticChatCheckBox(int i)
             _chart_OPT->update();
         });
     
+    DEBUGGER();
+}
+
+void WindowChart::shnapshotMessage(void)
+{
+    DEBUGGER();
+
+    QString msg = "Snapshot was taken.";
+
+    QMessageBox msgBox;
+    msgBox.setWindowTitle(tr("Information"));
+    msgBox.setText(msg);
+    msgBox.setIcon(QMessageBox::Information);
+    msgBox.addButton(QMessageBox::Ok);
+    msgBox.setWindowIcon(QIcon(":/Imgs/oqni.ico"));
+    msgBox.exec();
+
     DEBUGGER();
 }

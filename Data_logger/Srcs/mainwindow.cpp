@@ -544,7 +544,7 @@ void    MainWindow::buttonToolAction(ComPort *comPort)
     DEBUGGER();
 }
 
-void    MainWindow::buttonAboutAction()
+void    MainWindow::buttonAboutAction(void)
 {
     DEBUGGER();
     
