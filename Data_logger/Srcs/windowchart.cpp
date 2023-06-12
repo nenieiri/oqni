@@ -3,11 +3,12 @@
 #include "debugger.hpp"
 
 WindowChart::WindowChart(MainWindow *parent, const QString &pathToFiles, \
-                        QCheckBox *filesList, int filesCount)
+                        QCheckBox *filesList, int filesCount, const QString pathToSnapshots)
     : QDialog(parent)
     , _pathToFiles(pathToFiles) \
     , _filesList(filesList) \
-    , _filesCount(filesCount)
+    , _filesCount(filesCount) \
+    , _pathToSnapshots(pathToSnapshots)
 {
     DEBUGGER();
     
@@ -59,8 +60,10 @@ WindowChart::WindowChart(MainWindow *parent, const QString &pathToFiles, \
     connect(this->_snapshotButton, &QPushButton::clicked, this,
         [=]()
         {
-            qDebug() << "snapshot button needs functionality";
-            this->shnapshotMessage();
+            QPixmap snapshot = QGuiApplication::primaryScreen()->grabWindow(winId());
+            QString filename = this->getSnapshotFileName();
+            snapshot.save(filename);
+            this->shnapshotMessage(filename);
         });
 
     this->_zoomToHomeButton = new QPushButton;
@@ -895,11 +898,50 @@ void WindowChart::connectStaticChatCheckBox(int i)
     DEBUGGER();
 }
 
-void WindowChart::shnapshotMessage(void)
+QString WindowChart::getSnapshotFileName(void)
+{
+    QStringList dirs = _pathToFiles.split("/");
+    QString     parentDir= dirs[dirs.size() - 2];       // parent directory of .csv files
+    QString     selectedFile = _filesList[0].text();    // name of first .csv file
+
+    // removing the suffix from the file name
+    // (_IMU.csv, _OPT1.csv or _OPT2.csv)
+    int lastUnderscoreLine = selectedFile.lastIndexOf('_');
+    if (lastUnderscoreLine != -1)
+        selectedFile = selectedFile.left(lastUnderscoreLine);
+
+    // removing the suffix (date) from the directory name
+    // since it is already present in the file name
+    lastUnderscoreLine = parentDir.lastIndexOf('_');
+    if (lastUnderscoreLine != -1)
+        parentDir = parentDir.left(lastUnderscoreLine);
+
+    QString snapshotFileNamePrefix = _pathToSnapshots + "/" + parentDir + "_" + selectedFile;
+    QString snapshotFileName = snapshotFileNamePrefix + ".png";
+
+    // checking if a file with the same name already exists
+    // in order to generate a new one
+    QFile file(snapshotFileName);
+    if (file.exists() == false)
+        return snapshotFileName;
+    for(int i = 2;;++i)
+    {
+        snapshotFileName = snapshotFileNamePrefix + "_(" + QString::number(i) + ").png";
+        QFile file(snapshotFileName);
+        if (file.exists() == false)
+            return snapshotFileName;
+    }
+    return "";
+}
+
+void WindowChart::shnapshotMessage(QString &filename)
 {
     DEBUGGER();
 
-    QString msg = "Snapshot was taken.";
+    QStringList tokens = filename.split('/');
+    QString msg = "<b>Snapshot</b> was taken.<br>File has been saved to: <br>\u00A0\u00A0\u00A0\u00A0";
+    if (tokens.size() >= 2)
+        msg += "/" + tokens[tokens.size() - 2] + "/" + tokens[tokens.size() - 1];
 
     QMessageBox msgBox;
     msgBox.setWindowTitle(tr("Information"));

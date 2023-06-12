@@ -412,7 +412,8 @@ void    MainWindow::buttonChartAction()
 
     if (atLeastOneChecked == true)
     {
-        this->_windowChart = new WindowChart(this, pathToFiles, _filesList, files.count());
+        QString pathToSnapshots = this->getExecutableGrandparentDirPath() + "/Snapshots";
+        this->_windowChart = new WindowChart(this, pathToFiles, _filesList, files.count(), pathToSnapshots);
         this->_windowChart->exec();
     }
     this->_buttonChart->setStyleSheet(MY_DEFINED_RELEASED_BUTTON);

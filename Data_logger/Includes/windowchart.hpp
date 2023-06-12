@@ -18,7 +18,7 @@ class	MyChartView;
 class	WindowChart : public QDialog
 {
 	public:
-		WindowChart(MainWindow *parent, const QString &pathToFiles, QCheckBox *filesList, int filesCount);
+        WindowChart(MainWindow *parent, const QString &pathToFiles, QCheckBox *filesList, int filesCount, const QString pathToSnapshots);
 		~WindowChart();
     
     private:
@@ -27,10 +27,12 @@ class	WindowChart : public QDialog
 		void			updateValueLineAxis(void);
         QString         staticChartTitle(int index);
         void            connectStaticChatCheckBox(int i);
-        void            shnapshotMessage(void);
+        QString         getSnapshotFileName(void);
+        void            shnapshotMessage(QString &filename);
 
     private:
         const QString   _pathToFiles;
+        const QString   _pathToSnapshots;
         QCheckBox       *_filesList;
         int             _filesCount;
         int				_checkedFilesCount_OPT;
