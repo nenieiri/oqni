@@ -7,3 +7,4 @@ a.out
 build*
 /Recordings/*
 /Recordings/metadata.xlsx
+/Snapshots/*
