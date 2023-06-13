@@ -16,5 +16,6 @@
         <file>Imgs/updateExcel.png</file>
         <file>Imgs/configFailed.png</file>
         <file>Imgs/openFailed.png</file>
+        <file>Imgs/bug.png</file>
     </qresource>
 </RCC>

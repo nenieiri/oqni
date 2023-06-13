@@ -47,7 +47,7 @@ class ThreadReader : public QThread
     signals:
         void				lastRowOfData(QByteArray data);
         void				protocolConfigDataIsReady(void);
-        void				failedToRun(int errorCode);
+        void				badEventHappened(QString msg);
         
     private:
         void				stopAndClosePort(QSerialPort &port);
@@ -81,6 +81,8 @@ class ThreadReader : public QThread
         QVector<QByteArray> _dataRead;
         qint64              _startTime;
         QCheckBox           *_showPic;
+
+        bool                _wrongIdReceived;
 };
 
 #endif

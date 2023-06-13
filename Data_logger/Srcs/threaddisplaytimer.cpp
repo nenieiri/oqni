@@ -102,7 +102,7 @@ void    ThreadDisplayTimer::run()
         this->_displayTimerLabel->setText(text);
         emit displayTimerText(text);
         QThread::usleep(1000 * (1000 - (QDateTime::currentDateTime().toMSecsSinceEpoch() - start - 1000 * (this->_durationTimerValue - seconds))));
-        seconds--;
+        seconds--;        
     }
     
     DEBUGGER();

@@ -21,6 +21,8 @@ ThreadReader::ThreadReader(int durationTimerValue, ComPort *comPort, ThreadDispl
     this->_bytesTC = 4; // Time Counter bytes (frame type 2 format)
     this->_timeCounter.resize(4); // initial 4 bytes of Time Counter
     this->_timeCounter.fill(0); // initial value (0) of Time Counter
+
+    this->_wrongIdReceived = false;
     
     DEBUGGER();
 }
@@ -161,15 +163,12 @@ void    ThreadReader::run()
 
     if (!port.open(QIODevice::ReadWrite))
     {
-        qDebug() << "Faild to open serial port!";
-        DEBUGGER();
-        emit failedToRun(1);
+        emit badEventHappened("Faild to open serial port!");
         return ;
     }
     if (requestPortConfigAndStart(port) == false)
     {
-        DEBUGGER();
-        emit failedToRun(2);
+        emit badEventHappened("Failed to get configuration.<br>Please try reconnecting the USB cable.</br>");
         return ;
     }
     
@@ -195,7 +194,8 @@ void    ThreadReader::run()
         }
         if (!breakCondition)
         {
-            qDebug() << "TimeOut while reading data.";
+            emit badEventHappened("TimeOut while reading data.");
+            QThread::sleep(1);
             break ;
         }
 
@@ -216,7 +216,9 @@ void    ThreadReader::run()
             bytesTotal = _bytesPA + _bytesID + restOfBytes;
             break;
         default :
-            qDebug() << "Wrong ID received";
+            if (_wrongIdReceived == false)
+                emit badEventHappened("Wrong ID received.<br>Please try reconnecting the USB cable.</br>");
+            _wrongIdReceived = true;
         }
 
         // reading rest of bytes
@@ -249,7 +251,8 @@ void    ThreadReader::run()
         }
         if (!breakCondition)
         {
-            qDebug() << "TimeOut while reading data.";
+            emit badEventHappened("TimeOut while reading data.");
+            QThread::sleep(1);
             break ;
         }
     }
