@@ -946,7 +946,7 @@ void WindowChart::shnapshotMessage(QString &filename)
     QMessageBox msgBox;
     msgBox.setWindowTitle(tr("Information"));
     msgBox.setText(msg);
-    msgBox.setIcon(QMessageBox::Information);
+    msgBox.setIconPixmap(QPixmap(":/Imgs/msgSnapshot.png"));
     msgBox.addButton(QMessageBox::Ok);
     msgBox.setWindowIcon(QIcon(":/Imgs/oqni.ico"));
     msgBox.exec();

@@ -7,5 +7,14 @@
         <file>Imgs/iconHome.png</file>
         <file>Imgs/about.png</file>
         <file>Imgs/iconSnapshot.png</file>
+        <file>Imgs/collaboration.png</file>
+        <file>Imgs/msgSnapshot.png</file>
+        <file>Imgs/xlsxNotFound.png</file>
+        <file>Imgs/checkMark.png</file>
+        <file>Imgs/exclamationMark.png</file>
+        <file>Imgs/crossMark.png</file>
+        <file>Imgs/updateExcel.png</file>
+        <file>Imgs/configFailed.png</file>
+        <file>Imgs/openFailed.png</file>
     </qresource>
 </RCC>

@@ -43,7 +43,7 @@ WindowNext::WindowNext(MainWindow *parent)
         QMessageBox msgBox;
         msgBox.setWindowTitle(tr("Warning"));
         msgBox.setText("metadata.xlsx not found.<br>Continue?");
-        msgBox.setIcon(QMessageBox::Question);
+        msgBox.setIconPixmap(QPixmap(":/Imgs/xlsxNotFound.png"));
         msgBox.addButton(QMessageBox::Ok);
         msgBox.addButton(QMessageBox::Cancel);
         msgBox.setWindowIcon(QIcon(":/Imgs/oqni.ico"));
@@ -270,7 +270,7 @@ void    WindowNext::setButtonStart(QPushButton *buttonStart)
                         this->_threadReader->requestInterruption();
                         switch (errorCode) {
                         case 1:
-                            this->warningMessageBox("Faild to open serial port.");
+                            this->warningMessageBox("Failed to open serial port.");
                             break;
                         case 2:
                             this->warningMessageBox("Failed to get configuration.<br>Please try reconnecting the USB cable.</br>");
@@ -1250,7 +1250,7 @@ bool	WindowNext::saveMetaData(const QString &excelSheet, const QString &subject)
         QMessageBox msgBox;
         msgBox.setWindowTitle(tr("Update Request"));
         msgBox.setText(msg);
-        msgBox.setIcon(QMessageBox::Question);
+        msgBox.setIconPixmap(QPixmap(":/Imgs/updateExcel.png"));
         msgBox.addButton(QMessageBox::Yes);
         msgBox.addButton(QMessageBox::No);
         msgBox.addButton(QMessageBox::Cancel);
@@ -1294,7 +1294,7 @@ void WindowNext::retryToSaveMetaData(QXlsx::Document &xlsx, const QString &excel
                 <br> <br> <b> Please fix and try again! </br>";
     QMessageBox msgBox;
     msgBox.setWindowTitle(tr("Cannot save the file."));
-    msgBox.setIcon(QMessageBox::Warning);
+    msgBox.setIconPixmap(QPixmap(":/Imgs/xlsxNotFound.png"));
     msgBox.addButton(QMessageBox::Retry);
     msgBox.addButton(QMessageBox::Ignore);
     msgBox.setWindowIcon(QIcon(":/Imgs/oqni.ico"));
@@ -1973,7 +1973,14 @@ void    WindowNext::infoMessageBox(const QString &msg)
     QMessageBox msgBox;
     msgBox.setWindowTitle(tr("Information"));
     msgBox.setText(msg);
-    msgBox.setIcon(QMessageBox::Information);
+    if (msg.startsWith("<b>Regular"))
+        msgBox.setIconPixmap(QPixmap(":/Imgs/checkMark.png"));
+    else if (msg.startsWith("<b>Temporary"))
+        msgBox.setIconPixmap(QPixmap(":/Imgs/exclamationMark.png"));
+    else if (msg.startsWith("Recording"))
+        msgBox.setIconPixmap(QPixmap(":/Imgs/crossMark.png"));
+    else
+        msgBox.setIcon(QMessageBox::Information);
     msgBox.addButton(QMessageBox::Ok);
     msgBox.setWindowIcon(QIcon(":/Imgs/oqni.ico"));
     msgBox.exec();
@@ -1984,10 +1991,15 @@ void    WindowNext::infoMessageBox(const QString &msg)
 void    WindowNext::warningMessageBox(const QString &msg)
 {
     DEBUGGER();
-
+    qDebug() << "aaa";
     QMessageBox msgBox;
     msgBox.setWindowTitle(tr("Warning"));
-    msgBox.setIcon(QMessageBox::Warning);
+    if (msg.startsWith("Failed to get"))
+        msgBox.setIconPixmap(QPixmap(":/Imgs/configFailed.png"));
+    else if (msg.startsWith("Failed to open"))
+        msgBox.setIconPixmap(QPixmap(":/Imgs/openFailed.png"));
+    else
+        msgBox.setIcon(QMessageBox::Warning);
     msgBox.addButton(QMessageBox::Ok);
     msgBox.setWindowIcon(QIcon(":/Imgs/oqni.ico"));
     msgBox.setText(msg);
