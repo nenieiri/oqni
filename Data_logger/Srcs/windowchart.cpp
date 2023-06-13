@@ -49,13 +49,13 @@ WindowChart::WindowChart(MainWindow *parent, const QString &pathToFiles, \
 
     this->_snapshotButton = new QPushButton;
     this->_snapshotButton->setEnabled(true);
-    QPixmap SnapshotPixmap(":/Imgs/iconSnapshot.png");
-    this->_iconCamera = new QIcon(SnapshotPixmap);
+    QPixmap pixmapCamera(":/Imgs/iconSnapshot.png");
+    this->_iconCamera = new QIcon(pixmapCamera);
     this->_snapshotButton->setIcon(*_iconCamera);
-    this->_snapshotButton->setIconSize(SnapshotPixmap.size());
-    this->_snapshotButton->setFixedSize(SnapshotPixmap.size());
+    this->_snapshotButton->setIconSize(pixmapCamera.size());
+    this->_snapshotButton->setFixedSize(pixmapCamera.size());
     this->_snapshotButton->setStyleSheet("QPushButton {border: none;} QPushButton:pressed {background-color: yellow;}");
-    this->_snapshotButton->setMask(SnapshotPixmap.mask());
+    this->_snapshotButton->setMask(pixmapCamera.mask());
     this->_snapshotButton->setToolTip("Take a snapshot.");
     connect(this->_snapshotButton, &QPushButton::clicked, this,
         [=]()
@@ -68,13 +68,13 @@ WindowChart::WindowChart(MainWindow *parent, const QString &pathToFiles, \
 
     this->_zoomToHomeButton = new QPushButton;
     this->_zoomToHomeButton->setEnabled(false);
-    QPixmap ZoomPixmap(":/Imgs/iconHome.png");
-    this->_iconHome = new QIcon(ZoomPixmap);
+    QPixmap pixmapHome(":/Imgs/iconHome.png");
+    this->_iconHome = new QIcon(pixmapHome);
     this->_zoomToHomeButton->setIcon(*_iconHome);
-    this->_zoomToHomeButton->setIconSize(ZoomPixmap.size());
-    this->_zoomToHomeButton->setFixedSize(ZoomPixmap.size());
+    this->_zoomToHomeButton->setIconSize(pixmapHome.size());
+    this->_zoomToHomeButton->setFixedSize(pixmapHome.size());
     this->_zoomToHomeButton->setStyleSheet("QPushButton { border: none; }");
-    this->_zoomToHomeButton->setMask(ZoomPixmap.mask());
+    this->_zoomToHomeButton->setMask(pixmapHome.mask());
     this->_zoomToHomeButton->setToolTip("Resize to original dimensions.");
     connect(this->_zoomToHomeButton, &QPushButton::clicked, this,
         [=]()
