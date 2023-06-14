@@ -18,7 +18,8 @@ class	MyChartView;
 class	WindowChart : public QDialog
 {
 	public:
-        WindowChart(MainWindow *parent, const QString &pathToFiles, QCheckBox *filesList, int filesCount, const QString pathToSnapshots);
+        WindowChart(MainWindow *parent, const QString &pathToFiles, \
+                    QCheckBox *filesList, int filesCount, const QString pathToSnapshots);
 		~WindowChart();
     
     private:
@@ -195,7 +196,7 @@ class	MyChartView : public QChartView
         int				_currentAxisYLength;
 
     signals:
-        void    rightClickAction(void);
+        void            rightClickAction(void);
 };
 
 #endif

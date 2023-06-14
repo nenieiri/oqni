@@ -20,11 +20,11 @@ class	ComPort
         ~ComPort(void);
 
     public:
-        void    	setBaudRate(const QString &rate, QStringList &items);
-        void    	setDataBits(const QString &bits, QStringList &items);
-        void    	setParity(const QString &parity, QStringList &items);
-        void    	setStopBits(const QString &bits, QStringList &items);
-        void    	setFlowControl(const QString &flowcontrol, QStringList &items);
+        void    setBaudRate(const QString &rate, QStringList &items);
+        void    setDataBits(const QString &bits, QStringList &items);
+        void    setParity(const QString &parity, QStringList &items);
+        void    setStopBits(const QString &bits, QStringList &items);
+        void    setFlowControl(const QString &flowcontrol, QStringList &items);
 
         const QSerialPortInfo       &getPort(void) const {return _port;}
         const QString               &getPortName(void) const {return _portName;}
@@ -59,14 +59,13 @@ class	ComPort
         unsigned int                _flowControlIndex;
 
         QRadioButton    			*_radioButton;
-
         QToolButton                 *_toolButton;
         
     public: //temp
-        QDialog         *_windowProperty;
-        QPushButton		*_cancelProperties;
-        QPushButton		*_setDefaultProperties;
-        QPushButton		*_saveProperies;
+        QDialog                     *_windowProperty;
+        QPushButton                 *_cancelProperties;
+        QPushButton                 *_setDefaultProperties;
+        QPushButton                 *_saveProperies;
 };
 
 #endif

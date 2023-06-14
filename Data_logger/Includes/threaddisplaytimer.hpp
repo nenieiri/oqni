@@ -15,7 +15,8 @@ class ThreadDisplayTimer : public QThread
 	Q_OBJECT
     
 	public:
-		ThreadDisplayTimer(int durationTimerValue, QDialog *windowNext, QString &expProtocolsPath, QList<QStringList>	&expProtocol);
+        ThreadDisplayTimer(int durationTimerValue, QDialog *windowNext, \
+                           QString &expProtocolsPath, QList<QStringList> &expProtocol);
 		~ThreadDisplayTimer();
 
     public:

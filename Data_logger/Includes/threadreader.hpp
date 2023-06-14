@@ -19,7 +19,8 @@ class ThreadReader : public QThread
 	Q_OBJECT
     
 	public:
-        ThreadReader(int durationTimerValue, ComPort *comPort, ThreadDisplayTimer *threadDisplayTimer, QCheckBox *showPic);
+        ThreadReader(int durationTimerValue, ComPort *comPort, \
+                     ThreadDisplayTimer *threadDisplayTimer, QCheckBox *showPic);
 		~ThreadReader();
 
     public:

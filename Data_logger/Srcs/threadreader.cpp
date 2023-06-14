@@ -1,7 +1,8 @@
 #include "threadreader.hpp"
 #include "debugger.hpp"
 
-ThreadReader::ThreadReader(int durationTimerValue, ComPort *comPort, ThreadDisplayTimer *threadDisplayTimer, QCheckBox *showPic)
+ThreadReader::ThreadReader(int durationTimerValue, ComPort *comPort, \
+                           ThreadDisplayTimer *threadDisplayTimer, QCheckBox *showPic)
 			: _comPort(comPort) \
             , _showPic(showPic) \
             , _durationTimerValue(durationTimerValue)
@@ -12,15 +13,15 @@ ThreadReader::ThreadReader(int durationTimerValue, ComPort *comPort, ThreadDispl
     this->_fileCreationTime = QDateTime::currentDateTime().toString("hhmmss");
     this->_fileNamePrefix += "/" + _fileCreationDate + "_" + _fileCreationTime;
     this->_threadDisplayTimer = threadDisplayTimer;
-    this->_bytesPA = 4;  // Preamble bytes
-    this->_bytesID = 1;  // ID bytes
-    this->_bytesCO = 1;  // Counter bytes
-    this->_numOfS_OPT = 2; // Number of OPT sensors
-    this->_numOfS_IMU = 3; // Number of IMU sensors
-    this->_bytesLBL = 1; // Label bytes (frame type 2 format)
-    this->_bytesTC = 4; // Time Counter bytes (frame type 2 format)
-    this->_timeCounter.resize(4); // initial 4 bytes of Time Counter
-    this->_timeCounter.fill(0); // initial value (0) of Time Counter
+    this->_bytesPA = 4;             // Preamble bytes
+    this->_bytesID = 1;             // ID bytes
+    this->_bytesCO = 1;             // Counter bytes
+    this->_numOfS_OPT = 2;          // Number of OPT sensors
+    this->_numOfS_IMU = 3;          // Number of IMU sensors
+    this->_bytesLBL = 1;            // Label bytes (frame type 2 format)
+    this->_bytesTC = 4;             // Time Counter bytes (frame type 2 format)
+    this->_timeCounter.resize(4);   // initial 4 bytes of Time Counter
+    this->_timeCounter.fill(0);     // initial value (0) of Time Counter
 
     this->_wrongIdReceived = false;
     
@@ -354,13 +355,13 @@ bool    ThreadReader::requestPortConfigAndStart(QSerialPort &port)
 
     // sending current label to the microcontroller
     connect(_threadDisplayTimer, &ThreadDisplayTimer::currentLabel, this,
-        [&](int label)
-        {
-            QByteArray dataWrite;
-            dataWrite.append(static_cast<char>(7)); // First byte
-            dataWrite.append(static_cast<char>(label)); // Second byte
-            port.write(dataWrite);
-        });
+            [&](int label)
+            {
+                QByteArray dataWrite;
+                dataWrite.append(static_cast<char>(7)); // First byte
+                dataWrite.append(static_cast<char>(label)); // Second byte
+                port.write(dataWrite);
+            });
 
     DEBUGGER();
     return true;

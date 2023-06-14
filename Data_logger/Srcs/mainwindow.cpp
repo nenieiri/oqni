@@ -53,13 +53,21 @@ MainWindow::~MainWindow()
         delete *it;
     this->_comPorts.clear();
     delete _buttonCheck;
+    _buttonCheck = nullptr;
     delete _buttonNext;
+    _buttonNext = nullptr;
     delete _buttonChart;
+    _buttonChart = nullptr;
     delete _buttonAbout;
+    _buttonAbout = nullptr;
     delete _gifLabel;
+    _gifLabel = nullptr;
     delete _gifMovie;
+    _gifMovie = nullptr;
     delete _liftVertical;
+    _liftVertical = nullptr;
     delete _groupBox;
+    _groupBox = nullptr;
     delete ui;
     DEBUGGER();
 }
@@ -100,28 +108,28 @@ QPushButton    *MainWindow::createButton(const QString &name, int x, int y, int 
     button->setCursor(Qt::PointingHandCursor);
     button->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_BUTTON);
     connect(button, &QPushButton::released, button,
-        [=](void)
-        {
-            DEBUGGER();
-            button->setStyleSheet(MY_DEFINED_RELEASED_BUTTON);
-            DEBUGGER();
-        });
+            [=](void)
+            {
+                DEBUGGER();
+                button->setStyleSheet(MY_DEFINED_RELEASED_BUTTON);
+                DEBUGGER();
+            });
     connect(button, &QPushButton::clicked, button,
-        [=](void)
-        {
-            DEBUGGER();
-            button->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_BUTTON);
-            DEBUGGER();
-        });
+            [=](void)
+            {
+                DEBUGGER();
+                button->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_BUTTON);
+                DEBUGGER();
+            });
     connect(button, &QPushButton::pressed, button,
-        [=](void)
-        {
-            DEBUGGER();
-            button->setStyleSheet(MY_DEFINED_PRESSED_BUTTON);
-            if (onPressAction != nullptr)
-                onPressAction();
-            DEBUGGER();
-        });
+            [=](void)
+            {
+                DEBUGGER();
+                button->setStyleSheet(MY_DEFINED_PRESSED_BUTTON);
+                if (onPressAction != nullptr)
+                    onPressAction();
+                DEBUGGER();
+            });
 
     DEBUGGER();
     return (button);
@@ -166,34 +174,34 @@ void    MainWindow::createLiftVertical(int x, int y, int width, int height)
     this->_liftVertical->setGeometry(x, y, width, height);
     this->_liftVertical->hide();
     connect(this->_liftVertical, &QScrollBar::valueChanged, this->_groupBox,
-        [=](void)
-        {
-            DEBUGGER();
-            int liftRatio;
-        
-            for (QVector<ComPort *>::iterator it = _comPorts.begin(); it < _comPorts.end(); ++it)
+            [=](void)
             {
-                liftRatio = 40 * (1 + (it - _comPorts.begin()) - this->_liftVertical->value());
-                (*it)->getCheckBox()->setGeometry(40, liftRatio, 310, 24);
-                (*it)->getCheckBox()->raise();
+                DEBUGGER();
+                int liftRatio;
 
-                (*it)->getToolButton()->setGeometry(5, liftRatio - 5, 30, 30);
-                (*it)->getToolButton()->raise();
-                if (liftRatio >= 40)
+                for (QVector<ComPort *>::iterator it = _comPorts.begin(); it < _comPorts.end(); ++it)
                 {
-                    (*it)->getCheckBox()->show();
-                    if ((*it)->getCheckBox()->isChecked() == true )
-                    (*it)->getToolButton()->show();
+                    liftRatio = 40 * (1 + (it - _comPorts.begin()) - this->_liftVertical->value());
+                    (*it)->getCheckBox()->setGeometry(40, liftRatio, 310, 24);
+                    (*it)->getCheckBox()->raise();
+
+                    (*it)->getToolButton()->setGeometry(5, liftRatio - 5, 30, 30);
+                    (*it)->getToolButton()->raise();
+                    if (liftRatio >= 40)
+                    {
+                        (*it)->getCheckBox()->show();
+                        if ((*it)->getCheckBox()->isChecked() == true )
+                            (*it)->getToolButton()->show();
+                    }
+                    else
+                    {
+                        (*it)->getCheckBox()->hide();
+                        (*it)->getToolButton()->hide();
+                    }
+                    (*it)->getCheckBox()->setStyleSheet("border: 0px solid gray;");
                 }
-                else
-                {
-                    (*it)->getCheckBox()->hide();
-                    (*it)->getToolButton()->hide();
-                }
-                (*it)->getCheckBox()->setStyleSheet("border: 0px solid gray;");
-            }
-            DEBUGGER();
-        });
+                DEBUGGER();
+            });
     
     DEBUGGER();
 }
@@ -245,30 +253,30 @@ void    MainWindow::buttonCheckAction(void)
                 (*it)->getToolButton()->setGeometry(5, 40 * (1 + (it - _comPorts.begin())) - 5, 30, 30);
 
                 connect((*it)->getCheckBox(), &QRadioButton::clicked, (*it)->getToolButton(),
-                    [=](void)
-                    {
-                        DEBUGGER();
-                        
-                        this->_buttonNext->setEnabled(true);
-                        this->_buttonNext->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_BUTTON);
-                        (*it)->getToolButton()->raise();
-                        (*it)->getToolButton()->show();
-                        if (this->_previewsRadioButton && this->_previewsRadioButton != *it)
-                            this->_previewsRadioButton->getToolButton()->hide();
-                        this->_previewsRadioButton = *it;
-                        
-                        DEBUGGER();
-                    });
+                        [=](void)
+                        {
+                            DEBUGGER();
+
+                            this->_buttonNext->setEnabled(true);
+                            this->_buttonNext->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_BUTTON);
+                            (*it)->getToolButton()->raise();
+                            (*it)->getToolButton()->show();
+                            if (this->_previewsRadioButton && this->_previewsRadioButton != *it)
+                                this->_previewsRadioButton->getToolButton()->hide();
+                            this->_previewsRadioButton = *it;
+
+                            DEBUGGER();
+                        });
                 if ((*it)->getCheckBox()->isChecked() == false)
                     (*it)->getToolButton()->hide();
                 
                 connect((*it)->getToolButton(), &QToolButton::clicked, this,
-					[=](void)
-					{
-                        DEBUGGER();
-                        this->buttonToolAction(*it);
-                        DEBUGGER();
-					});
+                        [=](void)
+                        {
+                            DEBUGGER();
+                            this->buttonToolAction(*it);
+                            DEBUGGER();
+                        });
             }
         });
     
@@ -290,6 +298,7 @@ void    MainWindow::buttonNextAction()
     if (this->_selectedComPort == nullptr)
     {
         delete this->_windowNext;
+        this->_windowNext = nullptr;
         DEBUGGER();
         return ;
     }
@@ -301,13 +310,13 @@ void    MainWindow::buttonNextAction()
         this->_windowNext->setButtonStart(createButton("Start", 140, 340, 100, 30, nullptr, this->_windowNext));
         this->_windowNext->setButtonStop(createButton("Stop", 250, 340, 100, 30, nullptr, this->_windowNext));
         this->_windowNext->setButtonClose(createButton("Close", 360, 340, 100, 30, nullptr, this->_windowNext));
-		
 		this->_windowNext->exec();
     }
     catch (int ret) {    }
     
 	this->_buttonNext->setStyleSheet(MY_DEFINED_RELEASED_BUTTON);
     delete this->_windowNext;
+    this->_windowNext = nullptr;
     
     DEBUGGER();
 }
@@ -366,19 +375,20 @@ void    MainWindow::buttonChartAction()
     
     _isRejected = true;
     connect(buttonOk, &QPushButton::clicked, &choosingFiles,
-		[&](void)
-		{
-            DEBUGGER();
-        
-            choosingFiles.close();
-        	_isRejected = false;
-            
-            DEBUGGER();
-		});
+            [&](void)
+            {
+                DEBUGGER();
+
+                choosingFiles.close();
+                _isRejected = false;
+
+                DEBUGGER();
+            });
     
     choosingFiles.exec();
     disconnect(buttonOk, &QPushButton::clicked, &choosingFiles, nullptr);
     delete buttonOk;
+    buttonOk = nullptr;
     if (_isRejected == true)
     {
 		delete [] _filesList;
@@ -494,53 +504,65 @@ void    MainWindow::buttonToolAction(ComPort *comPort)
     flowComboBox->setCurrentIndex(comPort->getFlowControlIndex());
     
     connect(comPort->_cancelProperties, &QPushButton::clicked, comPort->_windowProperty,
-		[=](void)
-		{
-            DEBUGGER();
-            comPort->_windowProperty->close();
-            DEBUGGER();
-		});
+            [=](void)
+            {
+                DEBUGGER();
+                comPort->_windowProperty->close();
+                DEBUGGER();
+            });
     connect(comPort->_setDefaultProperties, &QPushButton::clicked, comPort->_windowProperty,
-		[=](void)
-		{
-           DEBUGGER();
-        
-            baudComboBox->setCurrentIndex(7);
-            dataComboBox->setCurrentIndex(3);
-            parityComboBox->setCurrentIndex(0);
-            stopComboBox->setCurrentIndex(0);
-            flowComboBox->setCurrentIndex(0);
-            
-            DEBUGGER();
-		});
+            [=](void)
+            {
+                DEBUGGER();
+
+                baudComboBox->setCurrentIndex(7);
+                dataComboBox->setCurrentIndex(3);
+                parityComboBox->setCurrentIndex(0);
+                stopComboBox->setCurrentIndex(0);
+                flowComboBox->setCurrentIndex(0);
+
+                DEBUGGER();
+            });
     connect(comPort->_saveProperies, &QPushButton::clicked, comPort->_windowProperty,
-        [=](void)
-        {
-            DEBUGGER();
-            
-            comPort->setBaudRate(baudComboBox->currentText(), this->_baudRateItems);
-            comPort->setDataBits(dataComboBox->currentText(), this->_dataBitsItems);
-            comPort->setParity(parityComboBox->currentText(), this->_parityItems);
-            comPort->setStopBits(stopComboBox->currentText(), this->_stopBitsItems);
-            comPort->setFlowControl(flowComboBox->currentText(), this->_flowControlItems);
-            comPort->_windowProperty->close();
-            
-            DEBUGGER();
-        });
+            [=](void)
+            {
+                DEBUGGER();
+
+                comPort->setBaudRate(baudComboBox->currentText(), this->_baudRateItems);
+                comPort->setDataBits(dataComboBox->currentText(), this->_dataBitsItems);
+                comPort->setParity(parityComboBox->currentText(), this->_parityItems);
+                comPort->setStopBits(stopComboBox->currentText(), this->_stopBitsItems);
+                comPort->setFlowControl(flowComboBox->currentText(), this->_flowControlItems);
+                comPort->_windowProperty->close();
+
+                DEBUGGER();
+            });
 
     comPort->_windowProperty->exec();
     delete portName;
+    portName = nullptr;
     delete baudRate;
+    baudRate = nullptr;
     delete dataBits;
+    dataBits = nullptr;
     delete parity;
+    parity = nullptr;
     delete stopBits;
+    stopBits = nullptr;
     delete flowControl;
+    flowControl = nullptr;
     delete baudComboBox;
+    baudComboBox = nullptr;
     delete dataComboBox;
+    dataComboBox = nullptr;
     delete parityComboBox;
+    parityComboBox = nullptr;
     delete stopComboBox;
+    stopComboBox = nullptr;
     delete flowComboBox;
+    flowComboBox = nullptr;
     delete comPort->_windowProperty;
+    comPort->_windowProperty = nullptr;
     
     DEBUGGER();
 }

@@ -58,13 +58,13 @@ WindowChart::WindowChart(MainWindow *parent, const QString &pathToFiles, \
     this->_snapshotButton->setMask(pixmapCamera.mask());
     this->_snapshotButton->setToolTip("Take a snapshot.");
     connect(this->_snapshotButton, &QPushButton::clicked, this,
-        [=]()
-        {
-            QPixmap snapshot = QGuiApplication::primaryScreen()->grabWindow(winId());
-            QString filename = this->getSnapshotFileName();
-            snapshot.save(filename);
-            this->shnapshotMessage(filename);
-        });
+            [=]()
+            {
+                QPixmap snapshot = QGuiApplication::primaryScreen()->grabWindow(winId());
+                QString filename = this->getSnapshotFileName();
+                snapshot.save(filename);
+                this->shnapshotMessage(filename);
+            });
 
     this->_zoomToHomeButton = new QPushButton;
     this->_zoomToHomeButton->setEnabled(false);
@@ -77,48 +77,48 @@ WindowChart::WindowChart(MainWindow *parent, const QString &pathToFiles, \
     this->_zoomToHomeButton->setMask(pixmapHome.mask());
     this->_zoomToHomeButton->setToolTip("Resize to original dimensions.");
     connect(this->_zoomToHomeButton, &QPushButton::clicked, this,
-        [=]()
-        {
-            DEBUGGER();
-            
-            _axisX_OPT->setRange(_timeLineMin, _timeLineMax_OPT);
-            _axisY_OPT->setRange(_valueLineMin_OPT, _valueLineMax_OPT);
-            _axisYLabel_OPT->setRange(0, _maxLabel_OPT + 1);
-
-            for (int i = 0; i < _numOfChart_IMU; ++i)
+            [=]()
             {
-                _axisX_IMU[i].setRange(_timeLineMin, _timeLineMax_IMU);
-                _axisY_IMU[i].setRange(_valueLineMin_IMU[i], _valueLineMax_IMU[i]);
-                _axisYLabel_IMU[i].setRange(0, _maxLabel_IMU + 1);
-            }
+                DEBUGGER();
 
-            _chartView_OPT->_zoomed = false;
-            _chartView_OPT->_currentAxisXLength = _timeLineMax_OPT - _timeLineMin;
-            _chartView_OPT->_currentAxisYLength = _valueLineMax_OPT - _valueLineMin_OPT;
-            for (int i = 0; i < _numOfChart_IMU; ++i)
-            {
-                _chartView_IMU[i]->_zoomed = false;
-                _chartView_IMU[i]->_currentAxisXLength = _timeLineMax_IMU - _timeLineMin;
-                _chartView_IMU[i]->_currentAxisYLength = _valueLineMax_IMU[i] - _valueLineMin_IMU[i];
-            }
+                _axisX_OPT->setRange(_timeLineMin, _timeLineMax_OPT);
+                _axisY_OPT->setRange(_valueLineMin_OPT, _valueLineMax_OPT);
+                _axisYLabel_OPT->setRange(0, _maxLabel_OPT + 1);
 
-			_zoomToHomeButton->setEnabled(false);
+                for (int i = 0; i < _numOfChart_IMU; ++i)
+                {
+                    _axisX_IMU[i].setRange(_timeLineMin, _timeLineMax_IMU);
+                    _axisY_IMU[i].setRange(_valueLineMin_IMU[i], _valueLineMax_IMU[i]);
+                    _axisYLabel_IMU[i].setRange(0, _maxLabel_IMU + 1);
+                }
 
-            _horizontalScrollBar_OPT->setRange(_timeLineMin, _timeLineMin);
-            _horizontalScrollBar_OPT->setValue(_timeLineMin);
-            _verticalScrollBar_OPT->setRange(_valueLineMin_OPT, _valueLineMin_OPT);
-            _verticalScrollBar_OPT->setValue(_valueLineMin_OPT);
+                _chartView_OPT->_zoomed = false;
+                _chartView_OPT->_currentAxisXLength = _timeLineMax_OPT - _timeLineMin;
+                _chartView_OPT->_currentAxisYLength = _valueLineMax_OPT - _valueLineMin_OPT;
+                for (int i = 0; i < _numOfChart_IMU; ++i)
+                {
+                    _chartView_IMU[i]->_zoomed = false;
+                    _chartView_IMU[i]->_currentAxisXLength = _timeLineMax_IMU - _timeLineMin;
+                    _chartView_IMU[i]->_currentAxisYLength = _valueLineMax_IMU[i] - _valueLineMin_IMU[i];
+                }
 
-            for (int i = 0; i < _numOfChart_IMU; ++i)
-            {
-                _horizontalScrollBar_IMU[i]->setRange(_timeLineMin, _timeLineMin);
-                _horizontalScrollBar_IMU[i]->setValue(_timeLineMin);
-                _verticalScrollBar_IMU[i]->setRange(_valueLineMin_IMU[i], _valueLineMin_IMU[i]);
-                _verticalScrollBar_IMU[i]->setValue(_valueLineMin_IMU[i]);
-            }
-            
-            DEBUGGER();
-    	});
+                _zoomToHomeButton->setEnabled(false);
+
+                _horizontalScrollBar_OPT->setRange(_timeLineMin, _timeLineMin);
+                _horizontalScrollBar_OPT->setValue(_timeLineMin);
+                _verticalScrollBar_OPT->setRange(_valueLineMin_OPT, _valueLineMin_OPT);
+                _verticalScrollBar_OPT->setValue(_valueLineMin_OPT);
+
+                for (int i = 0; i < _numOfChart_IMU; ++i)
+                {
+                    _horizontalScrollBar_IMU[i]->setRange(_timeLineMin, _timeLineMin);
+                    _horizontalScrollBar_IMU[i]->setValue(_timeLineMin);
+                    _verticalScrollBar_IMU[i]->setRange(_valueLineMin_IMU[i], _valueLineMin_IMU[i]);
+                    _verticalScrollBar_IMU[i]->setValue(_valueLineMin_IMU[i]);
+                }
+
+                DEBUGGER();
+            });
     
     this->setModal(true);
     this->setStyleSheet("background: #e6e6e6;");
@@ -416,6 +416,7 @@ void    WindowChart::execChartDialog(void)
                 break;
             case 3:
                 _series_OPT[i].setColor(Qt::black); // label
+                break;
             }
         }
     }
@@ -436,6 +437,7 @@ void    WindowChart::execChartDialog(void)
             break;
         case 3:
             _series_IMU[i].setColor(Qt::black); // label
+            break;
         }
     }
     DEBUGGER();
@@ -525,12 +527,12 @@ void    WindowChart::execChartDialog(void)
     this->_horizontalScrollBar_OPT = new QScrollBar(Qt::Horizontal, this);
     this->_horizontalScrollBar_OPT->setRange(0, 0);
     connect(this->_horizontalScrollBar_OPT, &QScrollBar::valueChanged, this,
-        [=](int value)
-    	{
-            DEBUGGER();
-            this->_axisX_OPT->setRange(value, value + this->_chartView_OPT->_currentAxisXLength);
-            DEBUGGER();
-		});
+            [=](int value)
+            {
+                DEBUGGER();
+                this->_axisX_OPT->setRange(value, value + this->_chartView_OPT->_currentAxisXLength);
+                DEBUGGER();
+            });
     DEBUGGER();
 
     this->_verticalScrollBar_OPT = new QScrollBar(Qt::Vertical, this);
@@ -584,25 +586,25 @@ void    WindowChart::execChartDialog(void)
 
     // checking right click on chart views and enable/disable zooom button
     connect(_chartView_OPT, &MyChartView::rightClickAction, this,
-    [=](void)
-    {
-        int zoomedCount{};
-        for (int i = 0; i < _numOfChart_IMU; ++i)
-            zoomedCount += _chartView_IMU[i]->_zoomed;
-        zoomedCount += _chartView_OPT->_zoomed;
-        _zoomToHomeButton->setEnabled(zoomedCount != 0);
-    });
+            [=](void)
+            {
+                int zoomedCount{};
+                for (int i = 0; i < _numOfChart_IMU; ++i)
+                    zoomedCount += _chartView_IMU[i]->_zoomed;
+                zoomedCount += _chartView_OPT->_zoomed;
+                _zoomToHomeButton->setEnabled(zoomedCount != 0);
+            });
     for (int i = 0; i < _numOfChart_IMU; ++i)
     {
         connect(_chartView_IMU[i], &MyChartView::rightClickAction, this,
-        [=](void)
-        {
-                int zoomedCount{};
-            for (int i = 0; i < _numOfChart_IMU; ++i)
-                zoomedCount += _chartView_IMU[i]->_zoomed;
-            zoomedCount += _chartView_OPT->_zoomed;
-            _zoomToHomeButton->setEnabled(zoomedCount != 0);
-        });
+                [=](void)
+                {
+                        int zoomedCount{};
+                    for (int i = 0; i < _numOfChart_IMU; ++i)
+                        zoomedCount += _chartView_IMU[i]->_zoomed;
+                    zoomedCount += _chartView_OPT->_zoomed;
+                    _zoomToHomeButton->setEnabled(zoomedCount != 0);
+                });
     }
     DEBUGGER();
     
@@ -717,96 +719,96 @@ void    WindowChart::execChartDialog(void)
     for (int i = 0; i < chartsCount; ++i)
     {
         connect(&this->_checkBoxSensors[i], &QCheckBox::clicked, this,
-        [=]()
-        {
-            DEBUGGER();
-
-            // we calculate how many boxes are checked
-            int checkedSum = 0;
-            for (int j = 0; j < chartsCount; ++j)
-                checkedSum += _checkBoxSensors[j].isChecked();
-
-            // if only one box is checked, we disable that box
-            // so at least one box must be checked
-            for (int j = 0; j < chartsCount; ++j)
-                _checkBoxSensors[j].setEnabled(checkedSum != 1 || !_checkBoxSensors[j].isChecked());
-
-            // fist we removed all items from the _gridLayout to add in new order
-            for (int j = 0; j < _numOfChart_IMU; ++j)
-            {
-                _gridLayout->removeWidget(_chartView_IMU[j]);
-                _chartView_IMU[j]->hide();
-                _gridLayout->removeWidget(_verticalScrollBar_IMU[j]);
-                _verticalScrollBar_IMU[j]->hide();
-                _gridLayout->removeWidget(_horizontalScrollBar_IMU[j]);
-                _horizontalScrollBar_IMU[j]->hide();
-            }
-            _gridLayout->removeWidget(_chartView_OPT);
-            _chartView_OPT->hide();
-            _gridLayout->removeWidget(_verticalScrollBar_OPT);
-            _verticalScrollBar_OPT->hide();
-            _gridLayout->removeWidget(_horizontalScrollBar_OPT);
-            _horizontalScrollBar_OPT->hide();
-
-            _gridLayout->removeItem(_hBoxLayoutLegends);
-            _gridLayout->removeItem(_hBoxLayoutOptions);
-            _gridLayout->removeWidget(_snapshotButton);
-            _gridLayout->removeWidget(_zoomToHomeButton);
-            _gridLayout->update();
-
-            // than we add items to the _gridLayout in new order
-            int offset = 0;
-            for (int j = 0; j < _numOfChart_IMU; ++j)
-            {
-                if (_checkBoxSensors[j].isChecked())
+                [=]()
                 {
-                    _gridLayout->addWidget(_chartView_IMU[j], offset, 0, 1, 5);
-                    _gridLayout->addWidget(_verticalScrollBar_IMU[j], offset, 0, 1, 5, Qt::AlignRight);
-                    _gridLayout->addWidget(_horizontalScrollBar_IMU[j], offset, 0, 1, 5, Qt::AlignBottom);
-                    _gridLayout->setRowStretch(offset, true); // set the stretch factor for the rows
-                    _chartView_IMU[j]->show();
-                    _horizontalScrollBar_IMU[j]->show();
-                    _verticalScrollBar_IMU[j]->show();
-                    ++offset;
-                }
-            }
-            if (_checkBoxSensors[_numOfChart_IMU].isChecked())
-            {
-                _gridLayout->addWidget(_chartView_OPT, offset, 0, 1, 5);
-                _gridLayout->addWidget(_verticalScrollBar_OPT, offset, 0, 1, 5, Qt::AlignRight);
-                _gridLayout->addWidget(_horizontalScrollBar_OPT, offset, 0, 1, 5, Qt::AlignBottom);
-                _gridLayout->setRowStretch(offset, true); // set the stretch factor for the rows
-                _chartView_OPT->show();
-                _horizontalScrollBar_OPT->show();
-                _verticalScrollBar_OPT->show();
-                ++offset;
-            }
-            _gridLayout->addLayout(_hBoxLayoutLegends, offset, 0, 1, 4, Qt::AlignCenter);
-            _gridLayout->setRowStretch(offset, false); // UNset the stretch factor for the rows
-            _gridLayout->addLayout(_hBoxLayoutOptions, ++offset, 0, 1, 3, Qt::AlignCenter); // increasing offset (i.e. go to the next ров)
-            _gridLayout->addWidget(_snapshotButton, offset, 3, 1, 1, Qt::AlignVCenter);
-            _gridLayout->addWidget(_zoomToHomeButton, offset, 4, 1, 1, Qt::AlignVCenter);
-            _gridLayout->setRowStretch(offset, false); // UNset the stretch factor for the rows
+                    DEBUGGER();
 
-            // if OPT _checkBoxSensors is checked/unchecked enable/disable all _checkBoxChannels
-            QStringList format = {"color: green; font-size: 14px;", "color: red; font-size: 14px;", "color: blue; font-size: 14px;", "color: black; font-size: 14px;"};
-            if (_checkBoxSensors[chartsCount - 1].isChecked())
-            {
-                for (int j = 0; j < _numOfSeries_OPT; ++j)
-                    _checkBoxChannels[j].setEnabled(true),
-                        _checkBoxChannels[j].setStyleSheet(format[j % 4]);
-            }
-            else
-            {
-                for (int j = 0; j < _numOfSeries_OPT; ++j)
-                    _checkBoxChannels[j].setEnabled(false),
-                        _checkBoxChannels[j].setStyleSheet("color: gray; font-size: 14px;");
-            }
+                    // we calculate how many boxes are checked
+                    int checkedSum = 0;
+                    for (int j = 0; j < chartsCount; ++j)
+                        checkedSum += _checkBoxSensors[j].isChecked();
 
-            _gridLayout->update();
+                    // if only one box is checked, we disable that box
+                    // so at least one box must be checked
+                    for (int j = 0; j < chartsCount; ++j)
+                        _checkBoxSensors[j].setEnabled(checkedSum != 1 || !_checkBoxSensors[j].isChecked());
 
-            DEBUGGER();
-        });
+                    // fist we removed all items from the _gridLayout to add in new order
+                    for (int j = 0; j < _numOfChart_IMU; ++j)
+                    {
+                        _gridLayout->removeWidget(_chartView_IMU[j]);
+                        _chartView_IMU[j]->hide();
+                        _gridLayout->removeWidget(_verticalScrollBar_IMU[j]);
+                        _verticalScrollBar_IMU[j]->hide();
+                        _gridLayout->removeWidget(_horizontalScrollBar_IMU[j]);
+                        _horizontalScrollBar_IMU[j]->hide();
+                    }
+                    _gridLayout->removeWidget(_chartView_OPT);
+                    _chartView_OPT->hide();
+                    _gridLayout->removeWidget(_verticalScrollBar_OPT);
+                    _verticalScrollBar_OPT->hide();
+                    _gridLayout->removeWidget(_horizontalScrollBar_OPT);
+                    _horizontalScrollBar_OPT->hide();
+
+                    _gridLayout->removeItem(_hBoxLayoutLegends);
+                    _gridLayout->removeItem(_hBoxLayoutOptions);
+                    _gridLayout->removeWidget(_snapshotButton);
+                    _gridLayout->removeWidget(_zoomToHomeButton);
+                    _gridLayout->update();
+
+                    // than we add items to the _gridLayout in new order
+                    int offset = 0;
+                    for (int j = 0; j < _numOfChart_IMU; ++j)
+                    {
+                        if (_checkBoxSensors[j].isChecked())
+                        {
+                            _gridLayout->addWidget(_chartView_IMU[j], offset, 0, 1, 5);
+                            _gridLayout->addWidget(_verticalScrollBar_IMU[j], offset, 0, 1, 5, Qt::AlignRight);
+                            _gridLayout->addWidget(_horizontalScrollBar_IMU[j], offset, 0, 1, 5, Qt::AlignBottom);
+                            _gridLayout->setRowStretch(offset, true); // set the stretch factor for the rows
+                            _chartView_IMU[j]->show();
+                            _horizontalScrollBar_IMU[j]->show();
+                            _verticalScrollBar_IMU[j]->show();
+                            ++offset;
+                        }
+                    }
+                    if (_checkBoxSensors[_numOfChart_IMU].isChecked())
+                    {
+                        _gridLayout->addWidget(_chartView_OPT, offset, 0, 1, 5);
+                        _gridLayout->addWidget(_verticalScrollBar_OPT, offset, 0, 1, 5, Qt::AlignRight);
+                        _gridLayout->addWidget(_horizontalScrollBar_OPT, offset, 0, 1, 5, Qt::AlignBottom);
+                        _gridLayout->setRowStretch(offset, true); // set the stretch factor for the rows
+                        _chartView_OPT->show();
+                        _horizontalScrollBar_OPT->show();
+                        _verticalScrollBar_OPT->show();
+                        ++offset;
+                    }
+                    _gridLayout->addLayout(_hBoxLayoutLegends, offset, 0, 1, 4, Qt::AlignCenter);
+                    _gridLayout->setRowStretch(offset, false); // UNset the stretch factor for the rows
+                    _gridLayout->addLayout(_hBoxLayoutOptions, ++offset, 0, 1, 3, Qt::AlignCenter); // increasing offset (i.e. go to the next ров)
+                    _gridLayout->addWidget(_snapshotButton, offset, 3, 1, 1, Qt::AlignVCenter);
+                    _gridLayout->addWidget(_zoomToHomeButton, offset, 4, 1, 1, Qt::AlignVCenter);
+                    _gridLayout->setRowStretch(offset, false); // UNset the stretch factor for the rows
+
+                    // if OPT _checkBoxSensors is checked/unchecked enable/disable all _checkBoxChannels
+                    QStringList format = {"color: green; font-size: 14px;", "color: red; font-size: 14px;", "color: blue; font-size: 14px;", "color: black; font-size: 14px;"};
+                    if (_checkBoxSensors[chartsCount - 1].isChecked())
+                    {
+                        for (int j = 0; j < _numOfSeries_OPT; ++j)
+                            _checkBoxChannels[j].setEnabled(true),
+                                _checkBoxChannels[j].setStyleSheet(format[j % 4]);
+                    }
+                    else
+                    {
+                        for (int j = 0; j < _numOfSeries_OPT; ++j)
+                            _checkBoxChannels[j].setEnabled(false),
+                                _checkBoxChannels[j].setStyleSheet("color: gray; font-size: 14px;");
+                    }
+
+                    _gridLayout->update();
+
+                    DEBUGGER();
+                });
     }
     DEBUGGER();
 }
@@ -876,24 +878,24 @@ void WindowChart::connectStaticChatCheckBox(int i)
     DEBUGGER();
     
     connect(&this->_checkBoxChannels[i], &QCheckBox::clicked, this,
-        [=]()
-        {
-            DEBUGGER();
-            
-            if (this->_checkBoxChannels[i].isChecked() == true)
+            [=]()
             {
-                _chart_OPT->addSeries(&_series_OPT[i]);
-                _series_OPT[i].attachAxis(_axisX_OPT);
-                if (i % (_numOfSeries_OPT / _checkedFilesCount_OPT) == 3) // if (i % 4 == 3), it means case of label
-                    _series_OPT[i].attachAxis(_axisYLabel_OPT);
+                DEBUGGER();
+
+                if (this->_checkBoxChannels[i].isChecked() == true)
+                {
+                    _chart_OPT->addSeries(&_series_OPT[i]);
+                    _series_OPT[i].attachAxis(_axisX_OPT);
+                    if (i % (_numOfSeries_OPT / _checkedFilesCount_OPT) == 3) // if (i % 4 == 3), it means case of label
+                        _series_OPT[i].attachAxis(_axisYLabel_OPT);
+                    else
+                        _series_OPT[i].attachAxis(_axisY_OPT);
+                }
                 else
-                    _series_OPT[i].attachAxis(_axisY_OPT);
-            }
-            else
-                _chart_OPT->removeSeries(&_series_OPT[i]);
-            this->updateValueLineAxis();
-            _chart_OPT->update();
-        });
+                    _chart_OPT->removeSeries(&_series_OPT[i]);
+                this->updateValueLineAxis();
+                _chart_OPT->update();
+            });
     
     DEBUGGER();
 }

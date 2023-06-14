@@ -62,7 +62,7 @@ class WindowNext : public QDialog
 		void				setParametersDesign(void);
         void				createDirectory(const QString &path);
         QStringList         *findExpProtocols(const QString &path);
-        int					readExpProtocol(void);
+        void                readExpProtocol(void);
         QString            	saveDataToFile(const QString &subject);
         bool            	saveMetaData(const QString &excelSheet, const QString &subject);
         void                retryToSaveMetaData(QXlsx::Document &xlsx, const QString &excelSheet);
@@ -138,23 +138,21 @@ class WindowNext : public QDialog
         QString				_expProtocolsPath;
         QList<QStringList>	_expProtocol;
         int					_durationMax;
-
         bool                _closeEventFlag;
         bool                _labelIsOk;
 
-        char                _bytesPA;  // Preamble bytes
-        char                _bytesID;  // ID bytes
-        char                _bytesCO;  // Counter bytes
-        char                _bytesTC;  // Time Counter bytes (frame type 2 format)
-        char                _numOfS_OPT;  // Number of connected OPT sensors
-        char                _numOfS_IMU;  // Number of connected IMU sensors
-
-        short               _sampleRate_OPT; // Sample Rate for OPT sensors
-        short               _sampleRate_IMU; // Sample Rate for IMU sensors
-        char                _numOfCH_OPT;  // Number of OPT channels (N)
-        char                _numOfCH_IMU;  // Number of IMU channels (N)
-        char                _sizeOfCH_OPT; // Number of bytes in one OPT channel data (M)
-        char                _sizeOfCH_IMU; // Number of bytes in one OPT channel data (M)
+        char                _bytesPA;           // Preamble bytes
+        char                _bytesID;           // ID bytes
+        char                _bytesCO;           // Counter bytes
+        char                _bytesTC;           // Time Counter bytes (frame type 2 format)
+        char                _numOfS_OPT;        // Number of connected OPT sensors
+        char                _numOfS_IMU;        // Number of connected IMU sensors
+        short               _sampleRate_OPT;    // Sample Rate for OPT sensors
+        short               _sampleRate_IMU;    // Sample Rate for IMU sensors
+        char                _numOfCH_OPT;       // Number of OPT channels (N)
+        char                _numOfCH_IMU;       // Number of IMU channels (N)
+        char                _sizeOfCH_OPT;      // Number of bytes in one OPT channel data (M)
+        char                _sizeOfCH_IMU;      // Number of bytes in one OPT channel data (M)
 
         qint64              _startTime;
 

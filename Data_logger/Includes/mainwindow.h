@@ -59,7 +59,7 @@ class MainWindow : public QMainWindow
         QLabel              *_gifLabel;
         QMovie              *_gifMovie;
         QGroupBox           *_groupBox;
-        QVector<ComPort *>  _comPorts;
+        QVector<ComPort*>   _comPorts;
         ComPort             *_selectedComPort;
         QScrollBar          *_liftVertical;
         

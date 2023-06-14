@@ -1,7 +1,8 @@
 #include "threaddisplaytimer.hpp"
 #include "debugger.hpp"
 
-ThreadDisplayTimer::ThreadDisplayTimer(int durationTimerValue, QDialog *windowNext, QString &expProtocolsPath, QList<QStringList>	&expProtocol)
+ThreadDisplayTimer::ThreadDisplayTimer(int durationTimerValue, QDialog *windowNext, \
+                                       QString &expProtocolsPath, QList<QStringList> &expProtocol)
 			: _durationTimerValue(durationTimerValue)
 {
     DEBUGGER();
@@ -13,16 +14,10 @@ ThreadDisplayTimer::ThreadDisplayTimer(int durationTimerValue, QDialog *windowNe
     text = "0" + QString::number(num) + ":";
     
     num = (durationTimerValue - num * 3600) / 60;
-    if (num > 9)
-        text += QString::number(num) + ":";
-    else
-        text += "0" + QString::number(num) + ":";
+    text += ((num > 9) ? "" : "0") + QString::number(num) + ":";
     
     num = (durationTimerValue - (durationTimerValue / 3600) * 3600) - num * 60;
-    if (num > 9)
-        text += QString::number(num);
-    else
-        text += "0" + QString::number(num);
+    text += ((num > 9) ? "" : "0") + QString::number(num);
     
     this->_displayTimerLabel = new QLabel(text, windowNext);
     this->_imageLabel = new QLabel("", windowNext);
@@ -41,8 +36,11 @@ ThreadDisplayTimer::~ThreadDisplayTimer()
     DEBUGGER();
     
     delete _displayTimerLabel;
+    _displayTimerLabel = nullptr;
     delete _imageLabel;
+    _imageLabel = nullptr;
     delete _imageSecondsLabel;
+    _imageSecondsLabel = nullptr;
     
     DEBUGGER();
 }
@@ -80,8 +78,7 @@ void    ThreadDisplayTimer::run()
         }        
         if (currentSecond == 0)
         {
-            ++it;
-            if (it == _expProtocol.end())
+            if (++it == _expProtocol.end())
                 it = this->_expProtocol.begin();
             currentSecond = (*it)[2].toInt();            
             imgPath = this->_expProtocolsPath.left(this->_expProtocolsPath.length() - 13) + (*it)[3];
@@ -102,7 +99,7 @@ void    ThreadDisplayTimer::run()
         this->_displayTimerLabel->setText(text);
         emit displayTimerText(text);
         QThread::usleep(1000 * (1000 - (QDateTime::currentDateTime().toMSecsSinceEpoch() - start - 1000 * (this->_durationTimerValue - seconds))));
-        seconds--;        
+        --seconds;
     }
     
     DEBUGGER();

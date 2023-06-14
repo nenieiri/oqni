@@ -74,13 +74,13 @@ WindowNext::WindowNext(MainWindow *parent)
     QStringList *items = this->findExpProtocols(this->_expProtocolsPath);
     this->_protocol2->addItems(*items);
     delete items;
+    items = nullptr;
     this->_protocol3 = new QLabel("Limb:", this);
     this->_protocol4 = new QComboBox(this);
     this->_protocol4->addItems({"left leg", "right leg"});
     this->readExpProtocol();
 
     this->_durationSec1 = new QLabel("Duration (seconds):", this);
-
     this->_durationSec2 = new QLineEdit(this);
     this->_finishMsgLabel = new QLabel("", this);
 
@@ -140,36 +140,67 @@ WindowNext::~WindowNext()
     DEBUGGER();
 
     delete _buttonBrowse;
+    _buttonBrowse = nullptr;
     delete _buttonClose;
+    _buttonClose = nullptr;
     delete _buttonStart;
+    _buttonStart = nullptr;
     delete _buttonStop;
+    _buttonStop = nullptr;
     delete _showReadingPort1;
+    _showReadingPort1 = nullptr;
     delete _showReadingPort2;
+    _showReadingPort2 = nullptr;
     delete _showSelectedDir1;
+    _showSelectedDir1 = nullptr;
     delete _showSelectedDir2;
+    _showSelectedDir2 = nullptr;
     delete _recordingFolder1;
+    _recordingFolder1 = nullptr;
     delete _recordingFolder2;
+    _recordingFolder2 = nullptr;
     delete _recordingFolder3;
+    _recordingFolder3 = nullptr;
     delete _recordingFolder4;
+    _recordingFolder4 = nullptr;
     delete _placement1;
+    _placement1 = nullptr;
     delete _placement2;
+    _placement2 = nullptr;
     delete _placement3;
+    _placement3 = nullptr;
     delete _placement4;
+    _placement4 = nullptr;
     delete _protocol1;
+    _protocol1 = nullptr;
     delete _protocol2;
+    _protocol2 = nullptr;
     delete _protocol3;
+    _protocol3 = nullptr;
     delete _protocol4;
+    _protocol4 = nullptr;
     delete _durationSec1;
+    _durationSec1 = nullptr;
     delete _durationSec2;
+    _durationSec2 = nullptr;
     delete _finishMsgLabel;
+    _finishMsgLabel = nullptr;
     delete _display;
+    _display = nullptr;
     delete _showChart;
+    _showChart = nullptr;
     delete _showPic;
+    _showPic = nullptr;
     delete _saveCheckBox;
+    _saveCheckBox = nullptr;
     delete _lightIntensity1;
+    _lightIntensity1 = nullptr;
     delete _lightIntensity2;
+    _lightIntensity2 = nullptr;
     delete _distance1;
+    _distance1 = nullptr;
     delete _distance2;
+    _distance2 = nullptr;
 
     DEBUGGER();
 }
@@ -259,7 +290,7 @@ void    WindowNext::setButtonStart(QPushButton *buttonStart)
             this->_threadReader = new ThreadReader(_durationTimerValue, _selectedComPort, _threadDisplayTimer, _showPic);
             this->_threadReader->start();
 
-            this->_labelIsOk = _showPic->isChecked() ? true : false;
+            this->_labelIsOk = _showPic->isChecked();
 
             this->_finishMsgLabel->hide();
 
@@ -275,57 +306,57 @@ void    WindowNext::setButtonStart(QPushButton *buttonStart)
                     });
 
             connect(_threadReader, &ThreadReader::protocolConfigDataIsReady, this,
-                [=](void)
-                {
-                    DEBUGGER();
-
-                    this->_bytesPA = _threadReader->getBytesPA();
-                    this->_bytesID = _threadReader->getBytesID();
-                    this->_bytesCO = _threadReader->getBytesCO();
-                    this->_bytesTC = _threadReader->getBytesTC();
-                    this->_numOfS_OPT = _threadReader->getNumOfS_OPT();
-                    this->_numOfS_IMU = _threadReader->getNumOfS_IMU();
-
-                    this->_sampleRate_OPT = _threadReader->getSampleRate_OPT();
-                    this->_sampleRate_IMU = _threadReader->getSampleRate_IMU();
-                    this->_numOfCH_OPT = _threadReader->getNumOfCH_OPT();
-                    this->_numOfCH_IMU = _threadReader->getNumOfCH_IMU();
-                    this->_sizeOfCH_OPT = _threadReader->getSizeOfCH_OPT();
-                    this->_sizeOfCH_IMU = _threadReader->getSizeOfCH_IMU();
-
-                    this->_startTime = _threadReader->getStartTime();
-
-                    if (this->_showChart->isChecked() == true) // starting thread for drawing chart
+                    [=](void)
                     {
-                        this->_chartDialog = new QDialog(this);
-                        connect(this->_chartDialog, &QDialog::rejected, this,
-                            [=]()
-                            {
-                                DEBUGGER();
+                        DEBUGGER();
 
-                                this->_chartDialog = nullptr;
-                                this->_showChart->setChecked(false);
+                        this->_bytesPA = _threadReader->getBytesPA();
+                        this->_bytesID = _threadReader->getBytesID();
+                        this->_bytesCO = _threadReader->getBytesCO();
+                        this->_bytesTC = _threadReader->getBytesTC();
+                        this->_numOfS_OPT = _threadReader->getNumOfS_OPT();
+                        this->_numOfS_IMU = _threadReader->getNumOfS_IMU();
 
-                                DEBUGGER();
-                            });
-                        this->execChartDialog();
-                    }
-                    if (this->_showPic->isChecked() == true)
-                    {
-                        this->_picDialog = new QDialog(this);
-                        connect(this->_picDialog, &QDialog::rejected, this,
-                            [=]()
-                            {
-                                DEBUGGER();
+                        this->_sampleRate_OPT = _threadReader->getSampleRate_OPT();
+                        this->_sampleRate_IMU = _threadReader->getSampleRate_IMU();
+                        this->_numOfCH_OPT = _threadReader->getNumOfCH_OPT();
+                        this->_numOfCH_IMU = _threadReader->getNumOfCH_IMU();
+                        this->_sizeOfCH_OPT = _threadReader->getSizeOfCH_OPT();
+                        this->_sizeOfCH_IMU = _threadReader->getSizeOfCH_IMU();
 
-                                this->_picDialog = nullptr;
-                                this->_showPic->setChecked(false);
+                        this->_startTime = _threadReader->getStartTime();
 
-                                DEBUGGER();
-                            });
-                        this->execPicDialog();
-                    }
-                });
+                        if (this->_showChart->isChecked() == true) // starting thread for drawing chart
+                        {
+                            this->_chartDialog = new QDialog(this);
+                            connect(this->_chartDialog, &QDialog::rejected, this,
+                                    [=]()
+                                    {
+                                        DEBUGGER();
+
+                                        this->_chartDialog = nullptr;
+                                        this->_showChart->setChecked(false);
+
+                                        DEBUGGER();
+                                    });
+                            this->execChartDialog();
+                        }
+                        if (this->_showPic->isChecked() == true)
+                        {
+                            this->_picDialog = new QDialog(this);
+                            connect(this->_picDialog, &QDialog::rejected, this,
+                                    [=]()
+                                    {
+                                        DEBUGGER();
+
+                                        this->_picDialog = nullptr;
+                                        this->_showPic->setChecked(false);
+
+                                        DEBUGGER();
+                                    });
+                            this->execPicDialog();
+                        }
+                    });
             this->setCellInMetadata("exp_param", 2, 1, _lightIntensity2->text());
             this->setCellInMetadata("exp_param", 2, 2, _distance2->text());
         });
@@ -339,70 +370,70 @@ void		WindowNext::setButtonStop(QPushButton *buttonStop)
     this->_buttonStop->setEnabled(false);
     this->_buttonStop->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_BUTTON);
     connect(this->_buttonStop, &QPushButton::clicked, this,
-        [=](void)
-        {
-            DEBUGGER();
+            [=](void)
+            {
+                DEBUGGER();
 
-            QString msg;
-            _metaDataSavingFailMsg = "<br><b>REASON:</b> the session was terminated (stopped).";
-            msg = this->saveDataToFile("000") + _metaDataSavingFailMsg;
+                QString msg;
+                _metaDataSavingFailMsg = "<br><b>REASON:</b> the session was terminated (stopped).";
+                msg = this->saveDataToFile("000") + _metaDataSavingFailMsg;
 
-            this->_closeEventFlag = true;
+                this->_closeEventFlag = true;
 
-            this->_showChart->setChecked(false);
-            this->_showPic->setChecked(false);
+                this->_showChart->setChecked(false);
+                this->_showPic->setChecked(false);
 
-            this->_buttonClose->setEnabled(true);
-            this->_buttonClose->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_BUTTON);
-            this->_buttonStart->setEnabled(true);
-            this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_BUTTON);
-            this->_buttonStop->setEnabled(false);
-            this->_buttonStop->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_BUTTON);
-            this->_durationSec2->setEnabled(true);
-            this->_durationSec2->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
-            this->_lightIntensity2->setEnabled(true);
-            this->_lightIntensity2->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
-            this->_distance2->setEnabled(true);
-            this->_distance2->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
+                this->_buttonClose->setEnabled(true);
+                this->_buttonClose->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_BUTTON);
+                this->_buttonStart->setEnabled(true);
+                this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_BUTTON);
+                this->_buttonStop->setEnabled(false);
+                this->_buttonStop->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_BUTTON);
+                this->_durationSec2->setEnabled(true);
+                this->_durationSec2->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
+                this->_lightIntensity2->setEnabled(true);
+                this->_lightIntensity2->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
+                this->_distance2->setEnabled(true);
+                this->_distance2->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
 
-            this->_showSelectedDir2->setEnabled(true);
-            this->_showSelectedDir2->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
+                this->_showSelectedDir2->setEnabled(true);
+                this->_showSelectedDir2->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
 
-            this->_recordingFolder2->setEnabled(true);
-            this->_recordingFolder2->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
-            this->_recordingFolder3->setEnabled(true);
-            this->_recordingFolder3->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
-            this->_recordingFolder4->setEnabled(true);
-            this->_recordingFolder4->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
+                this->_recordingFolder2->setEnabled(true);
+                this->_recordingFolder2->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
+                this->_recordingFolder3->setEnabled(true);
+                this->_recordingFolder3->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
+                this->_recordingFolder4->setEnabled(true);
+                this->_recordingFolder4->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
 
-            this->_placement2->setEnabled(true);
-            this->_placement2->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
-            this->_placement4->setEnabled(true);
-            this->_placement4->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
+                this->_placement2->setEnabled(true);
+                this->_placement2->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
+                this->_placement4->setEnabled(true);
+                this->_placement4->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
 
-            this->_protocol2->setEnabled(true);
-            this->_protocol2->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
-            this->_protocol4->setEnabled(true);
-            this->_protocol4->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
+                this->_protocol2->setEnabled(true);
+                this->_protocol2->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
+                this->_protocol4->setEnabled(true);
+                this->_protocol4->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
 
-            this->_threadDisplayTimer->requestInterruption();
-            this->_threadDisplayTimer->wait();
-            delete this->_threadDisplayTimer;
-            this->_threadDisplayTimer = nullptr;
+                this->_threadDisplayTimer->requestInterruption();
+                this->_threadDisplayTimer->wait();
+                delete this->_threadDisplayTimer;
+                this->_threadDisplayTimer = nullptr;
 
-            this->_threadReader->requestInterruption();
-            this->_threadReader->wait();
-            delete this->_threadReader;
-            this->_threadReader = nullptr;
+                this->_threadReader->requestInterruption();
+                this->_threadReader->wait();
+                delete this->_threadReader;
+                this->_threadReader = nullptr;
 
-            this->_finishMsgLabel->setText("Stopped");
-            this->_finishMsgLabel->show();
-            this->_finishMsgLabel->setStyleSheet("font-size: 28px; color: #B22222; font-weight: bold;");
-            this->infoMessageBox(msg);
-            this->_metaDataSavingFailMsg = "";
+                this->_finishMsgLabel->setText("Stopped");
+                this->_finishMsgLabel->show();
+                this->_finishMsgLabel->setStyleSheet("font-size: 28px; color: #B22222; font-weight: bold;");
+                this->infoMessageBox(msg);
+                this->_metaDataSavingFailMsg = "";
 
-            DEBUGGER();
-        });
+                DEBUGGER();
+            });
 
     DEBUGGER();
 }
@@ -413,16 +444,16 @@ void		WindowNext::setButtonClose(QPushButton *buttonClose)
 
     this->_buttonClose = buttonClose;
     connect(this->_buttonClose, &QPushButton::clicked, this,
-        [=](void)
-        {
-            DEBUGGER();
+            [=](void)
+            {
+                DEBUGGER();
 
-            this->_closeEventFlag = true;
-            this->close();
-            this->_closeEventFlag = true;
+                this->_closeEventFlag = true;
+                this->close();
+                this->_closeEventFlag = true;
 
-            DEBUGGER();
-        });
+                DEBUGGER();
+            });
 
     DEBUGGER();
 }
@@ -433,25 +464,25 @@ void		WindowNext::setButtonBrowse(QPushButton *buttonBrowse)
 
     this->_buttonBrowse = buttonBrowse;
     connect(this->_buttonBrowse, &QPushButton::clicked, this,
-        [=](void)
-        {
-            DEBUGGER();
-
-            QFileDialog dialog;
-            QString     selectedDirectoryTmp;
-
-            dialog.setOption(QFileDialog::ShowDirsOnly);
-            selectedDirectoryTmp = dialog.getExistingDirectory(this, tr("Save to"), \
-                    QStandardPaths::writableLocation(QStandardPaths::DesktopLocation));
-            if (selectedDirectoryTmp != "")
+            [=](void)
             {
-                this->_showSelectedDir2->setText(selectedDirectoryTmp);
-                this->_showSelectedDir2->setCursorPosition(0);
-                this->_showSelectedDir2->setToolTip(selectedDirectoryTmp);
-            }
+                DEBUGGER();
 
-            DEBUGGER();
-        });
+                QFileDialog dialog;
+                QString     selectedDirectoryTmp;
+
+                dialog.setOption(QFileDialog::ShowDirsOnly);
+                selectedDirectoryTmp = dialog.getExistingDirectory(this, tr("Save to"), \
+                        QStandardPaths::writableLocation(QStandardPaths::DesktopLocation));
+                if (selectedDirectoryTmp != "")
+                {
+                    this->_showSelectedDir2->setText(selectedDirectoryTmp);
+                    this->_showSelectedDir2->setCursorPosition(0);
+                    this->_showSelectedDir2->setToolTip(selectedDirectoryTmp);
+                }
+
+                DEBUGGER();
+            });
 
     DEBUGGER();
 }
@@ -564,74 +595,74 @@ void    WindowNext::setParametersDesign(void)
     /* --- If the text contains a non-numeric character, show warrnig msg --- */
     this->_durationSec2->setText(QString::number(this->_durationMax));
     connect(this->_durationSec2, &QLineEdit::textChanged, this,
-        [=](void)
-        {
-            DEBUGGER();
-
-            this->_durationTimerValue = 0;
-            this->_buttonStart->setEnabled(false);
-            this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_BUTTON);
-            if (this->_durationSec2->text().length() == 0)
+            [=](void)
             {
-                this->_durationSec2->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
-                return ;
-            }
-            QString		text = this->_durationSec2->text();
-            bool		hasOnlyDigits = true;
-            QMessageBox	msgBox;
+                DEBUGGER();
 
-            msgBox.setWindowTitle(tr("Invalid Input"));
-            msgBox.setIcon(QMessageBox::Warning);
-            msgBox.addButton(QMessageBox::Ok);
-            msgBox.setWindowIcon(QIcon(":/Imgs/oqni.ico"));
-
-            for (int i = 0; i < text.length(); i++)
-            {
-                if (text[i].isDigit() == false)
-                {
-                    hasOnlyDigits = false;
-                    this->_durationSec2->setStyleSheet("background-color: red; padding: 0 5px; color: blue;");
-                    msgBox.setText(tr("Please enter a numeric value."));
-                    msgBox.exec();
-                    break ;
-                }
-            }
-            if (hasOnlyDigits == true)
-            {
-                if (this->_durationSec2->text().toInt() > this->_durationMax)
-                {
-                    this->_durationSec2->setStyleSheet("background-color: red; padding: 0 5px; color: blue;");
-                    QString msg = "Duration can't be greater<br>than protocol time (";
-                    msg += QString::number(this->_durationMax) + " sec).";
-                    msgBox.setText(msg);
-                    msgBox.exec();
-                }
-                else
+                this->_durationTimerValue = 0;
+                this->_buttonStart->setEnabled(false);
+                this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_BUTTON);
+                if (this->_durationSec2->text().length() == 0)
                 {
                     this->_durationSec2->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
+                    return ;
+                }
+                QString		text = this->_durationSec2->text();
+                bool		hasOnlyDigits = true;
+                QMessageBox	msgBox;
 
-                    // if duration is set to 0, enable test mode 23:59:59
-                    if (text.toInt() == 0)
+                msgBox.setWindowTitle(tr("Invalid Input"));
+                msgBox.setIcon(QMessageBox::Warning);
+                msgBox.addButton(QMessageBox::Ok);
+                msgBox.setWindowIcon(QIcon(":/Imgs/oqni.ico"));
+
+                for (int i = 0; i < text.length(); i++)
+                {
+                    if (text[i].isDigit() == false)
                     {
-                        this->_durationTimerValue = 24 * 3600;
-                        this->_saveCheckBox->setChecked(false);
-                        this->_saveCheckBox->setCheckable(false);
-                        this->_saveCheckBox->setStyleSheet("color: gray; font-size: 14px;");
+                        hasOnlyDigits = false;
+                        this->_durationSec2->setStyleSheet("background-color: red; padding: 0 5px; color: blue;");
+                        msgBox.setText(tr("Please enter a numeric value."));
+                        msgBox.exec();
+                        break ;
+                    }
+                }
+                if (hasOnlyDigits == true)
+                {
+                    if (this->_durationSec2->text().toInt() > this->_durationMax)
+                    {
+                        this->_durationSec2->setStyleSheet("background-color: red; padding: 0 5px; color: blue;");
+                        QString msg = "Duration can't be greater<br>than protocol time (";
+                        msg += QString::number(this->_durationMax) + " sec).";
+                        msgBox.setText(msg);
+                        msgBox.exec();
                     }
                     else
                     {
-                        this->_durationTimerValue = text.toInt();
-                        this->_saveCheckBox->setCheckable(true);
-                        this->_saveCheckBox->setStyleSheet("color: black; font-size: 14px;");
+                        this->_durationSec2->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT);
+
+                        // if duration is set to 0, enable test mode 23:59:59
+                        if (text.toInt() == 0)
+                        {
+                            this->_durationTimerValue = 24 * 3600;
+                            this->_saveCheckBox->setChecked(false);
+                            this->_saveCheckBox->setCheckable(false);
+                            this->_saveCheckBox->setStyleSheet("color: gray; font-size: 14px;");
+                        }
+                        else
+                        {
+                            this->_durationTimerValue = text.toInt();
+                            this->_saveCheckBox->setCheckable(true);
+                            this->_saveCheckBox->setStyleSheet("color: black; font-size: 14px;");
+                        }
+
+                        this->_buttonStart->setEnabled(true);
+                        this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_BUTTON);
                     }
-
-                    this->_buttonStart->setEnabled(true);
-                    this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_BUTTON);
                 }
-            }
 
-            DEBUGGER();
-        });
+                DEBUGGER();
+            });
 
     /* --- If the Light intensity lineEdit text changed --- */
     this->_lightIntensity2->setText(this->getCellFromMetadata("exp_param", 2, 1));
@@ -675,245 +706,245 @@ void    WindowNext::setParametersDesign(void)
 
     /* --- If the SaveTo (Browse) lineEdit text changed --- */
     connect(this->_showSelectedDir2, &QLineEdit::textChanged, this,
-        [=](void)
-        {
-            DEBUGGER();
-
-            if (this->_showSelectedDir2->text().length() == 0)
+            [=](void)
             {
-                this->_buttonStart->setEnabled(false);
-                this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_BUTTON);
-            }
-            else
-            {
-                this->_buttonStart->setEnabled(true);
-                this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_BUTTON);
-            }
-            this->_selectedDirectory = this->_showSelectedDir2->text();
+                DEBUGGER();
 
-            DEBUGGER();
-        });
+                if (this->_showSelectedDir2->text().length() == 0)
+                {
+                    this->_buttonStart->setEnabled(false);
+                    this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_BUTTON);
+                }
+                else
+                {
+                    this->_buttonStart->setEnabled(true);
+                    this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_BUTTON);
+                }
+                this->_selectedDirectory = this->_showSelectedDir2->text();
+
+                DEBUGGER();
+            });
 
     /* --- When recordingFolder2 text changed --- */
     connect(this->_recordingFolder2, &QLineEdit::textChanged, this,
-        [=](void)
-        {
-            DEBUGGER();
-
-            if (this->_recordingFolder2->text().length() == 0)
+            [=](void)
             {
-                this->_buttonStart->setEnabled(false);
-                this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_BUTTON);
-            }
-            else
-            {
-                this->_buttonStart->setEnabled(true);
-                this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_BUTTON);
-            }
+                DEBUGGER();
 
-            DEBUGGER();
-        });
+                if (this->_recordingFolder2->text().length() == 0)
+                {
+                    this->_buttonStart->setEnabled(false);
+                    this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_BUTTON);
+                }
+                else
+                {
+                    this->_buttonStart->setEnabled(true);
+                    this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_BUTTON);
+                }
+
+                DEBUGGER();
+            });
 
     /* --- When recordingFolder3 text changed --- */
     connect(this->_recordingFolder3, &QLineEdit::textChanged, this,
-        [=](void)
-        {
-            DEBUGGER();
-
-            if (this->_recordingFolder3->text().length() == 0)
+            [=](void)
             {
-                this->_buttonStart->setEnabled(false);
-                this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_BUTTON);
-            }
-            else
-            {
-                this->_buttonStart->setEnabled(true);
-                this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_BUTTON);
-                this->_recordingFolder4->setText(this->findSubjectInMetadata(_recordingFolder3->text(), nullptr));
-                this->_recordingFolder4->setCursorPosition(0);
-                this->_recordingFolder4->setToolTip(_recordingFolder4->text());
-            }
+                DEBUGGER();
 
-            DEBUGGER();
-        });
+                if (this->_recordingFolder3->text().length() == 0)
+                {
+                    this->_buttonStart->setEnabled(false);
+                    this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_BUTTON);
+                }
+                else
+                {
+                    this->_buttonStart->setEnabled(true);
+                    this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_BUTTON);
+                    this->_recordingFolder4->setText(this->findSubjectInMetadata(_recordingFolder3->text(), nullptr));
+                    this->_recordingFolder4->setCursorPosition(0);
+                    this->_recordingFolder4->setToolTip(_recordingFolder4->text());
+                }
+
+                DEBUGGER();
+            });
 
     /* --- When recordingFolder4 text changed --- */
     connect(this->_recordingFolder4, &QLineEdit::textChanged, this,
-        [=](void)
-        {
-            DEBUGGER();
-
-            if (this->_recordingFolder4->text().length() == 0)
+            [=](void)
             {
-                this->_buttonStart->setEnabled(false);
-                this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_BUTTON);
-            }
-            else
-            {
-                this->_buttonStart->setEnabled(true);
-                this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_BUTTON);
-                this->_recordingFolder4->setToolTip(_recordingFolder4->text());
-            }
+                DEBUGGER();
 
-            DEBUGGER();
-        });
+                if (this->_recordingFolder4->text().length() == 0)
+                {
+                    this->_buttonStart->setEnabled(false);
+                    this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_PASSIVE_BUTTON);
+                }
+                else
+                {
+                    this->_buttonStart->setEnabled(true);
+                    this->_buttonStart->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_BUTTON);
+                    this->_recordingFolder4->setToolTip(_recordingFolder4->text());
+                }
+
+                DEBUGGER();
+            });
 
     /* --- When _placement2 value changed --- */
     connect(this->_placement2, &QComboBox::currentTextChanged, this,
-        [=](void)
-        {
-            DEBUGGER();
-            this->_placement2->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT2);
-        });
+            [=](void)
+            {
+                DEBUGGER();
+                this->_placement2->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT2);
+            });
 
     /* --- When _placement4 value changed --- */
     connect(this->_placement4, &QComboBox::currentTextChanged, this,
-        [=](void)
-        {
-            DEBUGGER();
-            this->_placement4->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT2);
-        });
+            [=](void)
+            {
+                DEBUGGER();
+                this->_placement4->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT2);
+            });
 
     /* --- When expProtocol combo box value changed --- */
     connect(this->_protocol2, &QComboBox::currentTextChanged, this,
-        [=](void)
-        {
-            DEBUGGER();
+            [=](void)
+            {
+                DEBUGGER();
 
-            this->readExpProtocol();
-            this->_durationSec2->setText(QString::number(this->_durationMax));
-            this->_protocol2->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT2);
+                this->readExpProtocol();
+                this->_durationSec2->setText(QString::number(this->_durationMax));
+                this->_protocol2->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT2);
 
-            DEBUGGER();
-        });
+                DEBUGGER();
+            });
 
     /* --- When _protocol4 value changed --- */
     connect(this->_protocol4, &QComboBox::currentTextChanged, this,
-        [=](void)
-        {
-            DEBUGGER();
-            this->_protocol4->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT2);
-        });
-    connect(this->_showChart, &QCheckBox::stateChanged, this,
-        [=](void)
-        {
-            DEBUGGER();
-
-            if (this->_buttonStart->isEnabled() == true)
+            [=](void)
             {
                 DEBUGGER();
-                return ;
-            }
-            if (this->_showChart->isChecked() == true)
+                this->_protocol4->setStyleSheet(MY_DEFINED_DEFAULT_ACTIVE_TEXT2);
+            });
+    connect(this->_showChart, &QCheckBox::stateChanged, this,
+            [=](void)
             {
-                this->_chartDialog = new QDialog(this);
-                connect(this->_chartDialog, &QDialog::rejected, this,
-                    [=]()
-                    {
-                        this->_chartDialog = nullptr;
-                        this->_showChart->setChecked(false);
-                    });
-                this->execChartDialog();
-            }
-            else
-            {
-                delete _axisX_OPT;
-                this->_axisX_OPT = nullptr;
-                delete [] _axisX_IMU;
-                this->_axisX_IMU = nullptr;
-                delete _axisY_OPT;
-                this->_axisY_OPT = nullptr;
-                delete [] _axisY_IMU;
-                this->_axisY_IMU = nullptr;
-                for (int i = 0; i < _numOfS_OPT * _numOfCH_OPT; ++i)
-                    this->_chart_OPT->removeSeries(&_series_OPT[i]);
-                for (int i = 0; i < _numOfS_IMU * _numOfCH_IMU; ++i)
-                    this->_chart_IMU[i / _numOfS_IMU].removeSeries(&_series_IMU[i]);
-                delete [] _series_OPT;
-                this->_series_OPT = nullptr;
-                delete [] _series_IMU;
-                this->_series_IMU = nullptr;
-                delete this->_chart_OPT;
-                this->_chart_OPT = nullptr;
-                delete [] _chart_IMU;
-                this->_chart_IMU = nullptr;
-                delete _chartView_OPT;
-                this->_chartView_OPT = nullptr;
-                delete [] _chartView_IMU;
-                this->_chartView_IMU = nullptr;
-                delete _autoScale;
-                this->_autoScale = nullptr;
-                delete [] _checkBoxSensors;
-                this->_checkBoxSensors = nullptr;
-                delete _sliderHorizontal;
-                this->_sliderHorizontal = nullptr;
-                delete _sliderHorizontalValues;
-                this->_sliderHorizontalValues = nullptr;
-                delete [] _checkBoxChannelsValue;
-                this->_checkBoxChannelsValue = nullptr;
-                delete [] _checkBoxChannels;
-                this->_checkBoxChannels = nullptr;
-                delete _hBoxLayoutLegends;
-                this->_hBoxLayoutLegends = nullptr;
-                delete _hBoxLayoutOptions;
-                this->_hBoxLayoutOptions = nullptr;
-                delete _gridLayout;
-                this->_gridLayout = nullptr;
-                if (this->_chartDialog && this->_chartDialog->isVisible())
-                    this->_chartDialog->close();
-                delete this->_chartDialog;
-                this->_chartDialog = nullptr;
-                disconnect(this->_threadReader, &ThreadReader::lastRowOfData, this, nullptr);
-            }
+                DEBUGGER();
+
+                if (this->_buttonStart->isEnabled() == true)
+                {
+                    DEBUGGER();
+                    return ;
+                }
+                if (this->_showChart->isChecked() == true)
+                {
+                    this->_chartDialog = new QDialog(this);
+                    connect(this->_chartDialog, &QDialog::rejected, this,
+                            [=]()
+                            {
+                                this->_chartDialog = nullptr;
+                                this->_showChart->setChecked(false);
+                            });
+                    this->execChartDialog();
+                }
+                else
+                {
+                    delete _axisX_OPT;
+                    this->_axisX_OPT = nullptr;
+                    delete [] _axisX_IMU;
+                    this->_axisX_IMU = nullptr;
+                    delete _axisY_OPT;
+                    this->_axisY_OPT = nullptr;
+                    delete [] _axisY_IMU;
+                    this->_axisY_IMU = nullptr;
+                    for (int i = 0; i < _numOfS_OPT * _numOfCH_OPT; ++i)
+                        this->_chart_OPT->removeSeries(&_series_OPT[i]);
+                    for (int i = 0; i < _numOfS_IMU * _numOfCH_IMU; ++i)
+                        this->_chart_IMU[i / _numOfS_IMU].removeSeries(&_series_IMU[i]);
+                    delete [] _series_OPT;
+                    this->_series_OPT = nullptr;
+                    delete [] _series_IMU;
+                    this->_series_IMU = nullptr;
+                    delete this->_chart_OPT;
+                    this->_chart_OPT = nullptr;
+                    delete [] _chart_IMU;
+                    this->_chart_IMU = nullptr;
+                    delete _chartView_OPT;
+                    this->_chartView_OPT = nullptr;
+                    delete [] _chartView_IMU;
+                    this->_chartView_IMU = nullptr;
+                    delete _autoScale;
+                    this->_autoScale = nullptr;
+                    delete [] _checkBoxSensors;
+                    this->_checkBoxSensors = nullptr;
+                    delete _sliderHorizontal;
+                    this->_sliderHorizontal = nullptr;
+                    delete _sliderHorizontalValues;
+                    this->_sliderHorizontalValues = nullptr;
+                    delete [] _checkBoxChannelsValue;
+                    this->_checkBoxChannelsValue = nullptr;
+                    delete [] _checkBoxChannels;
+                    this->_checkBoxChannels = nullptr;
+                    delete _hBoxLayoutLegends;
+                    this->_hBoxLayoutLegends = nullptr;
+                    delete _hBoxLayoutOptions;
+                    this->_hBoxLayoutOptions = nullptr;
+                    delete _gridLayout;
+                    this->_gridLayout = nullptr;
+                    if (this->_chartDialog && this->_chartDialog->isVisible())
+                        this->_chartDialog->close();
+                    delete this->_chartDialog;
+                    this->_chartDialog = nullptr;
+                    disconnect(this->_threadReader, &ThreadReader::lastRowOfData, this, nullptr);
+                }
 
             DEBUGGER();
         });
     connect(this->_showPic, &QCheckBox::stateChanged, this,
-        [=](void)
-        {
-            DEBUGGER();
+            [=](void)
+            {
+                DEBUGGER();
 
-            if (this->_buttonStart->isEnabled() == true)
-            {
+                if (this->_buttonStart->isEnabled() == true)
+                {
+                    DEBUGGER();
+                    return ;
+                }
                 DEBUGGER();
-                return ;
-            }
-            DEBUGGER();
-            if (this->_showPic->isChecked() == true)
-            {
-                this->_picDialog = new QDialog(this);
-                connect(this->_picDialog, &QDialog::rejected, this,
-                    [=]()
-                    {
-                        this->_picDialog = nullptr;
-                        this->_showPic->setChecked(false);
-                    });
-                this->execPicDialog();
-            }
-            else
-            {
-                DEBUGGER();
-                delete this->_displayTimerPic;
-                this->_displayTimerPic = nullptr;
-                delete this->_imageLabel;
-                this->_imageLabel = nullptr;
-                delete this->_imageSecondsLabel;
-                this->_imageSecondsLabel = nullptr;
-                delete this->_gridLayoutPic;
-                this->_gridLayoutPic = nullptr;
-                if (this->_picDialog && this->_picDialog->isVisible())
-                    this->_picDialog->close();
-                delete this->_picDialog;
-                this->_picDialog = nullptr;
-                disconnect(this->_threadDisplayTimer, &ThreadDisplayTimer::displayTimerText, this, nullptr);
-                disconnect(this->_threadDisplayTimer, &ThreadDisplayTimer::currentSecondAndImgPath, this, nullptr);
-                disconnect(this->_threadDisplayTimer, &ThreadDisplayTimer::currentLabel, this, nullptr);
-                this->_labelIsOk = false; // save the file in "000" directory because it will have "labes" with a 0 value
-                DEBUGGER();
-            }
+                if (this->_showPic->isChecked() == true)
+                {
+                    this->_picDialog = new QDialog(this);
+                    connect(this->_picDialog, &QDialog::rejected, this,
+                            [=]()
+                            {
+                                this->_picDialog = nullptr;
+                                this->_showPic->setChecked(false);
+                            });
+                    this->execPicDialog();
+                }
+                else
+                {
+                    DEBUGGER();
+                    delete this->_displayTimerPic;
+                    this->_displayTimerPic = nullptr;
+                    delete this->_imageLabel;
+                    this->_imageLabel = nullptr;
+                    delete this->_imageSecondsLabel;
+                    this->_imageSecondsLabel = nullptr;
+                    delete this->_gridLayoutPic;
+                    this->_gridLayoutPic = nullptr;
+                    if (this->_picDialog && this->_picDialog->isVisible())
+                        this->_picDialog->close();
+                    delete this->_picDialog;
+                    this->_picDialog = nullptr;
+                    disconnect(this->_threadDisplayTimer, &ThreadDisplayTimer::displayTimerText, this, nullptr);
+                    disconnect(this->_threadDisplayTimer, &ThreadDisplayTimer::currentSecondAndImgPath, this, nullptr);
+                    disconnect(this->_threadDisplayTimer, &ThreadDisplayTimer::currentLabel, this, nullptr);
+                    this->_labelIsOk = false; // save the file in "000" directory because it will have "labes" with a 0 value
+                    DEBUGGER();
+                }
 
-            DEBUGGER();
-        });
+                DEBUGGER();
+            });
 }
 
 void    WindowNext::createDirectory(const QString &path)
@@ -947,7 +978,7 @@ QStringList *WindowNext::findExpProtocols(const QString &path)
     return items;
 }
 
-int	WindowNext::readExpProtocol(void)
+void	WindowNext::readExpProtocol(void)
 {
     DEBUGGER();
 
@@ -956,27 +987,26 @@ int	WindowNext::readExpProtocol(void)
     this->_expProtocol.clear();
     this->_durationMax = 0;
     QFile file(protocol);
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+    if (file.open(QIODevice::ReadOnly | QIODevice::Text))
     {
         DEBUGGER();
-        return 1;
-    }
-    QTextStream in(&file);
-    int i = 0;
-    while (!in.atEnd())
-    {
-        QString line = in.readLine().trimmed();
-        if (line.isEmpty())
-            continue ;
-        this->_expProtocol.push_back(line.split(","));
-        this->_durationMax += this->_expProtocol.back()[2].toInt();
-    }
-    file.close();
-    this->_expProtocol.pop_front();
-    this->_durationTimerValue = this->_durationMax;
 
-    DEBUGGER();
-    return 0;
+        QTextStream in(&file);
+        int i = 0;
+        while (!in.atEnd())
+        {
+            QString line = in.readLine().trimmed();
+            if (line.isEmpty())
+                continue ;
+            this->_expProtocol.push_back(line.split(","));
+            this->_durationMax += this->_expProtocol.back()[2].toInt();
+        }
+        file.close();
+        this->_expProtocol.pop_front();
+        this->_durationTimerValue = this->_durationMax;
+
+        DEBUGGER();
+    }
 }
 
 QString	WindowNext::saveDataToFile(const QString &subject)
@@ -1522,7 +1552,6 @@ void    WindowNext::execChartDialog(void)
         }
     }
 
-
     this->_checkBoxChannelsValue = new bool[_numOfS_OPT * _numOfCH_OPT];
     for (int i = 0; i < _numOfS_OPT * _numOfCH_OPT; ++i)
         this->_checkBoxChannelsValue[i] = true;
@@ -1546,27 +1575,26 @@ void    WindowNext::execChartDialog(void)
             _seriesMinY_NoAutoscale_IMU[j].push_back(SHRT_MAX),
             _seriesMaxY_NoAutoscale_IMU[j].push_back(SHRT_MIN);
 
-
     connect(this->_threadReader, &ThreadReader::lastRowOfData, this,
-        [=](QByteArray data)
-        {
-            DEBUGGER();
-            if (_chartDialog == nullptr)
-                return;
+            [=](QByteArray data)
+            {
+                DEBUGGER();
+                if (_chartDialog == nullptr)
+                    return;
 
-            char    id = qFromBigEndian<unsigned char>(data.mid(_bytesPA, _bytesID).constData());
-            qint64  time = qFromLittleEndian<qint64>(data.mid(data.size() - 8 - 1, 8).constData()) - _startTime;
+                char    id = qFromBigEndian<unsigned char>(data.mid(_bytesPA, _bytesID).constData());
+                qint64  time = qFromLittleEndian<qint64>(data.mid(data.size() - 8 - 1, 8).constData()) - _startTime;
 
-            switch (id) {
-            case 1:
-            case 2:
-                fillSeriesAndUpdateAxes_OPT(data, id, time);
-                break;
-            case 4:
-                fillSeriesAndUpdateAxes_IMU(data, id, time);
-                break;
-            }
-        });
+                switch (id) {
+                case 1:
+                case 2:
+                    fillSeriesAndUpdateAxes_OPT(data, id, time);
+                    break;
+                case 4:
+                    fillSeriesAndUpdateAxes_IMU(data, id, time);
+                    break;
+                }
+            });
 
     this->_chartView_OPT = new QChartView(_chart_OPT);
     this->_chartView_OPT->setRenderHint(QPainter::Antialiasing);
@@ -1585,11 +1613,11 @@ void    WindowNext::execChartDialog(void)
     this->_sliderHorizontal->setFixedHeight(15);
     this->_sliderHorizontal->setStyleSheet(MY_DEFINED_SLIDER_HORIZONTAL_STYLE);
     connect(this->_sliderHorizontal, &QSlider::valueChanged, this,
-        [=]()
-        {
-            DEBUGGER();
-            this->_chartDuration = this->_sliderHorizontal->value() * 1000;
-        });
+            [=]()
+            {
+                DEBUGGER();
+                this->_chartDuration = this->_sliderHorizontal->value() * 1000;
+            });
 
     this->_gridLayout = new QGridLayout;
     this->_hBoxLayoutLegends = new QHBoxLayout;
@@ -1613,29 +1641,27 @@ void    WindowNext::execChartDialog(void)
         }
         this->_checkBoxChannels[i].setChecked(true);
         connect(&this->_checkBoxChannels[i], &QCheckBox::clicked, this,
-            [=]()
-            {
-                DEBUGGER();
-
-                if (this->_checkBoxChannels[i].isChecked() == true)
-                    this->_checkBoxChannelsValue[i] = true;
-                else
+                [=]()
                 {
-                    _series_OPT[i].clear();
-                    _seriesMinMaxY_autoscale_OPT[i].clear();
-                    this->_checkBoxChannelsValue[i] = false;
-                }
+                    DEBUGGER();
 
-                DEBUGGER();
-            });
+                    if (this->_checkBoxChannels[i].isChecked() == true)
+                        this->_checkBoxChannelsValue[i] = true;
+                    else
+                    {
+                        _series_OPT[i].clear();
+                        _seriesMinMaxY_autoscale_OPT[i].clear();
+                        this->_checkBoxChannelsValue[i] = false;
+                    }
+
+                    DEBUGGER();
+                });
         this->_hBoxLayoutLegends->addWidget(&_checkBoxChannels[i]);
     }
 
 #  ifdef Q_OS_MAC
-//    _sliderHorizontalValues = new QLabel("  2        3        4        5        6         7        8        9       10", this);
     _sliderHorizontalValues = new QLabel("  2                  3                   4                  5                  6", this);
 #  else
-//    _sliderHorizontalValues = new QLabel(" 2         3         4        5          6         7         8        9       10", this);
     _sliderHorizontalValues = new QLabel(" 2                    3                    4                    5                    6", this);
 
 #  endif
@@ -1649,24 +1675,24 @@ void    WindowNext::execChartDialog(void)
     this->_autoScale->setStyleSheet("color: black; font-size: 16px;");
     this->_hBoxLayoutOptions->addWidget(_autoScale);
     connect(this->_autoScale, &QCheckBox::clicked, this,
-        [=]()
-        {
-            DEBUGGER();
-            if (_autoScale->isChecked() == true)
+            [=]()
             {
-                this->_autoScale->setStyleSheet("color: black; font-size: 16px;");
-                _sliderHorizontal->setValue(_sliderHorizontalLastValue);
-                _sliderHorizontal->setEnabled(true);
-            }
-            else
-            {
-                this->_autoScale->setStyleSheet("color: gray; font-size: 16px;");
-                _sliderHorizontalLastValue = _sliderHorizontal->value();
-                _sliderHorizontal->setValue(_sliderHorizontal->maximum());
-                _sliderHorizontal->setEnabled(false);
-            }
-            DEBUGGER();
-        });
+                DEBUGGER();
+                if (_autoScale->isChecked() == true)
+                {
+                    this->_autoScale->setStyleSheet("color: black; font-size: 16px;");
+                    _sliderHorizontal->setValue(_sliderHorizontalLastValue);
+                    _sliderHorizontal->setEnabled(true);
+                }
+                else
+                {
+                    this->_autoScale->setStyleSheet("color: gray; font-size: 16px;");
+                    _sliderHorizontalLastValue = _sliderHorizontal->value();
+                    _sliderHorizontal->setValue(_sliderHorizontal->maximum());
+                    _sliderHorizontal->setEnabled(false);
+                }
+                DEBUGGER();
+            });
 
     // _gridLayout's initial layout
     this->_gridLayout->addWidget(_chartView_OPT, 0, 0, 1, 5);
@@ -1686,109 +1712,108 @@ void    WindowNext::execChartDialog(void)
         this->_checkBoxSensors[i].setEnabled(i != 3);
         this->_checkBoxSensors[i].setStyleSheet("color: black; font-size: 14px;");
         connect(&this->_checkBoxSensors[i], &QCheckBox::clicked, this,
-            [=]()
-            {
-                DEBUGGER();
-
-                // we calculate how many boxes are checked
-                int checkedSum = 0;
-                for (int j = 0; j < chartsCount; ++j)
-                    checkedSum += _checkBoxSensors[j].isChecked();
-
-
-                // setting update frequency of axes X
-                switch (checkedSum) {
-                case 1:
-                    if (_checkBoxSensors[chartsCount - 1].isChecked() == true)
-                        _chartUpdateRatio_OPT = 3;
-                    else
-                        _chartUpdateRatio_IMU = 1;
-                    break;
-                case 2:
-                    if (_checkBoxSensors[chartsCount - 1].isChecked() == false)
-                        _chartUpdateRatio_IMU = 3;
-                    else
-                    {
-                        _chartUpdateRatio_OPT = 6;
-                        _chartUpdateRatio_IMU = 5;
-                    }
-                    break;
-                case 3:
-                case 4:
-                    if (_checkBoxSensors[chartsCount - 1].isChecked() == false)
-                        _chartUpdateRatio_IMU = 3;
-                    else
-                    {
-                        _chartUpdateRatio_OPT = 10;
-                        _chartUpdateRatio_IMU = 8;
-                    }
-                    break;
-                }
-
-                // if only one box is checked, we disable that box
-                // so at least one box must be checked
-                for (int j = 0; j < chartsCount; ++j)
-                    _checkBoxSensors[j].setEnabled(checkedSum != 1 || !_checkBoxSensors[j].isChecked());
-
-                // fist we removed all items from the _gridLayout to add in new order
-                for (int j = 0; j < _numOfS_IMU; ++j)
+                [=]()
                 {
-                    _gridLayout->removeWidget(&_chartView_IMU[j]);
-                    _chartView_IMU[j].hide();
-                }
-                _gridLayout->removeWidget(_chartView_OPT);
-                _chartView_OPT->hide();
-                _gridLayout->removeItem(_hBoxLayoutLegends);
-                _gridLayout->removeWidget(_sliderHorizontalValues);
-                _gridLayout->removeItem(_hBoxLayoutOptions);
-                _gridLayout->removeWidget(_sliderHorizontal);
-                _gridLayout->update();
+                    DEBUGGER();
 
-                // than we add items to the _gridLayout in new order
-                int offset = 0;
-                for (int j = 0; j < _numOfS_IMU; ++j)
-                {
-                    if (_checkBoxSensors[j].isChecked())
+                    // we calculate how many boxes are checked
+                    int checkedSum = 0;
+                    for (int j = 0; j < chartsCount; ++j)
+                        checkedSum += _checkBoxSensors[j].isChecked();
+
+                    // setting update frequency of axes X
+                    switch (checkedSum) {
+                    case 1:
+                        if (_checkBoxSensors[chartsCount - 1].isChecked() == true)
+                            _chartUpdateRatio_OPT = 3;
+                        else
+                            _chartUpdateRatio_IMU = 1;
+                        break;
+                    case 2:
+                        if (_checkBoxSensors[chartsCount - 1].isChecked() == false)
+                            _chartUpdateRatio_IMU = 3;
+                        else
+                        {
+                            _chartUpdateRatio_OPT = 6;
+                            _chartUpdateRatio_IMU = 5;
+                        }
+                        break;
+                    case 3:
+                    case 4:
+                        if (_checkBoxSensors[chartsCount - 1].isChecked() == false)
+                            _chartUpdateRatio_IMU = 3;
+                        else
+                        {
+                            _chartUpdateRatio_OPT = 10;
+                            _chartUpdateRatio_IMU = 8;
+                        }
+                        break;
+                    }
+
+                    // if only one box is checked, we disable that box
+                    // so at least one box must be checked
+                    for (int j = 0; j < chartsCount; ++j)
+                        _checkBoxSensors[j].setEnabled(checkedSum != 1 || !_checkBoxSensors[j].isChecked());
+
+                    // fist we removed all items from the _gridLayout to add in new order
+                    for (int j = 0; j < _numOfS_IMU; ++j)
                     {
-                        _gridLayout->addWidget(&_chartView_IMU[j], offset, 0, 1, 5);
+                        _gridLayout->removeWidget(&_chartView_IMU[j]);
+                        _chartView_IMU[j].hide();
+                    }
+                    _gridLayout->removeWidget(_chartView_OPT);
+                    _chartView_OPT->hide();
+                    _gridLayout->removeItem(_hBoxLayoutLegends);
+                    _gridLayout->removeWidget(_sliderHorizontalValues);
+                    _gridLayout->removeItem(_hBoxLayoutOptions);
+                    _gridLayout->removeWidget(_sliderHorizontal);
+                    _gridLayout->update();
+
+                    // than we add items to the _gridLayout in new order
+                    int offset = 0;
+                    for (int j = 0; j < _numOfS_IMU; ++j)
+                    {
+                        if (_checkBoxSensors[j].isChecked())
+                        {
+                            _gridLayout->addWidget(&_chartView_IMU[j], offset, 0, 1, 5);
+                            _gridLayout->setRowStretch(offset, true); // set the stretch factor for the rows
+                            _chartView_IMU[j].show();
+                            ++offset;
+                        }
+                    }
+                    if (_checkBoxSensors[_numOfS_IMU].isChecked())
+                    {
+                        _gridLayout->addWidget(_chartView_OPT, offset, 0, 1, 5);
                         _gridLayout->setRowStretch(offset, true); // set the stretch factor for the rows
-                        _chartView_IMU[j].show();
+                        _chartView_OPT->show();
                         ++offset;
                     }
-                }
-                if (_checkBoxSensors[_numOfS_IMU].isChecked())
-                {
-                    _gridLayout->addWidget(_chartView_OPT, offset, 0, 1, 5);
-                    _gridLayout->setRowStretch(offset, true); // set the stretch factor for the rows
-                    _chartView_OPT->show();
-                    ++offset;
-                }
-                _gridLayout->addLayout(_hBoxLayoutLegends, offset, 0, 1, 4, Qt::AlignCenter);
-                _gridLayout->addWidget(_sliderHorizontalValues, offset, 4, 1, 1, Qt::AlignCenter);
-                _gridLayout->setRowStretch(offset, false); // UNset the stretch factor for the rows
-                _gridLayout->addLayout(_hBoxLayoutOptions, ++offset, 0, 1, 1, Qt::AlignLeft); // increasing offset (i.e. go to the next ров)
-                _gridLayout->addWidget(_sliderHorizontal, offset, 4, 1, 1, Qt::AlignCenter);
-                _gridLayout->setRowStretch(offset, false); // UNset the stretch factor for the rows
+                    _gridLayout->addLayout(_hBoxLayoutLegends, offset, 0, 1, 4, Qt::AlignCenter);
+                    _gridLayout->addWidget(_sliderHorizontalValues, offset, 4, 1, 1, Qt::AlignCenter);
+                    _gridLayout->setRowStretch(offset, false); // UNset the stretch factor for the rows
+                    _gridLayout->addLayout(_hBoxLayoutOptions, ++offset, 0, 1, 1, Qt::AlignLeft); // increasing offset (i.e. go to the next ров)
+                    _gridLayout->addWidget(_sliderHorizontal, offset, 4, 1, 1, Qt::AlignCenter);
+                    _gridLayout->setRowStretch(offset, false); // UNset the stretch factor for the rows
 
-                // if OPT _checkBoxSensors is checked/unchecked enable/disable all _checkBoxChannels
-                QStringList format = {"color: green; font-size: 14px;", "color: red; font-size: 14px;", "color: blue; font-size: 14px;"};
-                if (_checkBoxSensors[chartsCount - 1].isChecked())
-                {
-                    for (int j = 0; j < _numOfS_OPT * _numOfCH_OPT; ++j)
-                        _checkBoxChannels[j].setEnabled(true),
-                        _checkBoxChannels[j].setStyleSheet(format[j % 3]);
-                }
-                else
-                {
-                    for (int j = 0; j < _numOfS_OPT * _numOfCH_OPT; ++j)
-                        _checkBoxChannels[j].setEnabled(false),
-                        _checkBoxChannels[j].setStyleSheet("color: gray; font-size: 14px;");
-                }
+                    // if OPT _checkBoxSensors is checked/unchecked enable/disable all _checkBoxChannels
+                    QStringList format = {"color: green; font-size: 14px;", "color: red; font-size: 14px;", "color: blue; font-size: 14px;"};
+                    if (_checkBoxSensors[chartsCount - 1].isChecked())
+                    {
+                        for (int j = 0; j < _numOfS_OPT * _numOfCH_OPT; ++j)
+                            _checkBoxChannels[j].setEnabled(true),
+                            _checkBoxChannels[j].setStyleSheet(format[j % 3]);
+                    }
+                    else
+                    {
+                        for (int j = 0; j < _numOfS_OPT * _numOfCH_OPT; ++j)
+                            _checkBoxChannels[j].setEnabled(false),
+                            _checkBoxChannels[j].setStyleSheet("color: gray; font-size: 14px;");
+                    }
 
-                _gridLayout->update();
+                    _gridLayout->update();
 
-                DEBUGGER();
-            });
+                    DEBUGGER();
+                });
     this->_hBoxLayoutOptions->addWidget(&_checkBoxSensors[i]);
     }
 }
@@ -1911,11 +1936,11 @@ void    WindowNext::execPicDialog(void)
     _gridLayoutPic ->addWidget(_displayTimerPic, 0, 0, Qt::AlignCenter);
 
     connect(this->_threadDisplayTimer, &ThreadDisplayTimer::displayTimerText, this,
-        [=](QString text)
-        {
-            DEBUGGER();
-            _displayTimerPic->setText(text);
-        });
+            [=](QString text)
+            {
+                DEBUGGER();
+                _displayTimerPic->setText(text);
+            });
 
     this->_imageLabel = new QLabel("", this->_picDialog);
     _gridLayoutPic ->addWidget(_imageLabel, 1, 0, 6, 1, Qt::AlignCenter);
@@ -1923,11 +1948,11 @@ void    WindowNext::execPicDialog(void)
     this->_imageSecondsLabel = new QLabel("", this->_picDialog);
     _gridLayoutPic ->addWidget(_imageSecondsLabel, 7, 0, 2, 1, Qt::AlignCenter);
     connect(this->_threadDisplayTimer, &ThreadDisplayTimer::currentSecondAndImgPath, this,
-        [=](int currentSecond, QString imgPath)
-        {
-            DEBUGGER();
-            this->showImage(currentSecond, imgPath);
-        });
+            [=](int currentSecond, QString imgPath)
+            {
+                DEBUGGER();
+                this->showImage(currentSecond, imgPath);
+            });
 
     DEBUGGER();
 }

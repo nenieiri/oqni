@@ -17,7 +17,7 @@ ComPort::ComPort(const QSerialPortInfo &port, QGroupBox *groupbox) \
 {
     DEBUGGER();
     
-    this->_radioButton = new QRadioButton(this->_portName, groupbox); //delete
+    this->_radioButton = new QRadioButton(this->_portName, groupbox);
 
     this->_toolButton = new QToolButton(groupbox);
     this->_toolButton->setIcon(QIcon(":/Imgs/config.png"));
