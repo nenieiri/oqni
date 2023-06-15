@@ -92,6 +92,7 @@ void    MainWindow::putWindowOnScreen(int windowWidth, int windowHeight)
     this->setWindowIcon(QIcon(":/Imgs/oqni.ico"));
     this->setWindowFilePath(":/Imgs/oqni.ico");
     this->setStyleSheet("background-image: url(:/Imgs/background.png); font-size: 20px");
+//    this->setStyleSheet("background-image: url(:/Imgs/background2.png); font-size: 20px");
     
     DEBUGGER();
 }

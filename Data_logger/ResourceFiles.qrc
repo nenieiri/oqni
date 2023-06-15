@@ -17,5 +17,6 @@
         <file>Imgs/configFailed.png</file>
         <file>Imgs/openFailed.png</file>
         <file>Imgs/bug.png</file>
+        <file>Imgs/background2.png</file>
     </qresource>
 </RCC>
