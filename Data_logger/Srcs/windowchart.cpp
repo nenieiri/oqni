@@ -39,6 +39,7 @@ WindowChart::WindowChart(MainWindow *parent, const QString &pathToFiles, \
     this->_series_OPT = nullptr;
     this->_series_IMU = nullptr;
     this->_checkBoxSensors = nullptr;
+    this->_sensorNames_IMU = nullptr;
     this->_numOfSeries_OPT = 0; // initial value
     this->_numOfSeries_IMU = 0; // initial value
     this->_maxLabel_OPT = 0;
@@ -232,12 +233,14 @@ WindowChart::~WindowChart()
         _chartView_IMU[i] = nullptr;
     }
 
-	delete[] _checkBoxChannels;
-    _checkBoxChannels = nullptr;
+    delete[] _checkBoxChannels_OPT;
+    _checkBoxChannels_OPT = nullptr;
     delete _hBoxLayoutLegends;
     _hBoxLayoutLegends = nullptr;
     delete _hBoxLayoutOptions;
     _hBoxLayoutOptions = nullptr;
+    delete _sensorNames_IMU;
+    _sensorNames_IMU = nullptr;
 	delete _gridLayout;
     _gridLayout = nullptr;
 
@@ -354,7 +357,7 @@ void    WindowChart::updateValueLineAxis(void)
             DEBUGGER();
             if (i == 3 || i == 7) // skip label
                 continue ;
-            if (_checkBoxChannels[i].isChecked() == false)
+            if (_checkBoxChannels_OPT[i].isChecked() == false)
                 continue ;
             flag = true;
             for(int j = 0; j < _series_OPT[i].count(); j++)
@@ -498,7 +501,7 @@ void    WindowChart::execChartDialog(void)
     // creating axis Y for OPT sensors and labels
     this->_axisY_OPT = new QValueAxis();
     this->_axisYLabel_OPT = new QValueAxis();
-    _axisY_OPT->setTitleText("Values");
+    _axisY_OPT->setTitleText("Optical sensors");
     _axisYLabel_OPT->setTitleText("Label");
     _chart_OPT->addAxis(_axisY_OPT, Qt::AlignLeft);
     _chart_OPT->addAxis(_axisYLabel_OPT, Qt::AlignRight);
@@ -529,7 +532,8 @@ void    WindowChart::execChartDialog(void)
     this->_axisYLabel_IMU = new QValueAxis[_numOfChart_IMU];
     for (int i = 0; i < _numOfChart_IMU; ++i)
     {
-        _axisY_IMU[i].setTitleText("Values");
+        QStringList titles = {"Accelerometer", "Gyroscope", "Magnetometer"};
+        _axisY_IMU[i].setTitleText(titles[i]);
         _axisYLabel_IMU[i].setTitleText("Label");
         _chart_IMU[i].addAxis(&_axisY_IMU[i], Qt::AlignLeft);
         _chart_IMU[i].addAxis(&_axisYLabel_IMU[i], Qt::AlignRight);
@@ -553,9 +557,9 @@ void    WindowChart::execChartDialog(void)
         _axisYLabel_IMU[i].setRange(0, _maxLabel_IMU + 1);
     DEBUGGER();
     
-    this->_checkBoxChannels = new QCheckBox[_numOfSeries_OPT];
+    this->_checkBoxChannels_OPT = new QCheckBox[_numOfSeries_OPT];
     for (int i = 0; i < _numOfSeries_OPT; ++i)
-        this->_checkBoxChannels[i].setChecked(true);
+        this->_checkBoxChannels_OPT[i].setChecked(true);
 
 	this->updateValueLineAxis();
     _axisX_OPT->setRange(_timeLineMin, _timeLineMax_OPT);
@@ -659,6 +663,13 @@ void    WindowChart::execChartDialog(void)
     this->_hBoxLayoutLegends = new QHBoxLayout;
     this->_hBoxLayoutOptions = new QHBoxLayout;
 
+    this->_sensorNames_IMU = new QLabel("<b>IMU:</b> red-<b>X</b>\u00A0\u00A0green-<b>Y</b>\u00A0\u00A0blue-<b>Z</b>\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0");
+    _sensorNames_IMU->setStyleSheet("color: black; font-size: 14px;");
+    if (_checkedFilesCount_OPT)
+        _hBoxLayoutLegends->addWidget(_sensorNames_IMU);
+    else
+        _hBoxLayoutOptions->addWidget(_sensorNames_IMU);
+
     for (int k = 0, j = -1; k < _filesCount; ++k)
     {
         if (_filesList[k].isChecked() == false || _filesList[k].text().mid(14,3) == "IMU")
@@ -669,25 +680,25 @@ void    WindowChart::execChartDialog(void)
             int index = i + j * (_numOfSeries_OPT / _checkedFilesCount_OPT);
             switch (i){
             case 0:
-                this->_checkBoxChannels[index].setText("OPT" + QString::number(k) + "green  ");
-                this->_checkBoxChannels[index].setStyleSheet("color: green; font-size: 14px;");
+                this->_checkBoxChannels_OPT[index].setText("OPT" + QString::number(k) + "green  ");
+                this->_checkBoxChannels_OPT[index].setStyleSheet("color: green; font-size: 14px;");
                 break;
             case 1:
-                this->_checkBoxChannels[index].setText("OPT" + QString::number(k) + "red  ");
-                this->_checkBoxChannels[index].setStyleSheet("color: red; font-size: 14px;");
+                this->_checkBoxChannels_OPT[index].setText("OPT" + QString::number(k) + "red  ");
+                this->_checkBoxChannels_OPT[index].setStyleSheet("color: red; font-size: 14px;");
                 break;
             case 2:
-                this->_checkBoxChannels[index].setText("OPT" + QString::number(k) + "infrared  ");
-                this->_checkBoxChannels[index].setStyleSheet("color: blue; font-size: 14px;");
+                this->_checkBoxChannels_OPT[index].setText("OPT" + QString::number(k) + "infrared  ");
+                this->_checkBoxChannels_OPT[index].setStyleSheet("color: blue; font-size: 14px;");
                 break;
             case 3:
-                this->_checkBoxChannels[index].setText("Label" + QString::number(k) + "      ");
-                this->_checkBoxChannels[index].setStyleSheet("color: black; font-size: 14px;");
+                this->_checkBoxChannels_OPT[index].setText("Label" + QString::number(k) + ((k == 1) ? "                " : " "));
+                this->_checkBoxChannels_OPT[index].setStyleSheet("color: black; font-size: 14px;");
                 break;
             }            
-            this->_checkBoxChannels[index].setChecked(true);
+            this->_checkBoxChannels_OPT[index].setChecked(true);
             this->connectStaticChatCheckBox(index);
-            this->_hBoxLayoutLegends->addWidget(&_checkBoxChannels[index]);
+            this->_hBoxLayoutLegends->addWidget(&_checkBoxChannels_OPT[index]);
         }
     }
 
@@ -747,11 +758,11 @@ void    WindowChart::execChartDialog(void)
         this->_gridLayout->addWidget(_verticalScrollBar_OPT, i, 0, 1, 5, Qt::AlignRight);
         this->_gridLayout->addWidget(_horizontalScrollBar_OPT, i, 0, 1, 5, Qt::AlignBottom);
         this->_gridLayout->setRowStretch(i, true);
-        this->_gridLayout->addLayout(_hBoxLayoutLegends, i + 1, 0, 1, 4, Qt::AlignCenter);
+        this->_gridLayout->addLayout(_hBoxLayoutLegends, i + 1, 0, 1, 2, Qt::AlignCenter);
+        this->_gridLayout->addWidget(_normingButton, i + 1, 2, 2, 1, Qt::AlignVCenter);
+        this->_gridLayout->addWidget(_snapshotButton, i + 1, 3, 2, 1, Qt::AlignVCenter);
+        this->_gridLayout->addWidget(_zoomToHomeButton, i + 1, 4, 2, 1, Qt::AlignVCenter);
         this->_gridLayout->addLayout(_hBoxLayoutOptions, i + 2, 0, 1, 2, Qt::AlignCenter);
-        this->_gridLayout->addWidget(_normingButton, i + 2, 2, 1, 1, Qt::AlignVCenter);
-        this->_gridLayout->addWidget(_snapshotButton, i + 2, 3, 1, 1, Qt::AlignVCenter);
-        this->_gridLayout->addWidget(_zoomToHomeButton, i + 2, 4, 1, 1, Qt::AlignVCenter);
     }
     this->setLayout(_gridLayout);
 
@@ -823,27 +834,28 @@ void    WindowChart::execChartDialog(void)
                         _verticalScrollBar_OPT->show();
                         ++offset;
                     }
-                    _gridLayout->addLayout(_hBoxLayoutLegends, offset, 0, 1, 4, Qt::AlignCenter);
+                    int brc = (!_checkedFilesCount_IMU || !_checkedFilesCount_OPT) ? 1 : 2; // button rows count
+                    _gridLayout->addLayout(_hBoxLayoutLegends, offset, 0, 1, 2, Qt::AlignCenter);
+                    _gridLayout->addWidget(_normingButton, offset, 2, brc, 1, Qt::AlignVCenter);
+                    _gridLayout->addWidget(_snapshotButton, offset, 3, brc, 1, Qt::AlignVCenter);
+                    _gridLayout->addWidget(_zoomToHomeButton, offset, 4, brc, 1, Qt::AlignVCenter);
                     _gridLayout->setRowStretch(offset, false); // UNset the stretch factor for the rows
-                    _gridLayout->addLayout(_hBoxLayoutOptions, ++offset, 0, 1, 2, Qt::AlignCenter); // increasing offset (i.e. go to the next ров)
-                    _gridLayout->addWidget(_normingButton, offset, 2, 1, 1, Qt::AlignVCenter);
-                    _gridLayout->addWidget(_snapshotButton, offset, 3, 1, 1, Qt::AlignVCenter);
-                    _gridLayout->addWidget(_zoomToHomeButton, offset, 4, 1, 1, Qt::AlignVCenter);
+                    _gridLayout->addLayout(_hBoxLayoutOptions, ++offset - (brc == 1), 0, 1, 2, Qt::AlignCenter); // increasing offset (i.e. go to the next row)
                     _gridLayout->setRowStretch(offset, false); // UNset the stretch factor for the rows
 
-                    // if OPT _checkBoxSensors is checked/unchecked enable/disable all _checkBoxChannels
+                    // if OPT _checkBoxSensors is checked/unchecked enable/disable all _checkBoxChannels_OPT
                     QStringList format = {"color: green; font-size: 14px;", "color: red; font-size: 14px;", "color: blue; font-size: 14px;", "color: black; font-size: 14px;"};
                     if (_checkBoxSensors[chartsCount - 1].isChecked())
                     {
                         for (int j = 0; j < _numOfSeries_OPT; ++j)
-                            _checkBoxChannels[j].setEnabled(true),
-                                _checkBoxChannels[j].setStyleSheet(format[j % 4]);
+                            _checkBoxChannels_OPT[j].setEnabled(true),
+                                _checkBoxChannels_OPT[j].setStyleSheet(format[j % 4]);
                     }
                     else
                     {
                         for (int j = 0; j < _numOfSeries_OPT; ++j)
-                            _checkBoxChannels[j].setEnabled(false),
-                                _checkBoxChannels[j].setStyleSheet("color: gray; font-size: 14px;");
+                            _checkBoxChannels_OPT[j].setEnabled(false),
+                                _checkBoxChannels_OPT[j].setStyleSheet("color: gray; font-size: 14px;");
                     }
 
                     _gridLayout->update();
@@ -918,12 +930,12 @@ void WindowChart::connectStaticChatCheckBox(int i)
 {
     DEBUGGER();
     
-    connect(&this->_checkBoxChannels[i], &QCheckBox::clicked, this,
+    connect(&this->_checkBoxChannels_OPT[i], &QCheckBox::clicked, this,
             [=]()
             {
                 DEBUGGER();
 
-                if (this->_checkBoxChannels[i].isChecked() == true)
+                if (this->_checkBoxChannels_OPT[i].isChecked() == true)
                 {
                     _chart_OPT->addSeries(&_series_OPT[i]);
                     _series_OPT[i].attachAxis(_axisX_OPT);

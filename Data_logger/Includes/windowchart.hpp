@@ -54,7 +54,7 @@ class	WindowChart : public QDialog
         QGridLayout		*_gridLayout;
         QHBoxLayout		*_hBoxLayoutLegends;
         QHBoxLayout		*_hBoxLayoutOptions;
-        QCheckBox		*_checkBoxChannels;
+        QCheckBox		*_checkBoxChannels_OPT;
         QPushButton		*_normingButton;
         QPushButton		*_snapshotButton;
         QPushButton		*_zoomToHomeButton;
@@ -67,6 +67,7 @@ class	WindowChart : public QDialog
         QScrollBar		*_verticalScrollBar_OPT;
         QScrollBar		*_verticalScrollBar_IMU[3];
         QCheckBox       *_checkBoxSensors;
+        QLabel          *_sensorNames_IMU;
 
         char            _numOfSeries_OPT;
         char            _numOfSeries_IMU;
