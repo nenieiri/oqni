@@ -266,7 +266,7 @@ void    WindowChart::readFromFile(void)
     DEBUGGER();
     
     QStringList splitList;
-    qint64      time;
+    qreal       time;
     
     QFile		*files = new QFile[_checkedFilesCount_OPT + _checkedFilesCount_IMU];
     QTextStream *ins = new QTextStream[_checkedFilesCount_OPT + _checkedFilesCount_IMU];
@@ -300,7 +300,7 @@ void    WindowChart::readFromFile(void)
             while (!ins[j].atEnd())
             {
                 splitList = ins[j].readLine().split(',');
-                time = splitList[0].toLongLong();
+                time = splitList[0].toDouble() / 1000; // converting from milliseconds to secconds
 
                 if (_filesList[i].text().mid(14,3) == "IMU")
                 {
@@ -480,7 +480,7 @@ void    WindowChart::execChartDialog(void)
 
     // creating axis X for OPT sensors
     this->_axisX_OPT = new QValueAxis();
-    _axisX_OPT->setTitleText("Time (milliseconds)");
+    _axisX_OPT->setTitleText("Seconds");
     _chart_OPT->addAxis(_axisX_OPT, Qt::AlignBottom);
     for (int i = 0; i < _numOfSeries_OPT; ++i)
         _series_OPT[i].attachAxis(_axisX_OPT);
