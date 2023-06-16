@@ -46,6 +46,33 @@ WindowChart::WindowChart(MainWindow *parent, const QString &pathToFiles, \
     this->_timeLineMin = 0;
     this->_timeLineMax_OPT = 0;
     this->_timeLineMax_IMU = 0;
+    this->_normingIsOn = true;
+
+    this->_normingButton = new QPushButton;
+    this->_normingButton->setEnabled(true);
+    QPixmap pixmapON(":/Imgs/on.png");
+    this->_iconON = new QIcon(pixmapON);
+    QPixmap pixmapOFF(":/Imgs/off.png");
+    this->_iconOFF = new QIcon(pixmapOFF);
+    this->_normingButton->setIcon(*_iconON);
+    this->_normingButton->setIconSize(pixmapON.size());
+    this->_normingButton->setFixedSize(pixmapON.size());
+    this->_normingButton->setStyleSheet("QPushButton { border: none; }");
+    this->_normingButton->setMask(pixmapON.mask());
+    this->_normingButton->setToolTip("Norming");
+    connect(this->_normingButton, &QPushButton::clicked, this,
+            [=]()
+            {
+                if (_normingIsOn)
+                {
+                    this->_normingButton->setIcon(*_iconOFF);
+                }
+                else
+                {
+                    this->_normingButton->setIcon(*_iconON);
+                }
+                _normingIsOn = !_normingIsOn;
+            });
 
     this->_snapshotButton = new QPushButton;
     this->_snapshotButton->setEnabled(true);
@@ -213,14 +240,23 @@ WindowChart::~WindowChart()
     _hBoxLayoutOptions = nullptr;
 	delete _gridLayout;
     _gridLayout = nullptr;
-	delete _zoomToHomeButton;
-    _zoomToHomeButton = nullptr;    
-    delete _iconHome;
-    _iconHome = nullptr;
+
+    delete _normingButton;
+    _normingButton = nullptr;
+    delete _iconON;
+    _iconON = nullptr;
+    delete _iconOFF;
+    _iconOFF = nullptr;
+
     delete _snapshotButton;
     _snapshotButton = nullptr;
     delete _iconCamera;
     _iconCamera = nullptr;
+
+	delete _zoomToHomeButton;
+    _zoomToHomeButton = nullptr;    
+    delete _iconHome;
+    _iconHome = nullptr;
     
     DEBUGGER();
 }
@@ -677,7 +713,8 @@ void    WindowChart::execChartDialog(void)
         this->_gridLayout->addWidget(_chartView_OPT, 0, 0, 1, 5);
         this->_gridLayout->addWidget(_verticalScrollBar_OPT, 0, 0, 1, 5, Qt::AlignRight);
         this->_gridLayout->addWidget(_horizontalScrollBar_OPT, 0, 0, 1, 5, Qt::AlignBottom);
-        this->_gridLayout->addLayout(_hBoxLayoutLegends, 1, 0, 1, 3, Qt::AlignCenter);
+        this->_gridLayout->addLayout(_hBoxLayoutLegends, 1, 0, 1, 2, Qt::AlignCenter);
+        this->_gridLayout->addWidget(_normingButton, 1, 2, 1, 1, Qt::AlignVCenter);
         this->_gridLayout->addWidget(_snapshotButton, 1, 3, 1, 1, Qt::AlignVCenter);
         this->_gridLayout->addWidget(_zoomToHomeButton, 1, 4, 1, 1, Qt::AlignVCenter);
     }
@@ -691,7 +728,8 @@ void    WindowChart::execChartDialog(void)
             this->_gridLayout->addWidget(_horizontalScrollBar_IMU[i], i, 0, 1, 5, Qt::AlignBottom);
             this->_gridLayout->setRowStretch(i, true);
         }
-        this->_gridLayout->addLayout(_hBoxLayoutOptions, i, 0, 1, 3, Qt::AlignCenter);
+        this->_gridLayout->addLayout(_hBoxLayoutOptions, i, 0, 1, 2, Qt::AlignCenter);
+        this->_gridLayout->addWidget(_normingButton, i, 2, 1, 1, Qt::AlignVCenter);
         this->_gridLayout->addWidget(_snapshotButton, i, 3, 1, 1, Qt::AlignVCenter);
         this->_gridLayout->addWidget(_zoomToHomeButton, i, 4, 1, 1, Qt::AlignVCenter);
     }
@@ -710,7 +748,8 @@ void    WindowChart::execChartDialog(void)
         this->_gridLayout->addWidget(_horizontalScrollBar_OPT, i, 0, 1, 5, Qt::AlignBottom);
         this->_gridLayout->setRowStretch(i, true);
         this->_gridLayout->addLayout(_hBoxLayoutLegends, i + 1, 0, 1, 4, Qt::AlignCenter);
-        this->_gridLayout->addLayout(_hBoxLayoutOptions, i + 2, 0, 1, 3, Qt::AlignCenter);
+        this->_gridLayout->addLayout(_hBoxLayoutOptions, i + 2, 0, 1, 2, Qt::AlignCenter);
+        this->_gridLayout->addWidget(_normingButton, i + 2, 2, 1, 1, Qt::AlignVCenter);
         this->_gridLayout->addWidget(_snapshotButton, i + 2, 3, 1, 1, Qt::AlignVCenter);
         this->_gridLayout->addWidget(_zoomToHomeButton, i + 2, 4, 1, 1, Qt::AlignVCenter);
     }
@@ -752,6 +791,7 @@ void    WindowChart::execChartDialog(void)
 
                     _gridLayout->removeItem(_hBoxLayoutLegends);
                     _gridLayout->removeItem(_hBoxLayoutOptions);
+                    _gridLayout->removeWidget(_normingButton);
                     _gridLayout->removeWidget(_snapshotButton);
                     _gridLayout->removeWidget(_zoomToHomeButton);
                     _gridLayout->update();
@@ -785,7 +825,8 @@ void    WindowChart::execChartDialog(void)
                     }
                     _gridLayout->addLayout(_hBoxLayoutLegends, offset, 0, 1, 4, Qt::AlignCenter);
                     _gridLayout->setRowStretch(offset, false); // UNset the stretch factor for the rows
-                    _gridLayout->addLayout(_hBoxLayoutOptions, ++offset, 0, 1, 3, Qt::AlignCenter); // increasing offset (i.e. go to the next ров)
+                    _gridLayout->addLayout(_hBoxLayoutOptions, ++offset, 0, 1, 2, Qt::AlignCenter); // increasing offset (i.e. go to the next ров)
+                    _gridLayout->addWidget(_normingButton, offset, 2, 1, 1, Qt::AlignVCenter);
                     _gridLayout->addWidget(_snapshotButton, offset, 3, 1, 1, Qt::AlignVCenter);
                     _gridLayout->addWidget(_zoomToHomeButton, offset, 4, 1, 1, Qt::AlignVCenter);
                     _gridLayout->setRowStretch(offset, false); // UNset the stretch factor for the rows

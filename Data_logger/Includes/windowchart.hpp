@@ -55,9 +55,12 @@ class	WindowChart : public QDialog
         QHBoxLayout		*_hBoxLayoutLegends;
         QHBoxLayout		*_hBoxLayoutOptions;
         QCheckBox		*_checkBoxChannels;
-        QPushButton		*_zoomToHomeButton;
+        QPushButton		*_normingButton;
         QPushButton		*_snapshotButton;
-		QIcon			*_iconHome;
+        QPushButton		*_zoomToHomeButton;
+        QIcon			*_iconON;
+        QIcon			*_iconOFF;
+        QIcon			*_iconHome;
         QIcon			*_iconCamera;
         QScrollBar		*_horizontalScrollBar_OPT;
         QScrollBar		*_horizontalScrollBar_IMU[3];
@@ -78,6 +81,7 @@ class	WindowChart : public QDialog
         short           _valueLineMax_IMU[3];
         int             _maxLabel_OPT;
         int             _maxLabel_IMU;
+        bool            _normingIsOn;
 };
 
 class	MyChartView : public QChartView
