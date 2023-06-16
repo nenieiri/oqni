@@ -1607,7 +1607,7 @@ void    WindowNext::execChartDialog(void)
     this->_sliderHorizontal = new QSlider(Qt::Horizontal, _chartDialog);
     this->_sliderHorizontal->setRange(2, 6);
     this->_sliderHorizontal->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
-    this->_sliderHorizontal->setFixedWidth(300);
+    this->_sliderHorizontal->setFixedWidth(200);
     this->_sliderHorizontal->setTickInterval(1);
     this->_sliderHorizontal->setValue(this->_chartDuration / 1000);
     this->_sliderHorizontal->setFixedHeight(15);
@@ -1660,9 +1660,9 @@ void    WindowNext::execChartDialog(void)
     }
 
 #  ifdef Q_OS_MAC
-    _sliderHorizontalValues = new QLabel("  2                  3                   4                  5                  6", this);
+    _sliderHorizontalValues = new QLabel("  2           3             4             5           6", this);
 #  else
-    _sliderHorizontalValues = new QLabel(" 2                    3                    4                    5                    6", this);
+    _sliderHorizontalValues = new QLabel(" 2            3             4            5            6", this);
 
 #  endif
     _sliderHorizontalValues->setStyleSheet("color: black; font-size: 12px;");
