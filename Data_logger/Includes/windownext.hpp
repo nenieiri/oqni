@@ -185,6 +185,7 @@ class WindowNext : public QDialog
         QSlider             *_sliderHorizontal;
         QLabel              *_sliderHorizontalValues;
         int                 _sliderHorizontalLastValue;
+        QLabel              *_sensorNames_IMU;
 
         unsigned int        _chartDuration;
         unsigned int        _chartUpdateRatio_OPT;

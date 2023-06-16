@@ -117,6 +117,7 @@ WindowNext::WindowNext(MainWindow *parent)
     this->_picDialog = nullptr;
     this->_autoScale = nullptr;
     this->_checkBoxSensors = nullptr;
+    this->_sensorNames_IMU = nullptr;
 
     this->setModal(true);
 
@@ -201,6 +202,8 @@ WindowNext::~WindowNext()
     _distance1 = nullptr;
     delete _distance2;
     _distance2 = nullptr;
+    delete _sensorNames_IMU;
+    _sensorNames_IMU = nullptr;
 
     DEBUGGER();
 }
@@ -1474,14 +1477,10 @@ void    WindowNext::execChartDialog(void)
     this->raise();
 
     this->_chart_OPT = new QChart();
-    _chart_OPT->setTitle("<b>OPT sensors:</b> ID1 and ID2");
     _chart_OPT->setBackgroundBrush(QBrush(QColor::fromRgb(235, 255, 255)));
     _chart_OPT->legend()->hide();
 
     this->_chart_IMU = new QChart[_numOfS_IMU];
-    _chart_IMU[0].setTitle("<b>Accelerometer:</b> red-<b>X</b> green-<b>Y</b> blue-<b>Z</b>");
-    _chart_IMU[1].setTitle("<b>Gyroscope:</b> red-<b>X</b> green-<b>Y</b> blue-<b>Z</b>");
-    _chart_IMU[2].setTitle("<b>Magnetometer:</b> red-<b>X</b> green-<b>Y</b> blue-<b>Z</b>");
     for (int i = 0; i < _numOfS_IMU; ++i)
     {
         _chart_IMU[i].setBackgroundBrush(QBrush(QColor::fromRgb(255, 245, 255)));
@@ -1501,14 +1500,15 @@ void    WindowNext::execChartDialog(void)
 
     // creating axis Y for OPT sersors
     this->_axisY_OPT = new QValueAxis();
-    _axisY_OPT->setTitleText("Values");
+    _axisY_OPT->setTitleText("Optical sensors");
     _chart_OPT->addAxis(_axisY_OPT, Qt::AlignLeft);
 
     // creating axes Y for IMU sersors
     this->_axisY_IMU = new QValueAxis[_numOfS_IMU];
     for (int i = 0; i < _numOfS_IMU; ++i)
     {
-        _axisY_IMU[i].setTitleText("Values");
+        QStringList titles = {"Accelerometer", "Gyroscope", "Magnetometer"};
+        _axisY_IMU[i].setTitleText(titles[i]);
         _chart_IMU[i].addAxis(&_axisY_IMU[i], Qt::AlignLeft);
     }
 
@@ -1621,8 +1621,12 @@ void    WindowNext::execChartDialog(void)
 
     this->_gridLayout = new QGridLayout;
     this->_hBoxLayoutLegends = new QHBoxLayout;
-    this->_checkBoxChannels = new QCheckBox[_numOfS_OPT * _numOfCH_OPT];
 
+    this->_sensorNames_IMU = new QLabel("<b>IMU:</b> red-<b>X</b> green-<b>Y</b> blue-<b>Z</b>\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0");
+    _sensorNames_IMU->setStyleSheet("color: black; font-size: 14px;");
+    _hBoxLayoutLegends->addWidget(_sensorNames_IMU);
+
+    this->_checkBoxChannels = new QCheckBox[_numOfS_OPT * _numOfCH_OPT];
     for (int i = 0; i < _numOfS_OPT * _numOfCH_OPT; ++i)
     {
         switch (i % _numOfCH_OPT) {
@@ -1635,7 +1639,7 @@ void    WindowNext::execChartDialog(void)
             this->_checkBoxChannels[i].setStyleSheet("color: red; font-size: 14px;");
             break;
         case 2:            
-            this->_checkBoxChannels[i].setText("OPT" + QString::number(i / _numOfCH_OPT + 1) + "infrared               ");
+            this->_checkBoxChannels[i].setText("OPT" + QString::number(i / _numOfCH_OPT + 1) + "infrared" + ((i / _numOfCH_OPT + 1 == 1) ? "        " : " "));
             this->_checkBoxChannels[i].setStyleSheet("color: blue; font-size: 14px;");
             break;
         }
