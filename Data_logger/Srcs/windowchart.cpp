@@ -39,6 +39,7 @@ WindowChart::WindowChart(MainWindow *parent, const QString &pathToFiles, \
     this->_series_OPT = nullptr;
     this->_series_IMU = nullptr;
     this->_checkBoxSensors = nullptr;
+    this->_chartTitle = nullptr;
     this->_sensorNames_IMU = nullptr;
     this->_numOfSeries_OPT = 0; // initial value
     this->_numOfSeries_IMU = 0; // initial value
@@ -239,6 +240,8 @@ WindowChart::~WindowChart()
     _hBoxLayoutLegends = nullptr;
     delete _hBoxLayoutOptions;
     _hBoxLayoutOptions = nullptr;
+    delete _chartTitle;
+    _chartTitle = nullptr;
     delete _sensorNames_IMU;
     _sensorNames_IMU = nullptr;
 	delete _gridLayout;
@@ -419,21 +422,12 @@ void    WindowChart::execChartDialog(void)
     this->_chart_OPT = new QChart();
     this->_chart_IMU = new QChart[_numOfChart_IMU];
     
-    for (int i = 0; i < _numOfChart_IMU; ++i)
-        _chart_IMU[i].setTitle(this->staticChartTitle(i));
-    _chart_OPT->setTitle(this->staticChartTitle(_numOfChart_IMU));
-
-    QFont font;
-    font.setBold(true);
-    font.setPointSize(12);
-    _chart_OPT->setTitleFont(font);
     _chart_OPT->setBackgroundBrush(QBrush(QColor::fromRgb(235, 255, 255)));
     _chart_OPT->legend()->hide();
     DEBUGGER();
 
     for (int i = 0; i < _numOfChart_IMU; ++i)
     {
-        _chart_IMU[i].setTitleFont(font);
         _chart_IMU[i].setBackgroundBrush(QBrush(QColor::fromRgb(255, 245, 255)));
         _chart_IMU[i].legend()->hide();
     }
@@ -662,10 +656,13 @@ void    WindowChart::execChartDialog(void)
     this->_gridLayout = new QGridLayout;
     this->_hBoxLayoutLegends = new QHBoxLayout;
     this->_hBoxLayoutOptions = new QHBoxLayout;
+    
+    this->_chartTitle = new QLabel(this->staticChartTitle());
+    _chartTitle->setStyleSheet("color: black; font-size: 16px;");
 
     this->_sensorNames_IMU = new QLabel("<b>IMU:</b> red-<b>X</b>\u00A0\u00A0green-<b>Y</b>\u00A0\u00A0blue-<b>Z</b>\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0");
     _sensorNames_IMU->setStyleSheet("color: black; font-size: 14px;");
-    if (_checkedFilesCount_OPT)
+    if (_checkedFilesCount_OPT && _checkedFilesCount_IMU)
         _hBoxLayoutLegends->addWidget(_sensorNames_IMU);
     else
         _hBoxLayoutOptions->addWidget(_sensorNames_IMU);
@@ -674,31 +671,34 @@ void    WindowChart::execChartDialog(void)
     {
         if (_filesList[k].isChecked() == false || _filesList[k].text().mid(14,3) == "IMU")
             continue ;
-        ++j;        
-        for (int i = 0; i < _numOfSeries_OPT / _checkedFilesCount_OPT; ++i) // (_numOfSeries_OPT / _checkedFilesCount_OPT) ==> number of checkboxes in one block
+        ++j;
+        if (_checkedFilesCount_OPT)
         {
-            int index = i + j * (_numOfSeries_OPT / _checkedFilesCount_OPT);
-            switch (i){
-            case 0:
-                this->_checkBoxChannels_OPT[index].setText("OPT" + QString::number(k) + "green  ");
-                this->_checkBoxChannels_OPT[index].setStyleSheet("color: green; font-size: 14px;");
-                break;
-            case 1:
-                this->_checkBoxChannels_OPT[index].setText("OPT" + QString::number(k) + "red  ");
-                this->_checkBoxChannels_OPT[index].setStyleSheet("color: red; font-size: 14px;");
-                break;
-            case 2:
-                this->_checkBoxChannels_OPT[index].setText("OPT" + QString::number(k) + "infrared  ");
-                this->_checkBoxChannels_OPT[index].setStyleSheet("color: blue; font-size: 14px;");
-                break;
-            case 3:
-                this->_checkBoxChannels_OPT[index].setText("Label" + QString::number(k) + ((k == 1) ? "                " : " "));
-                this->_checkBoxChannels_OPT[index].setStyleSheet("color: black; font-size: 14px;");
-                break;
-            }            
-            this->_checkBoxChannels_OPT[index].setChecked(true);
-            this->connectStaticChatCheckBox(index);
-            this->_hBoxLayoutLegends->addWidget(&_checkBoxChannels_OPT[index]);
+            for (int i = 0; i < _numOfSeries_OPT / _checkedFilesCount_OPT; ++i) // (_numOfSeries_OPT / _checkedFilesCount_OPT) ==> number of checkboxes in one block
+            {
+                int index = i + j * (_numOfSeries_OPT / _checkedFilesCount_OPT);
+                switch (i){
+                case 0:
+                    this->_checkBoxChannels_OPT[index].setText("OPT" + QString::number(k) + "green  ");
+                    this->_checkBoxChannels_OPT[index].setStyleSheet("color: green; font-size: 14px;");
+                    break;
+                case 1:
+                    this->_checkBoxChannels_OPT[index].setText("OPT" + QString::number(k) + "red  ");
+                    this->_checkBoxChannels_OPT[index].setStyleSheet("color: red; font-size: 14px;");
+                    break;
+                case 2:
+                    this->_checkBoxChannels_OPT[index].setText("OPT" + QString::number(k) + "infrared  ");
+                    this->_checkBoxChannels_OPT[index].setStyleSheet("color: blue; font-size: 14px;");
+                    break;
+                case 3:
+                    this->_checkBoxChannels_OPT[index].setText("Label" + QString::number(k) + ((k == 1) ? "                " : " "));
+                    this->_checkBoxChannels_OPT[index].setStyleSheet("color: black; font-size: 14px;");
+                    break;
+                }            
+                this->_checkBoxChannels_OPT[index].setChecked(true);
+                this->connectStaticChatCheckBox(index);
+                this->_hBoxLayoutLegends->addWidget(&_checkBoxChannels_OPT[index]);
+            }
         }
     }
 
@@ -721,48 +721,51 @@ void    WindowChart::execChartDialog(void)
     // initial appearance of WindowChart
     if (_checkedFilesCount_IMU == 0)
     {
-        this->_gridLayout->addWidget(_chartView_OPT, 0, 0, 1, 5);
-        this->_gridLayout->addWidget(_verticalScrollBar_OPT, 0, 0, 1, 5, Qt::AlignRight);
-        this->_gridLayout->addWidget(_horizontalScrollBar_OPT, 0, 0, 1, 5, Qt::AlignBottom);
-        this->_gridLayout->addLayout(_hBoxLayoutLegends, 1, 0, 1, 2, Qt::AlignCenter);
-        this->_gridLayout->addWidget(_normingButton, 1, 2, 1, 1, Qt::AlignVCenter);
-        this->_gridLayout->addWidget(_snapshotButton, 1, 3, 1, 1, Qt::AlignVCenter);
-        this->_gridLayout->addWidget(_zoomToHomeButton, 1, 4, 1, 1, Qt::AlignVCenter);
+        this->_gridLayout->addWidget(_chartTitle, 0, 0, 1, 5, Qt::AlignCenter);
+        this->_gridLayout->addWidget(_chartView_OPT, 1, 0, 1, 5);
+        this->_gridLayout->addWidget(_verticalScrollBar_OPT, 1, 0, 1, 5, Qt::AlignRight);
+        this->_gridLayout->addWidget(_horizontalScrollBar_OPT, 1, 0, 1, 5, Qt::AlignBottom);
+        this->_gridLayout->addLayout(_hBoxLayoutLegends, 2, 0, 1, 2, Qt::AlignCenter);
+        this->_gridLayout->addWidget(_normingButton, 2, 2, 1, 1, Qt::AlignVCenter);
+        this->_gridLayout->addWidget(_snapshotButton, 2, 3, 1, 1, Qt::AlignVCenter);
+        this->_gridLayout->addWidget(_zoomToHomeButton, 2, 4, 1, 1, Qt::AlignVCenter);
     }
     else if (_checkedFilesCount_OPT == 0)
     {
+        this->_gridLayout->addWidget(_chartTitle, 0, 0, 1, 5, Qt::AlignCenter);
         int i;
         for (i = 0; i < _numOfChart_IMU; ++i)
         {
-            this->_gridLayout->addWidget(_chartView_IMU[i], i, 0, 1, 5);
-            this->_gridLayout->addWidget(_verticalScrollBar_IMU[i], i, 0, 1, 5, Qt::AlignRight);
-            this->_gridLayout->addWidget(_horizontalScrollBar_IMU[i], i, 0, 1, 5, Qt::AlignBottom);
-            this->_gridLayout->setRowStretch(i, true);
+            this->_gridLayout->addWidget(_chartView_IMU[i], i + 1, 0, 1, 5);
+            this->_gridLayout->addWidget(_verticalScrollBar_IMU[i], i + 1, 0, 1, 5, Qt::AlignRight);
+            this->_gridLayout->addWidget(_horizontalScrollBar_IMU[i], i + 1, 0, 1, 5, Qt::AlignBottom);
+            this->_gridLayout->setRowStretch(i + 1, true);
         }
-        this->_gridLayout->addLayout(_hBoxLayoutOptions, i, 0, 1, 2, Qt::AlignCenter);
-        this->_gridLayout->addWidget(_normingButton, i, 2, 1, 1, Qt::AlignVCenter);
-        this->_gridLayout->addWidget(_snapshotButton, i, 3, 1, 1, Qt::AlignVCenter);
-        this->_gridLayout->addWidget(_zoomToHomeButton, i, 4, 1, 1, Qt::AlignVCenter);
+        this->_gridLayout->addLayout(_hBoxLayoutOptions, i + 1, 0, 1, 2, Qt::AlignCenter);
+        this->_gridLayout->addWidget(_normingButton, i + 1, 2, 1, 1, Qt::AlignVCenter);
+        this->_gridLayout->addWidget(_snapshotButton, i + 1, 3, 1, 1, Qt::AlignVCenter);
+        this->_gridLayout->addWidget(_zoomToHomeButton, i + 1, 4, 1, 1, Qt::AlignVCenter);
     }
     else
     {
+        this->_gridLayout->addWidget(_chartTitle, 0, 0, 1, 5, Qt::AlignCenter);
         int i;
         for (i = 0; i < _numOfChart_IMU; ++i)
         {
-            this->_gridLayout->addWidget(_chartView_IMU[i], i, 0, 1, 5);
-            this->_gridLayout->addWidget(_verticalScrollBar_IMU[i], i, 0, 1, 5, Qt::AlignRight);
-            this->_gridLayout->addWidget(_horizontalScrollBar_IMU[i], i, 0, 1, 5, Qt::AlignBottom);
-            this->_gridLayout->setRowStretch(i, true);
+            this->_gridLayout->addWidget(_chartView_IMU[i], i + 1, 0, 1, 5);
+            this->_gridLayout->addWidget(_verticalScrollBar_IMU[i], i + 1, 0, 1, 5, Qt::AlignRight);
+            this->_gridLayout->addWidget(_horizontalScrollBar_IMU[i], i + 1, 0, 1, 5, Qt::AlignBottom);
+            this->_gridLayout->setRowStretch(i + 1, true);
         }
-        this->_gridLayout->addWidget(_chartView_OPT, i, 0, 1, 5);
-        this->_gridLayout->addWidget(_verticalScrollBar_OPT, i, 0, 1, 5, Qt::AlignRight);
-        this->_gridLayout->addWidget(_horizontalScrollBar_OPT, i, 0, 1, 5, Qt::AlignBottom);
-        this->_gridLayout->setRowStretch(i, true);
-        this->_gridLayout->addLayout(_hBoxLayoutLegends, i + 1, 0, 1, 2, Qt::AlignCenter);
-        this->_gridLayout->addWidget(_normingButton, i + 1, 2, 2, 1, Qt::AlignVCenter);
-        this->_gridLayout->addWidget(_snapshotButton, i + 1, 3, 2, 1, Qt::AlignVCenter);
-        this->_gridLayout->addWidget(_zoomToHomeButton, i + 1, 4, 2, 1, Qt::AlignVCenter);
-        this->_gridLayout->addLayout(_hBoxLayoutOptions, i + 2, 0, 1, 2, Qt::AlignCenter);
+        this->_gridLayout->addWidget(_chartView_OPT, i + 1, 0, 1, 5);
+        this->_gridLayout->addWidget(_verticalScrollBar_OPT, i + 1, 0, 1, 5, Qt::AlignRight);
+        this->_gridLayout->addWidget(_horizontalScrollBar_OPT, i + 1, 0, 1, 5, Qt::AlignBottom);
+        this->_gridLayout->setRowStretch(i + 1, true);
+        this->_gridLayout->addLayout(_hBoxLayoutLegends, i + 2, 0, 1, 2, Qt::AlignCenter);
+        this->_gridLayout->addWidget(_normingButton, i + 2, 2, 2, 1, Qt::AlignVCenter);
+        this->_gridLayout->addWidget(_snapshotButton, i + 2, 3, 2, 1, Qt::AlignVCenter);
+        this->_gridLayout->addWidget(_zoomToHomeButton, i + 2, 4, 2, 1, Qt::AlignVCenter);
+        this->_gridLayout->addLayout(_hBoxLayoutOptions, i + 3, 0, 1, 2, Qt::AlignCenter);
     }
     this->setLayout(_gridLayout);
 
@@ -783,7 +786,7 @@ void    WindowChart::execChartDialog(void)
                     for (int j = 0; j < chartsCount; ++j)
                         _checkBoxSensors[j].setEnabled(checkedSum != 1 || !_checkBoxSensors[j].isChecked());
 
-                    // fist we removed all items from the _gridLayout to add in new order
+                    // first we removed all items (except title) from the _gridLayout to add in new order
                     for (int j = 0; j < _numOfChart_IMU; ++j)
                     {
                         _gridLayout->removeWidget(_chartView_IMU[j]);
@@ -808,7 +811,7 @@ void    WindowChart::execChartDialog(void)
                     _gridLayout->update();
 
                     // than we add items to the _gridLayout in new order
-                    int offset = 0;
+                    int offset = 1;
                     for (int j = 0; j < _numOfChart_IMU; ++j)
                     {
                         if (_checkBoxSensors[j].isChecked())
@@ -866,64 +869,40 @@ void    WindowChart::execChartDialog(void)
     DEBUGGER();
 }
 
-QString WindowChart::staticChartTitle(int index)
+QString WindowChart::staticChartTitle(void)
 {
     DEBUGGER();
-
-    const QString &selectedFile = _pathToFiles + _filesList[0].text();
     
-    QString tmp = "Unknown file";
-    //the Unicode non-breaking space character (\u00A0)
-    QString title = "---\u00A0\u00A0\u00A0\u00A0#---\u00A0\u00A0\u00A0\u00A0";
-
-    int lastDot = selectedFile.lastIndexOf('.');
-    int lastUnderscoreLine = selectedFile.lastIndexOf('_');
-    int lastSlash = selectedFile.lastIndexOf('/');
-    if (lastDot == -1 || lastUnderscoreLine == -1 || lastSlash == -1)
-    {
-        DEBUGGER();
-        return tmp;
+    QString titlePrefix;
+    QString titleSuffix;
+    QString selectedFile = _filesList[0].text(); // name of first .csv file
+    
+    if (selectedFile.mid(14,3) != "IMU" && selectedFile.mid(14,3) != "OPT")
+        titleSuffix = "Unknown file";
+    
+    QStringList dirs = _pathToFiles.split("/");
+    QString     parentDir = dirs[dirs.size() - 2]; // parent directory of .csv files
+    QStringList tokens = parentDir.split("_");
+    switch (tokens.size()) {
+    case 3:
+        titlePrefix = tokens[0] + "\u00A0\u00A0\u00A0\u00A0#" + tokens[1] + "\u00A0\u00A0\u00A0\u00A0"; // the Unicode non-breaking space character (\u00A0)
+        break;
+    case 4:
+        titlePrefix = tokens[0] + "_" + tokens[1] + "\u00A0\u00A0\u00A0\u00A0#" + tokens[2] + "\u00A0\u00A0\u00A0\u00A0"; // the Unicode non-breaking space character (\u00A0)
+        break;
+    default :
+        titlePrefix = "---\u00A0\u00A0\u00A0\u00A0#---\u00A0\u00A0\u00A0\u00A0"; // the Unicode non-breaking space character (\u00A0)
+        break;
     }
-
-    title += selectedFile.mid(lastSlash + 1, lastUnderscoreLine - lastSlash - 1) + \
-            "\u00A0\u00A0\u00A0\u00A0";
-
-    for (int i = 0; i < _filesCount; ++i)
-    {
-        if (_filesList[i].isChecked() == true)
-        {
-			int lastDot_tmp = _filesList[i].text().lastIndexOf('.');
-			int lastUnderscoreLine_tmp = _filesList[i].text().lastIndexOf('_');
-            if (_filesList[i].text().mid(14,3) == "IMU" && index < 3)
-            {
-                QStringList names = {"<b>\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0Accelerometer:</b> \u00A0\u00A0 red-<b>X</b> \u00A0\u00A0 green-<b>Y</b> \u00A0\u00A0 blue-<b>Z</b>", \
-                                     "<b>\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0Gyroscope:</b> \u00A0\u00A0 red-<b>X</b> \u00A0\u00A0 green-<b>Y</b> \u00A0\u00A0 blue-<b>Z</b>", \
-                                     "<b>\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0Magnetometer:</b> \u00A0\u00A0 red-<b>X</b> \u00A0\u00A0 green-<b>Y</b> \u00A0\u00A0 blue-<b>Z</b>"};
-                title += names[index];
-            }
-            else if (_filesList[i].text().mid(14,3) == "OPT" && index >= 3)
-            {
-                title += _filesList[i].text().mid(lastUnderscoreLine_tmp + 1, lastDot_tmp - lastUnderscoreLine_tmp - 1);
-                title += "\u00A0\u00A0\u00A0";
-            }
-        }
-    }
-
-    tmp = selectedFile.left(lastSlash);
-    lastSlash = tmp.lastIndexOf('/');
-    tmp = tmp.mid(lastSlash + 1);
-
-    lastUnderscoreLine = tmp.lastIndexOf('_');
-    if (lastUnderscoreLine != -1)
-    {
-        tmp = tmp.left(lastUnderscoreLine);
-        lastUnderscoreLine = tmp.lastIndexOf('_');
-        if (lastUnderscoreLine != -1)
-            title = tmp.left(lastUnderscoreLine) + "\u00A0\u00A0\u00A0\u00A0#" + \
-                    tmp.mid(lastUnderscoreLine + 1) + title.mid(11);
-    }
+    
+    if (selectedFile.mid(14,3) != "IMU" && selectedFile.mid(14,3) != "OPT")
+        titleSuffix = "Unknown file";
+    else
+        titleSuffix = selectedFile.left(13);
+    
     DEBUGGER();
-    return title;
+    
+    return titlePrefix + titleSuffix;
 }
 
 void WindowChart::connectStaticChatCheckBox(int i)
@@ -956,7 +935,7 @@ void WindowChart::connectStaticChatCheckBox(int i)
 QString WindowChart::getSnapshotFileName(void)
 {
     QStringList dirs = _pathToFiles.split("/");
-    QString     parentDir= dirs[dirs.size() - 2];       // parent directory of .csv files
+    QString     parentDir = dirs[dirs.size() - 2];       // parent directory of .csv files
     QString     selectedFile = _filesList[0].text();    // name of first .csv file
 
     // removing the suffix from the file name

@@ -26,7 +26,7 @@ class	WindowChart : public QDialog
         void			execChartDialog(void);
         void    		readFromFile(void);
 		void			updateValueLineAxis(void);
-        QString         staticChartTitle(int index);
+        QString         staticChartTitle(void);
         void            connectStaticChatCheckBox(int i);
         QString         getSnapshotFileName(void);
         void            shnapshotMessage(QString &filename);
@@ -67,6 +67,7 @@ class	WindowChart : public QDialog
         QScrollBar		*_verticalScrollBar_OPT;
         QScrollBar		*_verticalScrollBar_IMU[3];
         QCheckBox       *_checkBoxSensors;
+        QLabel          *_chartTitle;
         QLabel          *_sensorNames_IMU;
 
         char            _numOfSeries_OPT;
