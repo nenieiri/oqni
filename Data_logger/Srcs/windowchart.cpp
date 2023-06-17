@@ -561,7 +561,7 @@ void    WindowChart::execChartDialog(void)
     this->_horizontalScrollBar_OPT = new QScrollBar(Qt::Horizontal, this);
     this->_horizontalScrollBar_OPT->setRange(0, 0);
     connect(this->_horizontalScrollBar_OPT, &QScrollBar::valueChanged, this,
-            [=](int value)
+            [=](qreal value)
             {
                 DEBUGGER();
                 this->_axisX_OPT->setRange(value, value + this->_chartView_OPT->_currentAxisXLength);
@@ -572,7 +572,7 @@ void    WindowChart::execChartDialog(void)
     this->_verticalScrollBar_OPT = new QScrollBar(Qt::Vertical, this);
     this->_verticalScrollBar_OPT->setRange(0, 0);
     connect(this->_verticalScrollBar_OPT, &QScrollBar::valueChanged, this,
-            [=](int value)
+            [=](qreal value)
             {
                 DEBUGGER();
                 this->_axisY_OPT->setRange(value, value + this->_chartView_OPT->_currentAxisYLength);

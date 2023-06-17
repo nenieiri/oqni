@@ -74,9 +74,9 @@ class	WindowChart : public QDialog
         char            _numOfSeries_IMU;
         char            _numOfChart_OPT;
         char            _numOfChart_IMU;
-        qint64          _timeLineMin;
-        qint64          _timeLineMax_OPT;
-        qint64          _timeLineMax_IMU;
+        qreal           _timeLineMin;
+        qreal           _timeLineMax_OPT;
+        qreal           _timeLineMax_IMU;
         unsigned int    _valueLineMin_OPT;
         short           _valueLineMin_IMU[3];
         unsigned int    _valueLineMax_OPT;
@@ -92,8 +92,8 @@ class	MyChartView : public QChartView
 
 	public:
 		MyChartView(QChart *parent, \
-                    qint64 timeLineMin, \
-                    qint64 timeLineMax, \
+                    qreal   timeLineMin, \
+                    qreal   timeLineMax, \
                     int valueLineMin, \
                     int valueLineMax, \
                     QValueAxis *axisX, \
@@ -126,8 +126,8 @@ class	MyChartView : public QChartView
             {
                 _mPx = this->chart()->mapToValue(event->pos()).x();
                 _mPy = this->chart()->mapToValue(event->pos()).y();
-                _mPx = std::max((int)_axisX->min(), _mPx);
-                _mPx = std::min((int)_axisX->max(), _mPx);
+                _mPx = std::max((qreal)_axisX->min(), _mPx);
+                _mPx = std::min((qreal)_axisX->max(), _mPx);
                 _mPy = std::max((int)_axisY->min(), _mPy);
                 _mPy = std::min((int)_axisY->max(), _mPy);
             }
@@ -139,8 +139,8 @@ class	MyChartView : public QChartView
             {
                 _mRx = this->chart()->mapToValue(event->pos()).x();
                 _mRy = this->chart()->mapToValue(event->pos()).y();
-                _mRx = std::max((int)_axisX->min(), _mRx);
-                _mRx = std::min((int)_axisX->max(), _mRx);
+                _mRx = std::max((qreal)_axisX->min(), _mRx);
+                _mRx = std::min((qreal)_axisX->max(), _mRx);
                 _mRy = std::max((int)_axisY->min(), _mRy);
                 _mRy = std::min((int)_axisY->max(), _mRy);
             }
@@ -182,23 +182,23 @@ class	MyChartView : public QChartView
         QValueAxis		*_axisX;
         QValueAxis		*_axisY;
         QValueAxis		*_axisYLabel;        
-        qint64          _timeLineMin;
-        qint64          _timeLineMax;
+        qreal           _timeLineMin;
+        qreal           _timeLineMax;
         int             _valueLineMin;
         int             _valueLineMax;
         int				_maxLabel;
         QPushButton		*_zoomToHomeButton;
         QScrollBar		*_horizontalScrollBar;
         QScrollBar		*_verticalScrollBar;
-        int             _mPx;   // mouse press X
+        qreal           _mPx;   // mouse press X
         int             _mPy;   // mouse press Y
-        int             _mRx;   // mouse release X
+        qreal           _mRx;   // mouse release X
         int             _mRy;   // mouse release Y
         
     public:
         bool			_zoomed;
         bool            _firstTimeZooming;
-        int				_currentAxisXLength;
+        qreal           _currentAxisXLength;
         int				_currentAxisYLength;
 
     signals:
