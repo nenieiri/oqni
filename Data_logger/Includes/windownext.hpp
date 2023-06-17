@@ -67,8 +67,8 @@ class WindowNext : public QDialog
         bool            	saveMetaData(const QString &excelSheet, const QString &subject);
         void                retryToSaveMetaData(QXlsx::Document &xlsx, const QString &excelSheet);
         void                execChartDialog(void);
-        void                fillSeriesAndUpdateAxes_OPT(QByteArray &data, char &id, qint64 &time);
-        void                fillSeriesAndUpdateAxes_IMU(QByteArray &data, char &id, qint64 &time);
+        void                fillSeriesAndUpdateAxes_OPT(QByteArray &data, char &id, qreal &time);
+        void                fillSeriesAndUpdateAxes_IMU(QByteArray &data, char &id, qreal &time);
         void                execPicDialog(void);
         void                showImage(int currentSecond, QString imgPath);
         QString            	findMaxSubjectInMetadata(void);
@@ -187,11 +187,11 @@ class WindowNext : public QDialog
         int                 _sliderHorizontalLastValue;
         QLabel              *_sensorNames_IMU;
 
-        unsigned int        _chartDuration;
-        unsigned int        _chartUpdateRatio_OPT;
-        unsigned int        _chartUpdateRatio_IMU;
-        qint64				_chartTimeFlag_OPT;
-        QVector<qint64>		_chartTimeFlag_IMU;
+        qreal               _chartDuration;
+        qreal               _chartUpdateRatio_OPT;
+        qreal               _chartUpdateRatio_IMU;
+        qreal				_chartTimeFlag_OPT;
+        QVector<qreal>		_chartTimeFlag_IMU;
         
         QLabel              *_displayTimerPic;
         QLabel              *_imageLabel;

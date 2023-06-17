@@ -13,7 +13,7 @@ WindowNext::WindowNext(MainWindow *parent)
     int         windowWidth = 600;
     int         windowHeight = 390;
 
-    this->_chartDuration = 4 * 1000;
+    this->_chartDuration = 4;
     this->_chartUpdateRatio_OPT = 3;
     this->_chartUpdateRatio_IMU = 6;
 
@@ -1490,7 +1490,7 @@ void    WindowNext::execChartDialog(void)
 
     // creating axis X for OPT sersors
     this->_axisX_OPT = new QValueAxis();
-    _axisX_OPT->setTitleText("Time (milliseconds)");
+    _axisX_OPT->setTitleText("Seconds");
     _chart_OPT->addAxis(_axisX_OPT, Qt::AlignBottom);
 
     // creating axes X for IMU sersors
@@ -1583,7 +1583,8 @@ void    WindowNext::execChartDialog(void)
                     return;
 
                 char    id = qFromBigEndian<unsigned char>(data.mid(_bytesPA, _bytesID).constData());
-                qint64  time = qFromLittleEndian<qint64>(data.mid(data.size() - 8 - 1, 8).constData()) - _startTime;
+                qint64  timeMillisec = qFromLittleEndian<qint64>(data.mid(data.size() - 8 - 1, 8).constData()) - _startTime;
+                qreal   time = static_cast<qreal>(timeMillisec) / 1000; // converting from milliseconds to secconds
 
                 switch (id) {
                 case 1:
@@ -1609,14 +1610,14 @@ void    WindowNext::execChartDialog(void)
     this->_sliderHorizontal->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
     this->_sliderHorizontal->setFixedWidth(200);
     this->_sliderHorizontal->setTickInterval(1);
-    this->_sliderHorizontal->setValue(this->_chartDuration / 1000);
+    this->_sliderHorizontal->setValue(this->_chartDuration);
     this->_sliderHorizontal->setFixedHeight(15);
     this->_sliderHorizontal->setStyleSheet(MY_DEFINED_SLIDER_HORIZONTAL_STYLE);
     connect(this->_sliderHorizontal, &QSlider::valueChanged, this,
             [=]()
             {
                 DEBUGGER();
-                this->_chartDuration = this->_sliderHorizontal->value() * 1000;
+                this->_chartDuration = static_cast<qreal>(this->_sliderHorizontal->value());
             });
 
     this->_gridLayout = new QGridLayout;
@@ -1664,7 +1665,7 @@ void    WindowNext::execChartDialog(void)
     }
 
 #  ifdef Q_OS_MAC
-    _sliderHorizontalValues = new QLabel("  2           3             4             5           6", this);
+    _sliderHorizontalValues = new QLabel("  2           3           4           5           6", this);
 #  else
     _sliderHorizontalValues = new QLabel(" 2            3             4            5            6", this);
 
@@ -1822,12 +1823,13 @@ void    WindowNext::execChartDialog(void)
     }
 }
 
-void    WindowNext::fillSeriesAndUpdateAxes_OPT(QByteArray &data, char &id, qint64 &time)
+void    WindowNext::fillSeriesAndUpdateAxes_OPT(QByteArray &data, char &id, qreal &time)
 {
     DEBUGGER();
 
     unsigned int    value, ledID, minY = -1, maxY = 0;
-    qint64          minX = time;
+    qreal           minX = time;
+    qreal           startTime = static_cast<qreal>(_startTime) / 1000; // converting from milliseconds to secconds
 
     for (int ch = 0; ch < _numOfCH_OPT; ++ch)
     {
@@ -1841,7 +1843,7 @@ void    WindowNext::fillSeriesAndUpdateAxes_OPT(QByteArray &data, char &id, qint
         {
             _series_OPT[ledID].append(time, value);
             _seriesMinMaxY_autoscale_OPT[ledID].insert(value);
-            while (_series_OPT[ledID].count() > _chartDuration / 1000 * _sampleRate_OPT)
+            while (_series_OPT[ledID].count() > _chartDuration * _sampleRate_OPT)
             {
                 _seriesMinMaxY_autoscale_OPT[ledID].erase(_series_OPT[ledID].at(0).y());
                 _series_OPT[ledID].remove(0);
@@ -1851,29 +1853,30 @@ void    WindowNext::fillSeriesAndUpdateAxes_OPT(QByteArray &data, char &id, qint
         // updating axisX and axisY in interval "_chartDuration / 1000 * _chartUpdateRatio_OPT"
         if (_checkBoxSensors[_numOfS_IMU].isChecked()) // _checkBoxSensors[3]
         {
-            if (time + _startTime - _chartTimeFlag_OPT >= _chartDuration / 1000 * _chartUpdateRatio_OPT)
+            if (time + startTime - _chartTimeFlag_OPT >= (_chartDuration * _chartUpdateRatio_OPT) / 1000)
             {
                 getSeriesMinMaxY_OPT(minY, maxY);
                 _axisY_OPT->setRange(minY, maxY);
 
                 for (int k = 0; k < _numOfS_OPT * _numOfCH_OPT; ++k)
                     if (_series_OPT[k].count() != 0)
-                        minX = std::min(minX, (qint64)_series_OPT[k].at(0).x());
+                        minX = std::min(minX, _series_OPT[k].at(0).x());
 
-                _axisX_OPT->setRange(minX + 70, minX + _chartDuration);
-                _chartTimeFlag_OPT = time + _startTime;
+                _axisX_OPT->setRange(minX + 0.070, minX + _chartDuration);
+                _chartTimeFlag_OPT = time + startTime;
             }
         }
     }
     DEBUGGER();
 }
 
-void    WindowNext::fillSeriesAndUpdateAxes_IMU(QByteArray &data, char &id, qint64 &time)
+void    WindowNext::fillSeriesAndUpdateAxes_IMU(QByteArray &data, char &id, qreal &time)
 {
     DEBUGGER();
 
     short   value, minY = SHRT_MAX, maxY = SHRT_MIN;
-    qint64  minX = time;
+    qreal    minX = time;
+    qreal   startTime = static_cast<qreal>(_startTime) / 1000; // converting from milliseconds to secconds
 
     for (int ch = 0; ch < _numOfS_IMU * _numOfCH_IMU; ++ch)
     {
@@ -1884,7 +1887,7 @@ void    WindowNext::fillSeriesAndUpdateAxes_IMU(QByteArray &data, char &id, qint
 
         _series_IMU[ch].append(time, value);
         _seriesMinMaxY_autoscale_IMU[ch / _numOfS_IMU][ch % _numOfCH_IMU].insert(value);
-        while (_series_IMU[ch].count() > _chartDuration / 1000 * _sampleRate_IMU)
+        while (_series_IMU[ch].count() > _chartDuration * _sampleRate_IMU)
         {
             _seriesMinMaxY_autoscale_IMU[ch / _numOfS_IMU][ch % _numOfCH_IMU].erase(_series_IMU[ch].at(0).y());
             _series_IMU[ch].remove(0);
@@ -1893,7 +1896,7 @@ void    WindowNext::fillSeriesAndUpdateAxes_IMU(QByteArray &data, char &id, qint
         // updating axisX and axisY in interval "_chartDuration / 1000 * _chartUpdateRatio_IMU"
         if (_checkBoxSensors[ch / _numOfS_IMU].isChecked())
         {
-            if (time + _startTime - _chartTimeFlag_IMU[ch / _numOfS_IMU] >= _chartDuration / 1000 * _chartUpdateRatio_IMU)
+            if (time + startTime - _chartTimeFlag_IMU[ch / _numOfS_IMU] >= (_chartDuration * _chartUpdateRatio_IMU) / 1000)
             {
                 getSeriesMinMaxY_IMU(minY, maxY, ch / _numOfS_IMU);
                 _axisY_IMU[ch / _numOfS_IMU].setRange(minY, maxY);
@@ -1904,12 +1907,12 @@ void    WindowNext::fillSeriesAndUpdateAxes_IMU(QByteArray &data, char &id, qint
                 {
                     if (_series_IMU[k].count() != 0)
                     {
-                        minX = std::min(minX, (qint64)_series_IMU[k].at(0).x());
+                        minX = std::min(minX, _series_IMU[k].at(0).x());
                         break;
                     }
                 }
-                _axisX_IMU[ch / _numOfS_IMU].setRange(minX + 70, minX + _chartDuration - 70);
-                _chartTimeFlag_IMU[ch / _numOfS_IMU] = time + _startTime;
+                _axisX_IMU[ch / _numOfS_IMU].setRange(minX + 0.070, minX + _chartDuration - 0.070);
+                _chartTimeFlag_IMU[ch / _numOfS_IMU] = time + startTime;
             }
         }
     }
