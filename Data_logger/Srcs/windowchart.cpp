@@ -49,6 +49,7 @@ WindowChart::WindowChart(MainWindow *parent, const QString &pathToFiles, \
     this->_timeLineMax_OPT = 0;
     this->_timeLineMax_IMU = 0;
     this->_normingIsOn = true;
+    this->_HSBsensitivity = 10; // horizontal scroll bar sensitivity (10x)
 
     this->_normingButton = new QPushButton;
     this->_normingButton->setEnabled(true);
@@ -133,8 +134,8 @@ WindowChart::WindowChart(MainWindow *parent, const QString &pathToFiles, \
 
                 _zoomToHomeButton->setEnabled(false);
 
-                _horizontalScrollBar_OPT->setRange(_timeLineMin, _timeLineMin);
-                _horizontalScrollBar_OPT->setValue(_timeLineMin);
+                _horizontalScrollBar_OPT->setRange(_timeLineMin * _HSBsensitivity, _timeLineMin * _HSBsensitivity);
+                _horizontalScrollBar_OPT->setValue(_timeLineMin * _HSBsensitivity);
                 _verticalScrollBar_OPT->setRange(_valueLineMin_OPT, _valueLineMin_OPT);
                 _verticalScrollBar_OPT->setValue(_valueLineMin_OPT);
 
@@ -564,7 +565,7 @@ void    WindowChart::execChartDialog(void)
             [=](qreal value)
             {
                 DEBUGGER();
-                this->_axisX_OPT->setRange(value, value + this->_chartView_OPT->_currentAxisXLength);
+                this->_axisX_OPT->setRange(value / _HSBsensitivity, value / _HSBsensitivity + this->_chartView_OPT->_currentAxisXLength);
                 DEBUGGER();
             });
     DEBUGGER();
@@ -572,7 +573,7 @@ void    WindowChart::execChartDialog(void)
     this->_verticalScrollBar_OPT = new QScrollBar(Qt::Vertical, this);
     this->_verticalScrollBar_OPT->setRange(0, 0);
     connect(this->_verticalScrollBar_OPT, &QScrollBar::valueChanged, this,
-            [=](qreal value)
+            [=](int value)
             {
                 DEBUGGER();
                 this->_axisY_OPT->setRange(value, value + this->_chartView_OPT->_currentAxisYLength);
@@ -584,10 +585,10 @@ void    WindowChart::execChartDialog(void)
         this->_horizontalScrollBar_IMU[i] = new QScrollBar(Qt::Horizontal, this);
         this->_horizontalScrollBar_IMU[i]->setRange(0, 0);
         connect(_horizontalScrollBar_IMU[i], &QScrollBar::valueChanged, this,
-                [=](int value)
+                [=](qreal value)
                 {
                     DEBUGGER();
-                    this->_axisX_IMU[i].setRange(value, value + this->_chartView_IMU[i]->_currentAxisXLength);
+                    this->_axisX_IMU[i].setRange(value / _HSBsensitivity, value / _HSBsensitivity + this->_chartView_IMU[i]->_currentAxisXLength);
                     DEBUGGER();
                 });
         DEBUGGER();
@@ -604,16 +605,16 @@ void    WindowChart::execChartDialog(void)
     }
 
     this->_chartView_OPT = new MyChartView(_chart_OPT, _timeLineMin, _timeLineMax_OPT, _valueLineMin_OPT, _valueLineMax_OPT, \
-                                       _axisX_OPT, _axisY_OPT, _axisYLabel_OPT, _maxLabel_OPT, \
-                                       _zoomToHomeButton, _horizontalScrollBar_OPT, _verticalScrollBar_OPT);
+                                            _axisX_OPT, _axisY_OPT, _axisYLabel_OPT, _maxLabel_OPT, _zoomToHomeButton, \
+                                           _horizontalScrollBar_OPT, _verticalScrollBar_OPT, _HSBsensitivity);
     this->_chartView_OPT->setRenderHint(QPainter::Antialiasing);
     this->_chartView_OPT->setRubberBand(QChartView::RectangleRubberBand);
 
     for (int i = 0; i < _numOfChart_IMU; ++i)
     {
         this->_chartView_IMU[i] = new MyChartView(&_chart_IMU[i], _timeLineMin, _timeLineMax_IMU, _valueLineMin_IMU[i], _valueLineMax_IMU[i], \
-                                               &_axisX_IMU[i], &_axisY_IMU[i], &_axisYLabel_IMU[i], _maxLabel_IMU, \
-                                               _zoomToHomeButton, _horizontalScrollBar_IMU[i], _verticalScrollBar_IMU[i]);
+                                                &_axisX_IMU[i], &_axisY_IMU[i], &_axisYLabel_IMU[i], _maxLabel_IMU, _zoomToHomeButton, \
+                                                _horizontalScrollBar_IMU[i], _verticalScrollBar_IMU[i], _HSBsensitivity);
         this->_chartView_IMU[i]->setRenderHint(QPainter::Antialiasing);
         this->_chartView_IMU[i]->setRubberBand(QChartView::RectangleRubberBand);
     }

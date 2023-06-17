@@ -84,6 +84,7 @@ class	WindowChart : public QDialog
         int             _maxLabel_OPT;
         int             _maxLabel_IMU;
         bool            _normingIsOn;
+        qreal           _HSBsensitivity; // horizontal scroll bar sensitivity (10x)
 };
 
 class	MyChartView : public QChartView
@@ -102,7 +103,8 @@ class	MyChartView : public QChartView
                     int maxLabel, \
                     QPushButton *zoomToHomeButton, \
                     QScrollBar *horizontalScrollBar, \
-                    QScrollBar *verticalScrollBar)
+                    QScrollBar *verticalScrollBar, \
+                    qreal HSBsensitivity)
             : QChartView(parent) \
             , _timeLineMin(timeLineMin) \
             , _timeLineMax(timeLineMax) \
@@ -116,7 +118,8 @@ class	MyChartView : public QChartView
             , _firstTimeZooming(true) \
             , _zoomToHomeButton(zoomToHomeButton) \
             , _horizontalScrollBar(horizontalScrollBar) \
-            , _verticalScrollBar(verticalScrollBar)
+            , _verticalScrollBar(verticalScrollBar) \
+            , _HSBsensitivity(HSBsensitivity)
         {}
 
 	protected:
@@ -152,8 +155,8 @@ class	MyChartView : public QChartView
                 _zoomed = false;
                 emit this->rightClickAction();
 				_currentAxisXLength = _timeLineMax - _timeLineMin;
-    			_horizontalScrollBar->setRange(_timeLineMin, _timeLineMin);
-				_horizontalScrollBar->setValue(_timeLineMin);
+                _horizontalScrollBar->setRange(_timeLineMin * _HSBsensitivity, _timeLineMin * _HSBsensitivity);
+                _horizontalScrollBar->setValue(_timeLineMin * _HSBsensitivity);
 				_currentAxisYLength = _valueLineMax - _valueLineMin;
 				_verticalScrollBar->setRange(_valueLineMin, _valueLineMin);
 				_verticalScrollBar->setValue(_valueLineMin);
@@ -163,8 +166,8 @@ class	MyChartView : public QChartView
             _zoomed = true;
             _zoomToHomeButton->setEnabled(true);
             _currentAxisXLength = _axisX->max() - _axisX->min();
-            _horizontalScrollBar->setRange(_timeLineMin, _timeLineMax - _currentAxisXLength);
-            _horizontalScrollBar->setValue(_axisX->min());
+            _horizontalScrollBar->setRange(_timeLineMin * _HSBsensitivity, (_timeLineMax - _currentAxisXLength) * _HSBsensitivity);
+            _horizontalScrollBar->setValue(_axisX->min() * _HSBsensitivity);
             _currentAxisYLength = _axisY->max() - _axisY->min();
             _verticalScrollBar->setRange(_valueLineMin, _valueLineMax - _currentAxisYLength);
             if (_firstTimeZooming == true)
@@ -190,6 +193,7 @@ class	MyChartView : public QChartView
         QPushButton		*_zoomToHomeButton;
         QScrollBar		*_horizontalScrollBar;
         QScrollBar		*_verticalScrollBar;
+        qreal           _HSBsensitivity; // horizontal scroll bar sensitivity (10x)
         qreal           _mPx;   // mouse press X
         int             _mPy;   // mouse press Y
         qreal           _mRx;   // mouse release X
