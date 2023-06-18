@@ -136,6 +136,7 @@ class	MyChartView : public QChartView
             }
             QChartView::mousePressEvent(event);
         }
+
         void mouseReleaseEvent(QMouseEvent *event) override
         {
             if (_firstTimeZooming == true)
@@ -178,7 +179,7 @@ class	MyChartView : public QChartView
             }
             _verticalScrollBar->setValue(_axisY->min());
             _axisYLabel->setRange(0, _maxLabel + 1);
-
+            emit this->leftClickReleaseAction(_axisX->min(), _axisX->max());
         }
 
     private:
@@ -207,6 +208,7 @@ class	MyChartView : public QChartView
 
     signals:
         void            rightClickAction(void);
+        void            leftClickReleaseAction(qreal axisXmin, qreal axisXmax);
 };
 
 #endif

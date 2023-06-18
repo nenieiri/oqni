@@ -619,30 +619,55 @@ void    WindowChart::execChartDialog(void)
         this->_chartView_IMU[i]->setRubberBand(QChartView::RectangleRubberBand);
     }
 
-    // checking right click on chart views and enable/disable zooom button
+    // checking right click on chart views and clicking zooom button
     connect(_chartView_OPT, &MyChartView::rightClickAction, this,
-            [=](void)
-            {
-                int zoomedCount{};
-                for (int i = 0; i < _numOfChart_IMU; ++i)
-                    zoomedCount += _chartView_IMU[i]->_zoomed;
-                zoomedCount += _chartView_OPT->_zoomed;
-                _zoomToHomeButton->setEnabled(zoomedCount != 0);
+            [=](void) {
+                this->_zoomToHomeButton->click();
             });
     for (int i = 0; i < _numOfChart_IMU; ++i)
     {
         connect(_chartView_IMU[i], &MyChartView::rightClickAction, this,
-                [=](void)
-                {
-                        int zoomedCount{};
-                    for (int i = 0; i < _numOfChart_IMU; ++i)
-                        zoomedCount += _chartView_IMU[i]->_zoomed;
-                    zoomedCount += _chartView_OPT->_zoomed;
-                    _zoomToHomeButton->setEnabled(zoomedCount != 0);
+                [=](void) {
+                    this->_zoomToHomeButton->click();
                 });
     }
-    DEBUGGER();
-    
+
+    // checking left click release action on chart views
+    connect(_chartView_OPT, &MyChartView::leftClickReleaseAction, this,
+            [=](qreal axisXmin, qreal axisXmax)
+            {
+                for (int j = 0; j < _numOfChart_IMU; ++j)
+                {
+                    _chartView_IMU[j]->_currentAxisXLength = axisXmax - axisXmin;
+                    _horizontalScrollBar_IMU[j]->setRange(_timeLineMin * _HSBsensitivity, (_timeLineMax_IMU - _chartView_IMU[j]->_currentAxisXLength) * _HSBsensitivity);
+                    _horizontalScrollBar_IMU[j]->setValue(axisXmin * _HSBsensitivity);
+                    _axisX_IMU[j].setRange(axisXmin, axisXmax);
+                }
+
+            });
+    for (int i = 0; i < _numOfChart_IMU; ++i)
+    {
+        connect(_chartView_IMU[i], &MyChartView::leftClickReleaseAction, this,
+                [=](qreal axisXmin, qreal axisXmax)
+                {
+                    _chartView_OPT->_currentAxisXLength = axisXmax - axisXmin;
+                    _horizontalScrollBar_OPT->setRange(_timeLineMin * _HSBsensitivity, (_timeLineMax_IMU - _chartView_OPT->_currentAxisXLength) * _HSBsensitivity);
+                    _horizontalScrollBar_OPT->setValue(axisXmin * _HSBsensitivity);
+                    _axisX_OPT->setRange(axisXmin, axisXmax);
+                    for (int j = 0; j < _numOfChart_IMU; ++j)
+                    {
+                        if (j != i)
+                        {
+                            _chartView_IMU[j]->_currentAxisXLength = axisXmax - axisXmin;
+                            _horizontalScrollBar_IMU[j]->setRange(_timeLineMin * _HSBsensitivity, (_timeLineMax_IMU - _chartView_IMU[j]->_currentAxisXLength) * _HSBsensitivity);
+                            _horizontalScrollBar_IMU[j]->setValue(axisXmin * _HSBsensitivity);
+                            _axisX_IMU[j].setRange(axisXmin, axisXmax);
+                        }
+                    }
+                });
+    }
+
+    DEBUGGER();    
     this->_horizontalScrollBar_OPT->setParent(this->_chartView_OPT);
     this->_verticalScrollBar_OPT->setParent(this->_chartView_OPT);
     this->_verticalScrollBar_OPT->setInvertedAppearance(true); // reverse the direction
