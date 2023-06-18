@@ -565,7 +565,12 @@ void    WindowChart::execChartDialog(void)
             [=](qreal value)
             {
                 DEBUGGER();
+
                 this->_axisX_OPT->setRange(value / _HSBsensitivity, value / _HSBsensitivity + this->_chartView_OPT->_currentAxisXLength);
+
+                // to make the scrollbars move in parallel
+                for (int j = 0; j < _numOfChart_IMU; ++j)
+                    _horizontalScrollBar_IMU[j]->setValue(value);
                 DEBUGGER();
             });
     DEBUGGER();
@@ -589,6 +594,13 @@ void    WindowChart::execChartDialog(void)
                 {
                     DEBUGGER();
                     this->_axisX_IMU[i].setRange(value / _HSBsensitivity, value / _HSBsensitivity + this->_chartView_IMU[i]->_currentAxisXLength);
+
+                    // to make the scrollbars move in parallel
+                    _horizontalScrollBar_OPT->setValue(value);
+                    for (int j = 0; j < _numOfChart_IMU; ++j)
+                        if (j != i)
+                            _horizontalScrollBar_IMU[j]->setValue(value);
+
                     DEBUGGER();
                 });
         DEBUGGER();
