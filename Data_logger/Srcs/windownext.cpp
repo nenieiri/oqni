@@ -1099,6 +1099,26 @@ QString	WindowNext::saveDataToFile(const QString &subject)
         out[i] << ",label,time counter\n";
     }
 
+    // replacing the first row with the second row for OPT sensors, as requested by Naira
+    for (int k = 1; k <= _numOfS_OPT; ++k) // OPT sonsors id=1 and id=2
+    {
+        qDebug() << "_numOfS_OPT" << (int)_numOfS_OPT;
+        int i;
+        for (i = 0; i < dataRead.size(); ++i)
+            if (qFromBigEndian<unsigned char>(dataRead[i].mid(_bytesPA, _bytesID).constData()) == k) // first element (row in file) with id = k
+                break;
+        int j;
+        for (j = i + 1; j < dataRead.size(); ++j)
+            if (qFromBigEndian<unsigned char>(dataRead[j].mid(_bytesPA, _bytesID).constData()) == k) // second element (row in file) with id = k
+                break;
+        QByteArray  data;
+        data.append(dataRead[i].left(_bytesPA + _bytesID + _bytesCO)); // "preamble", "id" and "counter" from first row
+        data.append(dataRead[j].mid(_bytesPA + _bytesID + _bytesCO, numOfCH[k] * sizeOfCH[k])); // "data" from second row
+        data.append(dataRead[i].right(dataRead[i].size() - _bytesPA - _bytesID - _bytesCO - numOfCH[k] * sizeOfCH[k])); // "time in millisec", "label" and "time counter" from first row
+        dataRead[i] = data;
+    }
+
+    //writing to files
     for (auto &data : dataRead)
     {
         id = qFromBigEndian<unsigned char>(data.mid(_bytesPA, _bytesID).constData());
