@@ -49,6 +49,8 @@ class	WindowChart : public QDialog
         QValueAxis		*_axisY_IMU;
         QValueAxis		*_axisYLabel_OPT;
         QValueAxis		*_axisYLabel_IMU;
+        QLineSeries		*_series_OPT_original; // to keep data without norming
+        QLineSeries		*_series_IMU_original; // to keep data without norming
         QLineSeries		*_series_OPT;
         QLineSeries		*_series_IMU;
         QGridLayout		*_gridLayout;
@@ -77,14 +79,17 @@ class	WindowChart : public QDialog
         qreal           _timeLineMin;
         qreal           _timeLineMax_OPT;
         qreal           _timeLineMax_IMU;
-        unsigned int    _valueLineMin_OPT;
-        short           _valueLineMin_IMU[3];
-        unsigned int    _valueLineMax_OPT;
-        short           _valueLineMax_IMU[3];
+        qreal           _valueLineMin_OPT;
+        qreal           _valueLineMin_IMU[3];
+        qreal           _valueLineMax_OPT;
+        qreal           _valueLineMax_IMU[3];
         int             _maxLabel_OPT;
         int             _maxLabel_IMU;
         bool            _normingIsOn;
+        QVector<qreal>  _seriesMaxAbsY_OPT;
+        QVector<qreal>  _seriesMaxAbsY_IMU;
         qreal           _HSBsensitivity; // horizontal scroll bar sensitivity (10x)
+        qreal           _VSBsensitivity; // vertical scroll bar sensitivity (100x)
 };
 
 class	MyChartView : public QChartView
@@ -95,8 +100,8 @@ class	MyChartView : public QChartView
 		MyChartView(QChart *parent, \
                     qreal   timeLineMin, \
                     qreal   timeLineMax, \
-                    int valueLineMin, \
-                    int valueLineMax, \
+                    qreal   valueLineMin, \
+                    qreal   valueLineMax, \
                     QValueAxis *axisX, \
                     QValueAxis *axisY, \
                     QValueAxis *axisYLabel,
@@ -104,7 +109,8 @@ class	MyChartView : public QChartView
                     QPushButton *zoomToHomeButton, \
                     QScrollBar *horizontalScrollBar, \
                     QScrollBar *verticalScrollBar, \
-                    qreal HSBsensitivity)
+                    qreal HSBsensitivity, \
+                    qreal VSBsensitivity)
             : QChartView(parent) \
             , _timeLineMin(timeLineMin) \
             , _timeLineMax(timeLineMax) \
@@ -119,7 +125,8 @@ class	MyChartView : public QChartView
             , _zoomToHomeButton(zoomToHomeButton) \
             , _horizontalScrollBar(horizontalScrollBar) \
             , _verticalScrollBar(verticalScrollBar) \
-            , _HSBsensitivity(HSBsensitivity)
+            , _HSBsensitivity(HSBsensitivity) \
+            , _VSBsensitivity(VSBsensitivity)
         {}
 
 	protected:
@@ -131,8 +138,8 @@ class	MyChartView : public QChartView
                 _mPy = this->chart()->mapToValue(event->pos()).y();
                 _mPx = std::max((qreal)_axisX->min(), _mPx);
                 _mPx = std::min((qreal)_axisX->max(), _mPx);
-                _mPy = std::max((int)_axisY->min(), _mPy);
-                _mPy = std::min((int)_axisY->max(), _mPy);
+                _mPy = std::max((qreal)_axisY->min(), _mPy);
+                _mPy = std::min((qreal)_axisY->max(), _mPy);
             }
             QChartView::mousePressEvent(event);
         }
@@ -145,8 +152,8 @@ class	MyChartView : public QChartView
                 _mRy = this->chart()->mapToValue(event->pos()).y();
                 _mRx = std::max((qreal)_axisX->min(), _mRx);
                 _mRx = std::min((qreal)_axisX->max(), _mRx);
-                _mRy = std::max((int)_axisY->min(), _mRy);
-                _mRy = std::min((int)_axisY->max(), _mRy);
+                _mRy = std::max((qreal)_axisY->min(), _mRy);
+                _mRy = std::min((qreal)_axisY->max(), _mRy);
             }
             if (event->button() == Qt::RightButton)
             {
@@ -159,8 +166,8 @@ class	MyChartView : public QChartView
                 _horizontalScrollBar->setRange(_timeLineMin * _HSBsensitivity, _timeLineMin * _HSBsensitivity);
                 _horizontalScrollBar->setValue(_timeLineMin * _HSBsensitivity);
 				_currentAxisYLength = _valueLineMax - _valueLineMin;
-				_verticalScrollBar->setRange(_valueLineMin, _valueLineMin);
-				_verticalScrollBar->setValue(_valueLineMin);
+				_verticalScrollBar->setRange(_valueLineMin * _VSBsensitivity, _valueLineMin * _VSBsensitivity);
+				_verticalScrollBar->setValue(_valueLineMin * _VSBsensitivity);
                 return;
             }
             QChartView::mouseReleaseEvent(event);
@@ -170,14 +177,14 @@ class	MyChartView : public QChartView
             _horizontalScrollBar->setRange(_timeLineMin * _HSBsensitivity, (_timeLineMax - _currentAxisXLength) * _HSBsensitivity);
             _horizontalScrollBar->setValue(_axisX->min() * _HSBsensitivity);
             _currentAxisYLength = _axisY->max() - _axisY->min();
-            _verticalScrollBar->setRange(_valueLineMin, _valueLineMax - _currentAxisYLength);
+            _verticalScrollBar->setRange(_valueLineMin * _VSBsensitivity, (_valueLineMax - _currentAxisYLength) * _VSBsensitivity);
             if (_firstTimeZooming == true)
             {
                 _axisX->setRange(std::min(_mPx, _mRx), std::max(_mPx, _mRx));
                 _axisY->setRange(std::min(_mPy, _mRy), std::max(_mPy, _mRy));
                 _firstTimeZooming = false;
             }
-            _verticalScrollBar->setValue(_axisY->min());
+            _verticalScrollBar->setValue(_axisY->min() * _VSBsensitivity);
             _axisYLabel->setRange(0, _maxLabel + 1);
             emit this->leftClickReleaseAction(_axisX->min(), _axisX->max());
         }
@@ -188,23 +195,24 @@ class	MyChartView : public QChartView
         QValueAxis		*_axisYLabel;        
         qreal           _timeLineMin;
         qreal           _timeLineMax;
-        int             _valueLineMin;
-        int             _valueLineMax;
+        qreal           _valueLineMin;
+        qreal           _valueLineMax;
         int				_maxLabel;
         QPushButton		*_zoomToHomeButton;
         QScrollBar		*_horizontalScrollBar;
         QScrollBar		*_verticalScrollBar;
         qreal           _HSBsensitivity; // horizontal scroll bar sensitivity (10x)
+        qreal           _VSBsensitivity; // vertical scroll bar sensitivity (100x)
         qreal           _mPx;   // mouse press X
-        int             _mPy;   // mouse press Y
+        qreal           _mPy;   // mouse press Y
         qreal           _mRx;   // mouse release X
-        int             _mRy;   // mouse release Y
+        qreal           _mRy;   // mouse release Y
         
     public:
         bool			_zoomed;
         bool            _firstTimeZooming;
         qreal           _currentAxisXLength;
-        int				_currentAxisYLength;
+        qreal           _currentAxisYLength;
 
     signals:
         void            rightClickAction(void);

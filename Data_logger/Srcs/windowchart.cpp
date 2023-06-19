@@ -36,6 +36,8 @@ WindowChart::WindowChart(MainWindow *parent, const QString &pathToFiles, \
     this->_axisY_IMU = nullptr;
     this->_axisYLabel_OPT = nullptr;
     this->_axisYLabel_IMU = nullptr;
+    this->_series_OPT_original = nullptr;
+    this->_series_IMU_original = nullptr;
     this->_series_OPT = nullptr;
     this->_series_IMU = nullptr;
     this->_checkBoxSensors = nullptr;
@@ -50,6 +52,7 @@ WindowChart::WindowChart(MainWindow *parent, const QString &pathToFiles, \
     this->_timeLineMax_IMU = 0;
     this->_normingIsOn = true;
     this->_HSBsensitivity = 10; // horizontal scroll bar sensitivity (10x)
+    this->_VSBsensitivity = 100; // vertical scroll bar sensitivity (100x)
 
     this->_normingButton = new QPushButton;
     this->_normingButton->setEnabled(true);
@@ -114,12 +117,16 @@ WindowChart::WindowChart(MainWindow *parent, const QString &pathToFiles, \
                 _axisX_OPT->setRange(_timeLineMin, _timeLineMax_OPT);
                 _axisY_OPT->setRange(_valueLineMin_OPT, _valueLineMax_OPT);
                 _axisYLabel_OPT->setRange(0, _maxLabel_OPT + 1);
+                _chartView_OPT->update();
+                _chart_OPT->update();
 
                 for (int i = 0; i < _numOfChart_IMU; ++i)
                 {
                     _axisX_IMU[i].setRange(_timeLineMin, _timeLineMax_IMU);
                     _axisY_IMU[i].setRange(_valueLineMin_IMU[i], _valueLineMax_IMU[i]);
                     _axisYLabel_IMU[i].setRange(0, _maxLabel_IMU + 1);
+                    _chartView_IMU[i]->update();
+                    _chart_IMU[i].update();
                 }
 
                 _chartView_OPT->_zoomed = false;
@@ -136,8 +143,8 @@ WindowChart::WindowChart(MainWindow *parent, const QString &pathToFiles, \
 
                 _horizontalScrollBar_OPT->setRange(_timeLineMin * _HSBsensitivity, _timeLineMin * _HSBsensitivity);
                 _horizontalScrollBar_OPT->setValue(_timeLineMin * _HSBsensitivity);
-                _verticalScrollBar_OPT->setRange(_valueLineMin_OPT, _valueLineMin_OPT);
-                _verticalScrollBar_OPT->setValue(_valueLineMin_OPT);
+                _verticalScrollBar_OPT->setRange(_valueLineMin_OPT * _VSBsensitivity, _valueLineMin_OPT * _VSBsensitivity);
+                _verticalScrollBar_OPT->setValue(_valueLineMin_OPT * _VSBsensitivity);
 
                 for (int i = 0; i < _numOfChart_IMU; ++i)
                 {
@@ -198,10 +205,14 @@ WindowChart::~WindowChart()
             _chart_OPT->removeSeries(&_series_OPT[i]);
     delete[] _series_OPT;
     _series_OPT = nullptr;
+    delete[] _series_OPT_original;
+    _series_OPT_original = nullptr;
     for (int i = 0; i < _numOfSeries_IMU; ++i)
         _chart_IMU[i / 4].removeSeries(&_series_IMU[i]); // in each _chart_IMU[i] are 4 series (x, y, z and label)
     delete[] _series_IMU;
     _series_IMU = nullptr;
+    delete[] _series_IMU_original;
+    _series_IMU_original = nullptr;
 
     delete _chart_OPT;
     _chart_OPT = nullptr;
@@ -294,7 +305,15 @@ void    WindowChart::readFromFile(void)
         }
     }
 
+    // initializing norming values as 1
+    for (int i = 0; i < _numOfSeries_OPT; ++i)
+        _seriesMaxAbsY_OPT.push_back(1);
+    for (int i = 0; i < _numOfSeries_IMU; ++i)
+        _seriesMaxAbsY_IMU.push_back(1);
+
     // creating series
+    this->_series_OPT_original = new QLineSeries[_numOfSeries_OPT]; // labels in indexes 3 and 7
+    this->_series_IMU_original = new QLineSeries[_numOfSeries_IMU]; // labels in indexes 3, 7 and 11
     this->_series_OPT = new QLineSeries[_numOfSeries_OPT]; // labels in indexes 3 and 7
     this->_series_IMU = new QLineSeries[_numOfSeries_IMU]; // labels in indexes 3, 7 and 11
 
@@ -318,17 +337,29 @@ void    WindowChart::readFromFile(void)
                         if (k % _numOfChart_IMU == 0)
                             ++l;
                         // we want omit series at indexes 3, 7 and 11 for labels, so we add increase 'l' and add it to 'k'
-                        _series_IMU[k + l].append(time, splitList[k + 1].toInt()); // k+1, because at index 0 is the time in millisec
+                        _series_IMU_original[k + l].append(time, splitList[k + 1].toInt()); // k+1, because at index 0 is the time in millisec
+                        _seriesMaxAbsY_IMU[k + l] = std::max(_seriesMaxAbsY_IMU[k + l], std::abs(splitList[k + 1].toDouble()));
                     }
 
                     // loop over label series at indexes 3, 7 and 11
-                    for (int k = 3; k < 12; k += 4) // 12 - number of IMU series
-                        _series_IMU[k].append(time, splitList[10].toUInt()); // label is the 10th element in splitList
+                    for (int k = 3; k < _numOfSeries_IMU; k += 4)
+                        _series_IMU_original[k].append(time, splitList[10].toUInt()); // label is the 10th element in splitList
                 }
                 else if (_filesList[i].text().mid(14,3) == "OPT")
-                    if (_checkedFilesCount_OPT)
+                {
+                    {
                         for (int k = 0; k < 4; ++k) // green, red, infrared and label for each OPT sensor
-                            _series_OPT[k + (j - _checkedFilesCount_IMU) * _numOfSeries_OPT / _checkedFilesCount_OPT].append(time, splitList[k + 1].toUInt()); // k+1, because at index 0 is the time in millisec
+                        {
+                            if (_checkedFilesCount_OPT)
+                            {
+                                int index = k + (j - _checkedFilesCount_IMU) * _numOfSeries_OPT / _checkedFilesCount_OPT;
+                                _series_OPT_original[index].append(time, splitList[k + 1].toUInt()); // k+1, because at index 0 is the time in millisec
+                                if (index != 3 && index != 7) // skip label
+                                    _seriesMaxAbsY_OPT[index] = std::max(_seriesMaxAbsY_OPT[index], std::abs(splitList[k + 1].toDouble()));
+                            }
+                        }
+                    }
+                }
             }
             files[j++].close();
         }
@@ -336,12 +367,38 @@ void    WindowChart::readFromFile(void)
 
     DEBUGGER();
     if (_checkedFilesCount_OPT)
-        _timeLineMax_OPT = _series_OPT[0].at(_series_OPT[0].count() - 1).x();
+        _timeLineMax_OPT = _series_OPT_original[0].at(_series_OPT_original[0].count() - 1).x();
     if (_checkedFilesCount_IMU)
-        _timeLineMax_IMU = _series_IMU[0].at(_series_IMU[0].count() - 1).x();
+        _timeLineMax_IMU = _series_IMU_original[0].at(_series_IMU_original[0].count() - 1).x();
 
     delete [] files;
     delete [] ins;
+
+    DEBUGGER();
+    // norming OPT series
+    for (int i = 0; i < _numOfSeries_OPT; ++i)
+    {
+        for (int j = 0; j < _series_OPT_original[i].count(); ++j)
+        {
+            QPointF point = _series_OPT_original[i].at(j);
+            if (_normingIsOn)
+                point.setY((qreal)_series_OPT_original[i].at(j).y() / _seriesMaxAbsY_OPT[i]);
+            _series_OPT[i].append(point);
+        }
+    }
+
+    DEBUGGER();
+    // norming OPT series
+    for (int i = 0; i < _numOfSeries_IMU; ++i)
+    {
+        for (int j = 0; j < _series_IMU_original[i].count(); ++j)
+        {
+            QPointF point = _series_IMU_original[i].at(j);
+            if (_normingIsOn)
+                point.setY((qreal)_series_IMU_original[i].at(j).y() / _seriesMaxAbsY_IMU[i]);
+            _series_IMU[i].append(point);;
+        }
+    }
     
     DEBUGGER();
 }
@@ -353,8 +410,8 @@ void    WindowChart::updateValueLineAxis(void)
     bool flag = false;
     if (!(this->_chartView_OPT != nullptr && this->_chartView_OPT->_zoomed == true))
     {
-        this->_valueLineMin_OPT = -1;
-        this->_valueLineMax_OPT = 0;
+        this->_valueLineMin_OPT = INT_MAX;
+        this->_valueLineMax_OPT = INT_MIN;
 
         for (int i = 0; i < _numOfSeries_OPT; i++)
         {
@@ -368,8 +425,8 @@ void    WindowChart::updateValueLineAxis(void)
             {
                 if (_series_OPT[i].at(j).x() >= _timeLineMin && _series_OPT[i].at(j).x() <= _timeLineMax_OPT)
                 {
-                    _valueLineMax_OPT = std::max((unsigned)_series_OPT[i].at(j).y(), _valueLineMax_OPT);
-                    _valueLineMin_OPT = std::min((unsigned)_series_OPT[i].at(j).y(), _valueLineMin_OPT);
+                    _valueLineMax_OPT = std::max((qreal)_series_OPT[i].at(j).y(), _valueLineMax_OPT);
+                    _valueLineMin_OPT = std::min((qreal)_series_OPT[i].at(j).y(), _valueLineMin_OPT);
                 }
             }
         }
@@ -401,8 +458,8 @@ void    WindowChart::updateValueLineAxis(void)
         {
             if (_series_IMU[i].at(j).x() >= _timeLineMin && _series_IMU[i].at(j).x() <= _timeLineMax_IMU)
             {
-                _valueLineMax_IMU[i / 4] = std::max((short)_series_IMU[i].at(j).y(), _valueLineMax_IMU[i / 4]);
-                _valueLineMin_IMU[i / 4] = std::min((short)_series_IMU[i].at(j).y(), _valueLineMin_IMU[i / 4]);
+                _valueLineMax_IMU[i / 4] = std::max((qreal)_series_IMU[i].at(j).y(), _valueLineMax_IMU[i / 4]);
+                _valueLineMin_IMU[i / 4] = std::min((qreal)_series_IMU[i].at(j).y(), _valueLineMin_IMU[i / 4]);
             }
         }
     }
@@ -578,10 +635,10 @@ void    WindowChart::execChartDialog(void)
     this->_verticalScrollBar_OPT = new QScrollBar(Qt::Vertical, this);
     this->_verticalScrollBar_OPT->setRange(0, 0);
     connect(this->_verticalScrollBar_OPT, &QScrollBar::valueChanged, this,
-            [=](int value)
+            [=](qreal value)
             {
                 DEBUGGER();
-                this->_axisY_OPT->setRange(value, value + this->_chartView_OPT->_currentAxisYLength);
+                this->_axisY_OPT->setRange(value / _VSBsensitivity, value / _VSBsensitivity + this->_chartView_OPT->_currentAxisYLength);
                 DEBUGGER();
             });
 
@@ -608,17 +665,17 @@ void    WindowChart::execChartDialog(void)
         this->_verticalScrollBar_IMU[i] = new QScrollBar(Qt::Vertical, this);
         this->_verticalScrollBar_IMU[i]->setRange(0, 0);
         connect(_verticalScrollBar_IMU[i], &QScrollBar::valueChanged, this,
-                [=](int value)
+                [=](qreal value)
                 {
                     DEBUGGER();
-                    this->_axisY_IMU[i].setRange(value, value + this->_chartView_IMU[i]->_currentAxisYLength);
+                    this->_axisY_IMU[i].setRange(value / _VSBsensitivity, value / _VSBsensitivity + this->_chartView_IMU[i]->_currentAxisYLength);
                     DEBUGGER();
                 });
     }
 
     this->_chartView_OPT = new MyChartView(_chart_OPT, _timeLineMin, _timeLineMax_OPT, _valueLineMin_OPT, _valueLineMax_OPT, \
                                             _axisX_OPT, _axisY_OPT, _axisYLabel_OPT, _maxLabel_OPT, _zoomToHomeButton, \
-                                           _horizontalScrollBar_OPT, _verticalScrollBar_OPT, _HSBsensitivity);
+                                           _horizontalScrollBar_OPT, _verticalScrollBar_OPT, _HSBsensitivity, _VSBsensitivity);
     this->_chartView_OPT->setRenderHint(QPainter::Antialiasing);
     this->_chartView_OPT->setRubberBand(QChartView::RectangleRubberBand);
 
@@ -626,7 +683,7 @@ void    WindowChart::execChartDialog(void)
     {
         this->_chartView_IMU[i] = new MyChartView(&_chart_IMU[i], _timeLineMin, _timeLineMax_IMU, _valueLineMin_IMU[i], _valueLineMax_IMU[i], \
                                                 &_axisX_IMU[i], &_axisY_IMU[i], &_axisYLabel_IMU[i], _maxLabel_IMU, _zoomToHomeButton, \
-                                                _horizontalScrollBar_IMU[i], _verticalScrollBar_IMU[i], _HSBsensitivity);
+                                                _horizontalScrollBar_IMU[i], _verticalScrollBar_IMU[i], _HSBsensitivity, _VSBsensitivity);
         this->_chartView_IMU[i]->setRenderHint(QPainter::Antialiasing);
         this->_chartView_IMU[i]->setRubberBand(QChartView::RectangleRubberBand);
     }
