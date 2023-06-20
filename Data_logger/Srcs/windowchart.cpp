@@ -148,10 +148,10 @@ WindowChart::WindowChart(MainWindow *parent, const QString &pathToFiles, \
 
                 for (int i = 0; i < _numOfChart_IMU; ++i)
                 {
-                    _horizontalScrollBar_IMU[i]->setRange(_timeLineMin, _timeLineMin);
-                    _horizontalScrollBar_IMU[i]->setValue(_timeLineMin);
-                    _verticalScrollBar_IMU[i]->setRange(_valueLineMin_IMU[i], _valueLineMin_IMU[i]);
-                    _verticalScrollBar_IMU[i]->setValue(_valueLineMin_IMU[i]);
+                    _horizontalScrollBar_IMU[i]->setRange(_timeLineMin * _HSBsensitivity, _timeLineMin * _HSBsensitivity);
+                    _horizontalScrollBar_IMU[i]->setValue(_timeLineMin * _HSBsensitivity);
+                    _verticalScrollBar_IMU[i]->setRange(_valueLineMin_IMU[i] * _VSBsensitivity, _valueLineMin_IMU[i] * _VSBsensitivity);
+                    _verticalScrollBar_IMU[i]->setValue(_valueLineMin_IMU[i] * _VSBsensitivity);
                 }
 
                 DEBUGGER();
