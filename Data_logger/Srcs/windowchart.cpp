@@ -72,12 +72,15 @@ WindowChart::WindowChart(MainWindow *parent, const QString &pathToFiles, \
                 if (_normingIsOn)
                 {
                     this->_normingButton->setIcon(*_iconOFF);
+                    this->_VSBsensitivity = 1;
                 }
                 else
                 {
                     this->_normingButton->setIcon(*_iconON);
+                    this->_VSBsensitivity = 100;
                 }
                 _normingIsOn = !_normingIsOn;
+                this->normingSeries(_normingIsOn);
             });
 
     this->_snapshotButton = new QPushButton;
@@ -117,7 +120,6 @@ WindowChart::WindowChart(MainWindow *parent, const QString &pathToFiles, \
                 _axisX_OPT->setRange(_timeLineMin, _timeLineMax_OPT);
                 _axisY_OPT->setRange(_valueLineMin_OPT, _valueLineMax_OPT);
                 _axisYLabel_OPT->setRange(0, _maxLabel_OPT + 1);
-                _chartView_OPT->update();
                 _chart_OPT->update();
 
                 for (int i = 0; i < _numOfChart_IMU; ++i)
@@ -125,7 +127,6 @@ WindowChart::WindowChart(MainWindow *parent, const QString &pathToFiles, \
                     _axisX_IMU[i].setRange(_timeLineMin, _timeLineMax_IMU);
                     _axisY_IMU[i].setRange(_valueLineMin_IMU[i], _valueLineMax_IMU[i]);
                     _axisYLabel_IMU[i].setRange(0, _maxLabel_IMU + 1);
-                    _chartView_IMU[i]->update();
                     _chart_IMU[i].update();
                 }
 
@@ -374,31 +375,7 @@ void    WindowChart::readFromFile(void)
     delete [] files;
     delete [] ins;
 
-    DEBUGGER();
-    // norming OPT series
-    for (int i = 0; i < _numOfSeries_OPT; ++i)
-    {
-        for (int j = 0; j < _series_OPT_original[i].count(); ++j)
-        {
-            QPointF point = _series_OPT_original[i].at(j);
-            if (_normingIsOn)
-                point.setY((qreal)_series_OPT_original[i].at(j).y() / _seriesMaxAbsY_OPT[i]);
-            _series_OPT[i].append(point);
-        }
-    }
-
-    DEBUGGER();
-    // norming OPT series
-    for (int i = 0; i < _numOfSeries_IMU; ++i)
-    {
-        for (int j = 0; j < _series_IMU_original[i].count(); ++j)
-        {
-            QPointF point = _series_IMU_original[i].at(j);
-            if (_normingIsOn)
-                point.setY((qreal)_series_IMU_original[i].at(j).y() / _seriesMaxAbsY_IMU[i]);
-            _series_IMU[i].append(point);;
-        }
-    }
+    this->normingSeries(_normingIsOn);
     
     DEBUGGER();
 }
@@ -415,7 +392,6 @@ void    WindowChart::updateValueLineAxis(void)
 
         for (int i = 0; i < _numOfSeries_OPT; i++)
         {
-            DEBUGGER();
             if (i == 3 || i == 7) // skip label
                 continue ;
             if (_checkBoxChannels_OPT[i].isChecked() == false)
@@ -435,11 +411,11 @@ void    WindowChart::updateValueLineAxis(void)
             this->_valueLineMin_OPT = 0;
             this->_valueLineMax_OPT = 1;
         }
+
         _axisY_OPT->setRange(_valueLineMin_OPT, _valueLineMax_OPT);
     }
 
     // for IMU
-
     for (int k = 0; k < _numOfChart_IMU; ++k)
     {
         if (this->_chartView_IMU[k] != nullptr && this->_chartView_IMU[k]->_zoomed == true)
@@ -447,7 +423,6 @@ void    WindowChart::updateValueLineAxis(void)
         this->_valueLineMin_IMU[k] = SHRT_MAX;
         this->_valueLineMax_IMU[k] = SHRT_MIN;
     }
-
     for (int i = 0; i < _numOfSeries_IMU; i++)
     {
         if (this->_chartView_IMU[i / 4] != nullptr && this->_chartView_IMU[i / 4]->_zoomed == true)
@@ -1080,5 +1055,89 @@ void WindowChart::shnapshotMessage(QString &filename)
     msgBox.setWindowIcon(QIcon(":/Imgs/oqni.ico"));
     msgBox.exec();
 
+    DEBUGGER();
+}
+
+void WindowChart::normingSeries(bool norming)
+{
+    DEBUGGER();
+    // norming OPT series
+    for (int i = 0; i < _numOfSeries_OPT; ++i)
+    {
+        _series_OPT[i].clear();
+        if (_chart_OPT != nullptr && _chart_OPT->series().contains(&_series_OPT[i]))
+        {
+            _chart_OPT->removeSeries(&_series_OPT[i]);
+
+            for (int j = 0; j < _series_OPT_original[i].count(); ++j)
+            {
+                QPointF point = _series_OPT_original[i].at(j);
+                if (norming)
+                    point.setY((qreal)_series_OPT_original[i].at(j).y() / _seriesMaxAbsY_OPT[i]);
+                _series_OPT[i].append(point);
+            }
+
+            _chart_OPT->addSeries(&_series_OPT[i]);
+            _series_OPT[i].attachAxis(_axisX_OPT);
+            if (i % 4 == 3) // in case of label
+                _series_OPT[i].attachAxis(_axisYLabel_OPT);
+            else
+                _series_OPT[i].attachAxis(_axisY_OPT);
+        }
+        else
+        {
+            for (int j = 0; j < _series_OPT_original[i].count(); ++j)
+            {
+                QPointF point = _series_OPT_original[i].at(j);
+                if (norming)
+                    point.setY((qreal)_series_OPT_original[i].at(j).y() / _seriesMaxAbsY_OPT[i]);
+                _series_OPT[i].append(point);
+            }
+        }
+    }
+
+    DEBUGGER();
+    // norming IMU series
+    for (int i = 0; i < _numOfSeries_IMU; ++i)
+    {
+        _series_IMU[i].clear();
+        if (_chart_IMU != nullptr && _chart_IMU[i / 4].series().contains(&_series_IMU[i]))
+        {
+            _chart_IMU[i / 4].removeSeries(&_series_IMU[i]);
+
+            for (int j = 0; j < _series_IMU_original[i].count(); ++j)
+            {
+                QPointF point = _series_IMU_original[i].at(j);
+                if (norming)
+                    point.setY((qreal)_series_IMU_original[i].at(j).y() / _seriesMaxAbsY_IMU[i]);
+                _series_IMU[i].append(point);
+            }
+
+            _chart_IMU[i / 4].addSeries(&_series_IMU[i]);
+            _series_IMU[i].attachAxis(&_axisX_IMU[i / 4]);
+            if (i % 4 == 3) // in case of label
+                _series_IMU[i].attachAxis(&_axisYLabel_IMU[i / 4]);
+            else
+                _series_IMU[i].attachAxis(&_axisY_IMU[i / 4]);
+        }
+        else
+        {
+            for (int j = 0; j < _series_IMU_original[i].count(); ++j)
+            {
+                QPointF point = _series_IMU_original[i].at(j);
+                if (norming)
+                    point.setY((qreal)_series_IMU_original[i].at(j).y() / _seriesMaxAbsY_IMU[i]);
+                _series_IMU[i].append(point);
+            }
+        }
+    }
+
+    if (_chart_OPT && _chart_IMU)
+    {
+        this->updateValueLineAxis();
+        _chart_OPT->update();
+        for (int i = 0; i < _numOfChart_IMU; ++i)
+            _chart_IMU[i].update();
+    }
     DEBUGGER();
 }

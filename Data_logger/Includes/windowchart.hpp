@@ -30,6 +30,7 @@ class	WindowChart : public QDialog
         void            connectStaticChatCheckBox(int i);
         QString         getSnapshotFileName(void);
         void            shnapshotMessage(QString &filename);
+        void            normingSeries(bool norming);
 
     private:
         const QString   _pathToFiles;
@@ -98,19 +99,19 @@ class	MyChartView : public QChartView
 
 	public:
 		MyChartView(QChart *parent, \
-                    qreal   timeLineMin, \
-                    qreal   timeLineMax, \
-                    qreal   valueLineMin, \
-                    qreal   valueLineMax, \
+                    qreal   &timeLineMin, \
+                    qreal   &timeLineMax, \
+                    qreal   &valueLineMin, \
+                    qreal   &valueLineMax, \
                     QValueAxis *axisX, \
                     QValueAxis *axisY, \
                     QValueAxis *axisYLabel,
-                    int maxLabel, \
+                    int &maxLabel, \
                     QPushButton *zoomToHomeButton, \
                     QScrollBar *horizontalScrollBar, \
                     QScrollBar *verticalScrollBar, \
-                    qreal HSBsensitivity, \
-                    qreal VSBsensitivity)
+                    qreal &HSBsensitivity, \
+                    qreal &VSBsensitivity)
             : QChartView(parent) \
             , _timeLineMin(timeLineMin) \
             , _timeLineMax(timeLineMax) \
@@ -193,16 +194,16 @@ class	MyChartView : public QChartView
         QValueAxis		*_axisX;
         QValueAxis		*_axisY;
         QValueAxis		*_axisYLabel;        
-        qreal           _timeLineMin;
-        qreal           _timeLineMax;
-        qreal           _valueLineMin;
-        qreal           _valueLineMax;
-        int				_maxLabel;
+        qreal           &_timeLineMin;
+        qreal           &_timeLineMax;
+        qreal           &_valueLineMin;
+        qreal           &_valueLineMax;
+        int				&_maxLabel;
         QPushButton		*_zoomToHomeButton;
         QScrollBar		*_horizontalScrollBar;
         QScrollBar		*_verticalScrollBar;
-        qreal           _HSBsensitivity; // horizontal scroll bar sensitivity (10x)
-        qreal           _VSBsensitivity; // vertical scroll bar sensitivity (100x)
+        qreal           &_HSBsensitivity; // horizontal scroll bar sensitivity (10x)
+        qreal           &_VSBsensitivity; // vertical scroll bar sensitivity (100x)
         qreal           _mPx;   // mouse press X
         qreal           _mPy;   // mouse press Y
         qreal           _mRx;   // mouse release X
