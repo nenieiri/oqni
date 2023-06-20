@@ -66,7 +66,7 @@ WindowNext::WindowNext(MainWindow *parent)
     this->_placement2->addItems({"1.1, 1.2", "3.1, 3.2", "4.1, 4.2"});
     this->_placement3 = new QLabel("IMU Placement:", this);
     this->_placement4 = new QComboBox(this);
-    this->_placement4->addItems({"above knee", "below knee"});
+    this->_placement4->addItems({"below knee", "above knee"});
 
     this->_protocol1 = new QLabel("Recording Protocol:", this);
     this->_protocol2 = new QComboBox(this);
@@ -77,7 +77,7 @@ WindowNext::WindowNext(MainWindow *parent)
     items = nullptr;
     this->_protocol3 = new QLabel("Limb:", this);
     this->_protocol4 = new QComboBox(this);
-    this->_protocol4->addItems({"left leg", "right leg"});
+    this->_protocol4->addItems({"right leg", "left leg"});
     this->readExpProtocol();
 
     this->_durationSec1 = new QLabel("Duration (seconds):", this);
