@@ -615,7 +615,7 @@ void    WindowNext::setParametersDesign(void)
                 QMessageBox	msgBox;
 
                 msgBox.setWindowTitle(tr("Invalid Input"));
-                msgBox.setIcon(QMessageBox::Warning);
+                msgBox.setIconPixmap(QPixmap(":/Imgs/timeLimit.png"));
                 msgBox.addButton(QMessageBox::Ok);
                 msgBox.setWindowIcon(QIcon(":/Imgs/oqni.ico"));
 

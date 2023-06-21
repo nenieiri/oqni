@@ -20,5 +20,6 @@
         <file>Imgs/background2.png</file>
         <file>Imgs/off.png</file>
         <file>Imgs/on.png</file>
+        <file>Imgs/timeLimit.png</file>
     </qresource>
 </RCC>
