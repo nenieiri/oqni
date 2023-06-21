@@ -1527,7 +1527,7 @@ void    WindowNext::execChartDialog(void)
     this->_axisY_IMU = new QValueAxis[_numOfS_IMU];
     for (int i = 0; i < _numOfS_IMU; ++i)
     {
-        QStringList titles = {"Accelerometer", "Gyroscope", "Magnetometer"};
+        QStringList titles = {"Accel[g]", "Angular[dps]", "Magnet[gauss]"};
         _axisY_IMU[i].setTitleText(titles[i]);
         _chart_IMU[i].addAxis(&_axisY_IMU[i], Qt::AlignLeft);
     }
@@ -1729,7 +1729,7 @@ void    WindowNext::execChartDialog(void)
 
     int chartsCount = _numOfS_OPT / 2 + _numOfS_IMU; // 1 for OPT sensors and 3 for IMU sensores
     this->_checkBoxSensors = new QCheckBox[chartsCount];
-    QStringList title = {"Accelerometer  ", "Gyroscope  ", "Magnetometer  ", "OPT sensores"};
+    QStringList title = {"Accel[g]  ", "Angular[dps]  ", "Magnet[gauss]  ", "OPT sensores"};
     for (int i = 0; i < chartsCount; ++i)
     {
         this->_checkBoxSensors[i].setText(title[i]);
