@@ -311,6 +311,7 @@ void    WindowNext::setButtonStart(QPushButton *buttonStart)
                     {
                         this->_saveCheckBox->setChecked(false);
                         this->_threadDisplayTimer->requestInterruption();
+                        this->_gifLabel->hide();
                         this->warningMessageBox(msg);
                         this->_buttonStop->click();
                     });
