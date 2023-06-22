@@ -78,6 +78,7 @@ class WindowNext : public QDialog
         void                getSeriesMinMaxY_OPT(unsigned int &minY, unsigned int &maxY);
         void                getSeriesMinMaxY_IMU(short &minY, short &maxY, int index);
         QString             getExecutableGrandparentDirPath(void);
+        void                addProcessingAnimation(int x, int y, int width, int height);
         
     private slots:
 		void				onThreadDisplayTimerFinished(void);
@@ -130,6 +131,9 @@ class WindowNext : public QDialog
         QCheckBox           *_showChart;
         QCheckBox           *_showPic;
 		QCheckBox			*_saveCheckBox;
+
+        QLabel              *_gifLabel;
+        QMovie              *_gifMovie;
 
         ThreadDisplayTimer  *_threadDisplayTimer;
         ThreadReader        *_threadReader;

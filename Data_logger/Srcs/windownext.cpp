@@ -96,6 +96,9 @@ WindowNext::WindowNext(MainWindow *parent)
     this->_distance1 = new QLabel("Distance:", this);
     this->_distance2 = new QLineEdit(this);
 
+    this->_gifLabel = nullptr;
+    this->_gifMovie = nullptr;
+
     this->_chartDialog = nullptr;
     this->_chart_OPT = nullptr;
     this->_chart_IMU = nullptr;
@@ -202,6 +205,10 @@ WindowNext::~WindowNext()
     _distance1 = nullptr;
     delete _distance2;
     _distance2 = nullptr;
+    delete _gifLabel;
+    _gifLabel = nullptr;
+    delete _gifMovie;
+    _gifMovie = nullptr;
     delete _sensorNames_IMU;
     _sensorNames_IMU = nullptr;
 
@@ -362,6 +369,8 @@ void    WindowNext::setButtonStart(QPushButton *buttonStart)
                     });
             this->setCellInMetadata("exp_param", 2, 1, _lightIntensity2->text());
             this->setCellInMetadata("exp_param", 2, 2, _distance2->text());
+
+            this->_gifLabel->show();
         });
 }
 
@@ -432,6 +441,7 @@ void		WindowNext::setButtonStop(QPushButton *buttonStop)
                 this->_finishMsgLabel->setText("Stopped");
                 this->_finishMsgLabel->show();
                 this->_finishMsgLabel->setStyleSheet("font-size: 28px; color: #B22222; font-weight: bold;");
+                this->_gifLabel->hide();
                 this->infoMessageBox(msg);
                 this->_metaDataSavingFailMsg = "";
 
@@ -572,9 +582,6 @@ void    WindowNext::setParametersDesign(void)
     this->_distance2->setToolTip("If you change this value and click Start, it will be updated in the MetaData file.");
     this->_distance2->setAlignment(Qt::AlignCenter);
 
-    this->_finishMsgLabel->setGeometry(367, 280, 160, 40);
-    this->_finishMsgLabel->setAlignment(Qt::AlignCenter);
-
     this->_display->setGeometry(300, 210, 160, 30);
     this->_display->setStyleSheet("color: black; font-size: 18px;");
 
@@ -594,6 +601,12 @@ void    WindowNext::setParametersDesign(void)
 
     this->_distance1->setGeometry(10, 290, 160, 30);
     this->_distance1->setStyleSheet("color: black; font-size: 18px;");
+
+    this->_finishMsgLabel->setGeometry(367, 280, 160, 40);
+    this->_finishMsgLabel->setAlignment(Qt::AlignCenter);
+
+//    this->addProcessingAnimation(337, 280, 48, 40);
+    this->addProcessingAnimation(80, 335, 48, 40);
 
     /* --- If the text contains a non-numeric character, show warrnig msg --- */
     this->_durationSec2->setText(QString::number(this->_durationMax));
@@ -1102,7 +1115,6 @@ QString	WindowNext::saveDataToFile(const QString &subject)
     // replacing the first row with the second row for OPT sensors, as requested by Naira
     for (int k = 1; k <= _numOfS_OPT; ++k) // OPT sonsors id=1 and id=2
     {
-        qDebug() << "_numOfS_OPT" << (int)_numOfS_OPT;
         int i;
         for (i = 0; i < dataRead.size(); ++i)
             if (qFromBigEndian<unsigned char>(dataRead[i].mid(_bytesPA, _bytesID).constData()) == k) // first element (row in file) with id = k
@@ -2110,6 +2122,22 @@ QString WindowNext::getExecutableGrandparentDirPath(void)
     return grandparentDirPath;
 }
 
+void    WindowNext::addProcessingAnimation(int x, int y, int width, int height)
+{
+    DEBUGGER();
+
+    this->_gifLabel = new QLabel(this);
+    this->_gifLabel->setGeometry(x, y, width, height);
+    this->_gifLabel->hide();
+    this->_gifMovie = new QMovie(":/Imgs/processing.gif");
+    this->_gifMovie->setScaledSize(this->_gifLabel->size());
+    this->_gifMovie->start();
+    this->_gifLabel->setMovie(this->_gifMovie);
+    this->_gifLabel->setStyleSheet("background: transparent;");
+
+    DEBUGGER();
+}
+
 void   WindowNext::onThreadDisplayTimerFinished(void)
 {
     DEBUGGER();
@@ -2188,6 +2216,7 @@ void   WindowNext::onThreadDisplayTimerFinished(void)
     this->_finishMsgLabel->setText("Finished");
     this->_finishMsgLabel->setStyleSheet("font-size: 28px; color: #B22222; font-weight: bold;");
     this->_finishMsgLabel->show();
+    this->_gifLabel->hide();
     this->infoMessageBox(msg);
     this->_metaDataSavingFailMsg = "";
 

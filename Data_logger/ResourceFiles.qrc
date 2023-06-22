@@ -21,5 +21,6 @@
         <file>Imgs/off.png</file>
         <file>Imgs/on.png</file>
         <file>Imgs/timeLimit.png</file>
+        <file>Imgs/processing.gif</file>
     </qresource>
 </RCC>
